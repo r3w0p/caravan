@@ -2,5 +2,4 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#include "manager.h"
-
+#include "view.h"
