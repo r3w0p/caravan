@@ -6,10 +6,9 @@
 #include <random>
 #include <stdexcept>
 #include <functional>
-#include <iostream>
 #include "model.h"
 
-Deck shuffle_deck(Deck d) {
+Deck DeckBuilder::shuffle_deck(Deck d) {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(d.begin(), d.end(), std::default_random_engine(seed));
     return d;
@@ -29,11 +28,11 @@ Deck DeckBuilder::build_standard_deck(bool shuffle) {
     }
 
     Card j1;
-    j1.suit = NONE;
+    j1.suit = NO_SUIT;
     j1.rank = JOKER;
 
     Card j2;
-    j2.suit = NONE;
+    j2.suit = NO_SUIT;
     j2.rank = JOKER;
 
     d.push_back(j1);
@@ -46,8 +45,6 @@ Deck DeckBuilder::build_standard_deck(bool shuffle) {
 }
 
 Deck DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_decks, bool balanced_sample) {
-    // TODO format exception strings to use constants
-
     if(num_cards < DECK_CARAVAN_MIN or num_cards > DECK_CARAVAN_MAX)
         throw std::out_of_range("Can only build deck with between 30 and 156 cards (inclusive).");
 
@@ -94,7 +91,7 @@ Deck DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_decks
     return d;
 }
 
-void Pile::clear() {
+void Pile::remove_all_cards() {
     i_track = 0;
 }
 
@@ -133,7 +130,7 @@ Direction Pile::get_direction() {
     int num_queens;
 
     if(i_track < 2) {
-        dir = BIDIRECTIONAL;
+        dir = NO_DIRECTION;
     } else {
         t_last = i_track - 1;
         t_pen = i_track - 2;
@@ -167,11 +164,7 @@ Direction Pile::get_direction() {
     return dir;
 }
 
-uint8_t Pile::size() {
-    return i_track;
-}
-
-uint8_t numeric_rank_to_int_value(Rank r) {
+uint8_t Pile::numeric_rank_to_int_value(Rank r) {
     switch(r) {
         case ACE:
             return 1;
@@ -217,23 +210,40 @@ uint16_t Pile::get_bid() {
     return bid;
 }
 
-bool is_numeric_card(Card c) {
+bool Pile::is_numeric_card(Card c) {
     return (c.rank >= ACE and c.rank <= TEN);
 }
 
-void Pile::play_numeric_card(Card c) {
+bool Pile::is_face_card(Card c) {
+    return (c.rank >= JACK and c.rank <= JOKER);
+}
+
+void Pile::remove_numeric_card(uint8_t i) {
+    if(i_track == 0)
+        throw std::out_of_range("There are no Numeric cards in the Pile.");
+
+    if(i >= i_track)
+        throw std::out_of_range("Numeric card does not exist at given position.");
+
+    for(i; (i + 1) < i_track; ++i)
+        track[i] = track[i+1];
+
+    i_track -= 1;
+}
+
+void Pile::put_numeric_card(Card c) {
     if(!is_numeric_card(c))
-        throw std::out_of_range("Card is not Numeric.");
+        throw std::out_of_range("Card is not a Numeric card.");
 
     if(i_track == TRACK_NUMERIC_MAX)
         throw std::out_of_range("Pile is at maximum Numeric card capacity.");
 
     if(i_track > 0) {
-        if (c.suit != get_suit())
-            throw std::out_of_range("Card's suit does not match the suit of the Pile.");
-
         if(c.rank == track[i_track - 1].card.rank)
             throw std::out_of_range("Card has the same rank as the last card in the Pile.");
+
+        if (c.suit != get_suit())
+            throw std::out_of_range("Card's suit does not match the suit of the Pile.");
 
         if(i_track > 1) {
             Direction dir = get_direction();
@@ -252,6 +262,132 @@ void Pile::play_numeric_card(Card c) {
     i_track += 1;
 }
 
-bool is_face_card(Card c) {
-    return (c.rank >= JACK and c.rank <= JOKER);
+Card Pile::put_face_card(Card c, uint8_t i) {
+    Card c_on;
+
+    if(i_track == 0)
+        throw std::out_of_range("Cannot play Face card: there are no Numeric cards in the Pile.");
+
+    if(i >= i_track)
+        throw std::out_of_range("Cannot play Face card: there are no Numeric cards at the given position in the Pile.");
+
+    if(!is_face_card(c))
+        throw std::out_of_range("Cannot play Face card: chosen card is not a Face card.");
+
+    if(c.rank == JACK) {
+        remove_numeric_card(i);
+    } else {
+        if(track[i].i_faces >= TRACK_FACE_MAX)
+            throw std::out_of_range("Cannot play Face card: the Numeric card is at its maximum Face card capacity.");
+
+        c_on = track[i].card;
+        track[i].faces[track[i].i_faces] = c;
+        track[i].i_faces += 1;
+    }
+
+    return c_on;
+}
+
+void Pile::remove_suit(Suit s, int8_t exclude) {
+    if(i_track == 0)
+        throw std::out_of_range("Cannot remove suit: there are no Numeric cards in the Pile.");
+
+    uint8_t i_track_original = i_track;
+
+    for(int t = i_track_original - 1; t >= 0; --t) {
+        if(exclude >= 0 and t == exclude)
+            continue;
+
+        if (track[t].card.suit == s)
+            remove_numeric_card(t);
+    }
+}
+
+void Pile::remove_rank(Rank r, int8_t exclude) {
+    if(i_track == 0)
+        throw std::out_of_range("Cannot remove rank: there are no Numeric cards in the Pile.");
+
+    uint8_t i_track_original = i_track;
+
+    for(int t = i_track_original - 1; t >= 0; --t) {
+        if(exclude >= 0 and t == exclude)
+            continue;
+
+        if (track[t].card.rank == r)
+            remove_numeric_card(t);
+    }
+}
+
+PileName Pile::get_name() {
+    return name;
+}
+
+uint8_t Table::pile_name_to_index_value(PileName pn) {
+    switch(pn) {
+        case PILE_A:
+            return 0;
+        case PILE_B:
+            return 1;
+        case PILE_C:
+            return 2;
+        case PILE_D:
+            return 3;
+        case PILE_E:
+            return 4;
+        case PILE_F:
+            return 5;
+        default:
+            throw std::out_of_range("Invalid Pile name.");
+    }
+}
+
+void Table::play_numeric_card(PileName pn, Card c) {
+    Pile pile = piles[pile_name_to_index_value(pn)];
+    pile.put_numeric_card(c);
+}
+
+void Table::play_face_card(PileName pn, Card c, uint8_t i) {
+    // Play Face card on Pile.
+    Pile p_target = piles[pile_name_to_index_value(pn)];
+    // Returns the Numeric card that the Face card was played on.
+    Card c_target = p_target.put_face_card(c, i);
+
+    // If Face card was JOKER.
+    if(c.rank == JOKER) {
+        // Remove from original Pile, excluding the affected card.
+        if(c_target.rank == ACE)
+            p_target.remove_suit(c_target.suit, int8_t(i));
+        else
+            p_target.remove_rank(c_target.rank, int8_t(i));
+
+        // Remove from other Piles, not excluding any cards.
+        for(int k = 0; k < NUM_PILES_MAX; k++) {
+            Pile p_next = piles[k];
+
+            // Ignore original Pile already handled.
+            if(p_next.get_name() == p_target.get_name())
+                continue;
+
+            if(c_target.rank == ACE)
+                p_next.remove_suit(c_target.suit, -1);
+            else
+                p_next.remove_rank(c_target.rank, -1);
+        }
+    }
+}
+
+void Table::clear_pile(PileName pn) {
+    piles[pile_name_to_index_value(pn)].remove_all_cards();
+}
+
+uint16_t Table::get_pile_bid(PileName pn) {
+    return piles[pile_name_to_index_value(pn)].get_bid();
+}
+
+Suit Table::get_pile_suit(PileName pn) {
+    return piles[pile_name_to_index_value(pn)].get_suit();
+}
+
+Direction Table::get_pile_direction(PileName pn) {
+    return piles[pile_name_to_index_value(pn)].get_direction();
 }
