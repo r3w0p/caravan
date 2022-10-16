@@ -5,6 +5,11 @@
 #ifndef CARAVAN_VIEW_H
 #define CARAVAN_VIEW_H
 
-// print Table
+#include "model.h"
+
+class ViewCLI {
+public:
+    void display(Table t);
+};
 
 #endif //CARAVAN_VIEW_H

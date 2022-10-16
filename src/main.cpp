@@ -4,10 +4,12 @@
 
 #include <iostream>
 #include "game/model.h"
+#include "game/view.h"
 
 int main() {
     Deck d = DeckBuilder::build_caravan_deck(30, 2, false);
-    std::cout << "Deck size: " << d.size() << std::endl;
+    Table table = Table();
+    ViewCLI cli = ViewCLI();
 
     return 0;
 }

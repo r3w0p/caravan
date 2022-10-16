@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 #include <array>
+#include <memory>
 
 const uint8_t DECK_STANDARD_MAX = 52;
 const uint8_t DECK_CARAVAN_MIN = 30;
@@ -21,7 +22,7 @@ const uint8_t TRACK_FACE_MAX = 5;
 
 enum Suit { NO_SUIT, CLUBS, DIAMONDS, HEARTS, SPADES };
 enum Rank { ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER };
-enum Direction { NO_DIRECTION, DESCENDING, ASCENDING };
+enum Direction { NO_DIRECTION, ASCENDING, DESCENDING };
 enum PileName { PILE_A, PILE_B, PILE_C, PILE_D, PILE_E, PILE_F };
 
 typedef struct Card {
@@ -40,47 +41,63 @@ private:
     static Deck shuffle_deck(Deck d);
 };
 
-typedef std::array<Card, TRACK_FACE_MAX> SlotFace;
+typedef std::array<Card, TRACK_FACE_MAX> Faces;
 
-typedef struct SlotNumeric {
+typedef struct TrackSlot {
     Card card {};
-    SlotFace faces {};
+    Faces faces {};
     uint8_t i_faces = 0;
-} SlotNumeric;
+} TrackSlot;
 
-typedef std::array<SlotNumeric, TRACK_NUMERIC_MAX> Track;
+typedef std::array<TrackSlot, TRACK_NUMERIC_MAX> Track;
 
 class Pile {
 public:
-public:
-    explicit Pile(PileName pn) : name(pn) {}
+    explicit Pile(PileName pn) {
+        name = pn;
+        track = {};
+        i_track = 0;
+    }
+
     uint16_t get_bid();
-    Suit get_suit();
+    TrackSlot get_cards_at(uint8_t i);
     Direction get_direction();
+    PileName get_name();
+    Suit get_suit();
+
     void put_numeric_card(Card c);
     Card put_face_card(Card c, uint8_t i);
-    void remove_suit(Suit s, int8_t exclude);
-    void remove_rank(Rank r, int8_t exclude);
+
     void remove_all_cards();
-    PileName get_name();
+    void remove_rank(Rank r, int8_t exclude);
+    void remove_suit(Suit s, int8_t exclude);
+
+    uint8_t size();
+
 private:
     PileName name;
-    Track track {};
-    uint8_t i_track = 0;
-    static uint8_t numeric_rank_to_int_value(Rank r);
+    Track track;
+    uint8_t i_track;
+
     static bool is_numeric_card(Card c);
     static bool is_face_card(Card c);
+    static uint8_t numeric_rank_to_int_value(Rank r);
+
     void remove_numeric_card(uint8_t i);
 };
 
 class Table {
 public:
-    void play_numeric_card(PileName pn, Card c);
-    void play_face_card(PileName pn, Card c, uint8_t i);
     void clear_pile(PileName pn);
+    void play_face_card(PileName pn, Card c, uint8_t i);
+    void play_numeric_card(PileName pn, Card c);
+
     uint16_t get_pile_bid(PileName pn);
-    Suit get_pile_suit(PileName pn);
+    TrackSlot get_pile_cards_at(PileName pn, uint8_t i);
     Direction get_pile_direction(PileName pn);
+    uint8_t get_pile_size(PileName pn);
+    Suit get_pile_suit(PileName pn);
+
 private:
     std::array<Pile, NUM_PILES_MAX> piles = {
         Pile(PILE_A),
@@ -90,6 +107,7 @@ private:
         Pile(PILE_E),
         Pile(PILE_F)
     };
+
     uint8_t pile_name_to_index_value(PileName pn);
 };
 

@@ -6,6 +6,7 @@
 #include <random>
 #include <stdexcept>
 #include <functional>
+#include <iostream>
 #include "model.h"
 
 Deck DeckBuilder::shuffle_deck(Deck d) {
@@ -101,7 +102,7 @@ Suit Pile::get_suit() {
     int f;
 
     if(i_track == 0)
-        throw std::out_of_range("There are no Numeric cards in the Pile.");
+        return NO_SUIT;
 
     // The last Numeric card must be in the correct suit...
     t = i_track - 1;
@@ -220,10 +221,10 @@ bool Pile::is_face_card(Card c) {
 
 void Pile::remove_numeric_card(uint8_t i) {
     if(i_track == 0)
-        throw std::out_of_range("There are no Numeric cards in the Pile.");
+        throw std::out_of_range("Cannot remove Numeric card: there are no Numeric cards in the Pile.");
 
     if(i >= i_track)
-        throw std::out_of_range("Numeric card does not exist at given position.");
+        throw std::out_of_range("Cannot remove Numeric card: a Numeric card does not exist at given position.");
 
     for(i; (i + 1) < i_track; ++i)
         track[i] = track[i+1];
@@ -232,34 +233,39 @@ void Pile::remove_numeric_card(uint8_t i) {
 }
 
 void Pile::put_numeric_card(Card c) {
+    Direction dir;
+    Suit suit;
+    bool ascends;
+    bool not_same_suit;
+    bool not_same_dir;
+
     if(!is_numeric_card(c))
-        throw std::out_of_range("Card is not a Numeric card.");
+        throw std::out_of_range("Cannot put Numeric card: card is not a Numeric card.");
 
     if(i_track == TRACK_NUMERIC_MAX)
-        throw std::out_of_range("Pile is at maximum Numeric card capacity.");
+        throw std::out_of_range("Cannot put Numeric card: pile is at maximum Numeric card capacity.");
 
     if(i_track > 0) {
         if(c.rank == track[i_track - 1].card.rank)
-            throw std::out_of_range("Card has the same rank as the last card in the Pile.");
-
-        if (c.suit != get_suit())
-            throw std::out_of_range("Card's suit does not match the suit of the Pile.");
+            throw std::out_of_range("Cannot put Numeric card: card has the same rank as the last card in the Pile.");
 
         if(i_track > 1) {
-            Direction dir = get_direction();
-            bool ascends = c.rank > track[i_track - 1].card.rank;
+            dir = get_direction();
+            suit = get_suit();
+            ascends = c.rank > track[i_track - 1].card.rank;
 
-            if ((dir == ASCENDING and !ascends) or
-                (dir == DESCENDING and ascends))
-                throw std::out_of_range("Card's direction does not match the direction of the Pile.");
+            not_same_suit = c.suit != suit;
+            not_same_dir = (dir == ASCENDING and !ascends) or (dir == DESCENDING and ascends);
+
+            if(not_same_suit and not_same_dir)
+                throw std::out_of_range(
+                        "Cannot put Numeric card: cards must continue the Numeric direction "
+                        "or match the suit of the previous Numeric card and its Queen placements (if any).");
         }
     }
 
-    track[i_track].card = c;
-    track[i_track].faces = {};
-    track[i_track].i_faces = 0;
-
-    i_track += 1;
+    this->track[i_track] = {c, {}, 0};
+    this->i_track += 1;
 }
 
 Card Pile::put_face_card(Card c, uint8_t i) {
@@ -322,6 +328,14 @@ PileName Pile::get_name() {
     return name;
 }
 
+uint8_t Pile::size() {
+    return i_track;
+}
+
+TrackSlot Pile::get_cards_at(uint8_t i) {
+    return track[i];
+}
+
 uint8_t Table::pile_name_to_index_value(PileName pn) {
     switch(pn) {
         case PILE_A:
@@ -342,36 +356,36 @@ uint8_t Table::pile_name_to_index_value(PileName pn) {
 }
 
 void Table::play_numeric_card(PileName pn, Card c) {
-    Pile pile = piles[pile_name_to_index_value(pn)];
-    pile.put_numeric_card(c);
+    Pile* pile = &piles[pile_name_to_index_value(pn)];
+    pile->put_numeric_card(c);
 }
 
 void Table::play_face_card(PileName pn, Card c, uint8_t i) {
     // Play Face card on Pile.
-    Pile p_target = piles[pile_name_to_index_value(pn)];
+    Pile* p_target = &piles[pile_name_to_index_value(pn)];
     // Returns the Numeric card that the Face card was played on.
-    Card c_target = p_target.put_face_card(c, i);
+    Card c_target = p_target->put_face_card(c, i);
 
     // If Face card was JOKER.
     if(c.rank == JOKER) {
         // Remove from original Pile, excluding the affected card.
         if(c_target.rank == ACE)
-            p_target.remove_suit(c_target.suit, int8_t(i));
+            p_target->remove_suit(c_target.suit, int8_t(i));
         else
-            p_target.remove_rank(c_target.rank, int8_t(i));
+            p_target->remove_rank(c_target.rank, int8_t(i));
 
         // Remove from other Piles, not excluding any cards.
         for(int k = 0; k < NUM_PILES_MAX; k++) {
-            Pile p_next = piles[k];
+            Pile* p_next = &piles[k];
 
             // Ignore original Pile already handled.
-            if(p_next.get_name() == p_target.get_name())
+            if(p_next->get_name() == p_target->get_name())
                 continue;
 
             if(c_target.rank == ACE)
-                p_next.remove_suit(c_target.suit, -1);
+                p_next->remove_suit(c_target.suit, -1);
             else
-                p_next.remove_rank(c_target.rank, -1);
+                p_next->remove_rank(c_target.rank, -1);
         }
     }
 }
@@ -390,4 +404,12 @@ Suit Table::get_pile_suit(PileName pn) {
 
 Direction Table::get_pile_direction(PileName pn) {
     return piles[pile_name_to_index_value(pn)].get_direction();
+}
+
+uint8_t Table::get_pile_size(PileName pn) {
+    return piles[pile_name_to_index_value(pn)].size();
+}
+
+TrackSlot Table::get_pile_cards_at(PileName pn, uint8_t i) {
+    return piles[pile_name_to_index_value(pn)].get_cards_at(i);
 }

@@ -10,4 +10,4 @@ set(PROJECT_DESCRIPTION "A CLI version of the Caravan card game from Fallout: Ne
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
 add_subdirectory(src)
-link_directories(src)
+add_subdirectory(tests)
