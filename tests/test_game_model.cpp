@@ -70,9 +70,9 @@ TEST (TestGameModelPile, PutNumeric_PutFaceNotJack_GetCardsAt) {
     Card c_face = { HEARTS, KING };
 
     p.put_numeric_card(c_num);
-    p.put_face_card(c_face, 0);
+    p.put_face_card(c_face, 1);
 
-    TrackSlot ts = p.get_cards_at(0);
+    TrackSlot ts = p.get_cards_at(1);
 
     ASSERT_EQ(ts.card.suit, c_num.suit);
     ASSERT_EQ(ts.card.rank, c_num.rank);
@@ -90,7 +90,7 @@ TEST (TestGameModelPile, RemoveAllCards_TwoNumeric_OneFace) {
 
     p.put_numeric_card(c_num_1);
     p.put_numeric_card(c_num_2);
-    p.put_face_card(c_face, 1);
+    p.put_face_card(c_face, 2);
     ASSERT_EQ(p.size(), 2);
 
     p.remove_all_cards();
@@ -111,20 +111,20 @@ TEST (TestGameModelPile, RemoveRank_FiveNumeric_OneFace) {
     p.put_numeric_card(c_num_3);
     p.put_numeric_card(c_num_4);
     p.put_numeric_card(c_num_5);
-    p.put_face_card(c_face, 3);
+    p.put_face_card(c_face, 4);
     ASSERT_EQ(p.size(), 5);
 
-    p.remove_rank(ACE, -1);
+    p.remove_rank(ACE, 0);
     ASSERT_EQ(p.size(), 3);
 
-    ASSERT_EQ(p.get_cards_at(0).card.suit, c_num_2.suit);
-    ASSERT_EQ(p.get_cards_at(0).card.rank, c_num_2.rank);
+    ASSERT_EQ(p.get_cards_at(1).card.suit, c_num_2.suit);
+    ASSERT_EQ(p.get_cards_at(1).card.rank, c_num_2.rank);
 
-    ASSERT_EQ(p.get_cards_at(1).card.suit, c_num_3.suit);
-    ASSERT_EQ(p.get_cards_at(1).card.rank, c_num_3.rank);
+    ASSERT_EQ(p.get_cards_at(2).card.suit, c_num_3.suit);
+    ASSERT_EQ(p.get_cards_at(2).card.rank, c_num_3.rank);
 
-    ASSERT_EQ(p.get_cards_at(2).card.suit, c_num_4.suit);
-    ASSERT_EQ(p.get_cards_at(2).card.rank, c_num_4.rank);
+    ASSERT_EQ(p.get_cards_at(3).card.suit, c_num_4.suit);
+    ASSERT_EQ(p.get_cards_at(3).card.rank, c_num_4.rank);
 }
 
 TEST (TestGameModelPile, RemoveRank_FiveNumeric_OneFace_ExcludeOne) {
@@ -141,23 +141,23 @@ TEST (TestGameModelPile, RemoveRank_FiveNumeric_OneFace_ExcludeOne) {
     p.put_numeric_card(c_num_3);
     p.put_numeric_card(c_num_4);
     p.put_numeric_card(c_num_5);
-    p.put_face_card(c_face, 3);
+    p.put_face_card(c_face, 4);
     ASSERT_EQ(p.size(), 5);
 
-    p.remove_rank(ACE, 4);
+    p.remove_rank(ACE, 5);
     ASSERT_EQ(p.size(), 4);
 
-    ASSERT_EQ(p.get_cards_at(0).card.suit, c_num_2.suit);
-    ASSERT_EQ(p.get_cards_at(0).card.rank, c_num_2.rank);
+    ASSERT_EQ(p.get_cards_at(1).card.suit, HEARTS);
+    ASSERT_EQ(p.get_cards_at(1).card.rank, TWO);
 
-    ASSERT_EQ(p.get_cards_at(1).card.suit, c_num_3.suit);
-    ASSERT_EQ(p.get_cards_at(1).card.rank, c_num_3.rank);
+    ASSERT_EQ(p.get_cards_at(2).card.suit, CLUBS);
+    ASSERT_EQ(p.get_cards_at(2).card.rank, FIVE);
 
-    ASSERT_EQ(p.get_cards_at(2).card.suit, c_num_4.suit);
-    ASSERT_EQ(p.get_cards_at(2).card.rank, c_num_4.rank);
+    ASSERT_EQ(p.get_cards_at(3).card.suit, CLUBS);
+    ASSERT_EQ(p.get_cards_at(3).card.rank, TWO);
 
-    ASSERT_EQ(p.get_cards_at(3).card.suit, c_num_5.suit);
-    ASSERT_EQ(p.get_cards_at(3).card.rank, c_num_5.rank);
+    ASSERT_EQ(p.get_cards_at(4).card.suit, DIAMONDS);
+    ASSERT_EQ(p.get_cards_at(4).card.rank, ACE);
 }
 
 TEST (TestGameModelPile, RemoveSuit_FiveNumeric_OneFace) {
@@ -174,20 +174,20 @@ TEST (TestGameModelPile, RemoveSuit_FiveNumeric_OneFace) {
     p.put_numeric_card(c_num_3);
     p.put_numeric_card(c_num_4);
     p.put_numeric_card(c_num_5);
-    p.put_face_card(c_face, 3);
+    p.put_face_card(c_face, 4);
     ASSERT_EQ(p.size(), 5);
 
-    p.remove_suit(CLUBS, -1);
+    p.remove_suit(CLUBS, 0);
     ASSERT_EQ(p.size(), 3);
 
-    ASSERT_EQ(p.get_cards_at(0).card.suit, c_num_1.suit);
-    ASSERT_EQ(p.get_cards_at(0).card.rank, c_num_1.rank);
+    ASSERT_EQ(p.get_cards_at(1).card.suit, c_num_1.suit);
+    ASSERT_EQ(p.get_cards_at(1).card.rank, c_num_1.rank);
 
-    ASSERT_EQ(p.get_cards_at(1).card.suit, c_num_2.suit);
-    ASSERT_EQ(p.get_cards_at(1).card.rank, c_num_2.rank);
+    ASSERT_EQ(p.get_cards_at(2).card.suit, c_num_2.suit);
+    ASSERT_EQ(p.get_cards_at(2).card.rank, c_num_2.rank);
 
-    ASSERT_EQ(p.get_cards_at(2).card.suit, c_num_5.suit);
-    ASSERT_EQ(p.get_cards_at(2).card.rank, c_num_5.rank);
+    ASSERT_EQ(p.get_cards_at(3).card.suit, c_num_5.suit);
+    ASSERT_EQ(p.get_cards_at(3).card.rank, c_num_5.rank);
 }
 
 
@@ -205,23 +205,23 @@ TEST (TestGameModelPile, RemoveSuit_FiveNumeric_OneFace_ExcludeOne) {
     p.put_numeric_card(c_num_3);
     p.put_numeric_card(c_num_4);
     p.put_numeric_card(c_num_5);
-    p.put_face_card(c_face, 3);
+    p.put_face_card(c_face, 4);
     ASSERT_EQ(p.size(), 5);
 
     p.remove_suit(CLUBS, 3);
     ASSERT_EQ(p.size(), 4);
 
-    ASSERT_EQ(p.get_cards_at(0).card.suit, c_num_1.suit);
-    ASSERT_EQ(p.get_cards_at(0).card.rank, c_num_1.rank);
+    ASSERT_EQ(p.get_cards_at(1).card.suit, SPADES);
+    ASSERT_EQ(p.get_cards_at(1).card.rank, ACE);
 
-    ASSERT_EQ(p.get_cards_at(1).card.suit, c_num_2.suit);
-    ASSERT_EQ(p.get_cards_at(1).card.rank, c_num_2.rank);
+    ASSERT_EQ(p.get_cards_at(2).card.suit, HEARTS);
+    ASSERT_EQ(p.get_cards_at(2).card.rank, TWO);
 
-    ASSERT_EQ(p.get_cards_at(2).card.suit, c_num_4.suit);
-    ASSERT_EQ(p.get_cards_at(2).card.rank, c_num_4.rank);
+    ASSERT_EQ(p.get_cards_at(3).card.suit, CLUBS);
+    ASSERT_EQ(p.get_cards_at(3).card.rank, FIVE);
 
-    ASSERT_EQ(p.get_cards_at(3).card.suit, c_num_5.suit);
-    ASSERT_EQ(p.get_cards_at(3).card.rank, c_num_5.rank);
+    ASSERT_EQ(p.get_cards_at(4).card.suit, DIAMONDS);
+    ASSERT_EQ(p.get_cards_at(4).card.rank, ACE);
 }
 
 TEST (TestGameModelPile, SizeOneBeforeAfter) {
@@ -231,6 +231,30 @@ TEST (TestGameModelPile, SizeOneBeforeAfter) {
     ASSERT_EQ(p.size(), 0);
     p.put_numeric_card(c_num);
     ASSERT_EQ(p.size(), 1);
+}
+
+
+/*
+ * PLAYER
+ */
+
+TEST (TestGameModelPlayer, PopulateHand_OneCardDeck_SeeHand) {
+    Deck d = {{ SPADES, ACE }};
+    Player pl = Player(PLAYER_YOU, d);
+    Card c_take;
+
+    ASSERT_EQ(pl.size_deck(), 1);
+    ASSERT_EQ(pl.size_hand(), 0);
+
+    pl.populate_hand();
+
+    ASSERT_EQ(pl.size_deck(), 0);
+    ASSERT_EQ(pl.size_hand(), 1);
+
+    c_take = pl.see_hand_card_at(1);
+
+    ASSERT_EQ(c_take.suit, SPADES);
+    ASSERT_EQ(c_take.rank, ACE);
 }
 
 
@@ -247,7 +271,7 @@ TEST (TestGameModelTable, ClearPile_TwoNumeric_OneFace) {
 
     t.play_numeric_card(pn, c_num_1);
     t.play_numeric_card(pn, c_num_2);
-    t.play_face_card(pn, c_face, 1);
+    t.play_face_card(pn, c_face, 2);
     ASSERT_EQ(t.get_pile_size(pn), 2);
 
     t.clear_pile(pn);
@@ -261,9 +285,9 @@ TEST (TestGameModelTable, PlayNumeric_PlayFaceNotJack_GetPileCardsAt) {
     PileName pn = PILE_A;
 
     t.play_numeric_card(pn, c_num);
-    t.play_face_card(pn, c_face, 0);
+    t.play_face_card(pn, c_face, 1);
 
-    TrackSlot ts = t.get_pile_cards_at(pn, 0);
+    TrackSlot ts = t.get_pile_cards_at(pn, 1);
 
     ASSERT_EQ(ts.card.suit, c_num.suit);
     ASSERT_EQ(ts.card.rank, c_num.rank);
@@ -301,14 +325,14 @@ TEST (TestGameModelTable, GetPileBid_TwoNumeric_ThreeKings) {
     ASSERT_EQ(t.get_pile_bid(pn), 0);
     t.play_numeric_card(pn, c_num_1);
     ASSERT_EQ(t.get_pile_bid(pn), 10);
-    t.play_face_card(pn, c_face_1, 0);
+    t.play_face_card(pn, c_face_1, 1);
     ASSERT_EQ(t.get_pile_bid(pn), 20);
-    t.play_face_card(pn, c_face_2, 0);
+    t.play_face_card(pn, c_face_2, 1);
     ASSERT_EQ(t.get_pile_bid(pn), 30);
 
     t.play_numeric_card(pn, c_num_2);
     ASSERT_EQ(t.get_pile_bid(pn), 39);
-    t.play_face_card(pn, c_face_3, 1);
+    t.play_face_card(pn, c_face_3, 2);
     ASSERT_EQ(t.get_pile_bid(pn), 48);
 }
 
@@ -356,4 +380,74 @@ TEST (TestGameModelTable, GetPileSuitBeforeAfter) {
     ASSERT_EQ(t.get_pile_suit(pn), NO_SUIT);
     t.play_numeric_card(pn, c_num);
     ASSERT_EQ(t.get_pile_suit(pn), c_num.suit);
+}
+
+TEST (TestGameModelTable, Scenario_Joker_Ace) {
+    Table t = Table();
+
+    t.play_numeric_card(PILE_A, { SPADES, ACE });
+    t.play_numeric_card(PILE_A, { CLUBS, TWO });
+    t.play_numeric_card(PILE_A, { SPADES, THREE });
+    t.play_numeric_card(PILE_A, { CLUBS, FOUR });
+
+    t.play_numeric_card(PILE_B, { CLUBS, ACE });
+    t.play_numeric_card(PILE_B, { DIAMONDS, FIVE });
+    t.play_numeric_card(PILE_B, { HEARTS, TEN });
+
+    t.play_numeric_card(PILE_C, { CLUBS, FIVE });
+
+    ASSERT_EQ(t.get_pile_size(PILE_A), 4);
+    ASSERT_EQ(t.get_pile_size(PILE_B), 3);
+    ASSERT_EQ(t.get_pile_size(PILE_C), 1);
+
+    t.play_face_card(PILE_B, {NO_SUIT, JOKER}, 1);
+
+    ASSERT_EQ(t.get_pile_size(PILE_A), 2);
+    ASSERT_EQ(t.get_pile_size(PILE_B), 3);
+    ASSERT_EQ(t.get_pile_size(PILE_C), 0);
+}
+
+TEST (TestGameModelTable, Scenario_Joker_2to10) {
+    Table t = Table();
+
+    t.play_numeric_card(PILE_A, { SPADES, ACE });
+    t.play_numeric_card(PILE_A, { CLUBS, TWO });
+    t.play_numeric_card(PILE_A, { SPADES, THREE });
+    t.play_numeric_card(PILE_A, { CLUBS, FOUR });
+
+    t.play_numeric_card(PILE_B, { CLUBS, ACE });
+    t.play_numeric_card(PILE_B, { DIAMONDS, FIVE });
+    t.play_numeric_card(PILE_B, { HEARTS, TEN });
+
+    t.play_numeric_card(PILE_C, { CLUBS, FIVE });
+
+    ASSERT_EQ(t.get_pile_size(PILE_A), 4);
+    ASSERT_EQ(t.get_pile_size(PILE_B), 3);
+    ASSERT_EQ(t.get_pile_size(PILE_C), 1);
+
+    t.play_face_card(PILE_C, { NO_SUIT, JOKER }, 1);
+
+    ASSERT_EQ(t.get_pile_size(PILE_A), 4);
+    ASSERT_EQ(t.get_pile_size(PILE_B), 2);
+    ASSERT_EQ(t.get_pile_size(PILE_C), 1);
+}
+
+TEST (TestGameModelTable, Scenario_Jack) {
+    Table t = Table();
+
+    t.play_numeric_card(PILE_A, { SPADES, ACE });
+    t.play_numeric_card(PILE_A, { CLUBS, TWO });
+    t.play_numeric_card(PILE_A, { SPADES, THREE });
+
+    ASSERT_EQ(t.get_pile_size(PILE_A), 3);
+
+    t.play_face_card(PILE_A, { SPADES, JACK }, 1);
+
+    ASSERT_EQ(t.get_pile_size(PILE_A), 2);
+
+    ASSERT_EQ(t.get_pile_cards_at(PILE_A, 1).card.suit, CLUBS);
+    ASSERT_EQ(t.get_pile_cards_at(PILE_A, 1).card.rank, TWO);
+
+    ASSERT_EQ(t.get_pile_cards_at(PILE_A, 2).card.suit, SPADES);
+    ASSERT_EQ(t.get_pile_cards_at(PILE_A, 2).card.rank, THREE);
 }

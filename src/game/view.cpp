@@ -35,7 +35,7 @@ std::string rank_to_str(Rank r) {
         case KING:
             return "K";
         case JOKER:
-            return "JO";
+            return "Jo";
         default:
             throw std::out_of_range("Invalid rank.");
     }
@@ -46,13 +46,13 @@ std::string suit_to_str(Suit s) {
         case NO_SUIT:
             return "";
         case CLUBS:
-            return "♣";
+            return "\x05";
         case DIAMONDS:
-            return "♦";
+            return "\x04";
         case HEARTS:
-            return "♥";
+            return "\x03";
         case SPADES:
-            return "♠";
+            return "\x06";
         default:
             throw std::out_of_range("Invalid suit.");
     }
@@ -99,17 +99,15 @@ void display_test(Table t) {
         std::cout << pile_name_to_str(pn) << " [";
         std::cout << "bid=" << t.get_pile_bid(pn) << ", ";
         std::cout << "suit=" << suit_to_str(t.get_pile_suit(pn)) << ", ";
-        std::cout << "dir=" << direction_to_str(t.get_pile_direction(pn)) << "]: ";
-
+        std::cout << "dir=" << direction_to_str(t.get_pile_direction(pn)) << ", ";
         int p_size = t.get_pile_size(pn);
+        std::cout << "size=" << p_size << "]: ";
 
-        std::cout << "size=" << p_size << " ";
-
-        for(int k = 0; k < p_size; ++k) {
-            if(k > 0)
+        for(int pos = 1; pos <= p_size; ++pos) {
+            if(pos > 1)
                 std::cout << " ";
 
-            TrackSlot sn = t.get_pile_cards_at(pn, k);
+            TrackSlot sn = t.get_pile_cards_at(pn, pos);
             std::cout << rank_to_str(sn.card.rank) << suit_to_str(sn.card.suit) << " (";
 
             for(int m = 0; m < sn.i_faces; ++m) {

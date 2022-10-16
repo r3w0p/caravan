@@ -8,13 +8,6 @@
 #include <array>
 #include "model.h"
 
-const uint8_t HAND_SIZE = 8;
-
-typedef std::array<Card, HAND_SIZE> Hand;
-
-typedef struct Player {
-    Hand hand;
-} Player;
 
 typedef struct Players {
     Player you;

@@ -9,6 +9,11 @@
 #include <iostream>
 #include "model.h"
 
+
+/*
+ * DECK BUILDER
+ */
+
 Deck DeckBuilder::shuffle_deck(Deck d) {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(d.begin(), d.end(), std::default_random_engine(seed));
@@ -91,6 +96,70 @@ Deck DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_decks
 
     return d;
 }
+
+/*
+ * PLAYER
+ */
+void Player::populate_hand() {
+    Card next;
+    while(i_hand < HAND_SIZE_MAX and !deck.empty()) {
+        next = deck.back();
+        hand[i_hand] = next;
+
+        deck.pop_back();
+        i_hand += 1;
+    }
+}
+
+uint8_t Player::size_deck() {
+    return deck.size();
+}
+
+uint8_t Player::size_hand() {
+    return i_hand;
+}
+
+Card Player::take_hand_card_at(uint8_t pos) {
+    if(pos < HAND_POS_MIN or pos > HAND_POS_MAX)
+        throw std::out_of_range("Cannot take card from hand: desired position is out of range.");
+
+    if(i_hand == 0)
+        throw std::out_of_range("Cannot take card from hand: hand is empty.");
+
+    uint8_t i = pos - 1;
+
+    if(i >= i_hand)
+        throw std::out_of_range("Cannot take card from hand: there is no card at the desired position.");
+
+    Card c_ret = hand[i];
+
+    for(i; (i + 1) < i_hand; ++i)
+        hand[i] = hand[i + 1];
+
+    i_hand -= 1;
+
+    return c_ret;
+}
+
+Card Player::see_hand_card_at(uint8_t pos) {
+    if (pos < HAND_POS_MIN or pos > HAND_POS_MAX)
+        throw std::out_of_range("Cannot take card from hand: desired position is out of range.");
+
+    if (i_hand == 0)
+        throw std::out_of_range("Cannot take card from hand: hand is empty.");
+
+    uint8_t i = pos - 1;
+
+    if (i >= i_hand)
+        throw std::out_of_range("Cannot take card from hand: there is no card at the desired position.");
+
+    return hand[i];
+}
+
+
+/*
+ * PILE
+ */
 
 void Pile::remove_all_cards() {
     i_track = 0;
@@ -227,7 +296,7 @@ void Pile::remove_numeric_card(uint8_t i) {
         throw std::out_of_range("Cannot remove Numeric card: a Numeric card does not exist at given position.");
 
     for(i; (i + 1) < i_track; ++i)
-        track[i] = track[i+1];
+        track[i] = track[i + 1];
 
     i_track -= 1;
 }
@@ -268,7 +337,11 @@ void Pile::put_numeric_card(Card c) {
     this->i_track += 1;
 }
 
-Card Pile::put_face_card(Card c, uint8_t i) {
+Card Pile::put_face_card(Card c, uint8_t pos) {
+    if(pos < TRACK_NUMERIC_MIN or pos > TRACK_NUMERIC_MAX)
+        throw std::out_of_range("Cannot play Face card: desired position is out of range.");
+
+    uint8_t i = pos - 1;
     Card c_on;
 
     if(i_track == 0)
@@ -294,14 +367,17 @@ Card Pile::put_face_card(Card c, uint8_t i) {
     return c_on;
 }
 
-void Pile::remove_suit(Suit s, int8_t exclude) {
+void Pile::remove_suit(Suit s, uint8_t exclude) {
     if(i_track == 0)
-        throw std::out_of_range("Cannot remove suit: there are no Numeric cards in the Pile.");
+        return;
+
+    if(exclude > TRACK_NUMERIC_MAX)
+        throw std::out_of_range("Cannot get card: exclude position is out of range.");
 
     uint8_t i_track_original = i_track;
 
     for(int t = i_track_original - 1; t >= 0; --t) {
-        if(exclude >= 0 and t == exclude)
+        if(exclude > 0 and t == (exclude - 1))
             continue;
 
         if (track[t].card.suit == s)
@@ -309,14 +385,17 @@ void Pile::remove_suit(Suit s, int8_t exclude) {
     }
 }
 
-void Pile::remove_rank(Rank r, int8_t exclude) {
+void Pile::remove_rank(Rank r, uint8_t exclude) {
     if(i_track == 0)
-        throw std::out_of_range("Cannot remove rank: there are no Numeric cards in the Pile.");
+        return;
+
+    if(exclude > TRACK_NUMERIC_MAX)
+        throw std::out_of_range("Cannot get card: exclude position is out of range.");
 
     uint8_t i_track_original = i_track;
 
     for(int t = i_track_original - 1; t >= 0; --t) {
-        if(exclude >= 0 and t == exclude)
+        if(exclude > 0 and t == (exclude - 1))
             continue;
 
         if (track[t].card.rank == r)
@@ -332,9 +411,19 @@ uint8_t Pile::size() {
     return i_track;
 }
 
-TrackSlot Pile::get_cards_at(uint8_t i) {
+TrackSlot Pile::get_cards_at(uint8_t pos) {
+    if(pos < TRACK_NUMERIC_MIN or pos > TRACK_NUMERIC_MAX)
+        throw std::out_of_range("Cannot get card: desired position is out of range.");
+
+    uint8_t i = pos - 1;
+
     return track[i];
 }
+
+
+/*
+ * TABLE
+ */
 
 uint8_t Table::pile_name_to_index_value(PileName pn) {
     switch(pn) {
@@ -360,19 +449,19 @@ void Table::play_numeric_card(PileName pn, Card c) {
     pile->put_numeric_card(c);
 }
 
-void Table::play_face_card(PileName pn, Card c, uint8_t i) {
+void Table::play_face_card(PileName pn, Card c, uint8_t pos) {
     // Play Face card on Pile.
     Pile* p_target = &piles[pile_name_to_index_value(pn)];
     // Returns the Numeric card that the Face card was played on.
-    Card c_target = p_target->put_face_card(c, i);
+    Card c_target = p_target->put_face_card(c, pos);
 
     // If Face card was JOKER.
     if(c.rank == JOKER) {
         // Remove from original Pile, excluding the affected card.
         if(c_target.rank == ACE)
-            p_target->remove_suit(c_target.suit, int8_t(i));
+            p_target->remove_suit(c_target.suit, pos);
         else
-            p_target->remove_rank(c_target.rank, int8_t(i));
+            p_target->remove_rank(c_target.rank, pos);
 
         // Remove from other Piles, not excluding any cards.
         for(int k = 0; k < NUM_PILES_MAX; k++) {
@@ -383,9 +472,9 @@ void Table::play_face_card(PileName pn, Card c, uint8_t i) {
                 continue;
 
             if(c_target.rank == ACE)
-                p_next->remove_suit(c_target.suit, -1);
+                p_next->remove_suit(c_target.suit, 0);
             else
-                p_next->remove_rank(c_target.rank, -1);
+                p_next->remove_rank(c_target.rank, 0);
         }
     }
 }
@@ -410,6 +499,6 @@ uint8_t Table::get_pile_size(PileName pn) {
     return piles[pile_name_to_index_value(pn)].size();
 }
 
-TrackSlot Table::get_pile_cards_at(PileName pn, uint8_t i) {
-    return piles[pile_name_to_index_value(pn)].get_cards_at(i);
+TrackSlot Table::get_pile_cards_at(PileName pn, uint8_t pos) {
+    return piles[pile_name_to_index_value(pn)].get_cards_at(pos);
 }
