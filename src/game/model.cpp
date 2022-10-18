@@ -23,34 +23,20 @@ Deck DeckBuilder::shuffle_deck(Deck d) {
 Deck DeckBuilder::build_standard_deck(bool shuffle) {
     Deck d;
 
-    for(int i = CLUBS; i <= SPADES; ++i) {
-        for(int j = ACE; j <= KING; ++j) {
-            Card c;
-            c.suit = static_cast<Suit>(i);
-            c.rank = static_cast<Rank>(j);
+    for(int i = CLUBS; i <= SPADES; ++i)
+        for(int j = ACE; j <= KING; ++j)
+            d.push_back({ static_cast<Suit>(i), static_cast<Rank>(j) });
 
-            d.push_back(c);
-        }
-    }
-
-    Card j1;
-    j1.suit = NO_SUIT;
-    j1.rank = JOKER;
-
-    Card j2;
-    j2.suit = NO_SUIT;
-    j2.rank = JOKER;
-
-    d.push_back(j1);
-    d.push_back(j2);
+    d.push_back({ NO_SUIT, JOKER });
+    d.push_back({ NO_SUIT, JOKER });
 
     if(shuffle)
-        d = shuffle_deck(d);
-
-    return d;
+        return shuffle_deck(d);
+    else
+        return d;
 }
 
-Deck DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_decks, bool balanced_sample) {
+Deck* DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_decks, bool balanced_sample) {
     if(num_cards < DECK_CARAVAN_MIN or num_cards > DECK_CARAVAN_MAX)
         throw std::out_of_range("Can only build deck with between 30 and 156 cards (inclusive).");
 
@@ -67,13 +53,13 @@ Deck DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_decks
     for(int i = 0; i < num_sample_decks; ++i)
         sample_decks[i] = DeckBuilder::build_standard_deck(true);
 
-    Deck d;
+    Deck* d = new Deck();
     uint8_t next = 0;
 
     if(balanced_sample) {
         // Sample decks in a round-robin fashion
-        while (d.size() < num_cards) {
-            d.push_back(sample_decks[next].back());
+        while (d->size() < num_cards) {
+            d->push_back(sample_decks[next].back());
             sample_decks[next].pop_back();
 
             next = (next + 1) % num_sample_decks;
@@ -85,10 +71,10 @@ Deck DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_decks
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distr(0, num_sample_decks-1);
 
-        while (d.size() < num_cards) {
+        while (d->size() < num_cards) {
             next = distr(gen);
             if(!sample_decks[next].empty()) {
-                d.push_back(sample_decks[next].back());
+                d->push_back(sample_decks[next].back());
                 sample_decks[next].pop_back();
             }
         }
@@ -102,24 +88,24 @@ Deck DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_decks
  */
 void Player::populate_hand() {
     Card next;
-    while(i_hand < HAND_SIZE_MAX and !deck.empty()) {
-        next = deck.back();
+    while(i_hand < HAND_SIZE_MAX and !deck->empty()) {
+        next = deck->back();
         hand[i_hand] = next;
 
-        deck.pop_back();
+        deck->pop_back();
         i_hand += 1;
     }
 }
 
 uint8_t Player::size_deck() {
-    return deck.size();
+    return deck->size();
 }
 
 uint8_t Player::size_hand() {
     return i_hand;
 }
 
-Card Player::take_hand_card_at(uint8_t pos) {
+Card Player::take_from_hand_at(uint8_t pos) {
     if(pos < HAND_POS_MIN or pos > HAND_POS_MAX)
         throw std::out_of_range("Cannot take card from hand: desired position is out of range.");
 
@@ -131,29 +117,21 @@ Card Player::take_hand_card_at(uint8_t pos) {
     if(i >= i_hand)
         throw std::out_of_range("Cannot take card from hand: there is no card at the desired position.");
 
+    // Get card at index
     Card c_ret = hand[i];
 
+    // Move the cards above it down
     for(i; (i + 1) < i_hand; ++i)
         hand[i] = hand[i + 1];
 
+    // Reduce hand size by 1
     i_hand -= 1;
 
     return c_ret;
 }
 
-Card Player::see_hand_card_at(uint8_t pos) {
-    if (pos < HAND_POS_MIN or pos > HAND_POS_MAX)
-        throw std::out_of_range("Cannot take card from hand: desired position is out of range.");
-
-    if (i_hand == 0)
-        throw std::out_of_range("Cannot take card from hand: hand is empty.");
-
-    uint8_t i = pos - 1;
-
-    if (i >= i_hand)
-        throw std::out_of_range("Cannot take card from hand: there is no card at the desired position.");
-
-    return hand[i];
+Hand Player::get_hand() {
+    return hand;
 }
 
 
@@ -501,4 +479,58 @@ uint8_t Table::get_pile_size(PileName pn) {
 
 TrackSlot Table::get_pile_cards_at(PileName pn, uint8_t pos) {
     return piles[pile_name_to_index_value(pn)].get_cards_at(pos);
+}
+
+void Game::start() {
+    if(!started and !closed) {
+        deck_you_ptr = DeckBuilder::build_caravan_deck(
+                config.you_num_cards,
+                config.you_num_sample_decks,
+                config.you_balanced_sample);
+
+        deck_opp_ptr = DeckBuilder::build_caravan_deck(
+                config.opp_num_cards,
+                config.opp_num_sample_decks,
+                config.opp_balanced_sample);
+
+        table_ptr = new Table();
+        player_you_ptr = new Player(PLAYER_YOU, deck_you_ptr);
+        player_opp_ptr = new Player(PLAYER_OPP, deck_opp_ptr);
+    }
+
+    started = true;
+}
+
+void Game::close() {
+    if(started and !closed) {
+        delete table_ptr;
+        delete deck_you_ptr;
+        delete deck_opp_ptr;
+        delete player_you_ptr;
+        delete player_opp_ptr;
+    }
+
+    closed = true;
+}
+
+void Game::option(PlayerName pn, GameOption go) {
+    if(!started)
+        throw std::out_of_range("Cannot process option: game not started.");
+
+    if(closed)
+        throw std::out_of_range("Cannot process option: game closed.");
+
+    switch(go.type) {
+        case OPTION_PLAY:
+            break; // TODO
+
+        case OPTION_DROP:
+            break; // TODO
+
+        case OPTION_CLEAR:
+            break; // TODO
+
+        default:
+            throw std::out_of_range("Cannot process option: unknown option.");
+    }
 }

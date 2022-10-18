@@ -5,6 +5,16 @@
 #include "gtest/gtest.h"
 #include "../src/game/model.h"
 
+/*
+ * DECK BUILDER
+ */
+
+TEST (TestGameModelDeckBuilder, CaravanDeck_30Cards_2SampleDecks_Balanced) {
+    Deck* d = DeckBuilder::build_caravan_deck(30, 2, true);
+
+    ASSERT_EQ(d->size(), 30);
+}
+
 
 /*
  * PILE
@@ -238,23 +248,44 @@ TEST (TestGameModelPile, SizeOneBeforeAfter) {
  * PLAYER
  */
 
-TEST (TestGameModelPlayer, PopulateHand_OneCardDeck_SeeHand) {
-    Deck d = {{ SPADES, ACE }};
+TEST (TestGameModelPlayer, PopulateHand_30CardDeck_GetHand) {
+    Deck* d = DeckBuilder::build_caravan_deck(30, 1, true);
     Player pl = Player(PLAYER_YOU, d);
-    Card c_take;
+    Card c_back = d->back();
+    Card c_hand;
 
-    ASSERT_EQ(pl.size_deck(), 1);
+    ASSERT_EQ(pl.size_deck(), 30);
     ASSERT_EQ(pl.size_hand(), 0);
 
     pl.populate_hand();
 
-    ASSERT_EQ(pl.size_deck(), 0);
-    ASSERT_EQ(pl.size_hand(), 1);
+    ASSERT_EQ(pl.size_deck(), 22);
+    ASSERT_EQ(pl.size_hand(), 8);
 
-    c_take = pl.see_hand_card_at(1);
+    c_hand = pl.get_hand()[0];
 
-    ASSERT_EQ(c_take.suit, SPADES);
-    ASSERT_EQ(c_take.rank, ACE);
+    ASSERT_EQ(c_hand.suit, c_back.suit);
+    ASSERT_EQ(c_hand.rank, c_back.rank);
+}
+
+TEST (TestGameModelPlayer, PopulateHand_30CardDeck_TakeFromHand) {
+    Deck* d = DeckBuilder::build_caravan_deck(30, 1, true);
+    Player pl = Player(PLAYER_YOU, d);
+    Card c_get;
+    Card c_take;
+    Card c_getagain;
+
+    pl.populate_hand();
+    ASSERT_EQ(pl.size_hand(), 8);
+
+    c_get = pl.get_hand()[0];
+    c_take = pl.take_from_hand_at(1);
+
+    ASSERT_EQ(pl.size_hand(), 7);
+    ASSERT_TRUE(c_get.suit == c_take.suit and c_get.rank == c_take.rank);
+
+    c_getagain = pl.get_hand()[0];
+    ASSERT_TRUE(c_getagain.suit != c_take.suit or c_getagain.rank != c_take.rank);
 }
 
 
@@ -263,7 +294,7 @@ TEST (TestGameModelPlayer, PopulateHand_OneCardDeck_SeeHand) {
  */
 
 TEST (TestGameModelTable, ClearPile_TwoNumeric_OneFace) {
-    Table t = Table();
+    Table t;
     Card c_num_1 = { SPADES, ACE };
     Card c_num_2 = { SPADES, TWO };
     Card c_face = { HEARTS, KING };
@@ -279,7 +310,7 @@ TEST (TestGameModelTable, ClearPile_TwoNumeric_OneFace) {
 }
 
 TEST (TestGameModelTable, PlayNumeric_PlayFaceNotJack_GetPileCardsAt) {
-    Table t = Table();
+    Table t;
     Card c_num = { SPADES, ACE };
     Card c_face = { HEARTS, KING };
     PileName pn = PILE_A;
@@ -298,7 +329,7 @@ TEST (TestGameModelTable, PlayNumeric_PlayFaceNotJack_GetPileCardsAt) {
 }
 
 TEST (TestGameModelTable, GetPileBid_ThreeNumeric) {
-    Table t = Table();
+    Table t;
     Card c_num_1 = { SPADES, ACE };
     Card c_num_2 = { SPADES, TWO };
     Card c_num_3 = { SPADES, THREE };
@@ -314,7 +345,7 @@ TEST (TestGameModelTable, GetPileBid_ThreeNumeric) {
 }
 
 TEST (TestGameModelTable, GetPileBid_TwoNumeric_ThreeKings) {
-    Table t = Table();
+    Table t;
     Card c_num_1 = { SPADES, TEN };
     Card c_num_2 = { SPADES, NINE };
     Card c_face_1 = { HEARTS, KING };
@@ -337,7 +368,7 @@ TEST (TestGameModelTable, GetPileBid_TwoNumeric_ThreeKings) {
 }
 
 TEST (TestGameModelTable, GetPileDirectionBeforeAfter_Ascending) {
-    Table t = Table();
+    Table t;
     Card c_num_1 = { SPADES, ACE };
     Card c_num_2 = { SPADES, TWO };
     PileName pn = PILE_A;
@@ -350,7 +381,7 @@ TEST (TestGameModelTable, GetPileDirectionBeforeAfter_Ascending) {
 }
 
 TEST (TestGameModelTable, GetPileDirectionBeforeAfter_Descending) {
-    Table t = Table();
+    Table t;
     Card c_num_1 = { SPADES, TWO };
     Card c_num_2 = { SPADES, ACE };
     PileName pn = PILE_A;
@@ -363,7 +394,7 @@ TEST (TestGameModelTable, GetPileDirectionBeforeAfter_Descending) {
 }
 
 TEST (TestGameModelTable, PileSizeOneBeforeAfter) {
-    Table t = Table();
+    Table t;
     Card c_num = { SPADES, ACE };
     PileName pn = PILE_A;
 
@@ -373,7 +404,7 @@ TEST (TestGameModelTable, PileSizeOneBeforeAfter) {
 }
 
 TEST (TestGameModelTable, GetPileSuitBeforeAfter) {
-    Table t = Table();
+    Table t;
     Card c_num = { SPADES, ACE };
     PileName pn = PILE_A;
 
@@ -383,7 +414,7 @@ TEST (TestGameModelTable, GetPileSuitBeforeAfter) {
 }
 
 TEST (TestGameModelTable, Scenario_Joker_Ace) {
-    Table t = Table();
+    Table t;
 
     t.play_numeric_card(PILE_A, { SPADES, ACE });
     t.play_numeric_card(PILE_A, { CLUBS, TWO });
@@ -400,7 +431,7 @@ TEST (TestGameModelTable, Scenario_Joker_Ace) {
     ASSERT_EQ(t.get_pile_size(PILE_B), 3);
     ASSERT_EQ(t.get_pile_size(PILE_C), 1);
 
-    t.play_face_card(PILE_B, {NO_SUIT, JOKER}, 1);
+    t.play_face_card(PILE_B, { NO_SUIT, JOKER }, 1);
 
     ASSERT_EQ(t.get_pile_size(PILE_A), 2);
     ASSERT_EQ(t.get_pile_size(PILE_B), 3);
@@ -408,7 +439,7 @@ TEST (TestGameModelTable, Scenario_Joker_Ace) {
 }
 
 TEST (TestGameModelTable, Scenario_Joker_2to10) {
-    Table t = Table();
+    Table t;
 
     t.play_numeric_card(PILE_A, { SPADES, ACE });
     t.play_numeric_card(PILE_A, { CLUBS, TWO });
@@ -433,7 +464,7 @@ TEST (TestGameModelTable, Scenario_Joker_2to10) {
 }
 
 TEST (TestGameModelTable, Scenario_Jack) {
-    Table t = Table();
+    Table t;
 
     t.play_numeric_card(PILE_A, { SPADES, ACE });
     t.play_numeric_card(PILE_A, { CLUBS, TWO });

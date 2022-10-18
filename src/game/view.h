@@ -7,9 +7,12 @@
 
 #include "model.h"
 
-class ViewCLI {
+class View {};
+
+class ViewCLI : public View {
 public:
-    void display(Table t);
+    void refresh_view(Table t, std::string msg);
+    std::string prompt_next_move(std::string msg);
 };
 
 #endif //CARAVAN_VIEW_H

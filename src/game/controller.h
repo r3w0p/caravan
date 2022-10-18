@@ -8,19 +8,16 @@
 #include <array>
 #include "model.h"
 
+class User {};
+class UserHuman: public User {};
+// TODO UserBot
 
-typedef struct Players {
-    Player you;
-    Player opp;
-} Players;
+// ControllerGame stores two ControllerUser instances with two corresponding Player instances
+// On User's turn, is passed (copy of) Table and Hand to make decision.
+// Tells Game what move to make.
 
-typedef struct OptionPlay {} OptionPlay;
-typedef struct OptionDrop {} OptionDrop;
-typedef struct OptionRemove {} OptionRemove;
+class Controller {};
 
-class Game {
-public:
-    Game();
-};
+class ControllerCLI : public Controller {};
 
 #endif //CARAVAN_CONTROLLER_H
