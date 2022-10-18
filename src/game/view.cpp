@@ -58,22 +58,22 @@ std::string suit_to_str(Suit s) {
     }
 }
 
-std::string pile_name_to_str(PileName pn) {
+std::string caravan_name_to_str(CaravanName pn) {
     switch (pn) {
-        case PILE_A:
+        case CARAVAN_A:
             return "A";
-        case PILE_B:
+        case CARAVAN_B:
             return "B";
-        case PILE_C:
+        case CARAVAN_C:
             return "C";
-        case PILE_D:
+        case CARAVAN_D:
             return "D";
-        case PILE_E:
+        case CARAVAN_E:
             return "E";
-        case PILE_F:
+        case CARAVAN_F:
             return "F";
         default:
-            throw std::out_of_range("Invalid Pile name.");
+            throw std::out_of_range("Invalid Caravan name.");
     }
 }
 
@@ -93,21 +93,21 @@ std::string direction_to_str(Direction dir) {
 
 void display_test(Table t) {
     // std::cout << ... << std::endl;
-    for(int i = PILE_A; i <= PILE_F; ++i) {
-        auto pn = static_cast<PileName>(i);
+    for(int i = CARAVAN_A; i <= CARAVAN_F; ++i) {
+        auto pn = static_cast<CaravanName>(i);
 
-        std::cout << pile_name_to_str(pn) << " [";
-        std::cout << "bid=" << t.get_pile_bid(pn) << ", ";
-        std::cout << "suit=" << suit_to_str(t.get_pile_suit(pn)) << ", ";
-        std::cout << "dir=" << direction_to_str(t.get_pile_direction(pn)) << ", ";
-        int p_size = t.get_pile_size(pn);
+        std::cout << caravan_name_to_str(pn) << " [";
+        std::cout << "bid=" << t.get_caravan_bid(pn) << ", ";
+        std::cout << "suit=" << suit_to_str(t.get_caravan_suit(pn)) << ", ";
+        std::cout << "dir=" << direction_to_str(t.get_caravan_direction(pn)) << ", ";
+        int p_size = t.get_caravan_size(pn);
         std::cout << "size=" << p_size << "]: ";
 
         for(int pos = 1; pos <= p_size; ++pos) {
             if(pos > 1)
                 std::cout << " ";
 
-            TrackSlot sn = t.get_pile_cards_at(pn, pos);
+            TrackSlot sn = t.get_caravan_cards_at(pn, pos);
             std::cout << rank_to_str(sn.card.rank) << suit_to_str(sn.card.suit) << " (";
 
             for(int m = 0; m < sn.i_faces; ++m) {
@@ -122,6 +122,11 @@ void display_test(Table t) {
     }
 }
 
-void ViewCLI::display(Table t) {
+void ViewCLI::refresh_view(Table t, std::string msg) {
     display_test(t);
+}
+
+std::string ViewCLI::prompt_next_move(std::string msg) {
+    // TODO
+    return std::string();
 }

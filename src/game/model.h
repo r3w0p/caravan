@@ -18,7 +18,7 @@ const uint8_t DECK_CARAVAN_MIN = 30;
 const uint8_t DECK_CARAVAN_MAX = 156;
 const uint8_t NUM_SAMPLE_DECKS_MIN = 1;
 const uint8_t NUM_SAMPLE_DECKS_MAX = 3;
-const uint8_t NUM_PILES_MAX = 6;
+const uint8_t NUM_CARAVANS_MAX = 6;
 const uint8_t TRACK_NUMERIC_MIN = 1;
 const uint8_t TRACK_NUMERIC_MAX = 10;
 const uint8_t TRACK_FACE_MAX = 5;
@@ -26,11 +26,12 @@ const uint8_t HAND_SIZE_MIN = 0;
 const uint8_t HAND_SIZE_MAX = 8;
 const uint8_t HAND_POS_MIN = 1;
 const uint8_t HAND_POS_MAX = HAND_SIZE_MAX;
+const uint8_t NUM_MOVES_START_ROUND = 3;
 
 enum Suit { NO_SUIT, CLUBS, DIAMONDS, HEARTS, SPADES };
 enum Rank { ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER };
 enum Direction { NO_DIRECTION, ASCENDING, DESCENDING };
-enum PileName { PILE_A, PILE_B, PILE_C, PILE_D, PILE_E, PILE_F };
+enum CaravanName { CARAVAN_A, CARAVAN_B, CARAVAN_C, CARAVAN_D, CARAVAN_E, CARAVAN_F };
 enum PlayerName { PLAYER_YOU, PLAYER_OPP };
 enum OptionType { OPTION_PLAY, OPTION_DROP, OPTION_CLEAR };
 
@@ -54,12 +55,16 @@ public:
 
 typedef std::array<Card, HAND_SIZE_MAX> Hand;
 
+static bool is_numeric_card(Card c);
+static bool is_face_card(Card c);
+
 class Player {
 private:
     PlayerName name;
     Deck* deck;
     Hand hand;
     uint8_t i_hand;
+    uint16_t moves;
 
 public:
     explicit Player(PlayerName pn, Deck* d) {
@@ -67,13 +72,26 @@ public:
         deck = d;
         hand = {};
         i_hand = 0;
+        moves = 0;
+
+        Card next;
+        while(i_hand < HAND_SIZE_MAX and !deck->empty()) {
+            next = deck->back();
+            hand[i_hand] = next;
+
+            deck->pop_back();
+            i_hand += 1;
+        }
     }
 
-    void populate_hand();
-    Card take_from_hand_at(uint8_t pos);
+    Card remove_from_hand_at(uint8_t pos);
+    Card get_from_hand_at(uint8_t pos);
     Hand get_hand();
+    PlayerName get_name();
     uint8_t size_deck();
     uint8_t size_hand();
+    uint16_t get_moves_count();
+    void increment_moves_count();
 };
 
 typedef std::array<Card, TRACK_FACE_MAX> Faces;
@@ -86,35 +104,34 @@ typedef struct TrackSlot {
 
 typedef std::array<TrackSlot, TRACK_NUMERIC_MAX> Track;
 
-class Pile {
+class Caravan {
 private:
-    PileName name;
+    CaravanName name;
     Track track;
     uint8_t i_track;
 
-    static bool is_numeric_card(Card c);
-    static bool is_face_card(Card c);
     static uint8_t numeric_rank_to_int_value(Rank r);
 
     void remove_numeric_card(uint8_t i);
 
 public:
-    explicit Pile(PileName pn) {
+    explicit Caravan(CaravanName pn) {
         name = pn;
         track = {};
         i_track = 0;
     }
 
+    void clear();
+
     uint16_t get_bid();
     TrackSlot get_cards_at(uint8_t pos);
     Direction get_direction();
-    PileName get_name();
+    CaravanName get_name();
     Suit get_suit();
 
     void put_numeric_card(Card c);
     Card put_face_card(Card c, uint8_t pos);
 
-    void remove_all_cards();
     void remove_rank(Rank r, uint8_t exclude);
     void remove_suit(Suit s, uint8_t exclude);
 
@@ -123,26 +140,27 @@ public:
 
 class Table {
 private:
-    std::array<Pile, NUM_PILES_MAX> piles = {
-            Pile(PILE_A),
-            Pile(PILE_B),
-            Pile(PILE_C),
-            Pile(PILE_D),
-            Pile(PILE_E),
-            Pile(PILE_F)
+    std::array<Caravan, NUM_CARAVANS_MAX> caravans = {
+            Caravan(CARAVAN_A),
+            Caravan(CARAVAN_B),
+            Caravan(CARAVAN_C),
+            Caravan(CARAVAN_D),
+            Caravan(CARAVAN_E),
+            Caravan(CARAVAN_F)
     };
-    uint8_t pile_name_to_index_value(PileName pn);
+    uint8_t caravan_name_to_index_value(CaravanName cn);
 
 public:
-    void clear_pile(PileName pn);
-    void play_face_card(PileName pn, Card c, uint8_t pos);
-    void play_numeric_card(PileName pn, Card c);
+    void clear_caravan(CaravanName cn);
 
-    uint16_t get_pile_bid(PileName pn);
-    TrackSlot get_pile_cards_at(PileName pn, uint8_t pos);
-    Direction get_pile_direction(PileName pn);
-    uint8_t get_pile_size(PileName pn);
-    Suit get_pile_suit(PileName pn);
+    void play_face_card(CaravanName cn, Card c, uint8_t pos);
+    void play_numeric_card(CaravanName cn, Card c);
+
+    uint16_t get_caravan_bid(CaravanName cn);
+    TrackSlot get_caravan_cards_at(CaravanName cn, uint8_t pos);
+    Direction get_caravan_direction(CaravanName cn);
+    uint8_t get_caravan_size(CaravanName cn);
+    Suit get_caravan_suit(CaravanName cn);
 };
 
 typedef struct GameConfig {
@@ -158,31 +176,47 @@ typedef struct GameConfig {
 typedef struct GameOption {
     OptionType type;
     uint8_t pos_hand;
-    PileName pile_name;
-    uint8_t pos_pile;
+    CaravanName caravan_name;
+    uint8_t pos_caravan;
 } GameOption;
 
 class Game {
 private:
-    GameConfig config {};
-    bool started;
-    bool closed;
-
     Table* table_ptr {};
     Deck* deck_you_ptr {};
     Deck* deck_opp_ptr {};
     Player* player_you_ptr {};
     Player* player_opp_ptr {};
+    bool closed;
+    bool ended;
+
+    void option_play(Player* p_ptr, GameOption go);
+    void option_drop(Player* p_ptr, GameOption go);
+    void option_clear(Player* p_ptr, GameOption go);
+    void check_ended();
 
 public:
     explicit Game(GameConfig gc) {
-        config = gc;
-        started = false;
+        deck_you_ptr = DeckBuilder::build_caravan_deck(
+                gc.you_num_cards,
+                gc.you_num_sample_decks,
+                gc.you_balanced_sample);
+
+        deck_opp_ptr = DeckBuilder::build_caravan_deck(
+                gc.opp_num_cards,
+                gc.opp_num_sample_decks,
+                gc.opp_balanced_sample);
+
+        table_ptr = new Table();
+        player_you_ptr = new Player(PLAYER_YOU, deck_you_ptr);
+        player_opp_ptr = new Player(PLAYER_OPP, deck_opp_ptr);
+
         closed = false;
+        ended = false;
     }
 
-    void start();
     void close();
+    bool has_ended();
     void option(PlayerName pn, GameOption go);
 };
 
