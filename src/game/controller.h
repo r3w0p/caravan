@@ -7,17 +7,29 @@
 
 #include <array>
 #include "model.h"
+#include "view.h"
 
 class User {};
 class UserHuman: public User {};
 // TODO UserBot
 
-// ControllerGame stores two ControllerUser instances with two corresponding Player instances
-// On User's turn, is passed (copy of) Table and Hand to make decision.
-// Tells Game what move to make.
+class Controller {
+protected:
+    Game* game_ptr;
+    View* view_ptr;
+    virtual GameOption request_option();
+public:
+    explicit Controller(Game* g, View* v) : game_ptr(g), view_ptr(v) {};
+    virtual void run() = 0;
+};
 
-class Controller {};
-
-class ControllerCLI : public Controller {};
+class ControllerCLI : public Controller {
+protected:
+    GameOption request_option();
+public:
+    // TODO pass cli arguments to controller as "ControllerConfig" struct
+    explicit ControllerCLI(Game* g, View* v) : Controller(g, v) {};
+    void run();
+};
 
 #endif //CARAVAN_CONTROLLER_H

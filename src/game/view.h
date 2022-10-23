@@ -7,12 +7,14 @@
 
 #include "model.h"
 
-class View {};
+class View {
+public:
+    virtual void display(Game* g, std::string msg) = 0;
+};
 
 class ViewCLI : public View {
 public:
-    void refresh_view(Table t, std::string msg);
-    std::string prompt_next_move(std::string msg);
+    void display(Game* g, std::string msg);
 };
 
 #endif //CARAVAN_VIEW_H

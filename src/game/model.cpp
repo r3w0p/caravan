@@ -11,14 +11,14 @@
 
 
 /*
- * STATIC
+ * MISC
  */
 
-static bool is_numeric_card(Card c) {
+bool is_numeric_card(Card c) {
     return (c.rank >= ACE and c.rank <= TEN);
 }
 
-static bool is_face_card(Card c) {
+bool is_face_card(Card c) {
     return (c.rank >= JACK and c.rank <= JOKER);
 }
 
@@ -57,15 +57,15 @@ Deck* DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_deck
     uint8_t first_hand_num_cards;
 
     if(num_cards < DECK_CARAVAN_MIN or num_cards > DECK_CARAVAN_MAX)
-        throw std::out_of_range("Can only build deck with between 30 and 156 cards (inclusive).");
+        throw std::out_of_range("A Caravan deck can only build deck with between 30 and 156 cards (inclusive).");
 
-    if(num_sample_decks < NUM_SAMPLE_DECKS_MIN or num_sample_decks > NUM_SAMPLE_DECKS_MAX)
-        throw std::out_of_range("Can only sample between 1 and 3 standard decks (inclusive).");
+    if(num_sample_decks < SAMPLE_DECKS_MIN or num_sample_decks > SAMPLE_DECKS_MAX)
+        throw std::out_of_range("A Caravan deck can only sample between 1 and 3 standard decks (inclusive).");
 
     total_sample_cards = num_sample_decks * DECK_STANDARD_MAX;
 
     if(total_sample_cards < num_cards)
-        throw std::out_of_range("Not enough sample cards to cover required number of cards.");
+        throw std::out_of_range("There are not enough sample cards to cover the required number of cards.");
 
     d = new Deck();
 
@@ -99,13 +99,17 @@ Deck* DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_deck
             while (d->size() < num_cards) {
                 i_next = distr(gen);
                 if (!sample_decks[i_next].empty()) {
-                    d->push_back(sample_decks[i_next].back());
+                    c_next = sample_decks[i_next].back();
+                    d->push_back(c_next);
                     sample_decks[i_next].pop_back();
+
+                    if ((num_cards - d->size()) < HAND_SIZE_MAX and is_numeric_card(c_next))
+                        first_hand_num_cards += 1;
                 }
             }
         }
 
-    } while(first_hand_num_cards < NUM_MOVES_START_ROUND);
+    } while(first_hand_num_cards < MOVES_START_ROUND);
 
     return d;
 }
@@ -114,25 +118,25 @@ Deck* DeckBuilder::build_caravan_deck(uint8_t num_cards, uint8_t num_sample_deck
  * PLAYER
  */
 
-uint8_t Player::size_deck() {
+uint8_t Player::get_size_deck() {
     return deck->size();
 }
 
-uint8_t Player::size_hand() {
+uint8_t Player::get_size_hand() {
     return i_hand;
 }
 
 Card Player::remove_from_hand_at(uint8_t pos) {
     if(pos < HAND_POS_MIN or pos > HAND_POS_MAX)
-        throw std::out_of_range("Cannot take card from hand: desired position is out of range.");
+        throw std::out_of_range("The chosen position is out of range.");
 
     if(i_hand == 0)
-        throw std::out_of_range("Cannot take card from hand: hand is empty.");
+        throw std::out_of_range("The Player's hand is empty.");
 
     uint8_t i = pos - 1;
 
     if(i >= i_hand)
-        throw std::out_of_range("Cannot take card from hand: there is no card at the desired position.");
+        throw std::out_of_range("There is no card at the chosen position.");
 
     // Get card at index
     Card c_ret = hand[i];
@@ -157,15 +161,15 @@ Card Player::remove_from_hand_at(uint8_t pos) {
 
 Card Player::get_from_hand_at(uint8_t pos) {
     if (pos < HAND_POS_MIN or pos > HAND_POS_MAX)
-        throw std::out_of_range("Cannot get card from hand: desired position is out of range.");
+        throw std::out_of_range("The chosen position is out of range.");
 
     if (i_hand == 0)
-        throw std::out_of_range("Cannot get card from hand: hand is empty.");
+        throw std::out_of_range("The Player's hand is empty.");
 
     uint8_t i = pos - 1;
 
     if (i >= i_hand)
-        throw std::out_of_range("Cannot get card from hand: there is no card at the desired position.");
+        throw std::out_of_range("There is no card at the chosen position.");
 
     return hand[i];
 }
@@ -193,7 +197,7 @@ void Player::increment_moves_count() {
 
 void Caravan::clear() {
     if (i_track == 0)
-        throw std::out_of_range("Cannot clear Caravan: the Caravan is empty.");
+        throw std::out_of_range("The Caravan is empty.");
 
     i_track = 0;
 }
@@ -206,7 +210,7 @@ Suit Caravan::get_suit() {
     if(i_track == 0)
         return NO_SUIT;
 
-    // The last Numeric card must be in the correct suit...
+    // The last Numeric card is the caravan suit...
     t = i_track - 1;
     last = track[t].card.suit;
 
@@ -297,17 +301,17 @@ uint8_t Caravan::numeric_rank_to_int_value(Rank r) {
 uint16_t Caravan::get_bid() {
     uint16_t bid = 0;
     uint8_t value;
-    uint8_t multiplier;
+    uint8_t value_final;
 
     for(int t = 0; t < i_track; ++t) {
         value = numeric_rank_to_int_value(track[t].card.rank);
-        multiplier = 1;
+        value_final = value;
 
         for(int f = 0; f < track[t].i_faces; ++f)
             if(track[t].faces[f].rank == KING)
-                multiplier += 1;
+                value_final <<= 1;
 
-        bid += (value * multiplier);
+        bid += value_final;
     }
 
     return bid;
@@ -315,10 +319,10 @@ uint16_t Caravan::get_bid() {
 
 void Caravan::remove_numeric_card(uint8_t i) {
     if(i_track == 0)
-        throw std::out_of_range("Cannot remove Numeric card: there are no Numeric cards in the Caravan.");
+        throw std::out_of_range("There are no Numeric cards in the Caravan.");
 
     if(i >= i_track)
-        throw std::out_of_range("Cannot remove Numeric card: a Numeric card does not exist at given position.");
+        throw std::out_of_range("A Numeric card does not exist at the given position.");
 
     for(i; (i + 1) < i_track; ++i)
         track[i] = track[i + 1];
@@ -334,14 +338,14 @@ void Caravan::put_numeric_card(Card c) {
     bool not_same_dir;
 
     if(!is_numeric_card(c))
-        throw std::out_of_range("Cannot put Numeric card: card is not a Numeric card.");
+        throw CaravanGameModelException("The card must be a Numeric card.");
 
     if(i_track == TRACK_NUMERIC_MAX)
-        throw std::out_of_range("Cannot put Numeric card: Caravan is at maximum Numeric card capacity.");
+        throw CaravanGameModelException("The Caravan is at maximum Numeric card capacity.");
 
     if(i_track > 0) {
         if(c.rank == track[i_track - 1].card.rank)
-            throw std::out_of_range("Cannot put Numeric card: card has the same rank as the last card in the Caravan.");
+            throw CaravanGameModelException("A Numeric card must not have same rank as the last card in the Caravan.");
 
         if(i_track > 1) {
             dir = get_direction();
@@ -352,9 +356,9 @@ void Caravan::put_numeric_card(Card c) {
             not_same_dir = (dir == ASCENDING and !ascends) or (dir == DESCENDING and ascends);
 
             if(not_same_suit and not_same_dir)
-                throw std::out_of_range(
-                        "Cannot put Numeric card: cards must continue the Numeric direction "
-                        "or match the suit of the previous Numeric card and its Queen placements (if any).");
+                throw CaravanGameModelException(
+                        "Cards must continue the Numeric direction or match the suit of "
+                        "the previous Numeric card and its Queen placements (if any).");
         }
     }
 
@@ -364,25 +368,25 @@ void Caravan::put_numeric_card(Card c) {
 
 Card Caravan::put_face_card(Card c, uint8_t pos) {
     if(pos < TRACK_NUMERIC_MIN or pos > TRACK_NUMERIC_MAX)
-        throw std::out_of_range("Cannot play Face card: desired position is out of range.");
+        throw std::out_of_range("The chosen position is out of range.");
 
     uint8_t i = pos - 1;
     Card c_on;
 
     if(i_track == 0)
-        throw std::out_of_range("Cannot play Face card: there are no Numeric cards in the Caravan.");
+        throw std::out_of_range("There are no Numeric cards in the Caravan.");
 
     if(i >= i_track)
-        throw std::out_of_range("Cannot play Face card: there are no Numeric cards at the given position in the Caravan.");
+        throw std::out_of_range("There are no Numeric cards at the given position in the Caravan.");
 
     if(!is_face_card(c))
-        throw std::out_of_range("Cannot play Face card: chosen card is not a Face card.");
+        throw std::out_of_range("The chosen card is not a Face card.");
 
     if(c.rank == JACK) {
         remove_numeric_card(i);
     } else {
         if(track[i].i_faces >= TRACK_FACE_MAX)
-            throw std::out_of_range("Cannot play Face card: the Numeric card is at its maximum Face card capacity.");
+            throw std::out_of_range("The Numeric card is at its maximum Face card capacity.");
 
         c_on = track[i].card;
         track[i].faces[track[i].i_faces] = c;
@@ -397,7 +401,7 @@ void Caravan::remove_suit(Suit s, uint8_t exclude) {
         return;
 
     if(exclude > TRACK_NUMERIC_MAX)
-        throw std::out_of_range("Cannot get card: exclude position is out of range.");
+        throw std::out_of_range("The exclude position is out of range.");
 
     uint8_t i_track_original = i_track;
 
@@ -415,7 +419,7 @@ void Caravan::remove_rank(Rank r, uint8_t exclude) {
         return;
 
     if(exclude > TRACK_NUMERIC_MAX)
-        throw std::out_of_range("Cannot get card: exclude position is out of range.");
+        throw std::out_of_range("The exclude position is out of range.");
 
     uint8_t i_track_original = i_track;
 
@@ -438,7 +442,7 @@ uint8_t Caravan::size() {
 
 TrackSlot Caravan::get_cards_at(uint8_t pos) {
     if(pos < TRACK_NUMERIC_MIN or pos > TRACK_NUMERIC_MAX)
-        throw std::out_of_range("Cannot get card: desired position is out of range.");
+        throw std::out_of_range("The chosen card position is out of range.");
 
     uint8_t i = pos - 1;
 
@@ -475,25 +479,29 @@ void Table::play_numeric_card(CaravanName cn, Card c) {
 }
 
 void Table::play_face_card(CaravanName cn, Card c, uint8_t pos) {
+    Caravan* cvn_target = &caravans[caravan_name_to_index_value(cn)];
+
+    if(c.rank == QUEEN and pos != cvn_target->size())
+        throw CaravanGameModelException("A QUEEN must be played on the most recent numeric card in a caravan.");
+
     // Play Face card on Caravan.
-    Caravan* p_target = &caravans[caravan_name_to_index_value(cn)];
     // Returns the Numeric card that the Face card was played on.
-    Card c_target = p_target->put_face_card(c, pos);
+    Card c_target = cvn_target->put_face_card(c, pos);
 
     // If Face card was JOKER.
     if(c.rank == JOKER) {
         // Remove from original Caravan, excluding the affected card.
         if(c_target.rank == ACE)
-            p_target->remove_suit(c_target.suit, pos);
+            cvn_target->remove_suit(c_target.suit, pos);
         else
-            p_target->remove_rank(c_target.rank, pos);
+            cvn_target->remove_rank(c_target.rank, pos);
 
         // Remove from other Caravans, not excluding any cards.
-        for(int k = 0; k < NUM_CARAVANS_MAX; k++) {
+        for(int k = 0; k < TABLE_CARAVANS_MAX; k++) {
             Caravan* p_next = &caravans[k];
 
             // Ignore original Caravan already handled.
-            if(p_next->get_name() == p_target->get_name())
+            if(p_next->get_name() == cvn_target->get_name())
                 continue;
 
             if(c_target.rank == ACE)
@@ -541,51 +549,112 @@ void Game::close() {
     closed = true;
 }
 
-void Game::option(PlayerName pn, GameOption go) {
-    if(closed)
-        throw std::out_of_range("Cannot process option: game closed.");
+bool Game::has_sold(CaravanName cn) {
+    uint8_t bid = table_ptr->get_caravan_bid(cn);
+    return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
+}
 
-    Player* p_ptr = pn == PLAYER_YOU ? player_you_ptr : player_opp_ptr;
+int8_t Game::compare_bids(CaravanName cn1, CaravanName cn2) {
+    uint8_t bid_cn1;
+    uint8_t bid_cn2;
+
+    if(has_sold(cn1)) {
+        if(has_sold(cn2)) {
+            bid_cn1 = table_ptr->get_caravan_bid(cn1);
+            bid_cn2 = table_ptr->get_caravan_bid(cn2);
+
+            if(bid_cn1 > bid_cn2)
+                return -1;  // CN1 sold; CN2 sold; CN1 highest bid
+            else if(bid_cn2 > bid_cn1)
+                return 1;  // CN1 sold; CN2 sold; CN2 highest bid
+            else
+                return 0;  // CN1 sold; CN2 sold; matching bids
+
+        } else
+            return -1;  // CN1 sold; CN2 unsold
+
+    } else if(has_sold(cn2))
+        return 1;  // CN1 unsold; CN2 sold
+    else
+        return 0;  // CN1 unsold; CN2 unsold
+}
+
+PlayerName Game::get_winner() {
+    uint8_t won_you = 0;
+    uint8_t won_opp = 0;
+    int8_t comp[3];
+
+    comp[0] = compare_bids(CARAVAN_D, CARAVAN_A);
+    comp[1] = compare_bids(CARAVAN_E, CARAVAN_B);
+    comp[2] = compare_bids(CARAVAN_F, CARAVAN_C);
+
+    for(int i = 0; i < 3; ++i) {
+        if(comp[i] < 0)
+            won_you += 1;
+        else if(comp[i] > 0)
+            won_opp += 1;
+    }
+
+    if(won_you >= 2)
+        return PLAYER_YOU;
+    else if(won_opp >= 2)
+        return PLAYER_OPP;
+
+    // Neither player has outbid the other...
+
+    // Check if players have empty hands
+    if(player_you_ptr->get_size_hand() > 0 and player_opp_ptr->get_size_hand() == 0)
+        return PLAYER_YOU;
+    else if(player_opp_ptr->get_size_hand() > 0 and player_you_ptr->get_size_hand() == 0)
+        return PLAYER_OPP;
+
+    return NO_PLAYER;
+}
+
+void Game::play_option(GameOption go) {
+    if(closed)
+        throw std::out_of_range("The game has already been closed.");
+
+    if(get_winner() != NO_PLAYER)
+        throw std::out_of_range("The game has already been won.");
+
+    Player* p_ptr = player_turn == PLAYER_YOU ? player_you_ptr : player_opp_ptr;
 
     switch(go.type) {
         case OPTION_PLAY:
             option_play(p_ptr, go);
             break;
 
-        case OPTION_DROP:
-            if(p_ptr->get_moves_count() < NUM_MOVES_START_ROUND)
-                throw std::out_of_range("Cannot process option: Player cannot drop a card during the Start round.");
+        case OPTION_REMOVE:
+            if(p_ptr->get_moves_count() < MOVES_START_ROUND)
+                throw std::out_of_range("Player cannot drop a card during the Start round.");
 
             option_drop(p_ptr, go);
             break;
 
         case OPTION_CLEAR:
-            if(p_ptr->get_moves_count() < NUM_MOVES_START_ROUND)
-                throw std::out_of_range("Cannot process option: Player cannot clear a Caravan during the Start round.");
+            if(p_ptr->get_moves_count() < MOVES_START_ROUND)
+                throw std::out_of_range("Player cannot clear a Caravan during the Start round.");
 
             option_clear(p_ptr, go);
             break;
 
         default:
-            throw std::out_of_range("Cannot process option: unknown option.");
+            throw std::out_of_range("Unknown play_option.");
     }
 
     p_ptr->increment_moves_count();
-    check_ended();
-}
 
-bool Game::has_ended() {
-    return ended;
-}
-
-void Game::check_ended() {
-    // TODO
+    if(pn == PLAYER_YOU)
+        player_turn = PLAYER_OPP;
+    else
+        player_turn = PLAYER_YOU;
 }
 
 void Game::option_play(Player* p_ptr, GameOption go) {
     Card c_hand = p_ptr->get_from_hand_at(go.pos_hand);
 
-    bool is_in_start_stage = p_ptr->get_moves_count() < NUM_MOVES_START_ROUND;
+    bool is_in_start_stage = p_ptr->get_moves_count() < MOVES_START_ROUND;
     bool is_you_playing_num_into_you_caravans;
     bool is_opp_playing_num_into_opp_caravans;
 
@@ -602,18 +671,18 @@ void Game::option_play(Player* p_ptr, GameOption go) {
 
         if(!(is_you_playing_num_into_you_caravans or is_opp_playing_num_into_opp_caravans))
             throw std::out_of_range(
-                    "Cannot process option: Numeric card can only be played on Player's own Caravans.");
+                    "Numeric card can only be played on Player's own Caravans.");
 
         if(is_in_start_stage and table_ptr->get_caravan_size(go.caravan_name) > 0)
             throw std::out_of_range(
-                    "Cannot process option: Numeric card must be played on an empty Caravan during the Start round.");
+                    "Numeric card must be played on an empty Caravan during the Start round.");
 
         table_ptr->play_numeric_card(go.caravan_name, c_hand);
 
     } else {
         if(is_in_start_stage)
             throw std::out_of_range(
-                    "Cannot process option: Face card cannot be played during the Start round.");
+                    "Face card cannot be played during the Start round.");
 
         table_ptr->play_face_card(go.caravan_name, c_hand, go.pos_caravan);
     }
@@ -622,9 +691,13 @@ void Game::option_play(Player* p_ptr, GameOption go) {
 }
 
 void Game::option_drop(Player *p_ptr, GameOption go) {
-
+    p_ptr->remove_from_hand_at(go.pos_hand);
 }
 
 void Game::option_clear(Player *p_ptr, GameOption go) {
+    table_ptr->clear_caravan(go.caravan_name);
+}
 
+PlayerName Game::get_player_turn() {
+    return player_turn;
 }

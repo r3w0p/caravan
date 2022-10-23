@@ -1,0 +1,83 @@
+// Copyright (c) 2022 r3w0p
+// The following code can be redistributed and/or
+// modified under the terms of the GPL-3.0 License.
+
+#include "gtest/gtest.h"
+#include "../src/game/model.h"
+
+
+TEST (TestGameModelDeckBuilder, CaravanDeck_30Cards_1SampleDeck_Balanced) {
+    Deck* d = DeckBuilder::build_caravan_deck(30, 1, true);
+    uint8_t sum_num = 0;
+    Card c_back;
+
+    ASSERT_EQ(d->size(), 30);
+
+    for(int i = 0; i < 8; ++i) {
+        c_back = d->back();
+
+        if(is_numeric_card(c_back))
+            sum_num += 1;
+
+        d->pop_back();
+    }
+
+    ASSERT_TRUE(sum_num >= 3);
+}
+
+TEST (TestGameModelDeckBuilder, CaravanDeck_30Cards_1SampleDeck_NotBalanced) {
+    Deck* d = DeckBuilder::build_caravan_deck(30, 1, false);
+    uint8_t sum_num = 0;
+    Card c_back;
+
+    ASSERT_EQ(d->size(), 30);
+
+    for(int i = 0; i < 8; ++i) {
+        c_back = d->back();
+
+        if(is_numeric_card(c_back))
+            sum_num += 1;
+
+        d->pop_back();
+    }
+
+    ASSERT_TRUE(sum_num >= 3);
+}
+
+TEST (TestGameModelDeckBuilder, CaravanDeck_156Cards_3SampleDecks_Balanced) {
+    Deck* d = DeckBuilder::build_caravan_deck(156, 3, true);
+    uint8_t sum_num = 0;
+    Card c_back;
+
+    ASSERT_EQ(d->size(), 156);
+
+    for(int i = 0; i < 8; ++i) {
+        c_back = d->back();
+
+        if(is_numeric_card(c_back))
+            sum_num += 1;
+
+        d->pop_back();
+    }
+
+    ASSERT_TRUE(sum_num >= 3);
+}
+
+TEST (TestGameModelDeckBuilder, CaravanDeck_156Cards_3SampleDecks_NotBalanced) {
+    Deck* d = DeckBuilder::build_caravan_deck(156, 3, false);
+    uint8_t sum_num = 0;
+    Card c_back;
+
+    ASSERT_EQ(d->size(), 156);
+
+    for(int i = 0; i < 8; ++i) {
+        c_back = d->back();
+
+        if(is_numeric_card(c_back))
+            sum_num += 1;
+
+        d->pop_back();
+    }
+
+    ASSERT_TRUE(sum_num >= 3);
+}

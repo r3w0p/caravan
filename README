@@ -6,3 +6,78 @@
 v0.1 | GPL-3.0 | 2022 r3w0p
 
 A CLI version of the Caravan card game from Fallout: New Vegas.
+
+
+===========
+HOW TO PLAY
+===========
+
+The game is played with two players building three opposing "caravans" (i.e. piles) of cards.
+The goal is for each of your caravans to "outbid" your opponent's caravan directly opposite from it, with a bid that is neither too light (under 21) nor overburdened (over 26).
+If two opposing caravans are within this range, then you must aim to get the highest bid within this range.
+
+The cards in a caravan constitute its bid, with numeric cards (ACE, 2-10) primarily determining its bid value.
+Each caravan has a suit, which is initially determined by the suit of the first numeric card placed in it.
+Caravans also have a direction, ascending or descending, which is initially determined by its first two numeric cards.
+
+All subsequent numeric cards placed in a caravan must continue in its direction if a card being placed does not have the same suit as the caravan.
+TODO for example...
+Numeric cards being placed with a matching suit to the caravan can be in any direction and may, therefore, change the direction of the caravan.
+TODO for example...
+Cards of the same numeric "rank" (i.e. value) can never be played in sequence.
+For example, a 5♠ cannot be played directly onto a 5♥ because they are both of rank 5.
+A caravan can have, at most, ten numeric cards in it.
+
+
+Face cards (JACK, QUEEN, KING, JOKER) ...
+TODO Face Cards
+Face cards can be attached to Ace, 2-10 cards in any Pile by any player.
+Face cards can be placed, at most, 5 times on a single card.
+
+
+
+ACE, 2-10
+Their listed value increases a caravan's bid by that amount.
+ACE has a value of 1.
+
+JACK
+Removes a numeric card from a caravan, and any face cards attached to it.
+
+QUEEN
+
+Reverses the current direction of the caravan and changes the current suit of the caravan to the Queen's suit.
+A Queen can only be played on the most recent numeric card in a caravan.
+
+KING
+
+adds the value of that card again.
+For example: a King played on a 9 adds 9 to that hand.
+
+Multiple kings may be played on the same card for multiplicative effects:
+
+    4 + King = 8
+    4 + two Kings = 16
+
+JOKER
+
+played against an Ace, removes all other Numeric cards of the Ace's suit from the table.
+For example: a Joker on an A♠ removes all ♠ cards except for face cards and the A♠ it was placed on.
+
+played against a 2-10, removes all other cards of its value from the table.
+For example, a Joker player on a 4♥ removes all 4s from the table except for the 4♥ it was played on.
+
+
+========
+CONTROLS
+========
+
+
+
+
+=============
+DECK BUILDING
+=============
+
+A Caravan deck consists of a minimum of 30 cards and a maximum of 156 cards.
+It can be comprised of cards sampled, without replacement, from 1 to 3 standard 52-card decks (inclusive).
+
