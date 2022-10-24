@@ -8,7 +8,7 @@
 
 TEST (TestGameModelPlayer, Deck30_Init) {
     Deck* d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_YOU, d);
+    Player pl = Player(PLAYER_1, d);
 
     ASSERT_EQ(pl.get_size_deck(), 22);
     ASSERT_EQ(pl.get_size_hand(), 8);
@@ -16,7 +16,7 @@ TEST (TestGameModelPlayer, Deck30_Init) {
 
 TEST (TestGameModelPlayer, Deck30_TakeFromHand) {
     Deck* d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_YOU, d);
+    Player pl = Player(PLAYER_1, d);
     Card c_get;
     Card c_take;
     Card c_getagain;

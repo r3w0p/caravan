@@ -2,36 +2,37 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#include "game/model.h"
 #include "game/view.h"
 #include "game/controller.h"
 #include "iostream"
 
 int main() {
-    GameConfig config;
-    Game* g;
-    ViewCLI* v;
-    ControllerCLI* c;
+    GameConfig gc;
+    Engine *e;
+    ViewCLI *v;
+    Controller *c;
+    User *u_p1 = new UserHumanCLI(PLAYER_1);
+    User *u_p2 = new UserHumanCLI(PLAYER_2);  // TODO bot
 
     // TODO set from user arguments
-    config = {
+    gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_YOU
+            PLAYER_1
     };
 
     try {
-        g = new Game(config);
+        e = new Engine(gc);
         v = new ViewCLI();
-        c = new ControllerCLI(g, v);
+        c = new Controller(e, v, u_p1, u_p2);
 
         c->run();
 
-    } catch(std::exception & e) {
+    } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
     }
 
-    delete g;
+    delete e;
     delete v;
     delete c;
 }

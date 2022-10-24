@@ -4,55 +4,66 @@
 
 #include "controller.h"
 #include "iostream"
+#include "exceptions.h"
+#include "common.h"
+#include "engine.h"
 #include <cstdio>
 
 std::string player_name_to_str(PlayerName pn) {
     switch (pn) {
-        case PLAYER_YOU:
-            return "YOU";
-        case PLAYER_OPP:
-            return "OPP";
+        case PLAYER_1:
+            return "PLAYER 1";
+        case PLAYER_2:
+            return "PLAYER 2";
+        case COMPUTER:
+            return "COMPUTER";
         default:
-            throw std::out_of_range("Invalid player name.");
+            throw CaravanFatalException("Invalid player name.");
     }
 }
 
-void ControllerCLI::run() {
+void Controller::run() {
     GameOption option;
     std::string msg;
+    User *user_turn;
     PlayerName winner;
 
     do {
-        view_ptr->display(game_ptr, msg);
-        option = request_option();
+        view_ptr->display(engine_ptr, msg);
+        msg = "";
+        user_turn = engine_ptr->get_player_turn() == PLAYER_1 ? user_p1_ptr : user_p2_ptr;
+        option = user_turn->request_option(engine_ptr);
 
         try {
-            game_ptr->play_option(option);
+            engine_ptr->play_option(option);
 
-        } catch(CaravanGameModelException & e) {
+        } catch (CaravanGameException &e) {
             msg = e.what();
         }
 
-    } while((winner = game_ptr->get_winner()) == NO_PLAYER);
+    } while ((winner = engine_ptr->get_winner()) == NO_PLAYER);
 
-    std::cout << "Winner is: " << player_name_to_str(winner) << std::endl;
+    msg = "Winner is: " + player_name_to_str(winner) + "\n";
+    view_ptr->display(engine_ptr, msg);
 }
 
-GameOption ControllerCLI::request_option() {
+GameOption UserHumanCLI::request_option(Engine *e) {
     GameOption go;
     char input[6];
+    int c_flush;
     bool reached_end_ok = false;
 
     do {
-        std::cout << "[" << player_name_to_str(game_ptr->get_player_turn()) << "] > ";
+        std::cout << "[" << player_name_to_str(name) << "] >";
         scanf("%5s", input);
+        while ((c_flush = fgetc(stdin)) != '\n' and c_flush != EOF);
 
         /*
          * FIRST
          * - OPTION TYPE
          */
 
-        switch(input[0]) {
+        switch (input[0]) {
             case 'P':
             case 'p':
                 go.type = OPTION_PLAY;
@@ -75,7 +86,7 @@ GameOption ControllerCLI::request_option() {
          * - CARAVAN NAME
          */
 
-        if(go.type == OPTION_PLAY or go.type == OPTION_REMOVE) {
+        if (go.type == OPTION_PLAY or go.type == OPTION_REMOVE) {
             switch (input[1]) {
                 case '1':
                 case '2':
@@ -91,7 +102,7 @@ GameOption ControllerCLI::request_option() {
                     continue;
             }
 
-        } else if(go.type == OPTION_CLEAR) {
+        } else if (go.type == OPTION_CLEAR) {
             switch (input[1]) {
                 case 'A':
                 case 'a':
@@ -122,7 +133,7 @@ GameOption ControllerCLI::request_option() {
             }
         }
 
-        if(go.type == OPTION_REMOVE or go.type == OPTION_CLEAR)
+        if (go.type == OPTION_REMOVE or go.type == OPTION_CLEAR)
             return go;
 
         /*
@@ -161,7 +172,7 @@ GameOption ControllerCLI::request_option() {
 
         /*
          * FOURTH (and FIFTH)
-         * - CARAVAN NAME
+         * - CARAVAN POSITION (used when selecting Face card only)
          */
 
         switch (input[3]) {
@@ -179,12 +190,10 @@ GameOption ControllerCLI::request_option() {
             case '0':
                 go.pos_caravan = (uint8_t) input[1] - '0';
                 break;
-            default:
-                continue;
         }
 
         reached_end_ok = true;
-    } while(!reached_end_ok);
+    } while (!reached_end_ok);
 
     return go;
 }

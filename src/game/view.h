@@ -5,16 +5,18 @@
 #ifndef CARAVAN_VIEW_H
 #define CARAVAN_VIEW_H
 
-#include "model.h"
+
+#include <string>
+#include "engine.h"
 
 class View {
 public:
-    virtual void display(Game* g, std::string msg) = 0;
+    virtual void display(Engine *g, std::string msg) = 0;
 };
 
 class ViewCLI : public View {
 public:
-    void display(Game* g, std::string msg);
+    void display(Engine *g, std::string msg) override;
 };
 
 #endif //CARAVAN_VIEW_H

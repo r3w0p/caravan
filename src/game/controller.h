@@ -6,29 +6,47 @@
 #define CARAVAN_CONTROLLER_H
 
 #include <array>
-#include "model.h"
 #include "view.h"
+#include "common.h"
+#include "engine.h"
 
-class User {};
-class UserHuman: public User {};
-// TODO UserBot
+
+class User {
+protected:
+    PlayerName name;
+public:
+    explicit User(PlayerName pn) : name(pn) {};
+
+    virtual GameOption request_option(Engine *e) = 0;
+};
+
+class UserHuman : public User {
+public:
+    explicit UserHuman(PlayerName pn) : User(pn) {};
+};
+
+class UserHumanCLI : public UserHuman {
+public:
+    explicit UserHumanCLI(PlayerName pn) : UserHuman(pn) {};
+
+    GameOption request_option(Engine *e) override;
+};
+
+class UserBot : public User {
+public:
+    explicit UserBot(PlayerName pn) : User(pn) {};
+};
 
 class Controller {
 protected:
-    Game* game_ptr;
-    View* view_ptr;
-    virtual GameOption request_option();
+    Engine *engine_ptr;
+    View *view_ptr;
+    User *user_p1_ptr;
+    User *user_p2_ptr;
 public:
-    explicit Controller(Game* g, View* v) : game_ptr(g), view_ptr(v) {};
-    virtual void run() = 0;
-};
+    explicit Controller(Engine *e, View *v, User *p1, User *p2) : engine_ptr(e), view_ptr(v), user_p1_ptr(p1),
+                                                                  user_p2_ptr(p2) {};
 
-class ControllerCLI : public Controller {
-protected:
-    GameOption request_option();
-public:
-    // TODO pass cli arguments to controller as "ControllerConfig" struct
-    explicit ControllerCLI(Game* g, View* v) : Controller(g, v) {};
     void run();
 };
 
