@@ -14,7 +14,7 @@ uint16_t Table::get_caravan_bid(CaravanName cn) {
     return caravans[caravan_name_to_index_value(cn)].get_bid();
 }
 
-TrackSlot Table::get_caravan_cards_at(CaravanName cn, uint8_t pos) {
+Slot Table::get_caravan_cards_at(CaravanName cn, uint8_t pos) {
     return caravans[caravan_name_to_index_value(cn)].get_cards_at(pos);
 }
 

@@ -8,6 +8,15 @@
 #include "common.h"
 #include "engine.h"
 #include <cstdio>
+#include <string>
+#include <cstring>
+
+
+// if(instanceof<Parent>(chld1))
+template<typename A, typename B>
+inline bool instanceof(const B *ptr) {
+    return dynamic_cast<const A *>(ptr) != nullptr;
+}
 
 std::string player_name_to_str(PlayerName pn) {
     switch (pn) {
@@ -23,36 +32,16 @@ std::string player_name_to_str(PlayerName pn) {
     }
 }
 
-void Controller::run() {
-    GameOption option;
-    std::string msg;
-    User *user_turn;
-    PlayerName winner;
-
-    do {
-        view_ptr->display(engine_ptr, msg);
-        msg = "";
-        user_turn = engine_ptr->get_player_turn() == PLAYER_1 ? user_a_ptr : user_b_ptr;
-        option = user_turn->request_option(engine_ptr);
-
-        try {
-            engine_ptr->play_option(option);
-
-        } catch (CaravanGameException &e) {
-            msg = e.what();
-        }
-
-    } while ((winner = engine_ptr->get_winner()) == NO_PLAYER);
-
-    msg = "Winner is: " + player_name_to_str(winner) + "\n";
-    view_ptr->display(engine_ptr, msg);
-}
-
 GameOption UserHumanCLI::request_option(Engine *e) {
     GameOption go;
     char input[6];
     int c_flush;
-    bool reached_end_ok = false;
+    bool reached_end_ok;
+
+    if (e->is_closed())
+        throw CaravanFatalException("The game has already closed.");
+
+    reached_end_ok = false
 
     do {
         std::cout << "[" << player_name_to_str(name) << "] >";
@@ -68,17 +57,32 @@ GameOption UserHumanCLI::request_option(Engine *e) {
             case 'P':
             case 'p':
                 go.type = OPTION_PLAY;
+                /*
+                 * P2F
+                 * "Play numeric card at hand pos 2 into caravan F"
+                 *
+                 * P8F10
+                 * "Play face card at hand pos 8 into caravan F, slot 10"
+                 */
                 break;
             case 'R':
             case 'r':
                 go.type = OPTION_REMOVE;
+                /*
+                 * R8
+                 * "Remove card at hand pos 8"
+                 */
                 break;
             case 'C':
             case 'c':
+                /*
+                 * CF
+                 * "Clear caravan F"
+                 */
                 go.type = OPTION_CLEAR;
                 break;
             default:
-                continue;
+                continue;  // mandatory: ask again...
         }
 
         /*
@@ -100,7 +104,7 @@ GameOption UserHumanCLI::request_option(Engine *e) {
                     go.pos_hand = (uint8_t) input[1] - '0';
                     break;
                 default:
-                    continue;
+                    continue;  // mandatory for play/remove: ask again...
             }
 
         } else if (go.type == OPTION_CLEAR) {
@@ -130,12 +134,16 @@ GameOption UserHumanCLI::request_option(Engine *e) {
                     go.caravan_name = CARAVAN_F;
                     break;
                 default:
-                    continue;
+                    continue;  // mandatory for clear: ask again...
             }
         }
 
-        if (go.type == OPTION_REMOVE or go.type == OPTION_CLEAR)
+        // Remove/clear does not require caravan name/pos
+        if (go.type == OPTION_REMOVE or go.type == OPTION_CLEAR) {
+            go.caravan_name = NO_CARAVAN;
+            go.pos_caravan = 0;
             return go;
+        }
 
         /*
          * THIRD
@@ -188,13 +196,76 @@ GameOption UserHumanCLI::request_option(Engine *e) {
             case '7':
             case '8':
             case '9':
-            case '0':
                 go.pos_caravan = (uint8_t) input[1] - '0';
                 break;
+            default:
+                // Numeric card does not require caravan pos
+                go.pos_caravan = 0;
         }
 
         reached_end_ok = true;
     } while (!reached_end_ok);
 
     return go;
+}
+
+std::string generate_option_msg(PlayerName pn, GameOption go) {
+    if (go.type == OPTION_PLAY) {
+        return player_name_to_str(pn) +
+               " played " +
+               (go.pos_caravan == 0
+                ? "numeric"
+                : "face") +
+               " card into caravan " +
+               caravan_name_to_str(go.caravan_name) +
+               (go.pos_caravan == 0
+                ? ""
+                : " at position " + std::to_string(go.pos_caravan)) +
+               ".";
+
+    } else if (go.type == OPTION_REMOVE) {
+        return player_name_to_str(pn) +
+               " removed card from hand.";
+
+    } else if (go.type == OPTION_CLEAR) {
+        return player_name_to_str(pn) +
+               " cleared caravan " +
+               caravan_name_to_str(go.caravan_name) +
+               ".";
+    }
+
+    throw CaravanFatalException("Invalid option for message generation.");
+}
+
+void ControllerCLI::run() {
+    GameOption option;
+    std::string msg;
+    User *user_turn;
+    PlayerName winner;
+    PlayerCaravanNames cvns;
+
+    do {
+        view_ptr->display(engine_ptr, msg);
+        msg = "";
+
+        user_turn = engine_ptr->get_player_turn() == user_a_ptr->get_name() ?
+                    user_a_ptr : user_b_ptr;
+
+        option = user_turn->request_option(engine_ptr);
+
+        try {
+            engine_ptr->play_option(option);
+            msg = generate_option_msg(user_turn->get_name(), option);
+
+        } catch (CaravanGameException &e) {
+            msg = player_name_to_str(winner) +
+                  " illegal move. " +
+                  e.what() +
+                  "\n";
+        }
+
+    } while ((winner = engine_ptr->get_winner()) == NO_PLAYER);
+
+    msg = "Winner is: " + player_name_to_str(winner) + "\n";
+    view_ptr->display(engine_ptr, msg);
 }

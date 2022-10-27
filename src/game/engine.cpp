@@ -23,11 +23,24 @@ Player *Engine::get_player(PlayerName pn) {
     if (closed)
         throw CaravanFatalException("The game has already closed.");
 
-    if(pa_ptr->get_name() == pn)
+    if (pa_ptr->get_name() == pn)
         return pa_ptr;
 
-    if(pb_ptr->get_name() == pn)
+    if (pb_ptr->get_name() == pn)
         return pb_ptr;
+
+    throw CaravanFatalException("Invalid player name.");
+}
+
+PlayerCaravanNames Engine::get_player_caravan_names(PlayerName pn) {
+    if (closed)
+        throw CaravanFatalException("The game has already closed.");
+
+    if (pa_ptr->get_name() == pn)
+        return PlayerCaravanNames{CARAVAN_D, CARAVAN_E, CARAVAN_F};
+
+    if (pb_ptr->get_name() == pn)
+        return PlayerCaravanNames{CARAVAN_A, CARAVAN_B, CARAVAN_C};
 
     throw CaravanFatalException("Invalid player name.");
 }
@@ -186,14 +199,14 @@ void Engine::option_play(Player *p_ptr, GameOption go) {
         pa_playing_num_into_pa_caravans =
                 p_ptr->get_name() == pa_ptr->get_name() and
                 (go.caravan_name == CARAVAN_D or
-                        go.caravan_name == CARAVAN_E or
-                        go.caravan_name == CARAVAN_F);
+                 go.caravan_name == CARAVAN_E or
+                 go.caravan_name == CARAVAN_F);
 
         pb_playing_num_into_pb_caravans =
                 p_ptr->get_name() == pb_ptr->get_name() and
                 (go.caravan_name == CARAVAN_A or
-                         go.caravan_name == CARAVAN_B or
-                         go.caravan_name == CARAVAN_C);
+                 go.caravan_name == CARAVAN_B or
+                 go.caravan_name == CARAVAN_C);
 
         if (!(pa_playing_num_into_pa_caravans or
               pb_playing_num_into_pb_caravans))

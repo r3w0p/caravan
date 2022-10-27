@@ -8,16 +8,16 @@
 
 
 TEST (TestGameDeck, CaravanDeck_30Cards_1SampleDeck_Balanced) {
-    Deck* d = DeckBuilder::build_caravan_deck(30, 1, true);
+    Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
     uint8_t sum_num = 0;
     Card c_back;
 
     ASSERT_EQ(d->size(), 30);
 
-    for(int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if(is_numeric_card(c_back))
+        if (is_numeric_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -27,16 +27,16 @@ TEST (TestGameDeck, CaravanDeck_30Cards_1SampleDeck_Balanced) {
 }
 
 TEST (TestGameDeck, CaravanDeck_30Cards_1SampleDeck_NotBalanced) {
-    Deck* d = DeckBuilder::build_caravan_deck(30, 1, false);
+    Deck *d = DeckBuilder::build_caravan_deck(30, 1, false);
     uint8_t sum_num = 0;
     Card c_back;
 
     ASSERT_EQ(d->size(), 30);
 
-    for(int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if(is_numeric_card(c_back))
+        if (is_numeric_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -46,16 +46,16 @@ TEST (TestGameDeck, CaravanDeck_30Cards_1SampleDeck_NotBalanced) {
 }
 
 TEST (TestGameDeck, CaravanDeck_90Cards_2SampleDecks_Balanced) {
-    Deck* d = DeckBuilder::build_caravan_deck(90, 2, true);
+    Deck *d = DeckBuilder::build_caravan_deck(90, 2, true);
     uint8_t sum_num = 0;
     Card c_back;
 
     ASSERT_EQ(d->size(), 90);
 
-    for(int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if(is_numeric_card(c_back))
+        if (is_numeric_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -65,16 +65,16 @@ TEST (TestGameDeck, CaravanDeck_90Cards_2SampleDecks_Balanced) {
 }
 
 TEST (TestGameDeck, CaravanDeck_90Cards_2SampleDecks_NotBalanced) {
-    Deck* d = DeckBuilder::build_caravan_deck(90, 2, false);
+    Deck *d = DeckBuilder::build_caravan_deck(90, 2, false);
     uint8_t sum_num = 0;
     Card c_back;
 
     ASSERT_EQ(d->size(), 90);
 
-    for(int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if(is_numeric_card(c_back))
+        if (is_numeric_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -84,16 +84,16 @@ TEST (TestGameDeck, CaravanDeck_90Cards_2SampleDecks_NotBalanced) {
 }
 
 TEST (TestGameDeck, CaravanDeck_156Cards_3SampleDecks_Balanced) {
-    Deck* d = DeckBuilder::build_caravan_deck(156, 3, true);
+    Deck *d = DeckBuilder::build_caravan_deck(156, 3, true);
     uint8_t sum_num = 0;
     Card c_back;
 
     ASSERT_EQ(d->size(), 156);
 
-    for(int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if(is_numeric_card(c_back))
+        if (is_numeric_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -103,16 +103,16 @@ TEST (TestGameDeck, CaravanDeck_156Cards_3SampleDecks_Balanced) {
 }
 
 TEST (TestGameDeck, CaravanDeck_156Cards_3SampleDecks_NotBalanced) {
-    Deck* d = DeckBuilder::build_caravan_deck(156, 3, false);
+    Deck *d = DeckBuilder::build_caravan_deck(156, 3, false);
     uint8_t sum_num = 0;
     Card c_back;
 
     ASSERT_EQ(d->size(), 156);
 
-    for(int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if(is_numeric_card(c_back))
+        if (is_numeric_card(c_back))
             sum_num += 1;
 
         d->pop_back();

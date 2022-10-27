@@ -21,22 +21,26 @@ protected:
     Player *p_turn;
 
     int8_t compare_bids(CaravanName cn1, CaravanName cn2);
+
     bool has_sold(CaravanName cn);
+
     void option_clear(Player *p_ptr, GameOption go);
+
     void option_drop(Player *p_ptr, GameOption go);
+
     void option_play(Player *p_ptr, GameOption go);
 
 public:
     explicit Engine(GameConfig gc, PlayerName pna, PlayerName pnb) {
-        if(pna == NO_PLAYER or pnb == NO_PLAYER)
+        if (pna == NO_PLAYER or pnb == NO_PLAYER)
             throw CaravanFatalException(
                     "Players must have valid names.");
 
-        if(pna == pnb)
+        if (pna == pnb)
             throw CaravanFatalException(
                     "Players cannot have the same name.");
 
-        if(gc.pn_first != pna and gc.pn_first != pnb)
+        if (gc.pn_first != pna and gc.pn_first != pnb)
             throw CaravanFatalException(
                     "The name of the player who goes first does not "
                     "match either of the names chosen for players.");
@@ -60,11 +64,19 @@ public:
     }
 
     void close();
+
     Player *get_player(PlayerName pn);
+
+    PlayerCaravanNames get_player_caravan_names(PlayerName pn);
+
     PlayerName get_player_turn();
+
     Table *get_table();
+
     PlayerName get_winner();
+
     bool is_closed();
+
     void play_option(GameOption go);
 };
 

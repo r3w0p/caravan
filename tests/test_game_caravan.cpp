@@ -40,9 +40,9 @@ TEST (TestGameCaravan, Clear_Error_EmptyCaravan) {
 
 TEST (TestGameCaravan, GetBid_ThreeNumeric) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num_1 = { SPADES, ACE };
-    Card c_num_2 = { SPADES, TWO };
-    Card c_num_3 = { SPADES, THREE };
+    Card c_num_1 = {SPADES, ACE};
+    Card c_num_2 = {SPADES, TWO};
+    Card c_num_3 = {SPADES, THREE};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num_1);
@@ -55,7 +55,7 @@ TEST (TestGameCaravan, GetBid_ThreeNumeric) {
 
 TEST (TestGameCaravan, GetBid_Value_RankAce) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, ACE };
+    Card c_num = {SPADES, ACE};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -64,7 +64,7 @@ TEST (TestGameCaravan, GetBid_Value_RankAce) {
 
 TEST (TestGameCaravan, GetBid_Value_RankTwo) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, TWO };
+    Card c_num = {SPADES, TWO};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -73,7 +73,7 @@ TEST (TestGameCaravan, GetBid_Value_RankTwo) {
 
 TEST (TestGameCaravan, GetBid_Value_RankThree) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, THREE };
+    Card c_num = {SPADES, THREE};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -82,7 +82,7 @@ TEST (TestGameCaravan, GetBid_Value_RankThree) {
 
 TEST (TestGameCaravan, GetBid_Value_RankFour) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, FOUR };
+    Card c_num = {SPADES, FOUR};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -91,7 +91,7 @@ TEST (TestGameCaravan, GetBid_Value_RankFour) {
 
 TEST (TestGameCaravan, GetBid_Value_RankFive) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, FIVE };
+    Card c_num = {SPADES, FIVE};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -100,7 +100,7 @@ TEST (TestGameCaravan, GetBid_Value_RankFive) {
 
 TEST (TestGameCaravan, GetBid_Value_RankSix) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, SIX };
+    Card c_num = {SPADES, SIX};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -109,7 +109,7 @@ TEST (TestGameCaravan, GetBid_Value_RankSix) {
 
 TEST (TestGameCaravan, GetBid_Value_RankSeven) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, SEVEN };
+    Card c_num = {SPADES, SEVEN};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -118,7 +118,7 @@ TEST (TestGameCaravan, GetBid_Value_RankSeven) {
 
 TEST (TestGameCaravan, GetBid_Value_RankEight) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, EIGHT };
+    Card c_num = {SPADES, EIGHT};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -127,7 +127,7 @@ TEST (TestGameCaravan, GetBid_Value_RankEight) {
 
 TEST (TestGameCaravan, GetBid_Value_RankNine) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, NINE };
+    Card c_num = {SPADES, NINE};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -136,7 +136,7 @@ TEST (TestGameCaravan, GetBid_Value_RankNine) {
 
 TEST (TestGameCaravan, GetBid_Value_RankTen) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, TEN };
+    Card c_num = {SPADES, TEN};
 
     ASSERT_EQ(cvn.get_bid(), 0);
     cvn.put_numeric_card(c_num);
@@ -148,7 +148,7 @@ TEST (TestGameCaravan, GetCardsAt_TwoNumeric_OneFace) {
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, TWO};
     Card c_face_1 = {DIAMONDS, KING};
-    TrackSlot ts;
+    Slot ts;
 
     cvn.put_numeric_card(c_num_1);
     cvn.put_numeric_card(c_num_2);
@@ -186,8 +186,8 @@ TEST (TestGameCaravan, GetCardsAt_Error_OneNumeric_OutOfRange) {
 
 TEST (TestGameCaravan, GetDirection_Ascending) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num_1 = { SPADES, ACE };
-    Card c_num_2 = { SPADES, TWO };
+    Card c_num_1 = {SPADES, ACE};
+    Card c_num_2 = {SPADES, TWO};
 
     ASSERT_EQ(cvn.get_direction(), NO_DIRECTION);
     cvn.put_numeric_card(c_num_1);
@@ -198,8 +198,8 @@ TEST (TestGameCaravan, GetDirection_Ascending) {
 
 TEST (TestGameCaravan, GetDirection_Descending) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num_1 = { SPADES, TWO };
-    Card c_num_2 = { SPADES, ACE };
+    Card c_num_1 = {SPADES, TWO};
+    Card c_num_2 = {SPADES, ACE};
 
     ASSERT_EQ(cvn.get_direction(), NO_DIRECTION);
     cvn.put_numeric_card(c_num_1);
@@ -210,11 +210,11 @@ TEST (TestGameCaravan, GetDirection_Descending) {
 
 TEST (TestGameCaravan, GetDirection_Ascending_ThreeQueens) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num_1 = { SPADES, ACE };
-    Card c_num_2 = { HEARTS, TWO };
-    Card c_face_1 = { CLUBS, QUEEN };
-    Card c_face_2 = { DIAMONDS, QUEEN };
-    Card c_face_3 = { HEARTS, QUEEN };
+    Card c_num_1 = {SPADES, ACE};
+    Card c_num_2 = {HEARTS, TWO};
+    Card c_face_1 = {CLUBS, QUEEN};
+    Card c_face_2 = {DIAMONDS, QUEEN};
+    Card c_face_3 = {HEARTS, QUEEN};
 
     cvn.put_numeric_card(c_num_1);
     cvn.put_numeric_card(c_num_2);
@@ -232,11 +232,11 @@ TEST (TestGameCaravan, GetDirection_Ascending_ThreeQueens) {
 
 TEST (TestGameCaravan, GetDirection_Descending_ThreeQueens) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num_1 = { SPADES, TEN };
-    Card c_num_2 = { HEARTS, NINE };
-    Card c_face_1 = { CLUBS, QUEEN };
-    Card c_face_2 = { DIAMONDS, QUEEN };
-    Card c_face_3 = { HEARTS, QUEEN };
+    Card c_num_1 = {SPADES, TEN};
+    Card c_num_2 = {HEARTS, NINE};
+    Card c_face_1 = {CLUBS, QUEEN};
+    Card c_face_2 = {DIAMONDS, QUEEN};
+    Card c_face_3 = {HEARTS, QUEEN};
 
     cvn.put_numeric_card(c_num_1);
     cvn.put_numeric_card(c_num_2);
@@ -259,7 +259,7 @@ TEST (TestGameCaravan, GetName) {
 
 TEST (TestGameCaravan, GetSize_BeforeAfterNumeric) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, ACE };
+    Card c_num = {SPADES, ACE};
 
     ASSERT_EQ(cvn.get_size(), 0);
     cvn.put_numeric_card(c_num);
@@ -268,7 +268,7 @@ TEST (TestGameCaravan, GetSize_BeforeAfterNumeric) {
 
 TEST (TestGameCaravan, GetSuit) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, ACE };
+    Card c_num = {SPADES, ACE};
 
     ASSERT_EQ(cvn.get_suit(), NO_SUIT);
     cvn.put_numeric_card(c_num);
@@ -277,9 +277,9 @@ TEST (TestGameCaravan, GetSuit) {
 
 TEST (TestGameCaravan, PutNumericCard_PutFaceNotJack) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num = { SPADES, ACE };
-    Card c_face = { HEARTS, KING };
-    TrackSlot ts;
+    Card c_num = {SPADES, ACE};
+    Card c_face = {HEARTS, KING};
+    Slot ts;
 
     cvn.put_numeric_card(c_num);
     cvn.put_face_card(c_face, 1);
@@ -363,7 +363,7 @@ TEST (TestGameCaravan, PutFaceCard) {
     Caravan cvn = Caravan(CARAVAN_A);
     Card c_num = {SPADES, ACE};
     Card c_face = {HEARTS, KING};
-    TrackSlot ts;
+    Slot ts;
 
     cvn.put_numeric_card(c_num);
     cvn.put_face_card(c_face, 1);
@@ -379,7 +379,7 @@ TEST (TestGameCaravan, PutFaceCard) {
 TEST (TestGameCaravan, PutFaceCard_Error_EmptyCaravan) {
     Caravan cvn = Caravan(CARAVAN_A);
     Card c_face = {HEARTS, KING};
-    TrackSlot ts;
+    Slot ts;
 
     try {
         cvn.put_face_card(c_face, 1);
@@ -396,7 +396,7 @@ TEST (TestGameCaravan, PutFaceCard_Error_OutOfRange) {
     Caravan cvn = Caravan(CARAVAN_A);
     Card c_num = {SPADES, ACE};
     Card c_face = {HEARTS, KING};
-    TrackSlot ts;
+    Slot ts;
 
     cvn.put_numeric_card(c_num);
 
@@ -415,7 +415,7 @@ TEST (TestGameCaravan, PutFaceCard_Error_NotFaceCard) {
     Caravan cvn = Caravan(CARAVAN_A);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
-    TrackSlot ts;
+    Slot ts;
 
     cvn.put_numeric_card(c_num_1);
 
@@ -439,7 +439,7 @@ TEST (TestGameCaravan, PutFaceCard_Error_FullFaceCardCapacity) {
     Card c_face_4 = {HEARTS, KING};
     Card c_face_5 = {HEARTS, KING};
     Card c_face_6 = {HEARTS, KING};
-    TrackSlot ts;
+    Slot ts;
 
     cvn.put_numeric_card(c_num);
     cvn.put_face_card(c_face_1, 1);
@@ -461,12 +461,12 @@ TEST (TestGameCaravan, PutFaceCard_Error_FullFaceCardCapacity) {
 
 TEST (TestGameCaravan, RemoveRank_FiveNumeric_OneFace) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num_1 = { SPADES, ACE };
-    Card c_num_2 = { HEARTS, TWO };
-    Card c_num_3 = { CLUBS, FIVE };
-    Card c_num_4 = { CLUBS, TWO };
-    Card c_num_5 = { DIAMONDS, ACE };
-    Card c_face = { HEARTS, KING };
+    Card c_num_1 = {SPADES, ACE};
+    Card c_num_2 = {HEARTS, TWO};
+    Card c_num_3 = {CLUBS, FIVE};
+    Card c_num_4 = {CLUBS, TWO};
+    Card c_num_5 = {DIAMONDS, ACE};
+    Card c_face = {HEARTS, KING};
 
     cvn.put_numeric_card(c_num_1);
     cvn.put_numeric_card(c_num_2);
@@ -491,12 +491,12 @@ TEST (TestGameCaravan, RemoveRank_FiveNumeric_OneFace) {
 
 TEST (TestGameCaravan, RemoveRank_FiveNumeric_OneFace_ExcludeOne) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num_1 = { SPADES, ACE };
-    Card c_num_2 = { HEARTS, TWO };
-    Card c_num_3 = { CLUBS, FIVE };
-    Card c_num_4 = { CLUBS, TWO };
-    Card c_num_5 = { DIAMONDS, ACE };
-    Card c_face = { HEARTS, KING };
+    Card c_num_1 = {SPADES, ACE};
+    Card c_num_2 = {HEARTS, TWO};
+    Card c_num_3 = {CLUBS, FIVE};
+    Card c_num_4 = {CLUBS, TWO};
+    Card c_num_5 = {DIAMONDS, ACE};
+    Card c_face = {HEARTS, KING};
 
     cvn.put_numeric_card(c_num_1);
     cvn.put_numeric_card(c_num_2);
@@ -551,12 +551,12 @@ TEST (TestGameCaravan, RemoveRank_Error_ExcludeOutOfRange) {
 
 TEST (TestGameCaravan, RemoveSuit_FiveNumeric_OneFace) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num_1 = { SPADES, ACE };
-    Card c_num_2 = { HEARTS, TWO };
-    Card c_num_3 = { CLUBS, FIVE };
-    Card c_num_4 = { CLUBS, TWO };
-    Card c_num_5 = { DIAMONDS, ACE };
-    Card c_face = { HEARTS, KING };
+    Card c_num_1 = {SPADES, ACE};
+    Card c_num_2 = {HEARTS, TWO};
+    Card c_num_3 = {CLUBS, FIVE};
+    Card c_num_4 = {CLUBS, TWO};
+    Card c_num_5 = {DIAMONDS, ACE};
+    Card c_face = {HEARTS, KING};
 
     cvn.put_numeric_card(c_num_1);
     cvn.put_numeric_card(c_num_2);
@@ -582,12 +582,12 @@ TEST (TestGameCaravan, RemoveSuit_FiveNumeric_OneFace) {
 
 TEST (TestGameCaravan, RemoveSuit_FiveNumeric_OneFace_ExcludeOne) {
     Caravan cvn = Caravan(CARAVAN_A);
-    Card c_num_1 = { SPADES, ACE };
-    Card c_num_2 = { HEARTS, TWO };
-    Card c_num_3 = { CLUBS, FIVE };
-    Card c_num_4 = { CLUBS, TWO };
-    Card c_num_5 = { DIAMONDS, ACE };
-    Card c_face = { HEARTS, KING };
+    Card c_num_1 = {SPADES, ACE};
+    Card c_num_2 = {HEARTS, TWO};
+    Card c_num_3 = {CLUBS, FIVE};
+    Card c_num_4 = {CLUBS, TWO};
+    Card c_num_5 = {DIAMONDS, ACE};
+    Card c_face = {HEARTS, KING};
 
     cvn.put_numeric_card(c_num_1);
     cvn.put_numeric_card(c_num_2);

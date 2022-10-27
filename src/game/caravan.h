@@ -29,15 +29,25 @@ public:
     }
 
     void clear();
+
     uint16_t get_bid();
-    TrackSlot get_cards_at(uint8_t pos);
+
+    Slot get_cards_at(uint8_t pos);
+
     Direction get_direction();
+
     CaravanName get_name();
+
     uint8_t get_size();
+
     Suit get_suit();
+
     void put_numeric_card(Card c);
+
     Card put_face_card(Card c, uint8_t pos);
+
     void remove_rank(Rank r, uint8_t exclude);
+
     void remove_suit(Suit s, uint8_t exclude);
 };
 

@@ -10,11 +10,11 @@ int main() {
     GameConfig gc;
     Engine *e;
     ViewCLI *v;
-    Controller *c;
+    ControllerCLI *c;
     User *ua = new UserHumanCLI(PLAYER_1);
     User *ub = new UserHumanCLI(PLAYER_2);  // TODO bot
 
-    // TODO set from user arguments
+    // TODO set from bots arguments
     gc = {
             30, 1, true,
             30, 1, true,
@@ -24,7 +24,7 @@ int main() {
     try {
         e = new Engine(gc, PLAYER_1, PLAYER_2);
         v = new ViewCLI();
-        c = new Controller(e, v, ua, ub);
+        c = new ControllerCLI(e, v, ua, ub);
 
         c->run();
 

@@ -35,12 +35,12 @@ uint16_t Caravan::get_bid() {
     return bid;
 }
 
-TrackSlot Caravan::get_cards_at(uint8_t pos) {
+Slot Caravan::get_cards_at(uint8_t pos) {
     if (pos < TRACK_NUMERIC_MIN or pos > i_track)
         throw CaravanGameException(
                 "The chosen card position is out of range.");
 
-    return track[pos-1];
+    return track[pos - 1];
 }
 
 Direction Caravan::get_direction() {
@@ -147,7 +147,8 @@ void Caravan::put_numeric_card(Card c) {
             ascends = c.rank > track[i_track - 1].card.rank;
 
             not_same_suit = c.suit != suit;
-            not_same_dir = (dir == ASCENDING and !ascends) or (dir == DESCENDING and ascends);
+            not_same_dir = (dir == ASCENDING and !ascends) or
+                           (dir == DESCENDING and ascends);
 
             if (not_same_suit and not_same_dir)
                 throw CaravanGameException(

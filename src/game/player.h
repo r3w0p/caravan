@@ -36,12 +36,19 @@ public:
     }
 
     Card get_from_hand_at(uint8_t pos);
+
     Hand get_hand();
+
     uint16_t get_moves_count();
+
     PlayerName get_name();
+
     uint8_t get_size_deck();
+
     uint8_t get_size_hand();
+
     void increment_moves_count();
+
     Card remove_from_hand_at(uint8_t pos);
 };
 

@@ -17,6 +17,8 @@ protected:
 public:
     explicit User(PlayerName pn) : name(pn) {};
 
+    PlayerName get_name() { return name; }
+
     virtual GameOption request_option(Engine *e) = 0;
 };
 
@@ -38,16 +40,21 @@ public:
 };
 
 class Controller {
+public:
+    virtual void run() = 0;
+};
+
+class ControllerCLI : public Controller {
 protected:
     Engine *engine_ptr;
     View *view_ptr;
     User *user_a_ptr;
     User *user_b_ptr;
 public:
-    explicit Controller(Engine *e, View *v, User *ua, User *ub) : engine_ptr(e), view_ptr(v), user_a_ptr(ua),
-                                                                  user_b_ptr(ub) {};
+    explicit ControllerCLI(Engine *e, View *v, User *ua, User *ub) :
+            engine_ptr(e), view_ptr(v), user_a_ptr(ua), user_b_ptr(ub) {};
 
-    void run();
+    void run() override;
 };
 
 #endif //CARAVAN_CONTROLLER_H

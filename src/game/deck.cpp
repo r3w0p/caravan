@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <random>
+#include <vector>
 #include "deck.h"
 #include "exceptions.h"
 
@@ -14,7 +15,7 @@ Deck *DeckBuilder::build_caravan_deck(
         bool balanced_sample) {
 
     uint8_t total_sample_cards;
-    Deck sample_decks[num_sample_decks];
+    Deck sample_decks[3];
     Deck *d;
     uint8_t i_next;
     Card c_next;
@@ -99,9 +100,9 @@ Deck DeckBuilder::build_standard_deck(bool shuffle) {
     for (int i = CLUBS; i <= SPADES; ++i)
         for (int j = ACE; j <= KING; ++j)
             d.push_back({
-                static_cast<Suit>(i),
-                static_cast<Rank>(j)
-            });
+                                static_cast<Suit>(i),
+                                static_cast<Rank>(j)
+                        });
 
     d.push_back({NO_SUIT, JOKER});
     d.push_back({NO_SUIT, JOKER});

@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <array>
 #include <vector>
+#include <string>
 
 /*
  * CONSTANTS
@@ -49,7 +50,21 @@ enum Suit {
     NO_SUIT, CLUBS, DIAMONDS, HEARTS, SPADES
 };
 enum Rank {
-    NO_RANK, ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER
+    NO_RANK,
+    ACE,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE,
+    SIX,
+    SEVEN,
+    EIGHT,
+    NINE,
+    TEN,
+    JACK,
+    QUEEN,
+    KING,
+    JOKER
 };
 
 /*
@@ -64,14 +79,19 @@ typedef struct Card {
 typedef std::array<Card, HAND_SIZE_MAX> Hand;
 typedef std::vector<Card> Deck;
 typedef std::array<Card, TRACK_FACE_MAX> Faces;
+typedef struct PlayerCaravanNames {
+    CaravanName cn_t1;
+    CaravanName cn_t2;
+    CaravanName cn_t3;
+} PlayerCaravanNames;
 
-typedef struct TrackSlot {
+typedef struct Slot {
     Card card{};
     Faces faces{};
     uint8_t i_faces = 0;
-} TrackSlot;
+} Slot;
 
-typedef std::array<TrackSlot, TRACK_NUMERIC_MAX> Track;
+typedef std::array<Slot, TRACK_NUMERIC_MAX> Track;
 
 typedef struct GameConfig {
     uint8_t pa_num_cards;
@@ -99,5 +119,7 @@ typedef struct GameOption {
 bool is_numeric_card(Card c);
 
 bool is_face_card(Card c);
+
+std::string caravan_name_to_str(CaravanName cn);
 
 #endif //CARAVAN_COMMON_H

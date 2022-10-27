@@ -10,10 +10,12 @@
 class DeckBuilder {
 protected:
     static Deck build_standard_deck(bool shuffle);
+
     static Deck shuffle_deck(Deck d);
 
 public:
     DeckBuilder() = delete;
+
     static Deck *build_caravan_deck(
             uint8_t num_cards,
             uint8_t num_sample_decks,

@@ -59,25 +59,6 @@ std::string suit_to_str(Suit s) {
     }
 }
 
-std::string caravan_name_to_str(CaravanName pn) {
-    switch (pn) {
-        case CARAVAN_A:
-            return "A";
-        case CARAVAN_B:
-            return "B";
-        case CARAVAN_C:
-            return "C";
-        case CARAVAN_D:
-            return "D";
-        case CARAVAN_E:
-            return "E";
-        case CARAVAN_F:
-            return "F";
-        default:
-            throw CaravanFatalException("Invalid Caravan name.");
-    }
-}
-
 std::string direction_to_str(Direction dir) {
     switch (dir) {
         case NO_DIRECTION:
@@ -95,7 +76,8 @@ void display_test_caravan(Table *t, CaravanName cn) {
     std::cout << caravan_name_to_str(cn) << " [";
     std::cout << "bid=" << t->get_caravan_bid(cn) << ", ";
     std::cout << "suit=" << suit_to_str(t->get_caravan_suit(cn)) << ", ";
-    std::cout << "dir=" << direction_to_str(t->get_caravan_direction(cn)) << ", ";
+    std::cout << "dir=" << direction_to_str(t->get_caravan_direction(cn))
+              << ", ";
     int p_size = t->get_caravan_size(cn);
     std::cout << "size=" << p_size << "]: ";
 
@@ -103,14 +85,16 @@ void display_test_caravan(Table *t, CaravanName cn) {
         if (pos > 1)
             std::cout << " ";
 
-        TrackSlot sn = t->get_caravan_cards_at(cn, pos);
-        std::cout << rank_to_str(sn.card.rank) << suit_to_str(sn.card.suit) << " (";
+        Slot sn = t->get_caravan_cards_at(cn, pos);
+        std::cout << rank_to_str(sn.card.rank) << suit_to_str(sn.card.suit)
+                  << " (";
 
         for (int m = 0; m < sn.i_faces; ++m) {
             if (m > 0)
                 std::cout << " ";
 
-            std::cout << rank_to_str(sn.faces[m].rank) << suit_to_str(sn.faces[m].suit);
+            std::cout << rank_to_str(sn.faces[m].rank)
+                      << suit_to_str(sn.faces[m].suit);
         }
         std::cout << ")";
     }
@@ -118,10 +102,10 @@ void display_test_caravan(Table *t, CaravanName cn) {
 }
 
 
-void display_test(Engine *g) {
-    Table *t = g->get_table();
-    Player *you = g->get_player(PLAYER_1);
-    Player *opp = g->get_player(PLAYER_2);
+void display_test(Engine *e) {
+    Table *t = e->get_table();
+    Player *pa = e->get_player(PLAYER_1);
+    Player *pb = e->get_player(PLAYER_2);
     Card c;
 
     display_test_caravan(t, CARAVAN_A);
@@ -137,15 +121,15 @@ void display_test(Engine *g) {
     display_test_caravan(t, CARAVAN_C);
     display_test_caravan(t, CARAVAN_F);
 
-    std::cout << std::endl << "YOU:";
-    for (int i = 0; i < you->get_size_hand(); ++i) {
-        c = you->get_from_hand_at(i + 1);
+    std::cout << std::endl << "PLAYER 1:";
+    for (int i = 0; i < pa->get_size_hand(); ++i) {
+        c = pa->get_from_hand_at(i + 1);
         std::cout << " " << rank_to_str(c.rank) << suit_to_str(c.suit);
     }
 
-    std::cout << std::endl << "OPP:";
-    for (int i = 0; i < opp->get_size_hand(); ++i) {
-        c = opp->get_from_hand_at(i + 1);
+    std::cout << std::endl << "PLAYER 2:";
+    for (int i = 0; i < pb->get_size_hand(); ++i) {
+        c = pb->get_from_hand_at(i + 1);
         std::cout << " " << rank_to_str(c.rank) << suit_to_str(c.suit);
     }
     std::cout << std::endl;
@@ -154,5 +138,9 @@ void display_test(Engine *g) {
 void ViewCLI::display(Engine *g, std::string msg) {
     // TODO
     display_test(g);
-    std::cout << msg << std::endl;
+
+    if (msg.size() > 0)
+        std::cout << std::endl << msg << std::endl;
+
+    std::cout << std::endl;
 }
