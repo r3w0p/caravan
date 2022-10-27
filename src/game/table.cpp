@@ -6,35 +6,37 @@
 #include "exceptions.h"
 
 
-uint8_t Table::caravan_name_to_index_value(CaravanName cn) {
-    switch (cn) {
-        case CARAVAN_A:
-            return 0;
-        case CARAVAN_B:
-            return 1;
-        case CARAVAN_C:
-            return 2;
-        case CARAVAN_D:
-            return 3;
-        case CARAVAN_E:
-            return 4;
-        case CARAVAN_F:
-            return 5;
-        default:
-            throw CaravanFatalException("Invalid Caravan name.");
-    }
+void Table::clear_caravan(CaravanName cn) {
+    caravans[caravan_name_to_index_value(cn)].clear();
 }
 
-void Table::play_numeric_card(CaravanName cn, Card c) {
-    Caravan *caravan_ptr = &caravans[caravan_name_to_index_value(cn)];
-    caravan_ptr->put_numeric_card(c);
+uint16_t Table::get_caravan_bid(CaravanName cn) {
+    return caravans[caravan_name_to_index_value(cn)].get_bid();
+}
+
+TrackSlot Table::get_caravan_cards_at(CaravanName cn, uint8_t pos) {
+    return caravans[caravan_name_to_index_value(cn)].get_cards_at(pos);
+}
+
+Direction Table::get_caravan_direction(CaravanName cn) {
+    return caravans[caravan_name_to_index_value(cn)].get_direction();
+}
+
+uint8_t Table::get_caravan_size(CaravanName cn) {
+    return caravans[caravan_name_to_index_value(cn)].get_size();
+}
+
+Suit Table::get_caravan_suit(CaravanName cn) {
+    return caravans[caravan_name_to_index_value(cn)].get_suit();
 }
 
 void Table::play_face_card(CaravanName cn, Card c, uint8_t pos) {
     Caravan *cvn_target = &caravans[caravan_name_to_index_value(cn)];
 
-    if (c.rank == QUEEN and pos != cvn_target->size())
-        throw CaravanGameException("A QUEEN must be played on the most recent numeric card in a caravan.");
+    if (c.rank == QUEEN and pos != cvn_target->get_size())
+        throw CaravanGameException(
+                "A Queen must be played on the numeric card "
+                "at the highest position in a caravan.");
 
     // Play Face card on Caravan.
     // Returns the Numeric card that the Face card was played on.
@@ -64,26 +66,30 @@ void Table::play_face_card(CaravanName cn, Card c, uint8_t pos) {
     }
 }
 
-void Table::clear_caravan(CaravanName cn) {
-    caravans[caravan_name_to_index_value(cn)].clear();
+void Table::play_numeric_card(CaravanName cn, Card c) {
+    Caravan *caravan_ptr = &caravans[caravan_name_to_index_value(cn)];
+    caravan_ptr->put_numeric_card(c);
 }
 
-uint16_t Table::get_caravan_bid(CaravanName cn) {
-    return caravans[caravan_name_to_index_value(cn)].get_bid();
-}
+/*
+ * PROTECTED
+ */
 
-Suit Table::get_caravan_suit(CaravanName cn) {
-    return caravans[caravan_name_to_index_value(cn)].get_suit();
-}
-
-Direction Table::get_caravan_direction(CaravanName cn) {
-    return caravans[caravan_name_to_index_value(cn)].get_direction();
-}
-
-uint8_t Table::get_caravan_size(CaravanName cn) {
-    return caravans[caravan_name_to_index_value(cn)].size();
-}
-
-TrackSlot Table::get_caravan_cards_at(CaravanName cn, uint8_t pos) {
-    return caravans[caravan_name_to_index_value(cn)].get_cards_at(pos);
+uint8_t Table::caravan_name_to_index_value(CaravanName cn) {
+    switch (cn) {
+        case CARAVAN_A:
+            return 0;
+        case CARAVAN_B:
+            return 1;
+        case CARAVAN_C:
+            return 2;
+        case CARAVAN_D:
+            return 3;
+        case CARAVAN_E:
+            return 4;
+        case CARAVAN_F:
+            return 5;
+        default:
+            throw CaravanFatalException("Invalid caravan name.");
+    }
 }

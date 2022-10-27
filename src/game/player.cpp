@@ -7,6 +7,30 @@
 #include "exceptions.h"
 
 
+Card Player::get_from_hand_at(uint8_t pos) {
+    if (i_hand == 0)
+        throw CaravanFatalException(
+                "Player's hand is empty.");
+
+    if (pos < HAND_POS_MIN or pos > i_hand)
+        throw CaravanGameException(
+                "The chosen hand position is out of range.");
+
+    return hand[pos - 1];
+}
+
+Hand Player::get_hand() {
+    return hand;
+}
+
+uint16_t Player::get_moves_count() {
+    return moves;
+}
+
+PlayerName Player::get_name() {
+    return name;
+}
+
 uint8_t Player::get_size_deck() {
     return deck->size();
 }
@@ -15,17 +39,22 @@ uint8_t Player::get_size_hand() {
     return i_hand;
 }
 
+void Player::increment_moves_count() {
+    moves += 1;
+}
+
 Card Player::remove_from_hand_at(uint8_t pos) {
-    if (pos < HAND_POS_MIN or pos > HAND_POS_MAX)
-        throw CaravanGameException("The chosen position is out of range.");
+    uint8_t i;
 
     if (i_hand == 0)
-        throw CaravanGameException("The Player's hand is empty.");
+        throw CaravanFatalException(
+                "Player's hand is empty.");
 
-    uint8_t i = pos - 1;
+    if (pos < HAND_POS_MIN or pos > i_hand)
+        throw CaravanGameException(
+                "The chosen hand position is out of range.");
 
-    if (i >= i_hand)
-        throw CaravanGameException("There is no card at the chosen position.");
+    i = pos - 1;
 
     // Get card at index
     Card c_ret = hand[i];
@@ -46,35 +75,4 @@ Card Player::remove_from_hand_at(uint8_t pos) {
     }
 
     return c_ret;
-}
-
-Card Player::get_from_hand_at(uint8_t pos) {
-    if (pos < HAND_POS_MIN or pos > HAND_POS_MAX)
-        throw CaravanGameException("The chosen position is out of range.");
-
-    if (i_hand == 0)
-        throw CaravanGameException("The Player's hand is empty.");
-
-    uint8_t i = pos - 1;
-
-    if (i >= i_hand)
-        throw CaravanGameException("There is no card at the chosen position.");
-
-    return hand[i];
-}
-
-Hand Player::get_hand() {
-    return hand;
-}
-
-PlayerName Player::get_name() {
-    return name;
-}
-
-uint16_t Player::get_moves_count() {
-    return moves;
-}
-
-void Player::increment_moves_count() {
-    moves += 1;
 }

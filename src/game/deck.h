@@ -8,15 +8,16 @@
 #include "common.h"
 
 class DeckBuilder {
-private:
-    static Deck shuffle_deck(Deck d);
-
+protected:
     static Deck build_standard_deck(bool shuffle);
+    static Deck shuffle_deck(Deck d);
 
 public:
     DeckBuilder() = delete;
-
-    static Deck *build_caravan_deck(uint8_t num_cards, uint8_t num_sample_decks, bool balanced_sample);
+    static Deck *build_caravan_deck(
+            uint8_t num_cards,
+            uint8_t num_sample_decks,
+            bool balanced_sample);
 };
 
 #endif //CARAVAN_DECK_H

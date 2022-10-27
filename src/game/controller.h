@@ -41,11 +41,11 @@ class Controller {
 protected:
     Engine *engine_ptr;
     View *view_ptr;
-    User *user_p1_ptr;
-    User *user_p2_ptr;
+    User *user_a_ptr;
+    User *user_b_ptr;
 public:
-    explicit Controller(Engine *e, View *v, User *p1, User *p2) : engine_ptr(e), view_ptr(v), user_p1_ptr(p1),
-                                                                  user_p2_ptr(p2) {};
+    explicit Controller(Engine *e, View *v, User *ua, User *ub) : engine_ptr(e), view_ptr(v), user_a_ptr(ua),
+                                                                  user_b_ptr(ub) {};
 
     void run();
 };

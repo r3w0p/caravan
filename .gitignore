@@ -33,6 +33,7 @@
 
 # CMake
 cmake-build-debug
+cmake-build-debug-coverage
 
 # JetBrains
 .idea

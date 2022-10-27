@@ -11,7 +11,7 @@
 
 
 class Table {
-private:
+protected:
     std::array<Caravan, TABLE_CARAVANS_MAX> caravans = {
             Caravan(CARAVAN_A),
             Caravan(CARAVAN_B),
@@ -25,19 +25,12 @@ private:
 
 public:
     void clear_caravan(CaravanName cn);
-
     uint16_t get_caravan_bid(CaravanName cn);
-
     TrackSlot get_caravan_cards_at(CaravanName cn, uint8_t pos);
-
     Direction get_caravan_direction(CaravanName cn);
-
     uint8_t get_caravan_size(CaravanName cn);
-
     Suit get_caravan_suit(CaravanName cn);
-
     void play_face_card(CaravanName cn, Card c, uint8_t pos);
-
     void play_numeric_card(CaravanName cn, Card c);
 };
 

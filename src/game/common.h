@@ -34,7 +34,7 @@ const uint8_t TABLE_CARAVANS_MAX = 6;
  */
 
 enum PlayerName {
-    NO_PLAYER, PLAYER_1, PLAYER_2, COMPUTER
+    NO_PLAYER, PLAYER_1, PLAYER_2, BOT_1, BOT_2
 };
 enum Direction {
     NO_DIRECTION, ASCENDING, DESCENDING
@@ -74,15 +74,15 @@ typedef struct TrackSlot {
 typedef std::array<TrackSlot, TRACK_NUMERIC_MAX> Track;
 
 typedef struct GameConfig {
-    uint8_t p1_num_cards;
-    uint8_t p1_num_sample_decks;
-    bool p1_balanced_sample;
+    uint8_t pa_num_cards;
+    uint8_t pa_num_sample_decks;
+    bool pa_balanced_sample;
 
-    uint8_t p2_num_cards;
-    uint8_t p2_num_sample_decks;
-    bool p2_balanced_sample;
+    uint8_t pb_num_cards;
+    uint8_t pb_num_sample_decks;
+    bool pb_balanced_sample;
 
-    PlayerName p_first;
+    PlayerName pn_first;
 } GameConfig;
 
 typedef struct GameOption {

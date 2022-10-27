@@ -15,7 +15,8 @@ std::string player_name_to_str(PlayerName pn) {
             return "PLAYER 1";
         case PLAYER_2:
             return "PLAYER 2";
-        case COMPUTER:
+        case BOT_1:
+        case BOT_2:
             return "COMPUTER";
         default:
             throw CaravanFatalException("Invalid player name.");
@@ -31,7 +32,7 @@ void Controller::run() {
     do {
         view_ptr->display(engine_ptr, msg);
         msg = "";
-        user_turn = engine_ptr->get_player_turn() == PLAYER_1 ? user_p1_ptr : user_p2_ptr;
+        user_turn = engine_ptr->get_player_turn() == PLAYER_1 ? user_a_ptr : user_b_ptr;
         option = user_turn->request_option(engine_ptr);
 
         try {

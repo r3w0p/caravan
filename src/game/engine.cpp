@@ -8,21 +8,134 @@
 
 void Engine::close() {
     if (closed)
-        return;
+        throw CaravanFatalException("The game has already closed.");
 
     delete table_ptr;
-    delete deck_p1_ptr;
-    delete deck_p2_ptr;
-    delete p1_ptr;
-    delete p2_ptr;
+    delete deck_pa_ptr;
+    delete deck_pb_ptr;
+    delete pa_ptr;
+    delete pb_ptr;
 
     closed = true;
 }
 
-bool Engine::has_sold(CaravanName cn) {
-    uint8_t bid = table_ptr->get_caravan_bid(cn);
-    return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
+Player *Engine::get_player(PlayerName pn) {
+    if (closed)
+        throw CaravanFatalException("The game has already closed.");
+
+    if(pa_ptr->get_name() == pn)
+        return pa_ptr;
+
+    if(pb_ptr->get_name() == pn)
+        return pb_ptr;
+
+    throw CaravanFatalException("Invalid player name.");
 }
+
+PlayerName Engine::get_player_turn() {
+    if (closed)
+        throw CaravanFatalException("The game has already closed.");
+
+    return p_turn->get_name();
+}
+
+Table *Engine::get_table() {
+    if (closed)
+        throw CaravanFatalException("The game has already closed.");
+
+    return table_ptr;
+}
+
+PlayerName Engine::get_winner() {
+    if (closed)
+        throw CaravanFatalException("The game has already closed.");
+
+    uint8_t won_pa = 0;
+    uint8_t won_pb = 0;
+    int8_t comp[3];
+
+    comp[0] = compare_bids(CARAVAN_D, CARAVAN_A);
+    comp[1] = compare_bids(CARAVAN_E, CARAVAN_B);
+    comp[2] = compare_bids(CARAVAN_F, CARAVAN_C);
+
+    for (int i = 0; i < 3; ++i) {
+        if (comp[i] < 0)
+            won_pa += 1;
+        else if (comp[i] > 0)
+            won_pb += 1;
+        else {
+            // All three must be sold for there to be a winner
+            return NO_PLAYER;
+        }
+    }
+
+    if (won_pa >= 2)
+        return pa_ptr->get_name();
+    else if (won_pb >= 2)
+        return pb_ptr->get_name();
+
+    // Neither player has outbid the other...
+
+    // Check if players have empty hands
+    if (pa_ptr->get_size_hand() > 0 and pb_ptr->get_size_hand() == 0)
+        return pa_ptr->get_name();
+    else if (pb_ptr->get_size_hand() > 0 and pa_ptr->get_size_hand() == 0)
+        return pb_ptr->get_name();
+
+    return NO_PLAYER;
+}
+
+bool Engine::is_closed() {
+    return closed;
+}
+
+void Engine::play_option(GameOption go) {
+    if (closed)
+        throw CaravanFatalException(
+                "The game has already closed.");
+
+    if (get_winner() != NO_PLAYER)
+        throw CaravanFatalException(
+                "The game has already been won.");
+
+    switch (go.type) {
+        case OPTION_PLAY:
+            option_play(p_turn, go);
+            break;
+
+        case OPTION_REMOVE:
+            if (p_turn->get_moves_count() < MOVES_START_ROUND)
+                throw CaravanGameException(
+                        "A player cannot drop a card during "
+                        "the Start round.");
+
+            option_drop(p_turn, go);
+            break;
+
+        case OPTION_CLEAR:
+            if (p_turn->get_moves_count() < MOVES_START_ROUND)
+                throw CaravanGameException(
+                        "A player cannot clear a Caravan during "
+                        "the Start round.");
+
+            option_clear(p_turn, go);
+            break;
+
+        default:
+            throw CaravanFatalException("Unknown play option.");
+    }
+
+    p_turn->increment_moves_count();
+
+    if (pa_ptr->get_name() == p_turn->get_name())
+        p_turn = pb_ptr;
+    else
+        p_turn = pa_ptr;
+}
+
+/*
+ * PROTECTED
+ */
 
 int8_t Engine::compare_bids(CaravanName cn1, CaravanName cn2) {
     uint8_t bid_cn1;
@@ -49,156 +162,64 @@ int8_t Engine::compare_bids(CaravanName cn1, CaravanName cn2) {
         return 0;  // CN1 unsold; CN2 unsold
 }
 
-PlayerName Engine::get_winner() {
-    if (closed)
-        throw CaravanFatalException("The game has closed.");
-
-    uint8_t won_p1 = 0;
-    uint8_t won_p2 = 0;
-    int8_t comp[3];
-
-    comp[0] = compare_bids(CARAVAN_D, CARAVAN_A);
-    comp[1] = compare_bids(CARAVAN_E, CARAVAN_B);
-    comp[2] = compare_bids(CARAVAN_F, CARAVAN_C);
-
-    for (int i = 0; i < 3; ++i) {
-        if (comp[i] < 0)
-            won_p1 += 1;
-        else if (comp[i] > 0)
-            won_p2 += 1;
-        else {
-            // All three must be sold for there to be a winner
-            return NO_PLAYER;
-        }
-    }
-
-    if (won_p1 >= 2)
-        return PLAYER_1;
-    else if (won_p2 >= 2)
-        return PLAYER_2;
-
-    // Neither player has outbid the other...
-
-    // Check if players have empty hands
-    if (p1_ptr->get_size_hand() > 0 and p2_ptr->get_size_hand() == 0)
-        return PLAYER_1;
-    else if (p2_ptr->get_size_hand() > 0 and p1_ptr->get_size_hand() == 0)
-        return PLAYER_2;
-
-    return NO_PLAYER;
-}
-
-void Engine::play_option(GameOption go) {
-    if (closed)
-        throw CaravanGameException("The game has closed.");
-
-    if (get_winner() != NO_PLAYER)
-        throw CaravanGameException("The game has already been won.");
-
-    Player *p_ptr = p_turn == PLAYER_1 ? p1_ptr : p2_ptr;
-
-    switch (go.type) {
-        case OPTION_PLAY:
-            option_play(p_ptr, go);
-            break;
-
-        case OPTION_REMOVE:
-            if (p_ptr->get_moves_count() < MOVES_START_ROUND)
-                throw CaravanGameException("Player cannot drop a card during the Start round.");
-
-            option_drop(p_ptr, go);
-            break;
-
-        case OPTION_CLEAR:
-            if (p_ptr->get_moves_count() < MOVES_START_ROUND)
-                throw CaravanGameException("Player cannot clear a Caravan during the Start round.");
-
-            option_clear(p_ptr, go);
-            break;
-
-        default:
-            throw CaravanGameException("Unknown play_option.");
-    }
-
-    p_ptr->increment_moves_count();
-
-    if (p_turn == PLAYER_1)
-        p_turn = PLAYER_2;
-    else
-        p_turn = PLAYER_1;
-}
-
-void Engine::option_play(Player *p_ptr, GameOption go) {
-    Card c_hand = p_ptr->get_from_hand_at(go.pos_hand);
-
-    bool is_in_start_stage = p_ptr->get_moves_count() < MOVES_START_ROUND;
-    bool is_you_playing_num_into_you_caravans;
-    bool is_opp_playing_num_into_opp_caravans;
-
-    if (is_numeric_card(c_hand)) {
-        is_you_playing_num_into_you_caravans = p_ptr->get_name() == PLAYER_1 and (
-                go.caravan_name == CARAVAN_D or
-                go.caravan_name == CARAVAN_E or
-                go.caravan_name == CARAVAN_F);
-
-        is_opp_playing_num_into_opp_caravans = p_ptr->get_name() == PLAYER_2 and (
-                go.caravan_name == CARAVAN_A or
-                go.caravan_name == CARAVAN_B or
-                go.caravan_name == CARAVAN_C);
-
-        if (!(is_you_playing_num_into_you_caravans or is_opp_playing_num_into_opp_caravans))
-            throw CaravanGameException(
-                    "Numeric card can only be played on Player's own Caravans.");
-
-        if (is_in_start_stage and table_ptr->get_caravan_size(go.caravan_name) > 0)
-            throw CaravanGameException(
-                    "Numeric card must be played on an empty Caravan during the Start round.");
-
-        table_ptr->play_numeric_card(go.caravan_name, c_hand);
-
-    } else {
-        if (is_in_start_stage)
-            throw CaravanGameException(
-                    "Face card cannot be played during the Start round.");
-
-        table_ptr->play_face_card(go.caravan_name, c_hand, go.pos_caravan);
-    }
-
-    p_ptr->remove_from_hand_at(go.pos_hand);
-}
-
-void Engine::option_drop(Player *p_ptr, GameOption go) {
-    p_ptr->remove_from_hand_at(go.pos_hand);
+bool Engine::has_sold(CaravanName cn) {
+    uint8_t bid = table_ptr->get_caravan_bid(cn);
+    return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
 void Engine::option_clear(Player *p_ptr, GameOption go) {
     table_ptr->clear_caravan(go.caravan_name);
 }
 
-PlayerName Engine::get_player_turn() {
-    if (closed)
-        throw CaravanFatalException("The game has closed.");
-
-    return p_turn;
+void Engine::option_drop(Player *p_ptr, GameOption go) {
+    p_ptr->remove_from_hand_at(go.pos_hand);
 }
 
-Table *Engine::get_table() {
-    if (closed)
-        throw CaravanFatalException("The game has closed.");
+void Engine::option_play(Player *p_ptr, GameOption go) {
+    Card c_hand = p_ptr->get_from_hand_at(go.pos_hand);
 
-    return table_ptr;
-}
+    bool in_start_stage = p_ptr->get_moves_count() < MOVES_START_ROUND;
+    bool pa_playing_num_into_pa_caravans;
+    bool pb_playing_num_into_pb_caravans;
 
-Player *Engine::get_player(PlayerName pn) {
-    if (closed)
-        throw CaravanFatalException("The game has closed.");
+    if (is_numeric_card(c_hand)) {
+        pa_playing_num_into_pa_caravans =
+                p_ptr->get_name() == pa_ptr->get_name() and
+                (go.caravan_name == CARAVAN_D or
+                        go.caravan_name == CARAVAN_E or
+                        go.caravan_name == CARAVAN_F);
 
-    switch (pn) {
-        case PLAYER_1:
-            return p1_ptr;
-        case PLAYER_2:
-            return p2_ptr;
-        default:
-            throw CaravanFatalException("Invalid player name.");
+        pb_playing_num_into_pb_caravans =
+                p_ptr->get_name() == pb_ptr->get_name() and
+                (go.caravan_name == CARAVAN_A or
+                         go.caravan_name == CARAVAN_B or
+                         go.caravan_name == CARAVAN_C);
+
+        if (!(pa_playing_num_into_pa_caravans or
+              pb_playing_num_into_pb_caravans))
+            throw CaravanGameException(
+                    "A numeric card can only be played on "
+                    "a player's own caravans.");
+
+        if (in_start_stage and
+            table_ptr->get_caravan_size(go.caravan_name) > 0)
+            throw CaravanGameException(
+                    "A numeric card must be played on an empty caravan "
+                    "during the Start round.");
+
+        table_ptr->play_numeric_card(go.caravan_name, c_hand);
+
+    } else {
+        if (in_start_stage)
+            throw CaravanGameException(
+                    "A face card cannot be played during the "
+                    "Start round.");
+
+        table_ptr->play_face_card(
+                go.caravan_name,
+                c_hand,
+                go.pos_caravan);
     }
+
+    p_ptr->remove_from_hand_at(go.pos_hand);
 }

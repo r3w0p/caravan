@@ -11,8 +11,8 @@ int main() {
     Engine *e;
     ViewCLI *v;
     Controller *c;
-    User *u_p1 = new UserHumanCLI(PLAYER_1);
-    User *u_p2 = new UserHumanCLI(PLAYER_2);  // TODO bot
+    User *ua = new UserHumanCLI(PLAYER_1);
+    User *ub = new UserHumanCLI(PLAYER_2);  // TODO bot
 
     // TODO set from user arguments
     gc = {
@@ -22,9 +22,9 @@ int main() {
     };
 
     try {
-        e = new Engine(gc);
+        e = new Engine(gc, PLAYER_1, PLAYER_2);
         v = new ViewCLI();
-        c = new Controller(e, v, u_p1, u_p2);
+        c = new Controller(e, v, ua, ub);
 
         c->run();
 

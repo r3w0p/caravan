@@ -3,10 +3,11 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "gtest/gtest.h"
-#include "../src/game/model.h"
+#include "../src/game/table.h"
+#include "../src/game/exceptions.h"
 
 
-TEST (TestGameModelTable, ClearCaravan_TwoNumeric_OneFace) {
+TEST (TestGameTable, ClearCaravan_TwoNumeric_OneFace) {
     Table t;
     Card c_num_1 = { SPADES, ACE };
     Card c_num_2 = { SPADES, TWO };
@@ -23,12 +24,12 @@ TEST (TestGameModelTable, ClearCaravan_TwoNumeric_OneFace) {
 }
 
 
-TEST (TestGameModelTable, GetCaravanBid_ThreeNumeric) {
+TEST (TestGameTable, GetCaravanBid_ThreeNumeric) {
     Table t;
     Card c_num_1 = { SPADES, ACE };
     Card c_num_2 = { SPADES, TWO };
     Card c_num_3 = { SPADES, THREE };
-    CaravanName pn = CARAVAN_A;
+    CaravanName pn = CARAVAN_B;
 
     ASSERT_EQ(t.get_caravan_bid(pn), 0);
     t.play_numeric_card(pn, c_num_1);
@@ -39,12 +40,12 @@ TEST (TestGameModelTable, GetCaravanBid_ThreeNumeric) {
     ASSERT_EQ(t.get_caravan_bid(pn), 6);
 }
 
-TEST (TestGameModelTable, GetCaravanCardsAt_ThreeNumeric) {
+TEST (TestGameTable, GetCaravanCardsAt_ThreeNumeric) {
     Table t;
     Card c_num_1 = { SPADES, ACE };
     Card c_num_2 = { CLUBS, TWO };
     Card c_num_3 = { HEARTS, THREE };
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_C;
     TrackSlot ts;
 
     t.play_numeric_card(cn, c_num_1);
@@ -64,11 +65,11 @@ TEST (TestGameModelTable, GetCaravanCardsAt_ThreeNumeric) {
     ASSERT_EQ(ts.card.rank, THREE);
 }
 
-TEST (TestGameModelTable, GetCaravanDirection_BeforeAfter_Ascending) {
+TEST (TestGameTable, GetCaravanDirection_Ascending) {
     Table t;
     Card c_num_1 = { SPADES, ACE };
     Card c_num_2 = { SPADES, TWO };
-    CaravanName pn = CARAVAN_A;
+    CaravanName pn = CARAVAN_D;
 
     ASSERT_EQ(t.get_caravan_direction(pn), NO_DIRECTION);
     t.play_numeric_card(pn, c_num_1);
@@ -77,11 +78,11 @@ TEST (TestGameModelTable, GetCaravanDirection_BeforeAfter_Ascending) {
     ASSERT_EQ(t.get_caravan_direction(pn), ASCENDING);
 }
 
-TEST (TestGameModelTable, GetCaravanDirection_BeforeAfter_Descending) {
+TEST (TestGameTable, GetCaravanDirection_Descending) {
     Table t;
     Card c_num_1 = { SPADES, TWO };
     Card c_num_2 = { SPADES, ACE };
-    CaravanName pn = CARAVAN_A;
+    CaravanName pn = CARAVAN_E;
 
     ASSERT_EQ(t.get_caravan_direction(pn), NO_DIRECTION);
     t.play_numeric_card(pn, c_num_1);
@@ -90,12 +91,12 @@ TEST (TestGameModelTable, GetCaravanDirection_BeforeAfter_Descending) {
     ASSERT_EQ(t.get_caravan_direction(pn), DESCENDING);
 }
 
-TEST (TestGameModelTable, GetCaravanSize_ThreeNumeric_BeforeAfter) {
+TEST (TestGameTable, GetCaravanSize_ThreeNumeric) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
     Card c_num_3 = {HEARTS, THREE};
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_F;
 
     ASSERT_EQ(t.get_caravan_size(cn), 0);
 
@@ -106,7 +107,7 @@ TEST (TestGameModelTable, GetCaravanSize_ThreeNumeric_BeforeAfter) {
     ASSERT_EQ(t.get_caravan_size(cn), 3);
 }
 
-TEST (TestGameModelTable, GetCaravanSuit_BeforeAfter) {
+TEST (TestGameTable, GetCaravanSuit_BeforeAfter) {
     Table t;
     Card c_num = { SPADES, ACE };
     CaravanName pn = CARAVAN_A;
@@ -116,7 +117,7 @@ TEST (TestGameModelTable, GetCaravanSuit_BeforeAfter) {
     ASSERT_EQ(t.get_caravan_suit(pn), SPADES);
 }
 
-TEST (TestGameModelTable, PlayFaceCard_Jack_BeforeAfter) {
+TEST (TestGameTable, PlayFaceCard_Jack) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
@@ -147,7 +148,7 @@ TEST (TestGameModelTable, PlayFaceCard_Jack_BeforeAfter) {
     ASSERT_EQ(ts.card.rank, THREE);
 }
 
-TEST (TestGameModelTable, PlayFaceCard_Queen_BeforeAfter) {
+TEST (TestGameTable, PlayFaceCard_Queen) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
@@ -170,7 +171,7 @@ TEST (TestGameModelTable, PlayFaceCard_Queen_BeforeAfter) {
     ASSERT_EQ(t.get_caravan_direction(cn), DESCENDING);
 }
 
-TEST (TestGameModelTable, PlayFaceCard_Error_Queen_NotPlayedOntoTopCard) {
+TEST (TestGameTable, PlayFaceCard_Error_Queen_NotPlayedOnTopCard) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
@@ -186,14 +187,14 @@ TEST (TestGameModelTable, PlayFaceCard_Error_Queen_NotPlayedOntoTopCard) {
         t.play_face_card(cn, c_face, 2);
         FAIL();
 
-    } catch(CaravanGameModelException & e) {
+    } catch(CaravanGameException & e) {
 
     } catch(...) {
         FAIL();
     }
 }
 
-TEST (TestGameModelTable, PlayFaceCard_King_OneNumeric_ThreeKings_BeforeAfter) {
+TEST (TestGameTable, PlayFaceCard_King_OneNumeric_ThreeKings) {
     Table t;
     Card c_num = {SPADES, FIVE};
     Card c_face_1 = {DIAMONDS, KING};
@@ -214,7 +215,7 @@ TEST (TestGameModelTable, PlayFaceCard_King_OneNumeric_ThreeKings_BeforeAfter) {
     ASSERT_EQ(t.get_caravan_bid(cn), 40);
 }
 
-TEST (TestGameModelTable, PlayFaceCard_Joker_Ace) {
+TEST (TestGameTable, PlayFaceCard_Joker_Ace) {
     Table t;
     Card c_num_a1 = {SPADES, ACE};
     Card c_num_a2 = {HEARTS, THREE};
@@ -245,7 +246,7 @@ TEST (TestGameModelTable, PlayFaceCard_Joker_Ace) {
     ASSERT_EQ(ts.card.rank, ACE);
 }
 
-TEST (TestGameModelTable, PlayFaceCard_Joker_2To10) {
+TEST (TestGameTable, PlayFaceCard_Joker_2To10) {
     Table t;
     Card c_num_a1 = {SPADES, TWO};
     Card c_num_a2 = {HEARTS, THREE};
@@ -276,7 +277,7 @@ TEST (TestGameModelTable, PlayFaceCard_Joker_2To10) {
     ASSERT_EQ(ts.card.rank, TWO);
 }
 
-TEST (TestGameModelTable, PlayNumericCard_BeforeAfter) {
+TEST (TestGameTable, PlayNumericCard) {
     Table t;
     Card c_num_1 = { SPADES, ACE };
     Card c_num_2 = { HEARTS, THREE };
@@ -299,7 +300,7 @@ TEST (TestGameModelTable, PlayNumericCard_BeforeAfter) {
     ASSERT_EQ(t.get_caravan_direction(cn), ASCENDING);
 }
 
-TEST (TestGameModelTable, PlayNumericCard_Error_TwoCardsWithSameRankInSequence) {
+TEST (TestGameTable, PlayNumericCard_Error_TwoCards_SameRank_InSequence) {
     Table t;
     Card c_num_1 = {SPADES, THREE};
     Card c_num_2 = {DIAMONDS, THREE};
@@ -311,14 +312,14 @@ TEST (TestGameModelTable, PlayNumericCard_Error_TwoCardsWithSameRankInSequence) 
         t.play_numeric_card(cn, c_num_2);
         FAIL();
 
-    } catch(CaravanGameModelException & e) {
+    } catch(CaravanGameException & e) {
 
     } catch(...) {
         FAIL();
     }
 }
 
-TEST (TestGameModelTable, PlayNumericCard_Error_CaravanAscending_ThirdCardDescendingDifferentSuit) {
+TEST (TestGameTable, PlayNumericCard_Error_OppositeDirection_DifferentSuit) {
     Table t;
     Card c_num_1 = {SPADES, FIVE};
     Card c_num_2 = {DIAMONDS, SEVEN};
@@ -334,14 +335,14 @@ TEST (TestGameModelTable, PlayNumericCard_Error_CaravanAscending_ThirdCardDescen
         t.play_numeric_card(cn, c_num_3);
         FAIL();
 
-    } catch(CaravanGameModelException & e) {
+    } catch(CaravanGameException & e) {
 
     } catch(...) {
         FAIL();
     }
 }
 
-TEST (TestGameModelTable, PlayNumericCard_CaravanAscending_ThirdCardDescendingSameSuit) {
+TEST (TestGameTable, PlayNumericCard_OppositeDirection_SameSuit) {
     Table t;
     Card c_num_1 = {SPADES, FIVE};
     Card c_num_2 = {DIAMONDS, SEVEN};
