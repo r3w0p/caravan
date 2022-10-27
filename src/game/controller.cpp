@@ -41,7 +41,7 @@ GameOption UserHumanCLI::request_option(Engine *e) {
     if (e->is_closed())
         throw CaravanFatalException("The game has already closed.");
 
-    reached_end_ok = false
+    reached_end_ok = false;
 
     do {
         std::cout << "[" << player_name_to_str(name) << "] >";
