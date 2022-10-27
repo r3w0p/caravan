@@ -25,9 +25,9 @@ const uint8_t DECK_CARAVAN_MAX = 156;
 const uint8_t SAMPLE_DECKS_MIN = 1;
 const uint8_t SAMPLE_DECKS_MAX = 3;
 const uint8_t MOVES_START_ROUND = 3;
-const uint8_t HAND_SIZE_MAX = 8;
+const uint8_t HAND_SIZE_MAX_START = 8;
+const uint8_t HAND_SIZE_MAX_POST_START = 5;
 const uint8_t HAND_POS_MIN = 1;
-const uint8_t HAND_POS_MAX = HAND_SIZE_MAX;
 const uint8_t TABLE_CARAVANS_MAX = 6;
 
 /*
@@ -35,7 +35,7 @@ const uint8_t TABLE_CARAVANS_MAX = 6;
  */
 
 enum PlayerName {
-    NO_PLAYER, PLAYER_1, PLAYER_2, BOT_1, BOT_2
+    NO_PLAYER, PLAYER_A, PLAYER_B
 };
 enum Direction {
     NO_DIRECTION, ASCENDING, DESCENDING
@@ -76,7 +76,7 @@ typedef struct Card {
     Rank rank{};
 } Card;
 
-typedef std::array<Card, HAND_SIZE_MAX> Hand;
+typedef std::array<Card, HAND_SIZE_MAX_START> Hand;
 typedef std::vector<Card> Deck;
 typedef std::array<Card, TRACK_FACE_MAX> Faces;
 typedef struct PlayerCaravanNames {
@@ -116,10 +116,16 @@ typedef struct GameOption {
  * FUNCTIONS
  */
 
+std::string caravan_name_to_str(CaravanName cn);
+
 bool is_numeric_card(Card c);
 
 bool is_face_card(Card c);
 
-std::string caravan_name_to_str(CaravanName cn);
+std::string player_name_to_str(PlayerName pn);
+
+std::string rank_to_str(Rank r);
+
+std::string suit_to_str(Suit s);
 
 #endif //CARAVAN_COMMON_H

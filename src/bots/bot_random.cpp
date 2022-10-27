@@ -4,20 +4,51 @@
 
 #include "bot_random.h"
 
-GameOption UserBotRandom::request_option(Engine *e) {
+uint8_t pos_card_numeric(Player *p) {
+    uint8_t size_hand = p->get_size_hand();
+    Hand h = p->get_hand();
+
+    for(int i = 0; i < size_hand; ++i)
+        if(is_numeric_card(h[i]))
+            return i+1;
+
+    return 0;
+}
+
+GameOption UserBotRandom::request_option(Engine *e, View *v) {
     Player *p;
     Table *t;
     PlayerCaravanNames pcns;
-    bool start_round;
+    uint8_t pos_hand;
+    uint16_t moves;
 
     if (e->is_closed())
         throw CaravanFatalException("The game has already closed.");
 
     p = e->get_player(name);
-    t = e->get_table();
     pcns = e->get_player_caravan_names(name);
 
-    start_round = p->get_moves_count() < MOVES_START_ROUND;
+    if(p->get_moves_count() < MOVES_START_ROUND) {
+        pos_hand = pos_card_numeric(p);
+        moves = p->get_moves_count();
 
-    return GameOption();  // TODO
+        if(moves == 0)
+            return {OPTION_PLAY, pos_hand, pcns.cn_t1};
+
+        if(moves == 1)
+            return {OPTION_PLAY, pos_hand, pcns.cn_t2};
+
+        if(moves == 2)
+            return {OPTION_PLAY, pos_hand, pcns.cn_t3};
+
+        throw CaravanFatalException(
+                "Invalid state: cannot be in Start state after 3 moves.");
+
+    } else {
+        t = e->get_table();
+
+
+    }
+
+    return GameOption();
 }

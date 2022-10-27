@@ -25,11 +25,8 @@ public:
         i_hand = 0;
         moves = 0;
 
-        Card next;
-        while (i_hand < HAND_SIZE_MAX and !deck->empty()) {
-            next = deck->back();
-            hand[i_hand] = next;
-
+        while (i_hand < HAND_SIZE_MAX_START) {
+            hand[i_hand] = deck->back();
             deck->pop_back();
             i_hand += 1;
         }
@@ -47,7 +44,9 @@ public:
 
     uint8_t get_size_hand();
 
-    void increment_moves_count();
+    void increment_moves();
+
+    void maybe_add_card_to_hand();
 
     Card remove_from_hand_at(uint8_t pos);
 };

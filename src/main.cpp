@@ -5,26 +5,26 @@
 #include "game/view.h"
 #include "game/controller.h"
 #include "iostream"
+#include "bots/bot_random.h"
 
 int main() {
     GameConfig gc;
     Engine *e;
     ViewCLI *v;
-    ControllerCLI *c;
-    User *ua = new UserHumanCLI(PLAYER_1);
-    User *ub = new UserHumanCLI(PLAYER_2);  // TODO bot
+    Controller *c;
+    User *ua = new UserHuman(PLAYER_A);
+    User *ub = new UserBotRandom(PLAYER_B);
 
-    // TODO set from bots arguments
     gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
 
     try {
-        e = new Engine(gc, PLAYER_1, PLAYER_2);
+        e = new Engine(gc);
         v = new ViewCLI();
-        c = new ControllerCLI(e, v, ua, ub);
+        c = new Controller(e, v, ua, ub);
 
         c->run();
 

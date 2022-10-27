@@ -59,7 +59,7 @@ Deck *DeckBuilder::build_caravan_deck(
 
                 i_next = (i_next + 1) % num_sample_decks;
 
-                if ((num_cards - d->size()) < HAND_SIZE_MAX and
+                if ((num_cards - d->size()) < HAND_SIZE_MAX_START and
                     is_numeric_card(c_next))
                     first_hand_num_cards += 1;
             }
@@ -78,7 +78,7 @@ Deck *DeckBuilder::build_caravan_deck(
                     d->push_back(c_next);
                     sample_decks[i_next].pop_back();
 
-                    if ((num_cards - d->size()) < HAND_SIZE_MAX and
+                    if ((num_cards - d->size()) < HAND_SIZE_MAX_START and
                         is_numeric_card(c_next))
                         first_hand_num_cards += 1;
                 }

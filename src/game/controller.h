@@ -19,42 +19,33 @@ public:
 
     PlayerName get_name() { return name; }
 
-    virtual GameOption request_option(Engine *e) = 0;
+    virtual GameOption request_option(Engine *e, View *v) = 0;
+    virtual bool is_human() = 0;
 };
 
 class UserHuman : public User {
 public:
     explicit UserHuman(PlayerName pn) : User(pn) {};
-};
-
-class UserHumanCLI : public UserHuman {
-public:
-    explicit UserHumanCLI(PlayerName pn) : UserHuman(pn) {};
-
-    GameOption request_option(Engine *e) override;
+    GameOption request_option(Engine *e, View *v) override;
+    bool is_human() override { return true; }
 };
 
 class UserBot : public User {
 public:
     explicit UserBot(PlayerName pn) : User(pn) {};
+    bool is_human() override { return false; }
 };
 
 class Controller {
-public:
-    virtual void run() = 0;
-};
-
-class ControllerCLI : public Controller {
 protected:
     Engine *engine_ptr;
     View *view_ptr;
     User *user_a_ptr;
     User *user_b_ptr;
 public:
-    explicit ControllerCLI(Engine *e, View *v, User *ua, User *ub) :
-            engine_ptr(e), view_ptr(v), user_a_ptr(ua), user_b_ptr(ub) {};
-
-    void run() override;
+    explicit Controller(Engine *e, View *v, User *ua, User *ub) :
+        engine_ptr(e), view_ptr(v), user_a_ptr(ua), user_b_ptr(ub) {};
+    void run();
 };
 
 #endif //CARAVAN_CONTROLLER_H

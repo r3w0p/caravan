@@ -39,12 +39,26 @@ uint8_t Player::get_size_hand() {
     return i_hand;
 }
 
-void Player::increment_moves_count() {
+void Player::increment_moves() {
     moves += 1;
+}
+
+void Player::maybe_add_card_to_hand() {
+    // If more cards in the deck
+    if (!deck->empty()) {
+        // If post-Start and hand not at post-Start max (5 cards)
+        if(moves > MOVES_START_ROUND and i_hand < HAND_SIZE_MAX_POST_START) {
+            // Add new card from deck to top of hand
+            hand[i_hand] = deck->back();
+            deck->pop_back();
+            i_hand += 1;
+        }
+    }
 }
 
 Card Player::remove_from_hand_at(uint8_t pos) {
     uint8_t i;
+    Card c_ret;
 
     if (i_hand == 0)
         throw CaravanFatalException(
@@ -55,24 +69,13 @@ Card Player::remove_from_hand_at(uint8_t pos) {
                 "The chosen hand position is out of range.");
 
     i = pos - 1;
+    c_ret = hand[i];
 
-    // Get card at index
-    Card c_ret = hand[i];
-
-    // Move the cards above it down
+    // Move the cards above it downwards
     for (i; (i + 1) < i_hand; ++i)
         hand[i] = hand[i + 1];
 
-    // If more cards in the deck
-    if (!deck->empty()) {
-        // Add new card from deck into top of hand
-        hand[i_hand - 1] = deck->back();
-        deck->pop_back();
-
-    } else {
-        // Reduce hand size by 1
-        i_hand -= 1;
-    }
+    i_hand -= 1;
 
     return c_ret;
 }

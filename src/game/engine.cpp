@@ -138,7 +138,8 @@ void Engine::play_option(GameOption go) {
             throw CaravanFatalException("Unknown play option.");
     }
 
-    p_turn->increment_moves_count();
+    p_turn->increment_moves();
+    p_turn->maybe_add_card_to_hand();
 
     if (pa_ptr->get_name() == p_turn->get_name())
         p_turn = pb_ptr;
@@ -192,24 +193,24 @@ void Engine::option_play(Player *p_ptr, GameOption go) {
     Card c_hand = p_ptr->get_from_hand_at(go.pos_hand);
 
     bool in_start_stage = p_ptr->get_moves_count() < MOVES_START_ROUND;
-    bool pa_playing_num_into_pa_caravans;
-    bool pb_playing_num_into_pb_caravans;
+    bool pa_playing_num_onto_pa_caravans;
+    bool pb_playing_num_onto_pb_caravans;
 
     if (is_numeric_card(c_hand)) {
-        pa_playing_num_into_pa_caravans =
+        pa_playing_num_onto_pa_caravans =
                 p_ptr->get_name() == pa_ptr->get_name() and
                 (go.caravan_name == CARAVAN_D or
                  go.caravan_name == CARAVAN_E or
                  go.caravan_name == CARAVAN_F);
 
-        pb_playing_num_into_pb_caravans =
+        pb_playing_num_onto_pb_caravans =
                 p_ptr->get_name() == pb_ptr->get_name() and
                 (go.caravan_name == CARAVAN_A or
                  go.caravan_name == CARAVAN_B or
                  go.caravan_name == CARAVAN_C);
 
-        if (!(pa_playing_num_into_pa_caravans or
-              pb_playing_num_into_pb_caravans))
+        if (!(pa_playing_num_onto_pa_caravans or
+              pb_playing_num_onto_pb_caravans))
             throw CaravanGameException(
                     "A numeric card can only be played on "
                     "a player's own caravans.");

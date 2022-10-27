@@ -12,7 +12,7 @@ class UserBotRandom : public UserBot {
 public:
     explicit UserBotRandom(PlayerName pn) : UserBot(pn) {};
 
-    GameOption request_option(Engine *e) override;
+    GameOption request_option(Engine *e, View *v) override;
 };
 
 #endif //CARAVAN_BOT_RANDOM_H

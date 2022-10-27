@@ -31,19 +31,11 @@ protected:
     void option_play(Player *p_ptr, GameOption go);
 
 public:
-    explicit Engine(GameConfig gc, PlayerName pna, PlayerName pnb) {
-        if (pna == NO_PLAYER or pnb == NO_PLAYER)
+    explicit Engine(GameConfig gc) {
+        if (gc.pn_first == NO_PLAYER)
             throw CaravanFatalException(
-                    "Players must have valid names.");
-
-        if (pna == pnb)
-            throw CaravanFatalException(
-                    "Players cannot have the same name.");
-
-        if (gc.pn_first != pna and gc.pn_first != pnb)
-            throw CaravanFatalException(
-                    "The name of the player who goes first does not "
-                    "match either of the names chosen for players.");
+                    "Invalid player name for first player in "
+                    "game configuration.");
 
         deck_pa_ptr = DeckBuilder::build_caravan_deck(
                 gc.pa_num_cards,
@@ -56,8 +48,8 @@ public:
                 gc.pb_balanced_sample);
 
         table_ptr = new Table();
-        pa_ptr = new Player(pna, deck_pa_ptr);
-        pb_ptr = new Player(pnb, deck_pb_ptr);
+        pa_ptr = new Player(PLAYER_A, deck_pa_ptr);
+        pb_ptr = new Player(PLAYER_B, deck_pb_ptr);
 
         closed = false;
         p_turn = gc.pn_first == pa_ptr->get_name() ? pa_ptr : pb_ptr;

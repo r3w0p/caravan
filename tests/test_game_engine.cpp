@@ -10,9 +10,9 @@ TEST (TestGameEngine, Close) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     ASSERT_FALSE(e.is_closed());
     e.close();
@@ -23,9 +23,9 @@ TEST (TestGameEngine, Close_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     e.close();
 
@@ -44,26 +44,26 @@ TEST (TestGameEngine, GetPlayer_Both) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
-    ASSERT_EQ(e.get_player(PLAYER_1)->get_name(), PLAYER_1);
-    ASSERT_EQ(e.get_player(PLAYER_2)->get_name(), PLAYER_2);
+    ASSERT_EQ(e.get_player(PLAYER_A)->get_name(), PLAYER_A);
+    ASSERT_EQ(e.get_player(PLAYER_B)->get_name(), PLAYER_B);
 }
 
 TEST (TestGameEngine, GetPlayer_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     e.close();
 
     try {
-        e.get_player(PLAYER_1);
+        e.get_player(PLAYER_A);
         FAIL();
 
     } catch (CaravanFatalException &e) {
@@ -77,12 +77,12 @@ TEST (TestGameEngine, GetPlayer_Error_InvalidName) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     try {
-        e.get_player(BOT_1);
+        e.get_player(NO_PLAYER);
         FAIL();
 
     } catch (CaravanFatalException &e) {
@@ -96,20 +96,20 @@ TEST (TestGameEngine, GetPlayerTurn) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
-    ASSERT_EQ(e.get_player_turn(), PLAYER_1);
+    ASSERT_EQ(e.get_player_turn(), PLAYER_A);
 }
 
 TEST (TestGameEngine, GetPlayerTurn_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     e.close();
 
@@ -128,9 +128,9 @@ TEST (TestGameEngine, GetTable_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     e.close();
 
@@ -149,9 +149,9 @@ TEST (TestGameEngine, GetWinner_NoMoves) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     ASSERT_EQ(e.get_winner(), NO_PLAYER);
 }
@@ -160,9 +160,9 @@ TEST (TestGameEngine, GetWinner_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     e.close();
 
@@ -181,9 +181,9 @@ TEST (TestGameEngine, PlayOption_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     e.close();
 
@@ -202,9 +202,9 @@ TEST (TestGameEngine, PlayOption_Error_StartRound_Remove) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     try {
         e.play_option({OPTION_REMOVE, 1, NO_CARAVAN, 0});
@@ -221,9 +221,9 @@ TEST (TestGameEngine, PlayOption_Error_StartRound_Clear) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_1
+            PLAYER_A
     };
-    Engine e{gc, PLAYER_1, PLAYER_2};
+    Engine e{gc};
 
     try {
         e.play_option({OPTION_CLEAR, 0, CARAVAN_D, 0});
@@ -235,5 +235,3 @@ TEST (TestGameEngine, PlayOption_Error_StartRound_Clear) {
         FAIL();
     }
 }
-
-// TODO Edit the players' decks/hands to test OPTION_PLAY.

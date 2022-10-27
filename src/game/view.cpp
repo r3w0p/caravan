@@ -7,57 +7,6 @@
 #include <string>
 #include <iostream>
 
-std::string rank_to_str(Rank r) {
-    switch (r) {
-        case ACE:
-            return "A";
-        case TWO:
-            return "2";
-        case THREE:
-            return "3";
-        case FOUR:
-            return "4";
-        case FIVE:
-            return "5";
-        case SIX:
-            return "6";
-        case SEVEN:
-            return "7";
-        case EIGHT:
-            return "8";
-        case NINE:
-            return "9";
-        case TEN:
-            return "10";
-        case JACK:
-            return "J";
-        case QUEEN:
-            return "Q";
-        case KING:
-            return "K";
-        case JOKER:
-            return "JO";
-        default:
-            throw CaravanFatalException("Invalid rank.");
-    }
-}
-
-std::string suit_to_str(Suit s) {
-    switch (s) {
-        case NO_SUIT:
-            return "";
-        case CLUBS:
-            return "\x05";
-        case DIAMONDS:
-            return "\x04";
-        case HEARTS:
-            return "\x03";
-        case SPADES:
-            return "\x06";
-        default:
-            throw CaravanFatalException("Invalid suit.");
-    }
-}
 
 std::string direction_to_str(Direction dir) {
     switch (dir) {
@@ -104,8 +53,8 @@ void display_test_caravan(Table *t, CaravanName cn) {
 
 void display_test(Engine *e) {
     Table *t = e->get_table();
-    Player *pa = e->get_player(PLAYER_1);
-    Player *pb = e->get_player(PLAYER_2);
+    Player *pa = e->get_player(PLAYER_A);
+    Player *pb = e->get_player(PLAYER_B);
     Card c;
 
     display_test_caravan(t, CARAVAN_A);
@@ -121,13 +70,13 @@ void display_test(Engine *e) {
     display_test_caravan(t, CARAVAN_C);
     display_test_caravan(t, CARAVAN_F);
 
-    std::cout << std::endl << "PLAYER 1:";
+    std::cout << std::endl << "PLAYER A:";
     for (int i = 0; i < pa->get_size_hand(); ++i) {
         c = pa->get_from_hand_at(i + 1);
         std::cout << " " << rank_to_str(c.rank) << suit_to_str(c.suit);
     }
 
-    std::cout << std::endl << "PLAYER 2:";
+    std::cout << std::endl << "PLAYER B:";
     for (int i = 0; i < pb->get_size_hand(); ++i) {
         c = pb->get_from_hand_at(i + 1);
         std::cout << " " << rank_to_str(c.rank) << suit_to_str(c.suit);
@@ -136,7 +85,6 @@ void display_test(Engine *e) {
 }
 
 void ViewCLI::display(Engine *g, std::string msg) {
-    // TODO
     display_test(g);
 
     if (msg.size() > 0)
