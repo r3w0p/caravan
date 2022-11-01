@@ -12,72 +12,100 @@ A CLI version of the Caravan card game from Fallout: New Vegas.
 HOW TO PLAY
 ===========
 
-The game is played with two players building three opposing "caravans" (i.e. piles) of cards.
-The goal is for each of your caravans to "outbid" your opponent's caravan directly opposite from it, with a bid that is neither too light (under 21) nor overburdened (over 26).
-If two opposing caravans are within this range, then you must aim to get the highest bid within this range.
+The game is played with two players building three opposing "caravans" (i.e.
+piles) of cards. The goal is for each of your caravans to "outbid" your
+opponent's caravan directly opposite from it, with a bid that is neither too
+light (under 21) nor overburdened (over 26). If two opposing caravans are within
+this range, then you must aim to get the highest bid within this range. Once all
+three opposing caravans have been "sold", the player with two or more sales wins
+the game.
 
-The cards in a caravan constitute its bid, with numeric cards (ACE, 2-10) primarily determining its bid value.
-Each caravan has a suit, which is initially determined by the suit of the first numeric card placed in it.
-Caravans also have a direction, ascending or descending, which is initially determined by its first two numeric cards.
+The cards in a caravan constitute its bid, with numeric cards (ACE, 2-10)
+primarily determining its bid value. Each caravan has a suit, which is initially
+determined by the suit of the first numeric card placed in it. Caravans also
+have a direction, ascending or descending, which is initially determined by its
+first two numeric cards.
 
-All subsequent numeric cards placed in a caravan must continue in its direction if a card being placed does not have the same suit as the caravan.
-TODO for example...
-Numeric cards being placed with a matching suit to the caravan can be in any direction and may, therefore, change the direction of the caravan.
-TODO for example...
-Cards of the same numeric "rank" (i.e. value) can never be played in sequence.
-For example, a 5♠ cannot be played directly onto a 5♥ because they are both of rank 5.
-A caravan can have, at most, ten numeric cards in it.
+All subsequent numeric cards placed in a caravan must continue in its direction
+if the card being placed does not have the same suit as the caravan. Numeric
+cards being placed with a matching suit to the caravan can be in any direction
+and may, therefore, change the direction of the caravan. Cards of the same
+numeric "rank" (i.e. value) can never be played in sequence. A caravan can have,
+at most, ten numeric cards in it.
 
+For example:
+ - An ascending caravan with a 4♠ at the top must be followed by 5-10, or ACE-3
+   if the card being placed is also of suit ♠.
+ - A 4♠ played onto a 5♥ changes the caravan's suit from ♥ to ♠.
+ - A 5♠ cannot be played onto a 5♥ because they are both of rank 5.
 
-Face cards (JACK, QUEEN, KING, JOKER) ...
-TODO Face Cards
-Face cards can be attached to Ace, 2-10 cards in any Pile by any player.
-Face cards can be placed, at most, 5 times on a single card.
+Face cards (JACK, QUEEN, KING, JOKER) can be attached to ACE, 2-10 cards in any
+caravan by any player, except during the Start round discussed below. Face cards
+can be placed, at most, five times on a single card. The properties of each card
+are as follows:
 
+- ACE, 2-10
+  Their listed value increases a caravan's bid by that amount. ACE has a value
+  of 1.
 
+- JACK
+  Removes a numeric card from a caravan, and any face cards attached to it.
 
-ACE, 2-10
-Their listed value increases a caravan's bid by that amount.
-ACE has a value of 1.
+- QUEEN
+  Reverses the current direction of the caravan and changes the current suit of
+  the caravan to the QUEEN's suit. A QUEEN can only be played on the most recent
+  numeric card in a caravan.
 
-JACK
-Removes a numeric card from a caravan, and any face cards attached to it.
+- KING
+  Adds the value of that card again. For example, a KING played on a 9 adds 9 to
+  that hand. Multiple kings may be played on the same card for multiplicative
+  effects. For example:
+   - 4 + KING = 8
+   - 4 + two KINGs = 16
 
-QUEEN
+- JOKER
+  When played against an ACE:
+   - Removes all other numeric cards of the ACE's suit from the table. For
+     example: a JOKER on an A♠ removes all ♠ cards except for face cards and
+     the A♠ it was placed on.
 
-Reverses the current direction of the caravan and changes the current suit of the caravan to the Queen's suit.
-A Queen can only be played on the most recent numeric card in a caravan.
+  When played against 2-10:
+   - Removes all other cards of its value from the table. For example, a JOKER
+     played on a 4♥ removes all 4s from the table except for the 4♥ it was
+     played on.
 
-KING
+A Caravan deck consists of a minimum of 30 cards and a maximum of 156 cards. It
+can be comprised of cards sampled, without replacement, from 1 to 3 standard
+52-card decks (inclusive).
 
-adds the value of that card again.
-For example: a King played on a 9 adds 9 to that hand.
-
-Multiple kings may be played on the same card for multiplicative effects:
-
-    4 + King = 8
-    4 + two Kings = 16
-
-JOKER
-
-played against an Ace, removes all other Numeric cards of the Ace's suit from the table.
-For example: a Joker on an A♠ removes all ♠ cards except for face cards and the A♠ it was placed on.
-
-played against a 2-10, removes all other cards of its value from the table.
-For example, a Joker player on a 4♥ removes all 4s from the table except for the 4♥ it was played on.
+When the game begins, a Start round takes place where each player plays three
+numeric cards: one into each of their caravans. During this round:
+ - Each player's hand has eight cards, which is permanently reduced to five once
+   the Start round has ended.
+ - No face cards can be played.
+ - No cards can be removed from the player's hand.
+ - No caravans can be cleared of their cards.
+After the Start round has ended, the above restrictions are lifted.
 
 
 ========
 CONTROLS
 ========
 
+During your turn, you are prompted to provide one of the following options:
 
+ - (P)LAY one card onto any caravan and draw a new card from your deck into your
+   hand. For example:
+    > P2F
+      Play card 2 from your hand into caravan F (assuming card 2 is numeric).
+    > P4F10
+      Play card 4 from your hand into caravan F at numeric card 10 (assuming
+      card 4 is a face card).
 
+ - (R)EMOVE one card from your hand and draw a new card.
+    > R3
+      Remove card 3 from your hand.
 
-=============
-DECK BUILDING
-=============
-
-A Caravan deck consists of a minimum of 30 cards and a maximum of 156 cards.
-It can be comprised of cards sampled, without replacement, from 1 to 3 standard 52-card decks (inclusive).
-
+ - (C)LEAR all cards from one of your own caravans.
+    > CE
+      Clear caravan E.
