@@ -12,11 +12,15 @@
 class View {
 public:
     virtual void display(Engine *g, std::string msg) = 0;
+
+    virtual GameOption get_input_option(Engine *e, PlayerName pn) = 0;
 };
 
 class ViewCLI : public View {
 public:
     void display(Engine *g, std::string msg) override;
+
+    GameOption get_input_option(Engine *e, PlayerName pn) override;
 };
 
 #endif //CARAVAN_VIEW_H

@@ -19,20 +19,24 @@ public:
 
     PlayerName get_name() { return name; }
 
-    virtual GameOption request_option(Engine *e, View *v) = 0;
     virtual bool is_human() = 0;
+
+    virtual GameOption request_option(Engine *e, View *v) = 0;
 };
 
 class UserHuman : public User {
 public:
     explicit UserHuman(PlayerName pn) : User(pn) {};
-    GameOption request_option(Engine *e, View *v) override;
+
     bool is_human() override { return true; }
+
+    GameOption request_option(Engine *e, View *v) override;
 };
 
 class UserBot : public User {
 public:
     explicit UserBot(PlayerName pn) : User(pn) {};
+
     bool is_human() override { return false; }
 };
 
@@ -44,7 +48,8 @@ protected:
     User *user_b_ptr;
 public:
     explicit Controller(Engine *e, View *v, User *ua, User *ub) :
-        engine_ptr(e), view_ptr(v), user_a_ptr(ua), user_b_ptr(ub) {};
+            engine_ptr(e), view_ptr(v), user_a_ptr(ua), user_b_ptr(ub) {};
+
     void run();
 };
 

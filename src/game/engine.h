@@ -26,7 +26,7 @@ protected:
 
     void option_clear(Player *p_ptr, GameOption go);
 
-    void option_drop(Player *p_ptr, GameOption go);
+    void option_discard(Player *p_ptr, GameOption go);
 
     void option_play(Player *p_ptr, GameOption go);
 

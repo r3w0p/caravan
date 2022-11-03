@@ -13,12 +13,12 @@
 class Table {
 protected:
     std::array<Caravan, TABLE_CARAVANS_MAX> caravans = {
-            Caravan(CARAVAN_A),
-            Caravan(CARAVAN_B),
-            Caravan(CARAVAN_C),
             Caravan(CARAVAN_D),
             Caravan(CARAVAN_E),
-            Caravan(CARAVAN_F)
+            Caravan(CARAVAN_F),
+            Caravan(CARAVAN_A),
+            Caravan(CARAVAN_B),
+            Caravan(CARAVAN_C)
     };
 
     uint8_t caravan_name_to_index_value(CaravanName cn);

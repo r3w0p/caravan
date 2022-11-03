@@ -12,7 +12,7 @@ TEST (TestGameTable, ClearCaravan_TwoNumeric_OneFace) {
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
     Card c_face = {HEARTS, KING};
-    CaravanName pn = CARAVAN_A;
+    CaravanName pn = CARAVAN_D;
 
     t.play_numeric_card(pn, c_num_1);
     t.play_numeric_card(pn, c_num_2);
@@ -29,7 +29,7 @@ TEST (TestGameTable, GetCaravanBid_ThreeNumeric) {
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
     Card c_num_3 = {SPADES, THREE};
-    CaravanName pn = CARAVAN_B;
+    CaravanName pn = CARAVAN_E;
 
     ASSERT_EQ(t.get_caravan_bid(pn), 0);
     t.play_numeric_card(pn, c_num_1);
@@ -45,7 +45,7 @@ TEST (TestGameTable, GetCaravanCardsAt_ThreeNumeric) {
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
     Card c_num_3 = {HEARTS, THREE};
-    CaravanName cn = CARAVAN_C;
+    CaravanName cn = CARAVAN_F;
     Slot ts;
 
     t.play_numeric_card(cn, c_num_1);
@@ -69,11 +69,11 @@ TEST (TestGameTable, GetCaravanDirection_Ascending) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
-    CaravanName pn = CARAVAN_D;
+    CaravanName pn = CARAVAN_A;
 
-    ASSERT_EQ(t.get_caravan_direction(pn), NO_DIRECTION);
+    ASSERT_EQ(t.get_caravan_direction(pn), ANY);
     t.play_numeric_card(pn, c_num_1);
-    ASSERT_EQ(t.get_caravan_direction(pn), NO_DIRECTION);
+    ASSERT_EQ(t.get_caravan_direction(pn), ANY);
     t.play_numeric_card(pn, c_num_2);
     ASSERT_EQ(t.get_caravan_direction(pn), ASCENDING);
 }
@@ -82,11 +82,11 @@ TEST (TestGameTable, GetCaravanDirection_Descending) {
     Table t;
     Card c_num_1 = {SPADES, TWO};
     Card c_num_2 = {SPADES, ACE};
-    CaravanName pn = CARAVAN_E;
+    CaravanName pn = CARAVAN_B;
 
-    ASSERT_EQ(t.get_caravan_direction(pn), NO_DIRECTION);
+    ASSERT_EQ(t.get_caravan_direction(pn), ANY);
     t.play_numeric_card(pn, c_num_1);
-    ASSERT_EQ(t.get_caravan_direction(pn), NO_DIRECTION);
+    ASSERT_EQ(t.get_caravan_direction(pn), ANY);
     t.play_numeric_card(pn, c_num_2);
     ASSERT_EQ(t.get_caravan_direction(pn), DESCENDING);
 }
@@ -96,7 +96,7 @@ TEST (TestGameTable, GetCaravanSize_ThreeNumeric) {
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
     Card c_num_3 = {HEARTS, THREE};
-    CaravanName cn = CARAVAN_F;
+    CaravanName cn = CARAVAN_C;
 
     ASSERT_EQ(t.get_caravan_size(cn), 0);
 
@@ -110,7 +110,7 @@ TEST (TestGameTable, GetCaravanSize_ThreeNumeric) {
 TEST (TestGameTable, GetCaravanSuit_BeforeAfter) {
     Table t;
     Card c_num = {SPADES, ACE};
-    CaravanName pn = CARAVAN_A;
+    CaravanName pn = CARAVAN_D;
 
     ASSERT_EQ(t.get_caravan_suit(pn), NO_SUIT);
     t.play_numeric_card(pn, c_num);
@@ -123,7 +123,7 @@ TEST (TestGameTable, PlayFaceCard_Jack) {
     Card c_num_2 = {CLUBS, TWO};
     Card c_num_3 = {HEARTS, THREE};
     Card c_face = {DIAMONDS, JACK};
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_D;
     Slot ts;
 
     t.play_numeric_card(cn, c_num_1);
@@ -154,7 +154,7 @@ TEST (TestGameTable, PlayFaceCard_Queen) {
     Card c_num_2 = {CLUBS, TWO};
     Card c_num_3 = {HEARTS, THREE};
     Card c_face = {DIAMONDS, QUEEN};
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_D;
 
     t.play_numeric_card(cn, c_num_1);
     t.play_numeric_card(cn, c_num_2);
@@ -177,7 +177,7 @@ TEST (TestGameTable, PlayFaceCard_Error_Queen_NotPlayedOnTopCard) {
     Card c_num_2 = {CLUBS, TWO};
     Card c_num_3 = {HEARTS, THREE};
     Card c_face = {DIAMONDS, QUEEN};
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_D;
 
     t.play_numeric_card(cn, c_num_1);
     t.play_numeric_card(cn, c_num_2);
@@ -200,7 +200,7 @@ TEST (TestGameTable, PlayFaceCard_King_OneNumeric_ThreeKings) {
     Card c_face_1 = {DIAMONDS, KING};
     Card c_face_2 = {CLUBS, KING};
     Card c_face_3 = {HEARTS, KING};
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_D;
 
     t.play_numeric_card(cn, c_num);
     ASSERT_EQ(t.get_caravan_bid(cn), 5);
@@ -225,23 +225,23 @@ TEST (TestGameTable, PlayFaceCard_Joker_Ace) {
     Card c_face = {DIAMONDS, JOKER};
     Slot ts;
 
-    t.play_numeric_card(CARAVAN_A, c_num_a1);
-    t.play_numeric_card(CARAVAN_A, c_num_a2);
-    t.play_numeric_card(CARAVAN_A, c_num_a3);
-    t.play_numeric_card(CARAVAN_B, c_num_b1);
-    t.play_numeric_card(CARAVAN_C, c_num_c1);
+    t.play_numeric_card(CARAVAN_D, c_num_a1);
+    t.play_numeric_card(CARAVAN_D, c_num_a2);
+    t.play_numeric_card(CARAVAN_D, c_num_a3);
+    t.play_numeric_card(CARAVAN_E, c_num_b1);
+    t.play_numeric_card(CARAVAN_F, c_num_c1);
 
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_A), 3);
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_B), 1);
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_C), 1);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_D), 3);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_E), 1);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_F), 1);
 
-    t.play_face_card(CARAVAN_A, c_face, 1);
+    t.play_face_card(CARAVAN_D, c_face, 1);
 
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_A), 2);
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_B), 0);
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_C), 1);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_D), 2);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_E), 0);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_F), 1);
 
-    ts = t.get_caravan_cards_at(CARAVAN_A, 1);
+    ts = t.get_caravan_cards_at(CARAVAN_D, 1);
     ASSERT_EQ(ts.card.suit, SPADES);
     ASSERT_EQ(ts.card.rank, ACE);
 }
@@ -256,23 +256,23 @@ TEST (TestGameTable, PlayFaceCard_Joker_2To10) {
     Card c_face = {DIAMONDS, JOKER};
     Slot ts;
 
-    t.play_numeric_card(CARAVAN_A, c_num_a1);
-    t.play_numeric_card(CARAVAN_A, c_num_a2);
-    t.play_numeric_card(CARAVAN_A, c_num_a3);
-    t.play_numeric_card(CARAVAN_B, c_num_b1);
-    t.play_numeric_card(CARAVAN_C, c_num_c1);
+    t.play_numeric_card(CARAVAN_D, c_num_a1);
+    t.play_numeric_card(CARAVAN_D, c_num_a2);
+    t.play_numeric_card(CARAVAN_D, c_num_a3);
+    t.play_numeric_card(CARAVAN_E, c_num_b1);
+    t.play_numeric_card(CARAVAN_F, c_num_c1);
 
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_A), 3);
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_B), 1);
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_C), 1);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_D), 3);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_E), 1);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_F), 1);
 
-    t.play_face_card(CARAVAN_A, c_face, 1);
+    t.play_face_card(CARAVAN_D, c_face, 1);
 
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_A), 2);
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_B), 1);
-    ASSERT_EQ(t.get_caravan_size(CARAVAN_C), 0);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_D), 2);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_E), 1);
+    ASSERT_EQ(t.get_caravan_size(CARAVAN_F), 0);
 
-    ts = t.get_caravan_cards_at(CARAVAN_A, 1);
+    ts = t.get_caravan_cards_at(CARAVAN_D, 1);
     ASSERT_EQ(ts.card.suit, SPADES);
     ASSERT_EQ(ts.card.rank, TWO);
 }
@@ -281,17 +281,17 @@ TEST (TestGameTable, PlayNumericCard) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, THREE};
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_D;
 
     ASSERT_EQ(t.get_caravan_size(cn), 0);
     ASSERT_EQ(t.get_caravan_suit(cn), NO_SUIT);
-    ASSERT_EQ(t.get_caravan_direction(cn), NO_DIRECTION);
+    ASSERT_EQ(t.get_caravan_direction(cn), ANY);
 
     t.play_numeric_card(cn, c_num_1);
 
     ASSERT_EQ(t.get_caravan_size(cn), 1);
     ASSERT_EQ(t.get_caravan_suit(cn), SPADES);
-    ASSERT_EQ(t.get_caravan_direction(cn), NO_DIRECTION);
+    ASSERT_EQ(t.get_caravan_direction(cn), ANY);
 
     t.play_numeric_card(cn, c_num_2);
 
@@ -304,7 +304,7 @@ TEST (TestGameTable, PlayNumericCard_Error_TwoCards_SameRank_InSequence) {
     Table t;
     Card c_num_1 = {SPADES, THREE};
     Card c_num_2 = {DIAMONDS, THREE};
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_D;
 
     t.play_numeric_card(cn, c_num_1);
 
@@ -324,7 +324,7 @@ TEST (TestGameTable, PlayNumericCard_Error_OppositeDirection_DifferentSuit) {
     Card c_num_1 = {SPADES, FIVE};
     Card c_num_2 = {DIAMONDS, SEVEN};
     Card c_num_3 = {CLUBS, TWO};
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_D;
 
     t.play_numeric_card(cn, c_num_1);
     t.play_numeric_card(cn, c_num_2);
@@ -347,7 +347,7 @@ TEST (TestGameTable, PlayNumericCard_OppositeDirection_SameSuit) {
     Card c_num_1 = {SPADES, FIVE};
     Card c_num_2 = {DIAMONDS, SEVEN};
     Card c_num_3 = {DIAMONDS, TWO};
-    CaravanName cn = CARAVAN_A;
+    CaravanName cn = CARAVAN_D;
 
     t.play_numeric_card(cn, c_num_1);
     t.play_numeric_card(cn, c_num_2);

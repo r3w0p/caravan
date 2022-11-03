@@ -77,17 +77,17 @@ void Table::play_numeric_card(CaravanName cn, Card c) {
 
 uint8_t Table::caravan_name_to_index_value(CaravanName cn) {
     switch (cn) {
-        case CARAVAN_A:
-            return 0;
-        case CARAVAN_B:
-            return 1;
-        case CARAVAN_C:
-            return 2;
         case CARAVAN_D:
-            return 3;
+            return 0;
         case CARAVAN_E:
-            return 4;
+            return 1;
         case CARAVAN_F:
+            return 2;
+        case CARAVAN_A:
+            return 3;
+        case CARAVAN_B:
+            return 4;
+        case CARAVAN_C:
             return 5;
         default:
             throw CaravanFatalException("Invalid caravan name.");

@@ -48,7 +48,7 @@ public:
 
     void maybe_add_card_to_hand();
 
-    Card remove_from_hand_at(uint8_t pos);
+    Card discard_from_hand_at(uint8_t pos);
 };
 
 #endif //CARAVAN_PLAYER_H

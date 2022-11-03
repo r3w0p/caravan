@@ -51,7 +51,7 @@ Direction Caravan::get_direction() {
     int num_queens;
 
     if (i_track < 2) {
-        dir = NO_DIRECTION;
+        dir = ANY;
     } else {
         t_last = i_track - 1;
         t_pen = i_track - 2;

@@ -102,8 +102,8 @@ During your turn, you are prompted to provide one of the following options:
       Play card 4 from your hand into caravan F at numeric card 10 (assuming
       card 4 is a face card).
 
- - (R)EMOVE one card from your hand and draw a new card.
-    > R3
+ - (D)ISCARD one card from your hand and draw a new card.
+    > D3
       Remove card 3 from your hand.
 
  - (C)LEAR all cards from one of your own caravans.

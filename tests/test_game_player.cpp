@@ -39,7 +39,7 @@ TEST (TestGamePlayer, GetFromHandAt_Error_HandEmpty) {
     Player pl = Player(PLAYER_A, d);
 
     for (int i = 0; i < 30; ++i) {
-        pl.remove_from_hand_at(1);
+        pl.discard_from_hand_at(1);
         pl.increment_moves();
         pl.maybe_add_card_to_hand();
     }
@@ -124,7 +124,7 @@ TEST (TestGamePlayer, RemoveFromHandAt_Position1_StartRound) {
     ASSERT_EQ(pl.get_size_hand(), 8);
 
     c_get = pl.get_hand()[0];
-    c_take = pl.remove_from_hand_at(1);
+    c_take = pl.discard_from_hand_at(1);
     pl.increment_moves();
     pl.maybe_add_card_to_hand();
 
@@ -142,13 +142,13 @@ TEST (TestGamePlayer, RemoveFromHandAt_Error_HandEmpty) {
     Player pl = Player(PLAYER_A, d);
 
     for (int i = 0; i < 30; ++i) {
-        pl.remove_from_hand_at(1);
+        pl.discard_from_hand_at(1);
         pl.increment_moves();
         pl.maybe_add_card_to_hand();
     }
 
     try {
-        pl.remove_from_hand_at(1);
+        pl.discard_from_hand_at(1);
         FAIL();
 
     } catch (CaravanFatalException &e) {
@@ -163,7 +163,7 @@ TEST (TestGamePlayer, RemoveFromHandAt_Error_PositionTooLow) {
     Player pl = Player(PLAYER_A, d);
 
     try {
-        pl.remove_from_hand_at(0);
+        pl.discard_from_hand_at(0);
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -178,7 +178,7 @@ TEST (TestGamePlayer, RemoveFromHandAt_Error_PositionTooHigh) {
     Player pl = Player(PLAYER_A, d);
 
     try {
-        pl.remove_from_hand_at(9);
+        pl.discard_from_hand_at(9);
         FAIL();
 
     } catch (CaravanGameException &e) {

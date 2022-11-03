@@ -29,6 +29,7 @@ const uint8_t HAND_SIZE_MAX_START = 8;
 const uint8_t HAND_SIZE_MAX_POST_START = 5;
 const uint8_t HAND_POS_MIN = 1;
 const uint8_t TABLE_CARAVANS_MAX = 6;
+const uint8_t PLAYER_CARAVANS_MAX = 3;
 
 /*
  * ENUMS
@@ -38,13 +39,13 @@ enum PlayerName {
     NO_PLAYER, PLAYER_A, PLAYER_B
 };
 enum Direction {
-    NO_DIRECTION, ASCENDING, DESCENDING
+    ANY, ASCENDING, DESCENDING
 };
 enum CaravanName {
     NO_CARAVAN, CARAVAN_A, CARAVAN_B, CARAVAN_C, CARAVAN_D, CARAVAN_E, CARAVAN_F
 };
 enum OptionType {
-    NO_OPTION, OPTION_PLAY, OPTION_REMOVE, OPTION_CLEAR
+    NO_OPTION, OPTION_PLAY, OPTION_DISCARD, OPTION_CLEAR
 };
 enum Suit {
     NO_SUIT, CLUBS, DIAMONDS, HEARTS, SPADES
@@ -79,11 +80,7 @@ typedef struct Card {
 typedef std::array<Card, HAND_SIZE_MAX_START> Hand;
 typedef std::vector<Card> Deck;
 typedef std::array<Card, TRACK_FACE_MAX> Faces;
-typedef struct PlayerCaravanNames {
-    CaravanName cn_t1;
-    CaravanName cn_t2;
-    CaravanName cn_t3;
-} PlayerCaravanNames;
+typedef std::array<CaravanName, 3> PlayerCaravanNames;
 
 typedef struct Slot {
     Card card{};
@@ -117,6 +114,8 @@ typedef struct GameOption {
  */
 
 std::string caravan_name_to_str(CaravanName cn);
+
+std::string direction_to_str(Direction dir);
 
 bool is_numeric_card(Card c);
 

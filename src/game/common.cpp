@@ -25,6 +25,19 @@ std::string caravan_name_to_str(CaravanName cn) {
     }
 }
 
+std::string direction_to_str(Direction dir) {
+    switch (dir) {
+        case ANY:
+            return "ANY";
+        case ASCENDING:
+            return "ASC";
+        case DESCENDING:
+            return "DES";
+        default:
+            throw CaravanFatalException("Invalid direction.");
+    }
+}
+
 bool is_numeric_card(Card c) {
     return (c.rank >= ACE and c.rank <= TEN);
 }

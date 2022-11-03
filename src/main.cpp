@@ -5,7 +5,7 @@
 #include "game/view.h"
 #include "game/controller.h"
 #include "iostream"
-#include "bots/bot_random.h"
+#include "bots/bot_simple.h"
 
 int main() {
     GameConfig gc;
@@ -13,7 +13,7 @@ int main() {
     ViewCLI *v;
     Controller *c;
     User *ua = new UserHuman(PLAYER_A);
-    User *ub = new UserBotRandom(PLAYER_B);
+    User *ub = new UserBotSimple(PLAYER_B);
 
     gc = {
             30, 1, true,

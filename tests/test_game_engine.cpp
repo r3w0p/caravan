@@ -188,7 +188,7 @@ TEST (TestGameEngine, PlayOption_Error_AlreadyClosed) {
     e.close();
 
     try {
-        e.play_option({OPTION_REMOVE, 1, NO_CARAVAN, 0});
+        e.play_option({OPTION_DISCARD, 1, NO_CARAVAN, 0});
         FAIL();
 
     } catch (CaravanFatalException &e) {
@@ -207,7 +207,7 @@ TEST (TestGameEngine, PlayOption_Error_StartRound_Remove) {
     Engine e{gc};
 
     try {
-        e.play_option({OPTION_REMOVE, 1, NO_CARAVAN, 0});
+        e.play_option({OPTION_DISCARD, 1, NO_CARAVAN, 0});
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -226,7 +226,7 @@ TEST (TestGameEngine, PlayOption_Error_StartRound_Clear) {
     Engine e{gc};
 
     try {
-        e.play_option({OPTION_CLEAR, 0, CARAVAN_D, 0});
+        e.play_option({OPTION_CLEAR, 0, CARAVAN_A, 0});
         FAIL();
 
     } catch (CaravanGameException &e) {

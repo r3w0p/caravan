@@ -2,17 +2,17 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#ifndef CARAVAN_BOT_RANDOM_H
-#define CARAVAN_BOT_RANDOM_H
+#ifndef CARAVAN_BOT_SIMPLE_H
+#define CARAVAN_BOT_SIMPLE_H
 
 #include "../game/controller.h"
 
 
-class UserBotRandom : public UserBot {
+class UserBotSimple : public UserBot {
 public:
-    explicit UserBotRandom(PlayerName pn) : UserBot(pn) {};
+    explicit UserBotSimple(PlayerName pn) : UserBot(pn) {};
 
     GameOption request_option(Engine *e, View *v) override;
 };
 
-#endif //CARAVAN_BOT_RANDOM_H
+#endif //CARAVAN_BOT_SIMPLE_H

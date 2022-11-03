@@ -47,7 +47,7 @@ void Player::maybe_add_card_to_hand() {
     // If more cards in the deck
     if (!deck->empty()) {
         // If post-Start and hand not at post-Start max (5 cards)
-        if(moves > MOVES_START_ROUND and i_hand < HAND_SIZE_MAX_POST_START) {
+        if (moves > MOVES_START_ROUND and i_hand < HAND_SIZE_MAX_POST_START) {
             // Add new card from deck to top of hand
             hand[i_hand] = deck->back();
             deck->pop_back();
@@ -56,7 +56,7 @@ void Player::maybe_add_card_to_hand() {
     }
 }
 
-Card Player::remove_from_hand_at(uint8_t pos) {
+Card Player::discard_from_hand_at(uint8_t pos) {
     uint8_t i;
     Card c_ret;
 
