@@ -3,9 +3,10 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include <iostream>
-#include "../include/view.h"
-#include "../include/controller.h"
-#include "../include/bot_simple.h"
+#include "view.h"
+#include "controller.h"
+#include "bot_simple.h"
+#include "curses.h"
 
 int main() {
     GameConfig gc;
@@ -26,18 +27,24 @@ int main() {
         ub = new UserBotSimple(PLAYER_B);
 
         e = new Engine(gc);
-        v = new ViewCLI();
-        c = new Controller(e, v, ua, ub);
+        //v = new ViewCLI();
+        //c = new Controller(e, v, ua, ub);
 
-        c->run();
+        //c->run();
+
+        initscr();
+        printw("Hello World !!!");
+        refresh();
+        getch();
+        endwin();
 
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
     }
 
     delete e;
-    delete v;
-    delete c;
+    //delete v;
+    //delete c;
     delete ua;
     delete ub;
 }

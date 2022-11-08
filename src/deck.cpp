@@ -5,8 +5,8 @@
 #include <chrono>
 #include <random>
 #include <vector>
-#include "../include/deck.h"
-#include "../include/exceptions.h"
+#include "deck.h"
+#include "exceptions.h"
 
 
 Deck *DeckBuilder::build_caravan_deck(

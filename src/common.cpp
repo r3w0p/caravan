@@ -3,8 +3,8 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include <string>
-#include "../include/common.h"
-#include "../include/exceptions.h"
+#include "common.h"
+#include "exceptions.h"
 
 std::string caravan_name_to_str(CaravanName cn) {
     switch (cn) {

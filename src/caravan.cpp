@@ -2,8 +2,8 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#include "../include/caravan.h"
-#include "../include/exceptions.h"
+#include "caravan.h"
+#include "exceptions.h"
 
 
 void Caravan::clear() {

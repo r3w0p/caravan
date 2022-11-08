@@ -2,8 +2,8 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#include "../include/player.h"
-#include "../include/exceptions.h"
+#include "player.h"
+#include "exceptions.h"
 
 
 Card Player::get_from_hand_at(uint8_t pos) {

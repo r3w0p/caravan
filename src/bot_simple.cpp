@@ -3,7 +3,7 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include <random>
-#include "../include/bot_simple.h"
+#include "bot_simple.h"
 
 uint8_t random_uint8_t(uint8_t min, uint8_t max) {
     std::random_device rd;
