@@ -1,34 +1,34 @@
 project(tests)
 
-set(test_files_game
-        ../src/game/caravan.cpp
-        ../src/game/caravan.h
+set(tests_files
+        ../src/controller.cpp
+        ../include/controller.h
 
-        ../src/game/common.cpp
-        ../src/game/common.h
+        ../src/caravan.cpp
+        ../include/caravan.h
 
-        ../src/game/controller.cpp
-        ../src/game/controller.h
+        ../src/deck.cpp
+        ../include/deck.h
 
-        ../src/game/deck.cpp
-        ../src/game/deck.h
+        ../src/engine.cpp
+        ../include/engine.h
 
-        ../src/game/engine.cpp
-        ../src/game/engine.h
+        ../src/player.cpp
+        ../include/player.h
 
-        ../src/game/exceptions.cpp
-        ../src/game/exceptions.h
+        ../src/table.cpp
+        ../include/table.h
 
-        ../src/game/player.cpp
-        ../src/game/player.h
+        ../src/common.cpp
+        ../include/common.h
 
-        ../src/game/table.cpp
-        ../src/game/table.h
+        ../src/exceptions.cpp
+        ../include/exceptions.h
 
-        ../src/game/view.cpp
-        ../src/game/view.h)
+        ../src/view.cpp
+        ../include/view.h)
 
-add_executable(tests_run ${test_files_game}
+add_executable(tests_run ${tests_files}
         test_game_caravan.cpp
         test_game_deck.cpp
         test_game_engine.cpp
@@ -36,5 +36,3 @@ add_executable(tests_run ${test_files_game}
         test_game_table.cpp)
 
 target_link_libraries(tests_run gtest gtest_main)
-
-add_subdirectory(lib)

@@ -8,5 +8,6 @@ set(PROJECT_COPYRIGHT "Copyright (c) 2022 r3w0p")
 set(PROJECT_DESCRIPTION "A CLI version of the Caravan card game from Fallout: New Vegas.")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
+add_subdirectory(libs)
 add_subdirectory(src)
 add_subdirectory(tests)

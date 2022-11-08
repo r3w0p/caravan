@@ -3,7 +3,7 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "gtest/gtest.h"
-#include "../src/game/engine.h"
+#include "../include/engine.h"
 
 
 TEST (TestGameEngine, Close) {

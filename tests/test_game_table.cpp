@@ -3,8 +3,8 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "gtest/gtest.h"
-#include "../src/game/table.h"
-#include "../src/game/exceptions.h"
+#include "../include/table.h"
+#include "../include/exceptions.h"
 
 
 TEST (TestGameTable, ClearCaravan_TwoNumeric_OneFace) {
@@ -52,15 +52,15 @@ TEST (TestGameTable, GetCaravanCardsAt_ThreeNumeric) {
     t.play_numeric_card(cn, c_num_2);
     t.play_numeric_card(cn, c_num_3);
 
-    ts = t.get_caravan_cards_at(cn, 1);
+    ts = t.get_slot_at(cn, 1);
     ASSERT_EQ(ts.card.suit, SPADES);
     ASSERT_EQ(ts.card.rank, ACE);
 
-    ts = t.get_caravan_cards_at(cn, 2);
+    ts = t.get_slot_at(cn, 2);
     ASSERT_EQ(ts.card.suit, CLUBS);
     ASSERT_EQ(ts.card.rank, TWO);
 
-    ts = t.get_caravan_cards_at(cn, 3);
+    ts = t.get_slot_at(cn, 3);
     ASSERT_EQ(ts.card.suit, HEARTS);
     ASSERT_EQ(ts.card.rank, THREE);
 }
@@ -139,11 +139,11 @@ TEST (TestGameTable, PlayFaceCard_Jack) {
     ASSERT_EQ(t.get_caravan_suit(cn), HEARTS);
     ASSERT_EQ(t.get_caravan_direction(cn), ASCENDING);
 
-    ts = t.get_caravan_cards_at(cn, 1);
+    ts = t.get_slot_at(cn, 1);
     ASSERT_EQ(ts.card.suit, SPADES);
     ASSERT_EQ(ts.card.rank, ACE);
 
-    ts = t.get_caravan_cards_at(cn, 2);
+    ts = t.get_slot_at(cn, 2);
     ASSERT_EQ(ts.card.suit, HEARTS);
     ASSERT_EQ(ts.card.rank, THREE);
 }
@@ -241,7 +241,7 @@ TEST (TestGameTable, PlayFaceCard_Joker_Ace) {
     ASSERT_EQ(t.get_caravan_size(CARAVAN_E), 0);
     ASSERT_EQ(t.get_caravan_size(CARAVAN_F), 1);
 
-    ts = t.get_caravan_cards_at(CARAVAN_D, 1);
+    ts = t.get_slot_at(CARAVAN_D, 1);
     ASSERT_EQ(ts.card.suit, SPADES);
     ASSERT_EQ(ts.card.rank, ACE);
 }
@@ -272,7 +272,7 @@ TEST (TestGameTable, PlayFaceCard_Joker_2To10) {
     ASSERT_EQ(t.get_caravan_size(CARAVAN_E), 1);
     ASSERT_EQ(t.get_caravan_size(CARAVAN_F), 0);
 
-    ts = t.get_caravan_cards_at(CARAVAN_D, 1);
+    ts = t.get_slot_at(CARAVAN_D, 1);
     ASSERT_EQ(ts.card.suit, SPADES);
     ASSERT_EQ(ts.card.rank, TWO);
 }

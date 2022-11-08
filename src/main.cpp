@@ -2,26 +2,29 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#include "game/view.h"
-#include "game/controller.h"
-#include "iostream"
-#include "bots/bot_simple.h"
+#include <iostream>
+#include "../include/view.h"
+#include "../include/controller.h"
+#include "../include/bot_simple.h"
 
 int main() {
     GameConfig gc;
+    UserHuman *ua;
+    UserBotSimple *ub;
     Engine *e;
     ViewCLI *v;
     Controller *c;
-    User *ua = new UserHuman(PLAYER_A);
-    User *ub = new UserBotSimple(PLAYER_B);
-
-    gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_A
-    };
 
     try {
+        gc = {
+                30, 1, true,
+                30, 1, true,
+                PLAYER_A
+        };
+
+        ua = new UserHuman(PLAYER_A);
+        ub = new UserBotSimple(PLAYER_B);
+
         e = new Engine(gc);
         v = new ViewCLI();
         c = new Controller(e, v, ua, ub);
@@ -35,4 +38,6 @@ int main() {
     delete e;
     delete v;
     delete c;
+    delete ua;
+    delete ub;
 }
