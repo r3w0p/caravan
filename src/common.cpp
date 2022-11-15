@@ -92,18 +92,18 @@ std::string rank_to_str(Rank r) {
     }
 }
 
-std::string suit_to_str(Suit s) {
+char suit_to_char(Suit s) {
     switch (s) {
         case NO_SUIT:
-            return "";
+            return ' '; // '\0';
         case CLUBS:
-            return "\x05";
+            return 'c'; // '\x05';
         case DIAMONDS:
-            return "\x04";
+            return 'd'; // '\x04';
         case HEARTS:
-            return "\x03";
+            return 'h'; // '\x03';
         case SPADES:
-            return "\x06";
+            return 's'; // '\x06';
         default:
             throw CaravanFatalException("Invalid suit.");
     }

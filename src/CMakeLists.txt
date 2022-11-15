@@ -16,4 +16,4 @@ add_library(caravan_src STATIC
 target_link_libraries(caravan caravan_src)
 
 include_directories(../include)
-include_directories(../libs/pdcurses-3.9/include)
+include_directories(../lib/pdcurses-3.9/include)

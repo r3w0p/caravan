@@ -45,14 +45,17 @@ void Controller::run() {
         user_turn = engine_ptr->get_player_turn() == user_a_ptr->get_name() ?
                     user_a_ptr : user_b_ptr;
 
-        if (user_turn->is_human())
-            view_ptr->display_table(
+        if (user_turn->is_human()) {
+            view_ptr->update(
                     engine_ptr,
                     user_a_ptr,
                     user_b_ptr);
 
+            view_ptr->message(msg);
+        }
+
         msg = "";
-        option = view_ptr->get_option(engine_ptr, user_turn);
+        option = view_ptr->option(engine_ptr, user_turn);
 
         try {
             engine_ptr->play_option(option);
@@ -65,5 +68,5 @@ void Controller::run() {
     } while ((winner = engine_ptr->get_winner()) == NO_PLAYER);
 
     msg = "Winner is: " + player_name_to_str(winner);
-    view_ptr->put_message(msg);
+    view_ptr->message(msg);
 }

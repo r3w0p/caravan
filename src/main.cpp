@@ -6,7 +6,6 @@
 #include "view.h"
 #include "controller.h"
 #include "bot_simple.h"
-#include "curses.h"
 
 int main() {
     GameConfig gc;
@@ -27,24 +26,21 @@ int main() {
         ub = new UserBotSimple(PLAYER_B);
 
         e = new Engine(gc);
-        //v = new ViewCLI();
-        //c = new Controller(e, v, ua, ub);
+        v = new ViewCLI();
+        c = new Controller(e, v, ua, ub);
 
-        //c->run();
-
-        initscr();
-        printw("Hello World !!!");
-        refresh();
-        getch();
-        endwin();
+        c->run();
 
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
     }
 
+    e->close();
+    v->close();
+
     delete e;
-    //delete v;
-    //delete c;
+    delete v;
+    delete c;
     delete ua;
     delete ub;
 }

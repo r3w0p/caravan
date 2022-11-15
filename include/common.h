@@ -30,9 +30,14 @@ const uint8_t HAND_SIZE_MAX_POST_START = 5;
 const uint8_t HAND_POS_MIN = 1;
 const uint8_t TABLE_CARAVANS_MAX = 6;
 const uint8_t PLAYER_CARAVANS_MAX = 3;
-const uint8_t VIEW_DISPLAY_ROW_MAX = 51;
-const uint8_t VIEW_DISPLAY_COL_MAX = 72;
-const uint8_t VIEW_DISPLAY_ROW_MIDDLE = 25;
+const uint8_t VIEW_TABLE_ROW_MAX = 51;
+const uint8_t VIEW_TABLE_COL_MAX = 86;
+const uint8_t VIEW_TABLE_ROW_MIDDLE = 25;
+
+const uint8_t VIEW_STDSCR_ROW_MAX = VIEW_TABLE_ROW_MAX + 4;
+const uint8_t VIEW_STDSCR_COL_MAX = VIEW_TABLE_COL_MAX;
+const uint8_t VIEW_STDSCR_ROW_MSG = VIEW_STDSCR_ROW_MAX - 3;
+const uint8_t VIEW_STDSCR_ROW_OPTION = VIEW_STDSCR_ROW_MAX - 1;
 
 /*
  * ENUMS
@@ -86,7 +91,7 @@ typedef std::array<Card, TRACK_FACE_MAX> Faces;
 typedef std::array<CaravanName, 3> PlayerCaravanNames;
 
 
-typedef std::array<std::array<wchar_t, VIEW_DISPLAY_COL_MAX>, VIEW_DISPLAY_ROW_MAX> ViewDisplayArray;
+typedef std::array<std::array<char, VIEW_TABLE_COL_MAX>, VIEW_TABLE_ROW_MAX> ViewDisplayArray;
 
 typedef struct Slot {
     Card card{};
@@ -131,6 +136,6 @@ std::string player_name_to_str(PlayerName pn);
 
 std::string rank_to_str(Rank r);
 
-std::string suit_to_str(Suit s);
+char suit_to_char(Suit s);
 
 #endif //CARAVAN_COMMON_H
