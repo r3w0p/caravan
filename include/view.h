@@ -19,14 +19,8 @@ public:
 
 class ViewCLI : public View {
 protected:
-    void apply_player_a(Engine *e, User *ua, User *ub, uint8_t mrow);
-    //void apply_player_b(Engine *e, User *ua, User *ub, uint8_t mrow);
-    void apply_corners();
-    void apply_caravan_down(
-            uint8_t rref, uint8_t cref, Engine *e, CaravanName cn);
-    void apply_numeric_down(
-            uint8_t rref, uint8_t cref, Card c);
-    void clear_row(uint8_t rref);
+    uint8_t r_max;
+    uint8_t c_max;
 public:
     explicit ViewCLI();
     void update(Engine *e, User *ua, User *ub);

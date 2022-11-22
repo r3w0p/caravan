@@ -54,6 +54,8 @@ void Controller::run() {
             view_ptr->message(msg);
         }
 
+        return;  // TODO remove
+
         msg = "";
         option = view_ptr->option(engine_ptr, user_turn);
 

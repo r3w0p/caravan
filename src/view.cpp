@@ -6,49 +6,39 @@
 #include <curses.h>
 #include <clocale>
 
-const std::string BAR_B_PLAYER   = "|---------[D]---------|---------[E]---------|---------[F]---------|-----[PLAYER]-----|";
-const std::string BAR_B_PLAYER_B = "|---------[D]---------|---------[E]---------|---------[F]---------|----[PLAYER B]----|";
-const std::string BAR_B_COMPUTER = "|---------[D]---------|---------[E]---------|---------[F]---------|----[COMPUTER]----|";
-const std::string BAR_A_PLAYER   = "|---------[A]---------|---------[B]---------|---------[C]---------|-----[PLAYER]-----|";
-const std::string BAR_A_PLAYER_A = "|---------[A]---------|---------[B]---------|---------[C]---------|----[PLAYER A]----|";
-const std::string BAR_A_COMPUTER = "|---------[A]---------|---------[B]---------|---------[C]---------|----[COMPUTER]----|";
-
 ViewCLI::ViewCLI() {
-    //setlocale(LC_ALL, "");
     initscr();
-    refresh();
+    raw();
 
-    resize_term(VIEW_STDSCR_ROW_MAX, VIEW_STDSCR_COL_MAX);
-    wresize(stdscr, VIEW_STDSCR_ROW_MAX, VIEW_STDSCR_COL_MAX);
-    refresh();
+    getmaxyx(stdscr, r_max, c_max);
 }
 
 void ViewCLI::close() {
     endwin();
 }
 
-void ViewCLI::clear_row(uint8_t rref) {
-    wmove(stdscr, rref, 0);
-    wclrtoeol(stdscr);
-    wmove(stdscr, rref, 0);
-}
-
 void ViewCLI::update(Engine *e, User *ua, User *ub) {
-    for(int r = 0; r < VIEW_TABLE_ROW_MAX; r++)
-        clear_row(r);
-    wrefresh(stdscr);
+    if(has_colors() == FALSE)
+    {	endwin();
+        printf("Your terminal does not support color\n");
+        exit(1);
+    }
+    start_color();			/* Start color 			*/
+    init_pair(1, COLOR_BLUE, COLOR_BLACK);
 
-    apply_player_a(e, ua, ub, VIEW_TABLE_ROW_MIDDLE + 1);
-    apply_caravan_down(VIEW_TABLE_ROW_MIDDLE + 3, 2, e, CARAVAN_A);
-    apply_corners();
+    attron(COLOR_PAIR(1));
 
-    wmove(stdscr, VIEW_STDSCR_ROW_OPTION, 0);
-    wrefresh(stdscr);
+    const wchar_t test[] = {suit_to_wchar_t(SPADES), L'\0'};
+
+    mvaddwstr(0, 0, test);
+
+    attroff(COLOR_PAIR(1));
+
+    getch();
 }
 
 void ViewCLI::message(std::string msg) {
-    clear_row(VIEW_STDSCR_ROW_MSG);
-    wprintw(stdscr, "%s", msg.c_str());
+    // TODO implementation
 }
 
 GameOption ViewCLI::option(Engine *e, User *u) {
@@ -235,115 +225,4 @@ GameOption ViewCLI::option(Engine *e, User *u) {
     } while(!reached_end_ok);
 
     return go;
-}
-
-void ViewCLI::apply_player_a(Engine *e, User *ua, User *ub, uint8_t mrow) {
-    std::string middle;
-
-    // Select appropriate middle player bar depending on who/what is playing
-    if(ua->is_human()) {
-        if(ub->is_human())
-            middle = BAR_A_PLAYER_A;
-        else
-            middle = BAR_A_PLAYER;
-    } else {
-        middle = BAR_A_COMPUTER;
-    }
-
-    mvwprintw(stdscr, mrow, 0, middle.c_str());
-
-    apply_caravan_down(VIEW_TABLE_ROW_MIDDLE+3, 3, e, CARAVAN_A);
-    // TODO Caravan B
-    // TODO Caravan C
-
-    // Deck
-
-    // Hand
-}
-
-void ViewCLI::apply_corners() {
-    mvwaddch(stdscr, 0, 0, '+');
-    mvwaddch(stdscr, 0, 1, '-');
-    mvwaddch(stdscr, 0, 2, '-');
-    mvwaddch(stdscr, 1, 0, '|');
-    mvwaddch(stdscr, 2, 0, '|');
-
-    mvwaddch(stdscr, 0, VIEW_TABLE_COL_MAX - 1, '+');
-    mvwaddch(stdscr, 0, VIEW_TABLE_COL_MAX - 2, '-');
-    mvwaddch(stdscr, 0, VIEW_TABLE_COL_MAX - 3, '-');
-    mvwaddch(stdscr, 1, VIEW_TABLE_COL_MAX - 1, '|');
-    mvwaddch(stdscr, 2, VIEW_TABLE_COL_MAX - 1, '|');
-
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 1, 0, '+');
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 1, 1, '-');
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 1, 2, '-');
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 2, 0, '|');
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 3, 0, '|');
-
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 1, VIEW_TABLE_COL_MAX - 1, '+');
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 1, VIEW_TABLE_COL_MAX - 2, '-');
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 1, VIEW_TABLE_COL_MAX - 3, '-');
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 2, VIEW_TABLE_COL_MAX - 1, '|');
-    mvwaddch(stdscr, VIEW_TABLE_ROW_MAX - 3, VIEW_TABLE_COL_MAX - 1, '|');
-}
-
-void ViewCLI::apply_caravan_down(
-        uint8_t rref, uint8_t cref, Engine *e, CaravanName cn) {
-    uint8_t size;
-    std::string size_str;
-    Slot stest;
-    Table *t = e->get_table();
-
-    if(t->get_caravan_size(cn) == 0)
-        return;
-
-    // Size
-    size = t->get_caravan_size(cn);
-
-    if(size > 99)
-        size_str = "99+";
-    else
-        size_str = std::to_string(size);
-
-    mvwprintw(stdscr, rref, cref, size_str.c_str());
-
-    // Suit
-    mvwaddch(stdscr, rref+1, cref, suit_to_char(t->get_caravan_suit(cn)));
-
-    // Direction
-    mvwprintw(stdscr, rref+2, cref, direction_to_str(t->get_caravan_direction(cn)).c_str());
-
-    stest = t->get_slot_at(cn, 1);
-    mvwprintw(stdscr, rref+1, cref + 3, std::to_string(1).c_str());
-    apply_numeric_down(rref, cref + 5, stest.card);
-}
-
-void ViewCLI::apply_numeric_down(uint8_t rref, uint8_t cref, Card c) {
-    std::string rank_str;
-
-    if(!is_numeric_card(c))
-        throw CaravanFatalException("Card is not numeric.");
-
-    // Row 1
-    mvwprintw(stdscr, rref, cref, std::string(".-------.").c_str());
-
-    // Row 2
-    mvwaddch(stdscr, rref + 1, cref, '|');
-
-    rank_str = rank_to_str(c.rank);
-
-    if(rank_str.size() < 2) {
-        mvwaddch(stdscr, rref + 1, cref + 3, ' ');
-        mvwaddch(stdscr, rref + 1, cref + 4, rank_str.at(0));
-    } else {
-        mvwaddch(stdscr, rref + 1, cref + 3, rank_str.at(0));
-        mvwaddch(stdscr, rref + 1, cref + 4, rank_str.at(1));
-    }
-
-    mvwaddch(stdscr, rref + 1, cref + 5, suit_to_char(c.suit));
-
-    mvwaddch(stdscr, rref + 1, cref + 6, '|');
-
-    // Row 3
-    // Row 4
 }

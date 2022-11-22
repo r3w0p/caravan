@@ -136,6 +136,6 @@ std::string player_name_to_str(PlayerName pn);
 
 std::string rank_to_str(Rank r);
 
-char suit_to_char(Suit s);
+wchar_t suit_to_wchar_t(Suit s);
 
 #endif //CARAVAN_COMMON_H

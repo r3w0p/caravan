@@ -6,7 +6,7 @@
 #include <string.h>
 
 #ifdef PDC_WIDE
-# include "../common/acsuni.h"
+# include "../include/acsuni.h"
 #else
 # include "acs437.h"
 #endif

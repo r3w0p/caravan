@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 
 set(CMAKE_CXX_STANDARD 20)
+add_definitions(-DPDC_WIDE)
 
 project(caravan VERSION 0.1)
 

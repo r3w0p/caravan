@@ -92,18 +92,18 @@ std::string rank_to_str(Rank r) {
     }
 }
 
-char suit_to_char(Suit s) {
+wchar_t suit_to_wchar_t(Suit s) {
     switch (s) {
         case NO_SUIT:
-            return ' '; // '\0';
-        case CLUBS:
-            return 'c'; // '\x05';
-        case DIAMONDS:
-            return 'd'; // '\x04';
-        case HEARTS:
-            return 'h'; // '\x03';
+            return L' '; // '\0'
         case SPADES:
-            return 's'; // '\x06';
+            return L'♠'; // '\x06', 0x2660 = 0xE2 0x99 0xA0
+        case CLUBS:
+            return L'♣'; // '\x05', 0x2663 = 0xE2 0x99 0xA3
+        case HEARTS:
+            return L'♥'; // '\x03', 0x2665 = 0xE2 0x99 0xA5
+        case DIAMONDS:
+            return L'♦'; // '\x04', 0x2666 = 0xE2 0x99 0xA6
         default:
             throw CaravanFatalException("Invalid suit.");
     }
