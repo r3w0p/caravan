@@ -9,6 +9,10 @@
 #include "engine.h"
 #include "user.h"
 
+const short PAIR_WHITE_BLACK = 1;
+const short PAIR_RED_BLACK = 2;
+const short PAIR_CYAN_BLACK = 3;
+
 class View {
 public:
     virtual void update(Engine *e, User *ua, User *ub) = 0;
@@ -19,6 +23,7 @@ public:
 
 class ViewCLI : public View {
 protected:
+    bool has_colour;
     uint8_t r_max;
     uint8_t c_max;
 public:

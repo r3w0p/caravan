@@ -6,33 +6,126 @@
 #include <curses.h>
 #include <clocale>
 
+WINDOW *create_window_caravan(int h, int w, int y, int x) {
+    WINDOW * local_win;
+    local_win = newwin(h, w, y, x);
+    return local_win;
+}
+
+void print_suit(WINDOW *win, int y, int x, Suit s) {
+    short colour_pair;
+    wchar_t wstr[2];
+    bool stub_has_colour = true;
+
+    if(stub_has_colour) {
+        switch (s) {
+            case DIAMONDS:
+            case HEARTS:
+                colour_pair = PAIR_RED_BLACK;
+                break;
+            case CLUBS:
+            case SPADES:
+                colour_pair = PAIR_CYAN_BLACK;
+                break;
+            default:
+                return;
+        }
+
+        wattron(win, COLOR_PAIR(colour_pair));
+    }
+
+    wstr[0] = suit_to_wchar_t(s);
+    wstr[1] = L'\0';
+
+    if(move(y, x) == ERR)
+        throw CaravanFatalException(
+                "Failed to print suit: move error.");
+
+    if(waddnwstr(win, wstr, -1) == ERR)
+        throw CaravanFatalException(
+                "Failed to print suit: waddnwstr error.");
+
+    if(stub_has_colour)
+        wattroff(win, COLOR_PAIR(colour_pair));
+}
+
 ViewCLI::ViewCLI() {
     initscr();
     raw();
-
     getmaxyx(stdscr, r_max, c_max);
+    has_colour = has_colors();
+
+    if(has_colour) {
+        start_color();
+        init_pair(PAIR_WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);
+        init_pair(PAIR_RED_BLACK, COLOR_RED, COLOR_BLACK);
+        init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
+    }
 }
 
 void ViewCLI::close() {
     endwin();
 }
 
-void ViewCLI::update(Engine *e, User *ua, User *ub) {
-    if(has_colors() == FALSE)
-    {	endwin();
-        printf("Your terminal does not support color\n");
-        exit(1);
+
+std::string rank_to_str(Rank r) {
+    switch (r) {
+        case ACE:
+            return " A";
+        case TWO:
+            return " 2";
+        case THREE:
+            return " 3";
+        case FOUR:
+            return " 4";
+        case FIVE:
+            return " 5";
+        case SIX:
+            return " 6";
+        case SEVEN:
+            return " 7";
+        case EIGHT:
+            return " 8";
+        case NINE:
+            return " 9";
+        case TEN:
+            return "10";
+        case JACK:
+            return " J";
+        case QUEEN:
+            return " Q";
+        case KING:
+            return " K";
+        case JOKER:
+            return "JO";
+        default:
+            throw CaravanFatalException("Invalid rank.");
     }
-    start_color();			/* Start color 			*/
-    init_pair(1, COLOR_BLUE, COLOR_BLACK);
+}
 
-    attron(COLOR_PAIR(1));
+void print_card(WINDOW *win, int y, int x, Card c) {
+    mvwprintw(win, y, x, " _____ ");
+    mvwprintw(win, y+1, x, "|     |");
+    mvwprintw(win, y+2, x, "|     |");
 
-    const wchar_t test[] = {suit_to_wchar_t(SPADES), L'\0'};
+    mvwprintw(win, y+3, x, "| ");
+    mvwprintw(win, y+3, x+2, rank_to_str(c.rank).c_str());
+    print_suit(win, y+3, x+4, c.suit);
+    mvwprintw(win, y+3, x+5, " |");
 
-    mvaddwstr(0, 0, test);
+    mvwprintw(win, y+4, x, "|     |");
+    mvwprintw(win, y+5, x, "|_____|");
+}
 
-    attroff(COLOR_PAIR(1));
+void ViewCLI::update(Engine *e, User *ua, User *ub) {
+    WINDOW* win_cvn_up = create_window_caravan(10, 12, 5, 5);
+    refresh();
+
+    // print_suit(win_cvn_up, 0, 0, DIAMONDS);
+    Card c = { DIAMONDS, TEN };
+    print_card(win_cvn_up, 0, 0, c);
+
+    wrefresh(win_cvn_up);
 
     getch();
 }

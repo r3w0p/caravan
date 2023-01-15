@@ -134,8 +134,6 @@ bool is_face_card(Card c);
 
 std::string player_name_to_str(PlayerName pn);
 
-std::string rank_to_str(Rank r);
-
 wchar_t suit_to_wchar_t(Suit s);
 
 #endif //CARAVAN_COMMON_H
