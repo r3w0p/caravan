@@ -132,8 +132,4 @@ bool is_numeric_card(Card c);
 
 bool is_face_card(Card c);
 
-std::string player_name_to_str(PlayerName pn);
-
-wchar_t suit_to_wchar_t(Suit s);
-
 #endif //CARAVAN_COMMON_H

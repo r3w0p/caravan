@@ -5,7 +5,7 @@
 #include "controller.h"
 #include <string>
 
-
+/* TODO move to View
 std::string generate_option_msg(PlayerName pn, GameOption go) {
     if (go.type == OPTION_PLAY) {
         return player_name_to_str(pn) +
@@ -33,7 +33,7 @@ std::string generate_option_msg(PlayerName pn, GameOption go) {
 
     throw CaravanFatalException("Invalid option for message generation.");
 }
-
+*/
 void Controller::run() {
     GameOption option;
     std::string msg;
@@ -61,7 +61,7 @@ void Controller::run() {
 
         try {
             engine_ptr->play_option(option);
-            msg = generate_option_msg(user_turn->get_name(), option);
+            // msg = generate_option_msg(user_turn->get_name(), option);
 
         } catch (CaravanGameException &e) {
             msg = e.what();
@@ -69,6 +69,7 @@ void Controller::run() {
 
     } while ((winner = engine_ptr->get_winner()) == NO_PLAYER);
 
-    msg = "Winner is: " + player_name_to_str(winner);
+    // TODO move to View
+    msg = "Winner is ...";
     view_ptr->message(msg);
 }

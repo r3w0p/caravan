@@ -45,31 +45,3 @@ bool is_numeric_card(Card c) {
 bool is_face_card(Card c) {
     return (c.rank >= JACK and c.rank <= JOKER);
 }
-
-std::string player_name_to_str(PlayerName pn) {
-    switch (pn) {
-        case PLAYER_A:
-            return "PLAYER A";
-        case PLAYER_B:
-            return "PLAYER B";
-        default:
-            throw CaravanFatalException("Invalid player name.");
-    }
-}
-
-wchar_t suit_to_wchar_t(Suit s) {
-    switch (s) {
-        case NO_SUIT:
-            return L' '; // '\0'
-        case SPADES:
-            return L'♠'; // '\x06', 0x2660 = 0xE2 0x99 0xA0
-        case CLUBS:
-            return L'♣'; // '\x05', 0x2663 = 0xE2 0x99 0xA3
-        case HEARTS:
-            return L'♥'; // '\x03', 0x2665 = 0xE2 0x99 0xA5
-        case DIAMONDS:
-            return L'♦'; // '\x04', 0x2666 = 0xE2 0x99 0xA6
-        default:
-            throw CaravanFatalException("Invalid suit.");
-    }
-}
