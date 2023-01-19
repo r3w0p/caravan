@@ -5,12 +5,27 @@
 #include "view.h"
 #include <curses.h>
 #include <clocale>
+#include <iostream>
 
-WINDOW *create_window_caravan(uint16_t h, uint16_t w, uint16_t y, uint16_t x) {
+WINDOW *create_window(uint16_t h, uint16_t w, uint16_t y, uint16_t x) {
     WINDOW * local_win;
     local_win = newwin(h, w, y, x);
     return local_win;
 }
+
+WINDOW *create_window_caravan(uint16_t y, uint16_t x) {
+    WINDOW * win = create_window(31, 19, y, x);
+
+    // TODO remove
+    for(int iy = 0; iy < 31; iy++)
+        mvwprintw(win, iy, 0, iy % 10 == 0 ? "-" : "*");
+
+    for(int ix = 0; ix < 19; ix++)
+        mvwprintw(win, 0, ix, ix % 10 == 0 ? "-" : "*");
+
+    return win;
+}
+
 
 
 std::string player_name_to_str(PlayerName pn) {
@@ -139,15 +154,13 @@ void print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s) {
 void print_card(WINDOW *win, uint16_t y, uint16_t x,
                 Card c, uint8_t num, bool up) {
 
-    if(up) {
-        // TODO
-
-    } else {
+    if(!up) {
         if(num == 1)
             mvwprintw(win, y, x, " ___ ");
         else
             mvwprintw(win, y, x, "|___|");
-    }
+    } else
+        mvwprintw(win, y, x, " ___ ");
 
     mvwprintw(win, y+1, x, "|   |");
 
@@ -198,55 +211,196 @@ void ViewCLI::close() {
 }
 
 void print_caravan_down(WINDOW *win, Table *t, CaravanName cn) {
-    Card c = { DIAMONDS, TEN };
-    Faces f;
-    f[0] = { DIAMONDS, KING };
-    f[1] = { SPADES, KING };
-    f[2] = { NO_SUIT, JOKER };
-    f[3] = { CLUBS, QUEEN };
-    f[4] = { HEARTS, QUEEN };
-
-    uint8_t num_cards = 2;
-    uint8_t offset = 0;
+    uint8_t offset;
     uint8_t amt = 3;
 
-    uint16_t cnbid = 25; //t->get_caravan_bid(cn);
-    Suit cnsuit = SPADES; //t->get_caravan_suit(cn);
-    Direction cndir = DESCENDING; //t->get_caravan_direction(cn);
+    uint16_t cvn_bid = t->get_caravan_bid(cn);
+    Suit cvn_suit = t->get_caravan_suit(cn);
+    Direction cvn_dir = t->get_caravan_direction(cn);
+    uint8_t cvn_size = t->get_caravan_size(cn);
+    Slot slot;
+    uint8_t pos;
 
-    if(cnbid > 0)
-        mvwprintw(win, 1, 0, std::to_string(cnbid).c_str());
+    if(cvn_bid > 0)
+        mvwprintw(win, 1, 0, std::to_string(cvn_bid).c_str());
 
-    if(cnsuit != NO_SUIT)
-        print_suit(win, 2, 0, cnsuit);
+    if(cvn_suit != NO_SUIT)
+        print_suit(win, 2, 0, cvn_suit);
 
-    if(cndir != ANY)
-        mvwprintw(win, 3, 0, cndir == ASCENDING ? "ASC" : "DES");
+    if(cvn_dir != ANY)
+        mvwprintw(win, 3, 0, cvn_dir == ASCENDING ? "ASC" : "DES");
 
-    for(int i = 0; i < 10; i++) {
+    for(uint8_t i = 0; i < cvn_size; i++) {
+        pos = i+1;
+        slot = t->get_slot_at(cn, pos);
         offset = amt * i;
-        mvwprintw(win, offset + 2, 5 + 0, card_num_to_str(i+1).c_str());
-        print_card(win, offset, 5 + 3, c, i+1, false);
-        // TODO y for UP is different for DOWN
-        print_faces(win, offset, 5 + 9, f, 5);
+
+        mvwprintw(win, offset + 2, 5, card_num_to_str(pos).c_str());
+        print_card(win, offset, 8, slot.card, pos, false);
+        print_faces(win, offset, 14, slot.faces, slot.i_faces);
     }
+}
+
+void print_caravan_up(WINDOW *win, Table *t, CaravanName cn) {
+    uint8_t offset;
+    uint8_t amt = 3;
+
+    uint16_t cvn_bid = t->get_caravan_bid(cn);
+    Suit cvn_suit = t->get_caravan_suit(cn);
+    Direction cvn_dir = t->get_caravan_direction(cn);
+    uint8_t cvn_size = t->get_caravan_size(cn);
+    Slot slot;
+    uint8_t pos;
+
+    if(cvn_dir != ANY)
+        mvwprintw(win, (amt * 9) + 1, 0, cvn_dir == ASCENDING ? "ASC" : "DES");
+
+    if(cvn_suit != NO_SUIT)
+        print_suit(win, (amt * 9) + 2, 0, cvn_suit);
+
+    if(cvn_bid > 0)
+        mvwprintw(win, (amt * 9) + 3, 0, std::to_string(cvn_bid).c_str());
+
+    for(uint8_t i = 0; i < cvn_size; i++) {
+        pos = i+1;
+        slot = t->get_slot_at(cn, pos);
+        offset = amt * (10 - pos);
+
+        mvwprintw(win, offset + 2, 5, card_num_to_str(pos).c_str());
+        print_card(win, offset, 8, slot.card, pos, true);
+        print_faces(win, offset, 14, slot.faces, slot.i_faces);
+    }
+}
+
+// TODO update_table
+
+// TODO update_window_caravan =>
+//  update_window_caravan_up, update_window_caravan_down
+
+// TODO update_window_hand =>
+//  update_window_hand_up, update_window_hand_down
+//  bool concealed (depends on who is playing next, always concealed if bot?)
+
+// TODO update_window_deck =>
+//  update_window_deck_up, update_window_deck_down
 
 
+void update_table(WINDOW *win) {
+    // TOP
+    mvwprintw(win, 32, 0, "|");
+    mvwprintw(win, 31, 0, "|");
+
+    mvwprintw(win, 32, 1, "-----------");
+    mvwprintw(win, 32, 12, "[A]");
+    mvwprintw(win, 32, 15, "-----------");
+
+    mvwprintw(win, 32, 26, "|");
+    mvwprintw(win, 31, 26, "|");
+
+    mvwprintw(win, 32, 27, "-----------");
+    mvwprintw(win, 32, 38, "[B]");
+    mvwprintw(win, 32, 41, "-----------");
+
+    mvwprintw(win, 32, 52, "|");
+    mvwprintw(win, 31, 52, "|");
+
+    mvwprintw(win, 32, 53, "-----------");
+    mvwprintw(win, 32, 64, "[C]");
+    mvwprintw(win, 32, 67, "-----------");
+
+    mvwprintw(win, 32, 78, "|");
+    mvwprintw(win, 31, 78, "|");
+
+    mvwprintw(win, 32, 84, "|");
+    mvwprintw(win, 31, 84, "|");
+
+    mvwprintw(win, 32, 85, "------");
+    mvwprintw(win, 32, 91, "[BOT]");
+    mvwprintw(win, 32, 96, "------");
+
+    mvwprintw(win, 32, 102, "|");
+    mvwprintw(win, 31, 102, "|");
+
+    // BOTTOM
+    mvwprintw(win, 34, 0, "|");
+    mvwprintw(win, 35, 0, "|");
+
+    mvwprintw(win, 34, 1, "-----------");
+    mvwprintw(win, 34, 12, "[D]");
+    mvwprintw(win, 34, 15, "-----------");
+
+    mvwprintw(win, 34, 26, "|");
+    mvwprintw(win, 35, 26, "|");
 }
 
 void ViewCLI::update(Engine *e, User *ua, User *ub) {
-    WINDOW* win_cvn_down = create_window_caravan(31, 19, 0, 0);
+    /*
+    for(int iy = 0; iy < c_max; iy++)
+        mvwprintw(stdscr, iy, 0, iy % 10 == 0 ? "-" : "*");
+
+    for(int ix = 0; ix < r_max; ix++)
+        mvwprintw(stdscr, 0, ix, ix % 10 == 0 ? "-" : "*");
+    */
+
+    WINDOW* win_cvn_a = create_window_caravan(0, 3);
+    WINDOW* win_cvn_b = create_window_caravan(0, 29);
+    WINDOW* win_cvn_c = create_window_caravan(0, 55);
+
+    WINDOW* win_cvn_d = create_window_caravan(35, 3);
+    WINDOW* win_cvn_e = create_window_caravan(35, 29);
+    WINDOW* win_cvn_f = create_window_caravan(35, 55);
+
     refresh();
 
-    for(int y = 0; y < 60; y++)
-        mvwprintw(win_cvn_down, y, 0, y % 10 == 0 ? "-" : "*");
 
-    for(int x = 0; x < 16; x++)
-        mvwprintw(win_cvn_down, 0, x, x % 10 == 0 ? "-" : "*");
+    e->get_table()->play_numeric_card(CARAVAN_D, {HEARTS, TWO});
+    e->get_table()->play_numeric_card(CARAVAN_D, {SPADES, FOUR});
 
-    print_caravan_down(win_cvn_down, e->get_table(), CARAVAN_D);
+    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
 
-    wrefresh(win_cvn_down);
+
+    e->get_table()->play_numeric_card(CARAVAN_A, {HEARTS, ACE});
+    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, TWO});
+    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, THREE});
+    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, FOUR});
+    e->get_table()->play_numeric_card(CARAVAN_A, {CLUBS, FIVE});
+    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, SIX});
+    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, SEVEN});
+    e->get_table()->play_numeric_card(CARAVAN_A, {DIAMONDS, EIGHT});
+    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, NINE});
+    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, TEN});
+
+    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
+
+
+    update_table(stdscr);
+    wrefresh(stdscr);
+
+    print_caravan_up(win_cvn_a, e->get_table(), CARAVAN_A);
+    wrefresh(win_cvn_a);
+
+    print_caravan_up(win_cvn_b, e->get_table(), CARAVAN_A);
+    wrefresh(win_cvn_b);
+
+    print_caravan_up(win_cvn_c, e->get_table(), CARAVAN_A);
+    wrefresh(win_cvn_c);
+
+    print_caravan_down(win_cvn_d, e->get_table(), CARAVAN_A);
+    wrefresh(win_cvn_d);
+
+    print_caravan_down(win_cvn_e, e->get_table(), CARAVAN_A);
+    wrefresh(win_cvn_e);
+
+    print_caravan_down(win_cvn_f, e->get_table(), CARAVAN_A);
+    wrefresh(win_cvn_f);
 
     getch();
 }

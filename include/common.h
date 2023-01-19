@@ -124,10 +124,6 @@ typedef struct GameOption {
  * FUNCTIONS
  */
 
-std::string caravan_name_to_str(CaravanName cn);
-
-std::string direction_to_str(Direction dir);
-
 bool is_numeric_card(Card c);
 
 bool is_face_card(Card c);
