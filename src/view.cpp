@@ -17,7 +17,7 @@ WINDOW *create_window_caravan(uint16_t y, uint16_t x) {
 
 
 WINDOW *create_window_player(uint16_t y, uint16_t x) {
-    return create_window(31, 19, y, x);
+    return create_window(25, 19, y, x);
 }
 
 
@@ -160,8 +160,11 @@ void print_card(WINDOW *win, uint16_t y, uint16_t x,
     mvwprintw(win, y+2, x, "|");
 
     if(!conceal) {
-        mvwprintw(win, y + 2, x + 1, rank_to_str(c.rank, true).c_str());
-        print_suit(win, y + 2, x + 3, c.suit);
+        if(c.rank != JOKER) {
+            mvwprintw(win, y + 2, x + 1, rank_to_str(c.rank, true).c_str());
+            print_suit(win, y + 2, x + 3, c.suit);
+        } else
+            mvwprintw(win, y + 2, x + 2, "JO");
     } else
         mvwprintw(win, y + 2, x + 1, "###");
 
@@ -194,6 +197,10 @@ ViewCLI::ViewCLI() {
     initscr();
     raw();
     getmaxyx(stdscr, r_max, c_max);
+
+    if(r_max < VIEW_ROW_MIN or c_max < VIEW_COL_MIN)
+        throw CaravanFatalException("Terminal is too small.");
+
     has_colour = has_colors();
 
     if(has_colour) {
@@ -202,6 +209,16 @@ ViewCLI::ViewCLI() {
         init_pair(PAIR_RED_BLACK, COLOR_RED, COLOR_BLACK);
         init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
     }
+
+    // TODO remove
+    for(int y = 0; y < r_max; y++)
+        mvwprintw(stdscr, y, 0, y % 10 == 0 ? "r" : "*");
+
+    for(int x = 0; x < c_max; x++)
+        mvwprintw(stdscr, 0, x, x % 10 == 0 ? "c" : "*");
+
+    mvwprintw(stdscr, r_max-1, 0, std::to_string(r_max).c_str());
+    mvwprintw(stdscr, r_max-1, 10, std::to_string(c_max).c_str());
 }
 
 void ViewCLI::close() {
@@ -282,7 +299,7 @@ void print_player_up(WINDOW *win, Player *p, bool conceal) {
     uint8_t size_hand = p->get_size_hand();
 
     if(size_deck > 0) {
-        yoff = amt * 9;
+        yoff = amt * 7;
 
         if(size_deck < 10)
             xoff = 3;
@@ -313,7 +330,7 @@ void print_player_up(WINDOW *win, Player *p, bool conceal) {
     for(uint8_t i = 0; i < size_hand; i++) {
         pos = i+1;
         card = p->get_from_hand_at(pos);
-        offset = amt * (10 - pos);
+        offset = amt * (8 - pos);
 
         if(!conceal)
             mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos).c_str());
@@ -369,19 +386,6 @@ void print_player_down(WINDOW *win, Player *p, bool conceal) {
     }
 }
 
-// TODO update_table
-
-// TODO update_window_caravan =>
-//  update_window_caravan_up, update_window_caravan_down
-
-// TODO update_window_hand =>
-//  update_window_hand_up, update_window_hand_down
-//  bool concealed (depends on who is playing next, always concealed if bot?)
-
-// TODO update_window_deck =>
-//  update_window_deck_up, update_window_deck_down
-
-
 void update_table(WINDOW *win) {
     // TOP
     mvwprintw(win, 32, 0, "|");
@@ -408,15 +412,15 @@ void update_table(WINDOW *win) {
     mvwprintw(win, 32, 78, "|");
     mvwprintw(win, 31, 78, "|");
 
-    mvwprintw(win, 32, 84, "|");
-    mvwprintw(win, 31, 84, "|");
+    mvwprintw(win, 32, 84-3, "|");
+    mvwprintw(win, 31, 84-3, "|");
 
-    mvwprintw(win, 32, 85, "---------");
-    mvwprintw(win, 32, 94, "[BOT]");
-    mvwprintw(win, 32, 99, "---------");
+    mvwprintw(win, 32, 85-3, "---------");
+    mvwprintw(win, 32, 94-3, "[BOT]");
+    mvwprintw(win, 32, 99-3, "---------");
 
-    mvwprintw(win, 32, 108, "|");
-    mvwprintw(win, 31, 108, "|");
+    mvwprintw(win, 32, 108-3, "|");
+    mvwprintw(win, 31, 108-3, "|");
 
     // BOTTOM
     mvwprintw(win, 34, 0, "|");
@@ -443,15 +447,15 @@ void update_table(WINDOW *win) {
     mvwprintw(win, 34, 78, "|");
     mvwprintw(win, 35, 78, "|");
 
-    mvwprintw(win, 34, 84, "|");
-    mvwprintw(win, 35, 84, "|");
+    mvwprintw(win, 34, 84-3, "|");
+    mvwprintw(win, 35, 84-3, "|");
 
-    mvwprintw(win, 34, 85, "---------");
-    mvwprintw(win, 34, 94, "[YOU]");
-    mvwprintw(win, 34, 99, "---------");
+    mvwprintw(win, 34, 85-3, "---------");
+    mvwprintw(win, 34, 94-3, "[YOU]");
+    mvwprintw(win, 34, 99-3, "---------");
 
-    mvwprintw(win, 34, 108, "|");
-    mvwprintw(win, 35, 108, "|");
+    mvwprintw(win, 34, 108-3, "|");
+    mvwprintw(win, 35, 108-3, "|");
 }
 
 void ViewCLI::update(Engine *e, User *ua, User *ub) {
@@ -463,8 +467,15 @@ void ViewCLI::update(Engine *e, User *ua, User *ub) {
     WINDOW* win_cvn_e = create_window_caravan(0, 29);
     WINDOW* win_cvn_f = create_window_caravan(0, 55);
 
-    WINDOW* win_player_b = create_window_player(0, 87);
-    WINDOW* win_player_a = create_window_player(35, 87);
+    WINDOW* win_player_b = create_window_player(6, 84);
+    WINDOW* win_player_a = create_window_player(35, 84);
+
+    // TODO remove
+    for(int y = 0; y < 25; y++)
+        mvwprintw(win_player_b, y, 0, y % 10 == 0 ? "r" : "*");
+
+    for(int x = 0; x < 19; x++)
+        mvwprintw(win_player_b, 0, x, x % 10 == 0 ? "c" : "*");
 
     refresh();
 
@@ -474,7 +485,7 @@ void ViewCLI::update(Engine *e, User *ua, User *ub) {
 
     e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
     e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
-    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_D, {NO_SUIT, JOKER}, 2);
     e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
     e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
 
@@ -491,7 +502,7 @@ void ViewCLI::update(Engine *e, User *ua, User *ub) {
     e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, TEN});
 
     e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
-    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
+    e->get_table()->play_face_card(CARAVAN_A, {NO_SUIT, JOKER}, 2);
     e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
     e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
     e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
@@ -522,9 +533,29 @@ void ViewCLI::update(Engine *e, User *ua, User *ub) {
     Player *pa = new Player(PLAYER_A, DeckBuilder::build_caravan_deck(30, 1, true));
     Player *pb = new Player(PLAYER_B, DeckBuilder::build_caravan_deck(30, 1, true));
 
-    // TODO never conceal if: (1) both bots; (2) one bot one human
-    bool conceal_a = !ua->is_human() or (ua->is_human() and e->get_player_turn() != pa->get_name());
-    bool conceal_b = !ub->is_human() or (ub->is_human() and e->get_player_turn() != pb->get_name());
+    bool conceal_a;
+    bool conceal_b;
+
+    if (ua->is_human() and !ub->is_human()) {
+        // Do not conceal human; conceal bot
+        conceal_a = false;
+        conceal_b = true;
+
+    } else if (!ua->is_human() and ub->is_human()) {
+        // Conceal bot; do not conceal human
+        conceal_a = true;
+        conceal_b = false;
+
+    } else if(ua->is_human() and ub->is_human()) {
+        // Human vs human; conceal if not player's turn
+        conceal_a = e->get_player_turn() != pa->get_name();
+        conceal_b = e->get_player_turn() != pb->get_name();
+
+    } else {
+        // Never conceal if both bots
+        conceal_a = false;
+        conceal_b = false;
+    }
 
     print_player_up(win_player_b, pb, conceal_b);
     wrefresh(win_player_b);
