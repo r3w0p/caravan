@@ -4,8 +4,6 @@
 
 #include "view.h"
 #include <curses.h>
-#include <clocale>
-#include <iostream>
 
 WINDOW *create_window(uint16_t h, uint16_t w, uint16_t y, uint16_t x) {
     WINDOW * local_win;
@@ -14,18 +12,13 @@ WINDOW *create_window(uint16_t h, uint16_t w, uint16_t y, uint16_t x) {
 }
 
 WINDOW *create_window_caravan(uint16_t y, uint16_t x) {
-    WINDOW * win = create_window(31, 19, y, x);
-
-    // TODO remove
-    for(int iy = 0; iy < 31; iy++)
-        mvwprintw(win, iy, 0, iy % 10 == 0 ? "-" : "*");
-
-    for(int ix = 0; ix < 19; ix++)
-        mvwprintw(win, 0, ix, ix % 10 == 0 ? "-" : "*");
-
-    return win;
+    return create_window(31, 19, y, x);
 }
 
+
+WINDOW *create_window_player(uint16_t y, uint16_t x) {
+    return create_window(31, 19, y, x);
+}
 
 
 std::string player_name_to_str(PlayerName pn) {
@@ -152,7 +145,7 @@ void print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s) {
 }
 
 void print_card(WINDOW *win, uint16_t y, uint16_t x,
-                Card c, uint8_t num, bool up) {
+                Card c, uint8_t num, bool up, bool conceal) {
 
     if(!up) {
         if(num == 1)
@@ -165,8 +158,13 @@ void print_card(WINDOW *win, uint16_t y, uint16_t x,
     mvwprintw(win, y+1, x, "|   |");
 
     mvwprintw(win, y+2, x, "|");
-    mvwprintw(win, y+2, x+1, rank_to_str(c.rank, true).c_str());
-    print_suit(win, y+2, x+3, c.suit);
+
+    if(!conceal) {
+        mvwprintw(win, y + 2, x + 1, rank_to_str(c.rank, true).c_str());
+        print_suit(win, y + 2, x + 3, c.suit);
+    } else
+        mvwprintw(win, y + 2, x + 1, "###");
+
     mvwprintw(win, y+2, x+4, "|");
 
     mvwprintw(win, y+3, x, "|___|");
@@ -236,7 +234,7 @@ void print_caravan_down(WINDOW *win, Table *t, CaravanName cn) {
         offset = amt * i;
 
         mvwprintw(win, offset + 2, 5, card_num_to_str(pos).c_str());
-        print_card(win, offset, 8, slot.card, pos, false);
+        print_card(win, offset, 8, slot.card, pos, false, false);
         print_faces(win, offset, 14, slot.faces, slot.i_faces);
     }
 }
@@ -267,8 +265,107 @@ void print_caravan_up(WINDOW *win, Table *t, CaravanName cn) {
         offset = amt * (10 - pos);
 
         mvwprintw(win, offset + 2, 5, card_num_to_str(pos).c_str());
-        print_card(win, offset, 8, slot.card, pos, true);
+        print_card(win, offset, 8, slot.card, pos, true, false);
         print_faces(win, offset, 14, slot.faces, slot.i_faces);
+    }
+}
+
+void print_player_up(WINDOW *win, Player *p, bool conceal) {
+    uint8_t offset;
+    uint8_t amt = 3;
+    uint8_t pos;
+    Card card;
+    uint8_t xoff;
+    uint8_t yoff;
+
+    uint8_t size_deck = p->get_size_deck();
+    uint8_t size_hand = p->get_size_hand();
+
+    if(size_deck > 0) {
+        yoff = amt * 9;
+
+        if(size_deck < 10)
+            xoff = 3;
+        else if(size_deck < 100)
+            xoff = 2;
+        else
+            xoff = 1;
+
+        mvwprintw(win, yoff, 0, " ___ ");
+        mvwprintw(win, yoff + 1, 0, "|   |");
+
+        mvwprintw(win, yoff + 2, 0, "|");
+        mvwprintw(win, yoff + 2, xoff, std::to_string(size_deck).c_str());
+        mvwprintw(win, yoff + 2, 4, "|");
+
+        mvwprintw(win, yoff + 3, 0, "|___|");
+
+        if(size_deck > 1) {
+            mvwprintw(win, yoff-1, 0, " ___ ");
+            mvwprintw(win, yoff, 0, "/");
+            mvwprintw(win, yoff, 4, "/|");
+            mvwprintw(win, yoff+1, 5, "|");
+            mvwprintw(win, yoff+2, 5, "|");
+            mvwprintw(win, yoff+3, 5, "/");
+        }
+    }
+
+    for(uint8_t i = 0; i < size_hand; i++) {
+        pos = i+1;
+        card = p->get_from_hand_at(pos);
+        offset = amt * (10 - pos);
+
+        if(!conceal)
+            mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos).c_str());
+
+        print_card(win, offset, 8 + 6, card, pos, true, conceal);
+    }
+}
+
+void print_player_down(WINDOW *win, Player *p, bool conceal) {
+    uint8_t offset;
+    uint8_t amt = 3;
+    uint8_t pos;
+    Card card;
+    uint8_t xoff;
+
+    uint8_t size_deck = p->get_size_deck();
+    uint8_t size_hand = p->get_size_hand();
+
+    if(size_deck > 0) {
+        if(size_deck < 10)
+            xoff = 3;
+        else if(size_deck < 100)
+            xoff = 2;
+        else
+            xoff = 1;
+
+        mvwprintw(win, 0, 0, " ___ ");
+        mvwprintw(win, 1, 0, "|   |");
+
+        mvwprintw(win, 2, 0, "|");
+        mvwprintw(win, 2, xoff, std::to_string(size_deck).c_str());
+        mvwprintw(win, 2, 4, "|");
+
+        mvwprintw(win, 3, 0, "|___|");
+
+        if(size_deck > 1) {
+            mvwprintw(win, 1, 5, "\\");
+            mvwprintw(win, 2, 5, "|");
+            mvwprintw(win, 3, 5, "|");
+            mvwprintw(win, 4, 0, "\\___\\|");
+        }
+    }
+
+    for(uint8_t i = 0; i < size_hand; i++) {
+        pos = i+1;
+        card = p->get_from_hand_at(pos);
+        offset = amt * i;
+
+        if(!conceal)
+            mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos).c_str());
+
+        print_card(win, offset, 8 + 6, card, pos, false, conceal);
     }
 }
 
@@ -291,21 +388,21 @@ void update_table(WINDOW *win) {
     mvwprintw(win, 31, 0, "|");
 
     mvwprintw(win, 32, 1, "-----------");
-    mvwprintw(win, 32, 12, "[A]");
+    mvwprintw(win, 32, 12, "[D]");
     mvwprintw(win, 32, 15, "-----------");
 
     mvwprintw(win, 32, 26, "|");
     mvwprintw(win, 31, 26, "|");
 
     mvwprintw(win, 32, 27, "-----------");
-    mvwprintw(win, 32, 38, "[B]");
+    mvwprintw(win, 32, 38, "[E]");
     mvwprintw(win, 32, 41, "-----------");
 
     mvwprintw(win, 32, 52, "|");
     mvwprintw(win, 31, 52, "|");
 
     mvwprintw(win, 32, 53, "-----------");
-    mvwprintw(win, 32, 64, "[C]");
+    mvwprintw(win, 32, 64, "[F]");
     mvwprintw(win, 32, 67, "-----------");
 
     mvwprintw(win, 32, 78, "|");
@@ -314,41 +411,60 @@ void update_table(WINDOW *win) {
     mvwprintw(win, 32, 84, "|");
     mvwprintw(win, 31, 84, "|");
 
-    mvwprintw(win, 32, 85, "------");
-    mvwprintw(win, 32, 91, "[BOT]");
-    mvwprintw(win, 32, 96, "------");
+    mvwprintw(win, 32, 85, "---------");
+    mvwprintw(win, 32, 94, "[BOT]");
+    mvwprintw(win, 32, 99, "---------");
 
-    mvwprintw(win, 32, 102, "|");
-    mvwprintw(win, 31, 102, "|");
+    mvwprintw(win, 32, 108, "|");
+    mvwprintw(win, 31, 108, "|");
 
     // BOTTOM
     mvwprintw(win, 34, 0, "|");
     mvwprintw(win, 35, 0, "|");
 
     mvwprintw(win, 34, 1, "-----------");
-    mvwprintw(win, 34, 12, "[D]");
+    mvwprintw(win, 34, 12, "[A]");
     mvwprintw(win, 34, 15, "-----------");
 
     mvwprintw(win, 34, 26, "|");
     mvwprintw(win, 35, 26, "|");
+
+    mvwprintw(win, 34, 27, "-----------");
+    mvwprintw(win, 34, 38, "[B]");
+    mvwprintw(win, 34, 41, "-----------");
+
+    mvwprintw(win, 34, 52, "|");
+    mvwprintw(win, 35, 52, "|");
+
+    mvwprintw(win, 34, 53, "-----------");
+    mvwprintw(win, 34, 64, "[C]");
+    mvwprintw(win, 34, 67, "-----------");
+
+    mvwprintw(win, 34, 78, "|");
+    mvwprintw(win, 35, 78, "|");
+
+    mvwprintw(win, 34, 84, "|");
+    mvwprintw(win, 35, 84, "|");
+
+    mvwprintw(win, 34, 85, "---------");
+    mvwprintw(win, 34, 94, "[YOU]");
+    mvwprintw(win, 34, 99, "---------");
+
+    mvwprintw(win, 34, 108, "|");
+    mvwprintw(win, 35, 108, "|");
 }
 
 void ViewCLI::update(Engine *e, User *ua, User *ub) {
-    /*
-    for(int iy = 0; iy < c_max; iy++)
-        mvwprintw(stdscr, iy, 0, iy % 10 == 0 ? "-" : "*");
+    WINDOW* win_cvn_a = create_window_caravan(35, 3);
+    WINDOW* win_cvn_b = create_window_caravan(35, 29);
+    WINDOW* win_cvn_c = create_window_caravan(35, 55);
 
-    for(int ix = 0; ix < r_max; ix++)
-        mvwprintw(stdscr, 0, ix, ix % 10 == 0 ? "-" : "*");
-    */
+    WINDOW* win_cvn_d = create_window_caravan(0, 3);
+    WINDOW* win_cvn_e = create_window_caravan(0, 29);
+    WINDOW* win_cvn_f = create_window_caravan(0, 55);
 
-    WINDOW* win_cvn_a = create_window_caravan(0, 3);
-    WINDOW* win_cvn_b = create_window_caravan(0, 29);
-    WINDOW* win_cvn_c = create_window_caravan(0, 55);
-
-    WINDOW* win_cvn_d = create_window_caravan(35, 3);
-    WINDOW* win_cvn_e = create_window_caravan(35, 29);
-    WINDOW* win_cvn_f = create_window_caravan(35, 55);
+    WINDOW* win_player_b = create_window_player(0, 87);
+    WINDOW* win_player_a = create_window_player(35, 87);
 
     refresh();
 
@@ -384,23 +500,38 @@ void ViewCLI::update(Engine *e, User *ua, User *ub) {
     update_table(stdscr);
     wrefresh(stdscr);
 
-    print_caravan_up(win_cvn_a, e->get_table(), CARAVAN_A);
-    wrefresh(win_cvn_a);
-
-    print_caravan_up(win_cvn_b, e->get_table(), CARAVAN_A);
-    wrefresh(win_cvn_b);
-
-    print_caravan_up(win_cvn_c, e->get_table(), CARAVAN_A);
-    wrefresh(win_cvn_c);
-
-    print_caravan_down(win_cvn_d, e->get_table(), CARAVAN_A);
+    print_caravan_up(win_cvn_d, e->get_table(), CARAVAN_A);
     wrefresh(win_cvn_d);
 
-    print_caravan_down(win_cvn_e, e->get_table(), CARAVAN_A);
+    print_caravan_up(win_cvn_e, e->get_table(), CARAVAN_A);
     wrefresh(win_cvn_e);
 
-    print_caravan_down(win_cvn_f, e->get_table(), CARAVAN_A);
+    print_caravan_up(win_cvn_f, e->get_table(), CARAVAN_A);
     wrefresh(win_cvn_f);
+
+    print_caravan_down(win_cvn_a, e->get_table(), CARAVAN_A);
+    wrefresh(win_cvn_a);
+
+    print_caravan_down(win_cvn_b, e->get_table(), CARAVAN_A);
+    wrefresh(win_cvn_b);
+
+    print_caravan_down(win_cvn_c, e->get_table(), CARAVAN_A);
+    wrefresh(win_cvn_c);
+
+
+    Player *pa = new Player(PLAYER_A, DeckBuilder::build_caravan_deck(30, 1, true));
+    Player *pb = new Player(PLAYER_B, DeckBuilder::build_caravan_deck(30, 1, true));
+
+    // TODO never conceal if: (1) both bots; (2) one bot one human
+    bool conceal_a = !ua->is_human() or (ua->is_human() and e->get_player_turn() != pa->get_name());
+    bool conceal_b = !ub->is_human() or (ub->is_human() and e->get_player_turn() != pb->get_name());
+
+    print_player_up(win_player_b, pb, conceal_b);
+    wrefresh(win_player_b);
+
+
+    print_player_down(win_player_a, pa, conceal_a);
+    wrefresh(win_player_a);
 
     getch();
 }

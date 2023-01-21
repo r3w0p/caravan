@@ -1,5 +1,8 @@
 project(tests)
 
+include_directories(../include)
+include_directories(../lib/pdcurses-3.9/include)
+
 set(tests_files
         ../src/controller.cpp
         ../include/controller.h
@@ -35,5 +38,4 @@ add_executable(tests_run ${tests_files}
         test_game_player.cpp
         test_game_table.cpp)
 
-target_link_libraries(tests_run gtest gtest_main)
-include_directories(../include)
+target_link_libraries(tests_run gtest gtest_main pdcurses)
