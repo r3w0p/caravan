@@ -1,9 +1,10 @@
-// Copyright (c) 2022 r3w0p
+// Copyright (c) 2022-2023 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
 #include "view.h"
 #include <curses.h>
+
 
 WINDOW *create_window(uint16_t h, uint16_t w, uint16_t y, uint16_t x) {
     WINDOW * local_win;
@@ -15,21 +16,46 @@ WINDOW *create_window_caravan(uint16_t y, uint16_t x) {
     return create_window(31, 19, y, x);
 }
 
-
 WINDOW *create_window_player(uint16_t y, uint16_t x) {
     return create_window(25, 19, y, x);
 }
 
+WINDOW *create_window_dialog(uint16_t y, uint16_t x) {
+    return create_window(4, 24, y, x);
+}
 
-std::string player_name_to_str(PlayerName pn) {
-    switch (pn) {
-        case PLAYER_A:
-            return "PLAYER A";
-        case PLAYER_B:
-            return "PLAYER B";
-        default:
-            throw CaravanFatalException("Invalid player name.");
-    }
+std::string player_name_to_str(
+        PlayerName pn, bool ahuman, bool bhuman) {
+
+    if(pn == PLAYER_A) {
+        if(ahuman) {
+            if(bhuman)
+                // A is human; B is human
+                return "PLA";
+            else
+                // A is human; B is not human
+                return "YOU";
+
+        } else
+            // A is not human
+            return "BOT";
+
+    } else if(pn == PLAYER_B) {
+        if(bhuman) {
+            if(ahuman)
+                // B is human; A is human
+                return "PLB";
+            else
+                // B is human; A is not human
+                return "YOU";
+
+        } else
+            // B is not human
+            return "BOT";
+
+    } else
+        throw CaravanFatalException("Invalid player name.");
+
 }
 
 wchar_t suit_to_wchar_t(Suit s) {
@@ -111,12 +137,11 @@ std::string card_num_to_str(uint8_t num) {
     }
 }
 
-void print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s) {
+void print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s, bool colour) {
     short colour_pair;
     wchar_t wstr[2];
-    bool stub_has_colour = true;
 
-    if(stub_has_colour) {
+    if(colour) {
         switch (s) {
             case DIAMONDS:
             case HEARTS:
@@ -140,12 +165,12 @@ void print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s) {
         throw CaravanFatalException(
                 "Failed to print suit: mvwaddwstr error.");
 
-    if(stub_has_colour)
+    if(colour)
         wattroff(win, COLOR_PAIR(colour_pair));
 }
 
 void print_card(WINDOW *win, uint16_t y, uint16_t x,
-                Card c, uint8_t num, bool up, bool conceal) {
+                Card c, uint8_t num, bool up, bool conceal, bool colour) {
 
     if(!up) {
         if(num == 1)
@@ -162,7 +187,7 @@ void print_card(WINDOW *win, uint16_t y, uint16_t x,
     if(!conceal) {
         if(c.rank != JOKER) {
             mvwprintw(win, y + 2, x + 1, rank_to_str(c.rank, true).c_str());
-            print_suit(win, y + 2, x + 3, c.suit);
+            print_suit(win, y + 2, x + 3, c.suit, colour);
         } else
             mvwprintw(win, y + 2, x + 2, "JO");
     } else
@@ -175,7 +200,7 @@ void print_card(WINDOW *win, uint16_t y, uint16_t x,
 
 void print_faces(WINDOW *win,
                  uint16_t y, uint16_t x,
-                 Faces f, uint8_t i_faces) {
+                 Faces f, uint8_t i_faces, bool colour) {
     Card c;
     std::string r;
 
@@ -187,45 +212,13 @@ void print_faces(WINDOW *win,
         mvwprintw(win, y+1, x+i, r.c_str());
 
         if(c.suit != NO_SUIT)
-            print_suit(win, y+2, x+i, c.suit);
+            print_suit(win, y+2, x+i, c.suit, colour);
         else
             mvwprintw(win, y+2, x+i, "O");
     }
 }
 
-ViewCLI::ViewCLI() {
-    initscr();
-    raw();
-    getmaxyx(stdscr, r_max, c_max);
-
-    if(r_max < VIEW_ROW_MIN or c_max < VIEW_COL_MIN)
-        throw CaravanFatalException("Terminal is too small.");
-
-    has_colour = has_colors();
-
-    if(has_colour) {
-        start_color();
-        init_pair(PAIR_WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);
-        init_pair(PAIR_RED_BLACK, COLOR_RED, COLOR_BLACK);
-        init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
-    }
-
-    // TODO remove
-    for(int y = 0; y < r_max; y++)
-        mvwprintw(stdscr, y, 0, y % 10 == 0 ? "r" : "*");
-
-    for(int x = 0; x < c_max; x++)
-        mvwprintw(stdscr, 0, x, x % 10 == 0 ? "c" : "*");
-
-    mvwprintw(stdscr, r_max-1, 0, std::to_string(r_max).c_str());
-    mvwprintw(stdscr, r_max-1, 10, std::to_string(c_max).c_str());
-}
-
-void ViewCLI::close() {
-    endwin();
-}
-
-void print_caravan_down(WINDOW *win, Table *t, CaravanName cn) {
+void print_caravan_down(WINDOW *win, Table *t, CaravanName cn, bool colour) {
     uint8_t offset;
     uint8_t amt = 3;
 
@@ -240,7 +233,7 @@ void print_caravan_down(WINDOW *win, Table *t, CaravanName cn) {
         mvwprintw(win, 1, 0, std::to_string(cvn_bid).c_str());
 
     if(cvn_suit != NO_SUIT)
-        print_suit(win, 2, 0, cvn_suit);
+        print_suit(win, 2, 0, cvn_suit, colour);
 
     if(cvn_dir != ANY)
         mvwprintw(win, 3, 0, cvn_dir == ASCENDING ? "ASC" : "DES");
@@ -251,12 +244,12 @@ void print_caravan_down(WINDOW *win, Table *t, CaravanName cn) {
         offset = amt * i;
 
         mvwprintw(win, offset + 2, 5, card_num_to_str(pos).c_str());
-        print_card(win, offset, 8, slot.card, pos, false, false);
-        print_faces(win, offset, 14, slot.faces, slot.i_faces);
+        print_card(win, offset, 8, slot.card, pos, false, false, colour);
+        print_faces(win, offset, 14, slot.faces, slot.i_faces, colour);
     }
 }
 
-void print_caravan_up(WINDOW *win, Table *t, CaravanName cn) {
+void print_caravan_up(WINDOW *win, Table *t, CaravanName cn, bool colour) {
     uint8_t offset;
     uint8_t amt = 3;
 
@@ -271,7 +264,7 @@ void print_caravan_up(WINDOW *win, Table *t, CaravanName cn) {
         mvwprintw(win, (amt * 9) + 1, 0, cvn_dir == ASCENDING ? "ASC" : "DES");
 
     if(cvn_suit != NO_SUIT)
-        print_suit(win, (amt * 9) + 2, 0, cvn_suit);
+        print_suit(win, (amt * 9) + 2, 0, cvn_suit, colour);
 
     if(cvn_bid > 0)
         mvwprintw(win, (amt * 9) + 3, 0, std::to_string(cvn_bid).c_str());
@@ -282,12 +275,28 @@ void print_caravan_up(WINDOW *win, Table *t, CaravanName cn) {
         offset = amt * (10 - pos);
 
         mvwprintw(win, offset + 2, 5, card_num_to_str(pos).c_str());
-        print_card(win, offset, 8, slot.card, pos, true, false);
-        print_faces(win, offset, 14, slot.faces, slot.i_faces);
+        print_card(win, offset, 8, slot.card, pos, true, false, colour);
+        print_faces(win, offset, 14, slot.faces, slot.i_faces, colour);
     }
 }
 
-void print_player_up(WINDOW *win, Player *p, bool conceal) {
+void update_dialog(
+        WINDOW *win, Engine *e, User *ua, User *ub, bool colour) {
+
+    std::string pname = player_name_to_str(
+            e->get_player_turn(), ua->is_human(), ub->is_human());
+
+    // TODO PLA PLB activity messages
+    mvwprintw(win, 0, 0, "");
+    mvwprintw(win, 1, 0, "");
+
+    mvwprintw(win, 3, 0, "[");
+    mvwprintw(win, 3, 1, pname.c_str());
+    mvwprintw(win, 3, 4, "] > ");
+}
+
+
+void print_player_up(WINDOW *win, Player *p, bool conceal, bool colour) {
     uint8_t offset;
     uint8_t amt = 3;
     uint8_t pos;
@@ -335,11 +344,11 @@ void print_player_up(WINDOW *win, Player *p, bool conceal) {
         if(!conceal)
             mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos).c_str());
 
-        print_card(win, offset, 8 + 6, card, pos, true, conceal);
+        print_card(win, offset, 8 + 6, card, pos, true, conceal, colour);
     }
 }
 
-void print_player_down(WINDOW *win, Player *p, bool conceal) {
+void print_player_down(WINDOW *win, Player *p, bool conceal, bool colour) {
     uint8_t offset;
     uint8_t amt = 3;
     uint8_t pos;
@@ -382,11 +391,28 @@ void print_player_down(WINDOW *win, Player *p, bool conceal) {
         if(!conceal)
             mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos).c_str());
 
-        print_card(win, offset, 8 + 6, card, pos, false, conceal);
+        print_card(win, offset, 8 + 6, card, pos, false, conceal, colour);
     }
 }
 
 void update_table(WINDOW *win) {
+    // CORNERS
+    mvwprintw(win, 0, 0, "+--");
+    mvwprintw(win, 1, 0, "|");
+    mvwprintw(win, 2, 0, "|");
+
+    mvwprintw(win, 0, 103, "--+");
+    mvwprintw(win, 1, 105, "|");
+    mvwprintw(win, 2, 105, "|");
+
+    mvwprintw(win, 64, 0, "|");
+    mvwprintw(win, 65, 0, "|");
+    mvwprintw(win, 66, 0, "+--");
+
+    mvwprintw(win, 64, 105, "|");
+    mvwprintw(win, 65, 105, "|");
+    mvwprintw(win, 66, 103, "--+");
+
     // TOP
     mvwprintw(win, 32, 0, "|");
     mvwprintw(win, 31, 0, "|");
@@ -419,8 +445,8 @@ void update_table(WINDOW *win) {
     mvwprintw(win, 32, 94-3, "[BOT]");
     mvwprintw(win, 32, 99-3, "---------");
 
-    mvwprintw(win, 32, 108-3, "|");
-    mvwprintw(win, 31, 108-3, "|");
+    mvwprintw(win, 32, 105, "|");
+    mvwprintw(win, 31, 105, "|");
 
     // BOTTOM
     mvwprintw(win, 34, 0, "|");
@@ -458,83 +484,61 @@ void update_table(WINDOW *win) {
     mvwprintw(win, 35, 108-3, "|");
 }
 
-void ViewCLI::update(Engine *e, User *ua, User *ub) {
-    WINDOW* win_cvn_a = create_window_caravan(35, 3);
-    WINDOW* win_cvn_b = create_window_caravan(35, 29);
-    WINDOW* win_cvn_c = create_window_caravan(35, 55);
+ViewCLI::ViewCLI() {
+    initscr();
+    raw();
+    getmaxyx(stdscr, r_max, c_max);
 
-    WINDOW* win_cvn_d = create_window_caravan(0, 3);
-    WINDOW* win_cvn_e = create_window_caravan(0, 29);
-    WINDOW* win_cvn_f = create_window_caravan(0, 55);
+    if(r_max < VIEW_ROW_MIN or c_max < VIEW_COL_MIN)
+        throw CaravanFatalException("Terminal is too small.");
 
-    WINDOW* win_player_b = create_window_player(6, 84);
-    WINDOW* win_player_a = create_window_player(35, 84);
+    has_colour = has_colors();
 
-    // TODO remove
-    for(int y = 0; y < 25; y++)
-        mvwprintw(win_player_b, y, 0, y % 10 == 0 ? "r" : "*");
+    if(has_colour) {
+        start_color();
+        init_pair(PAIR_WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);
+        init_pair(PAIR_RED_BLACK, COLOR_RED, COLOR_BLACK);
+        init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
+    }
 
-    for(int x = 0; x < 19; x++)
-        mvwprintw(win_player_b, 0, x, x % 10 == 0 ? "c" : "*");
+    win_cvn_a = create_window_caravan(35, 3);
+    win_cvn_b = create_window_caravan(35, 29);
+    win_cvn_c = create_window_caravan(35, 55);
+
+    win_cvn_d = create_window_caravan(0, 3);
+    win_cvn_e = create_window_caravan(0, 29);
+    win_cvn_f = create_window_caravan(0, 55);
+
+    win_player_b = create_window_player(6, 84);
+    win_player_a = create_window_player(35, 84);
+
+    win_dialog = create_window_dialog(62, 81);
 
     refresh();
+}
 
 
-    e->get_table()->play_numeric_card(CARAVAN_D, {HEARTS, TWO});
-    e->get_table()->play_numeric_card(CARAVAN_D, {SPADES, FOUR});
-
-    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
-    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
-    e->get_table()->play_face_card(CARAVAN_D, {NO_SUIT, JOKER}, 2);
-    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
-    e->get_table()->play_face_card(CARAVAN_D, {CLUBS, KING}, 2);
-
-
-    e->get_table()->play_numeric_card(CARAVAN_A, {HEARTS, ACE});
-    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, TWO});
-    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, THREE});
-    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, FOUR});
-    e->get_table()->play_numeric_card(CARAVAN_A, {CLUBS, FIVE});
-    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, SIX});
-    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, SEVEN});
-    e->get_table()->play_numeric_card(CARAVAN_A, {DIAMONDS, EIGHT});
-    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, NINE});
-    e->get_table()->play_numeric_card(CARAVAN_A, {SPADES, TEN});
-
-    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
-    e->get_table()->play_face_card(CARAVAN_A, {NO_SUIT, JOKER}, 2);
-    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
-    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
-    e->get_table()->play_face_card(CARAVAN_A, {CLUBS, KING}, 2);
-
-
-    update_table(stdscr);
-    wrefresh(stdscr);
-
-    print_caravan_up(win_cvn_d, e->get_table(), CARAVAN_A);
-    wrefresh(win_cvn_d);
-
-    print_caravan_up(win_cvn_e, e->get_table(), CARAVAN_A);
-    wrefresh(win_cvn_e);
-
-    print_caravan_up(win_cvn_f, e->get_table(), CARAVAN_A);
-    wrefresh(win_cvn_f);
-
-    print_caravan_down(win_cvn_a, e->get_table(), CARAVAN_A);
-    wrefresh(win_cvn_a);
-
-    print_caravan_down(win_cvn_b, e->get_table(), CARAVAN_A);
-    wrefresh(win_cvn_b);
-
-    print_caravan_down(win_cvn_c, e->get_table(), CARAVAN_A);
-    wrefresh(win_cvn_c);
-
-
-    Player *pa = new Player(PLAYER_A, DeckBuilder::build_caravan_deck(30, 1, true));
-    Player *pb = new Player(PLAYER_B, DeckBuilder::build_caravan_deck(30, 1, true));
-
+void ViewCLI::update(Engine *e, User *ua, User *ub) {
     bool conceal_a;
     bool conceal_b;
+    Player *pa = e->get_player(ua->get_name());
+    Player *pb = e->get_player(ub->get_name());
+
+    // Print table
+
+    update_table(stdscr);
+
+    // Print caravans
+
+    print_caravan_down(win_cvn_a, e->get_table(), CARAVAN_A, has_colour);
+    print_caravan_down(win_cvn_b, e->get_table(), CARAVAN_B, has_colour);
+    print_caravan_down(win_cvn_c, e->get_table(), CARAVAN_C, has_colour);
+
+    print_caravan_up(win_cvn_d, e->get_table(), CARAVAN_D, has_colour);
+    print_caravan_up(win_cvn_e, e->get_table(), CARAVAN_E, has_colour);
+    print_caravan_up(win_cvn_f, e->get_table(), CARAVAN_F, has_colour);
+
+    // Print hands
 
     if (ua->is_human() and !ub->is_human()) {
         // Do not conceal human; conceal bot
@@ -552,23 +556,43 @@ void ViewCLI::update(Engine *e, User *ua, User *ub) {
         conceal_b = e->get_player_turn() != pb->get_name();
 
     } else {
-        // Never conceal if both bots
+        // Never conceal if both players are bots
         conceal_a = false;
         conceal_b = false;
     }
 
-    print_player_up(win_player_b, pb, conceal_b);
+    print_player_down(win_player_a, pa, conceal_a, has_colour);
+    print_player_up(win_player_b, pb, conceal_b, has_colour);
+
+    // Print dialog
+
+    update_dialog(win_dialog, e, ua, ub, has_colour);
+
+    // Move cursor to correct position
+    wmove(win_dialog, 3, 9);  // TODO move to get_move (and remove getch below)
+
+    // Refresh windows
+    refresh();
+
+    wrefresh(win_cvn_a);
+    wrefresh(win_cvn_b);
+    wrefresh(win_cvn_c);
+
+    wrefresh(win_cvn_d);
+    wrefresh(win_cvn_e);
+    wrefresh(win_cvn_f);
+
+    wrefresh(win_player_a);
     wrefresh(win_player_b);
 
+    wrefresh(win_dialog);
 
-    print_player_down(win_player_a, pa, conceal_a);
-    wrefresh(win_player_a);
 
     getch();
 }
 
 void ViewCLI::message(std::string msg) {
-    // TODO implementation
+    // TODO
 }
 
 GameOption ViewCLI::option(Engine *e, User *u) {
@@ -585,11 +609,12 @@ GameOption ViewCLI::option(Engine *e, User *u) {
     reached_end_ok = false;
 
     do {
+        // TODO move to get_move in view or something like that
         wmove(stdscr, VIEW_STDSCR_ROW_OPTION, 0);
         wclrtoeol(stdscr);
 
         wmove(stdscr, VIEW_STDSCR_ROW_OPTION, 0);
-        wprintw(stdscr, "[%s] > ", player_name_to_str(u->get_name()).c_str());
+
         wrefresh(stdscr);
 
         wscanw(stdscr, "%5s", input);
@@ -755,4 +780,8 @@ GameOption ViewCLI::option(Engine *e, User *u) {
     } while(!reached_end_ok);
 
     return go;
+}
+
+void ViewCLI::close() {
+    endwin();
 }

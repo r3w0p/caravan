@@ -1,4 +1,4 @@
-// Copyright (c) 2022 r3w0p
+// Copyright (c) 2022-2023 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -8,6 +8,7 @@
 #include <string>
 #include "engine.h"
 #include "user.h"
+#include "curses.h"
 
 const short PAIR_WHITE_BLACK = 1;
 const short PAIR_RED_BLACK = 2;
@@ -26,6 +27,19 @@ protected:
     bool has_colour;
     uint8_t r_max;
     uint8_t c_max;
+
+    WINDOW* win_cvn_a;
+    WINDOW* win_cvn_b;
+    WINDOW* win_cvn_c;
+
+    WINDOW* win_cvn_d;
+    WINDOW* win_cvn_e;
+    WINDOW* win_cvn_f;
+
+    WINDOW* win_player_b;
+    WINDOW* win_player_a;
+
+    WINDOW* win_dialog;
 public:
     explicit ViewCLI();
     void update(Engine *e, User *ua, User *ub);

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_CXX_STANDARD 20)
 add_definitions(-DPDC_WIDE)
 
-project(caravan VERSION 0.1)
+project(caravan VERSION 0.9)
 
 set(PROJECT_COPYRIGHT "Copyright (c) 2022-2023 r3w0p")
 set(PROJECT_DESCRIPTION "A CLI version of the Caravan card game from Fallout: New Vegas.")
