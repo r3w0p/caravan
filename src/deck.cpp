@@ -8,7 +8,18 @@
 #include "deck.h"
 #include "exceptions.h"
 
-
+/**
+ * @param num_cards The number of cards to have in the caravan deck,
+ *        must be between 30 and 156 cards (inclusive).
+ * @param num_sample_decks The number of standard card decks
+ *        (52 cards + 2 Jokers) from which to sample cards for the caravan deck,
+ *        must be between 1 and 3 (inclusive).
+ * @param balanced_sample If true, standard decks are sampled in a round-robin
+ *        fashion e.g. a random card from deck 1, then deck 2, then 3, then
+ *        1, 2, 3, and so on.
+ *        If false, then standard decks are sampled randomly.
+ * @return A caravan deck.
+ */
 Deck *DeckBuilder::build_caravan_deck(
         uint8_t num_cards,
         uint8_t num_sample_decks,
@@ -94,6 +105,10 @@ Deck *DeckBuilder::build_caravan_deck(
  * PROTECTED
  */
 
+/**
+ * @param shuffle If true, deck is shuffled. If false, it is in numeral order.
+ * @return A standard card deck (52 cards + 2 Jokers).
+ */
 Deck DeckBuilder::build_standard_deck(bool shuffle) {
     Deck d;
 
@@ -113,6 +128,10 @@ Deck DeckBuilder::build_standard_deck(bool shuffle) {
         return d;
 }
 
+/**
+ * @param d The deck to shuffle.
+ * @return A deck with shuffled cards.
+ */
 Deck DeckBuilder::shuffle_deck(Deck d) {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(d.begin(), d.end(),

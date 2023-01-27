@@ -5,71 +5,30 @@
 #include "controller.h"
 #include <string>
 
-/* TODO move to View
-std::string generate_option_msg(PlayerName pn, GameOption go) {
-    if (go.type == OPTION_PLAY) {
-        return player_name_to_str(pn) +
-               " played " +
-               (go.pos_caravan == 0
-                ? "numeric"
-                : "face") +
-               " card onto " +
-               caravan_name_to_str(go.caravan_name) +
-               (go.pos_caravan == 0
-                ? ""
-                : " at position " + std::to_string(go.pos_caravan)) +
-               ".";
-
-    } else if (go.type == OPTION_DISCARD) {
-        return player_name_to_str(pn) +
-               " discarded a card from their hand.";
-
-    } else if (go.type == OPTION_CLEAR) {
-        return player_name_to_str(pn) +
-               " cleared caravan " +
-               caravan_name_to_str(go.caravan_name) +
-               ".";
-    }
-
-    throw CaravanFatalException("Invalid option for message generation.");
-}
-*/
 void Controller::run() {
     GameOption option;
-    std::string msg;
     User *user_turn;
-    PlayerName winner;
     PlayerCaravanNames cvns;
 
     do {
         user_turn = engine_ptr->get_player_turn() == user_a_ptr->get_name() ?
                     user_a_ptr : user_b_ptr;
 
-        if (user_turn->is_human()) {
-            view_ptr->update(
-                    engine_ptr,
-                    user_a_ptr,
-                    user_b_ptr);
+        // Only update view if current user is a human
+        if (user_turn->is_human())
+            view_ptr->update(engine_ptr, user_a_ptr, user_b_ptr);
 
-            view_ptr->message(msg);
-        }
-
-        return;  // TODO remove
-
-        msg = "";
+        // Get user's next move
         option = view_ptr->option(engine_ptr, user_turn);
 
+        // Attempt to play user's desired move
         try {
             engine_ptr->play_option(option);
-            // msg = generate_option_msg(user_turn->get_name(), option);
 
-        } catch (CaravanGameException &e) {
-            msg = e.what();
-        }
+        } catch (CaravanGameException &e) {}
 
-    } while ((winner = engine_ptr->get_winner()) == NO_PLAYER);
+    } while (engine_ptr->get_winner() == NO_PLAYER);
 
-    // TODO move to View
-    msg = "Winner is ...";
-    view_ptr->message(msg);
+    // Update one last time in order to display the winner
+    view_ptr->update(engine_ptr, user_a_ptr, user_b_ptr);
 }

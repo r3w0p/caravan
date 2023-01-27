@@ -18,7 +18,6 @@ class View {
 public:
     virtual void update(Engine *e, User *ua, User *ub) = 0;
     virtual GameOption option(Engine *e, User *u) = 0;
-    virtual void message(std::string msg) = 0;
     virtual void close() = 0;
 };
 
@@ -40,12 +39,20 @@ protected:
     WINDOW* win_player_a;
 
     WINDOW* win_dialog;
+    WINDOW* win_input;
+
+    GameOption pa_option;
+    GameOption pb_option;
+
+    std::string pa_err;
+    std::string pb_err;
+
 public:
     explicit ViewCLI();
     void update(Engine *e, User *ua, User *ub);
     GameOption option(Engine *e, User *u) override;
-    void message(std::string msg) override;
     void close() override;
+    void set_err(PlayerName pn, std::string msg);
 };
 
 #endif //CARAVAN_VIEW_H

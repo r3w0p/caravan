@@ -4,6 +4,7 @@
 
 #include "view.h"
 #include <curses.h>
+#include <iostream>
 
 
 WINDOW *create_window(uint16_t h, uint16_t w, uint16_t y, uint16_t x) {
@@ -24,14 +25,16 @@ WINDOW *create_window_dialog(uint16_t y, uint16_t x) {
     return create_window(4, 24, y, x);
 }
 
-std::string player_name_to_str(
-        PlayerName pn, bool ahuman, bool bhuman) {
+WINDOW *create_window_input(uint16_t y, uint16_t x) {
+    return create_window(1, 5, y, x);
+}
 
+std::string player_name_to_str(PlayerName pn, bool ahuman, bool bhuman) {
     if(pn == PLAYER_A) {
         if(ahuman) {
             if(bhuman)
                 // A is human; B is human
-                return "PLA";
+                return "PL1";
             else
                 // A is human; B is not human
                 return "YOU";
@@ -44,7 +47,7 @@ std::string player_name_to_str(
         if(bhuman) {
             if(ahuman)
                 // B is human; A is human
-                return "PLB";
+                return "PL2";
             else
                 // B is human; A is not human
                 return "YOU";
@@ -280,21 +283,87 @@ void print_caravan_up(WINDOW *win, Table *t, CaravanName cn, bool colour) {
     }
 }
 
-void update_dialog(
-        WINDOW *win, Engine *e, User *ua, User *ub, bool colour) {
+std::string generate_option_msg(PlayerName pn, GameOption go) {
+    /*
+    if (go.type == OPTION_PLAY) {
+        return player_name_to_str(pn) +
+               " played " +
+               (go.pos_caravan == 0
+                ? "numeric"
+                : "face") +
+               " card onto " +
+               caravan_name_to_str(go.caravan_name) +
+               (go.pos_caravan == 0
+                ? ""
+                : " at position " + std::to_string(go.pos_caravan)) +
+               ".";
 
-    std::string pname = player_name_to_str(
-            e->get_player_turn(), ua->is_human(), ub->is_human());
+    } else if (go.type == OPTION_DISCARD) {
+        return player_name_to_str(pn) +
+               " discarded a card from their hand.";
 
-    // TODO PLA PLB activity messages
-    mvwprintw(win, 0, 0, "");
-    mvwprintw(win, 1, 0, "");
+    } else if (go.type == OPTION_CLEAR) {
+        return player_name_to_str(pn) +
+               " cleared caravan " +
+               caravan_name_to_str(go.caravan_name) +
+               ".";
+    }
 
-    mvwprintw(win, 3, 0, "[");
-    mvwprintw(win, 3, 1, pname.c_str());
-    mvwprintw(win, 3, 4, "] > ");
+    throw CaravanFatalException("Invalid option for message generation.");
+     */
+    // TODO
+    return "";
 }
 
+void update_dialog(
+        WINDOW *win, Engine *e, User *ua, User *ub,
+        std::string pa_err, std::string pb_err, bool colour) {
+
+    std::string pna = player_name_to_str(
+            PLAYER_A, ua->is_human(), ub->is_human());
+    std::string pnb = player_name_to_str(
+            PLAYER_B, ua->is_human(), ub->is_human());
+    std::string pturn = e->get_player_turn() == ua->get_name() ? pna : pnb;
+    std::string pwinner;
+
+    if(e->get_winner() == NO_PLAYER) {
+
+        if(e->get_player(PLAYER_A)->get_moves_count() > 0) {
+            mvwprintw(win, 0, 0, pna.c_str());
+
+            if(pa_err.empty()) {
+                // TODO error message
+
+            } else {
+                // TODO activity
+            }
+        }
+
+        if(e->get_player(PLAYER_B)->get_moves_count() > 0) {
+            mvwprintw(win, 1, 0, pnb.c_str());
+
+            if(pb_err.empty()) {
+                // TODO error message
+
+            } else {
+                // TODO activity
+            }
+        }
+
+        mvwprintw(win, 3, 0, "[");
+        mvwprintw(win, 3, 1, pturn.c_str());
+        mvwprintw(win, 3, 4, "] > ");
+
+    } else {
+        mvwprintw(win, 0, 0, "");
+        mvwprintw(win, 1, 0, "");
+
+        pwinner = e->get_winner() == ua->get_name() ? pna : pnb;
+
+        mvwprintw(win, 3, 0, "WINNER:");
+        mvwprintw(win, 3, 8, pwinner.c_str());
+    }
+}
 
 void print_player_up(WINDOW *win, Player *p, bool conceal, bool colour) {
     uint8_t offset;
@@ -513,16 +582,21 @@ ViewCLI::ViewCLI() {
     win_player_a = create_window_player(35, 84);
 
     win_dialog = create_window_dialog(62, 81);
+    win_input = create_window_input(65, 89);
 
     refresh();
-}
 
+    pa_err = "";
+    pb_err = "";
+}
 
 void ViewCLI::update(Engine *e, User *ua, User *ub) {
     bool conceal_a;
     bool conceal_b;
     Player *pa = e->get_player(ua->get_name());
     Player *pb = e->get_player(ub->get_name());
+
+    // TODO may need to call some sort of clear() function
 
     // Print table
 
@@ -564,14 +638,12 @@ void ViewCLI::update(Engine *e, User *ua, User *ub) {
     print_player_down(win_player_a, pa, conceal_a, has_colour);
     print_player_up(win_player_b, pb, conceal_b, has_colour);
 
-    // Print dialog
+    // Update dialog
 
-    update_dialog(win_dialog, e, ua, ub, has_colour);
-
-    // Move cursor to correct position
-    wmove(win_dialog, 3, 9);  // TODO move to get_move (and remove getch below)
+    update_dialog(win_dialog, e, ua, ub, pa_err, pb_err, has_colour);
 
     // Refresh windows
+
     refresh();
 
     wrefresh(win_cvn_a);
@@ -586,13 +658,16 @@ void ViewCLI::update(Engine *e, User *ua, User *ub) {
     wrefresh(win_player_b);
 
     wrefresh(win_dialog);
-
-
-    getch();
+    wrefresh(win_input);
 }
 
-void ViewCLI::message(std::string msg) {
-    // TODO
+void ViewCLI::set_err(PlayerName pn, std::string msg) {
+    if(pn == PLAYER_A)
+        pa_err = msg;
+    else if(pn == PLAYER_B)
+        pb_err = msg;
+    else
+        throw CaravanFatalException("Invalid player name.");
 }
 
 GameOption ViewCLI::option(Engine *e, User *u) {
@@ -609,15 +684,15 @@ GameOption ViewCLI::option(Engine *e, User *u) {
     reached_end_ok = false;
 
     do {
-        // TODO move to get_move in view or something like that
-        wmove(stdscr, VIEW_STDSCR_ROW_OPTION, 0);
-        wclrtoeol(stdscr);
+        wmove(win_input, 0, 0);
+        wclrtoeol(win_input);
+        wmove(win_input, 0, 0);
 
-        wmove(stdscr, VIEW_STDSCR_ROW_OPTION, 0);
+        wrefresh(win_input);
 
-        wrefresh(stdscr);
+        wscanw(win_input, "%5s", input);
 
-        wscanw(stdscr, "%5s", input);
+        // TODO exit option
 
         /*
          * FIRST
@@ -653,7 +728,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
                 go.type = OPTION_CLEAR;
                 break;
             default:
-                message("Invalid option type.");
+                set_err(u->get_name(), "Invalid option type.");
                 continue;  // mandatory: ask again...
         }
 
@@ -676,7 +751,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
                     go.pos_hand = (uint8_t) input[1] - '0';
                     break;
                 default:
-                    message("Invalid hand position.");
+                    set_err(u->get_name(), "Invalid hand position.");
                     continue;  // mandatory for play/discard: ask again...
             }
 
@@ -707,7 +782,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
                     go.caravan_name = CARAVAN_F;
                     break;
                 default:
-                    message("Invalid caravan name.");
+                    set_err(u->get_name(), "Invalid caravan name.");
                     continue;  // mandatory for clear: ask again...
             }
         }
@@ -747,7 +822,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
                 go.caravan_name = CARAVAN_F;
                 break;
             default:
-                message("Invalid caravan name.");
+                set_err(u->get_name(), "Invalid caravan name.");
                 continue;
         }
 
@@ -778,6 +853,13 @@ GameOption ViewCLI::option(Engine *e, User *u) {
         reached_end_ok = true;
 
     } while(!reached_end_ok);
+
+    if(u->get_name() == PLAYER_A)
+        pa_option = go;
+    else if(u->get_name() == PLAYER_B)
+        pb_option = go;
+    else
+        throw CaravanFatalException("Invalid player name.");
 
     return go;
 }
