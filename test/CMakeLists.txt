@@ -1,14 +1,18 @@
-project(tests)
-
 include_directories(../include)
 include_directories(../lib/pdcurses-3.9/include)
 
-set(tests_files
-        ../src/controller.cpp
-        ../include/controller.h
+set(test_files
+        ../src/bot_simple.cpp
+        ../include/bot_simple.h
 
         ../src/caravan.cpp
         ../include/caravan.h
+
+        ../src/common.cpp
+        ../include/common.h
+
+        ../src/controller.cpp
+        ../include/controller.h
 
         ../src/deck.cpp
         ../include/deck.h
@@ -16,26 +20,26 @@ set(tests_files
         ../src/engine.cpp
         ../include/engine.h
 
+        ../src/exceptions.cpp
+        ../include/exceptions.h
+
         ../src/player.cpp
         ../include/player.h
 
         ../src/table.cpp
         ../include/table.h
 
-        ../src/common.cpp
-        ../include/common.h
-
-        ../src/exceptions.cpp
-        ../include/exceptions.h
+        ../src/user.cpp
+        ../include/user.h
 
         ../src/view.cpp
         ../include/view.h)
 
-add_executable(tests_run ${tests_files}
+add_executable(test_caravan ${test_files}
         test_game_caravan.cpp
         test_game_deck.cpp
         test_game_engine.cpp
         test_game_player.cpp
         test_game_table.cpp)
 
-target_link_libraries(tests_run gtest gtest_main pdcurses)
+target_link_libraries(test_caravan gtest gtest_main pdcurses)
