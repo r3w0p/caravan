@@ -16,9 +16,10 @@ const short PAIR_CYAN_BLACK = 3;
 
 class View {
 public:
-    virtual void update(Engine *e, User *ua, User *ub) = 0;
+    virtual void update(Engine *e, User *ubottom, User *utop, GameOption* go_bottom, GameOption* go_top) = 0;
     virtual GameOption option(Engine *e, User *u) = 0;
     virtual void close() = 0;
+    virtual void set_message(std::string msg) = 0;
 };
 
 class ViewCLI : public View {
@@ -39,20 +40,17 @@ protected:
     WINDOW* win_player_a;
 
     WINDOW* win_dialog;
-    WINDOW* win_input;
 
-    GameOption pa_option;
-    GameOption pb_option;
-
-    std::string pa_err;
-    std::string pb_err;
+    std::string instring;
+    std::string err_msg;
+    bool err_display;
 
 public:
     explicit ViewCLI();
-    void update(Engine *e, User *ua, User *ub);
+    void update(Engine *e, User *ubottom, User *utop, GameOption* go_bottom, GameOption* go_top);
     GameOption option(Engine *e, User *u) override;
     void close() override;
-    void set_err(PlayerName pn, std::string msg);
+    void set_message(std::string msg);
 };
 
 #endif //CARAVAN_VIEW_H

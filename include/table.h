@@ -12,14 +12,14 @@
 
 class Table {
 protected:
-    std::array<Caravan, TABLE_CARAVANS_MAX> caravans = {
-            Caravan(CARAVAN_D),
-            Caravan(CARAVAN_E),
-            Caravan(CARAVAN_F),
-            Caravan(CARAVAN_A),
-            Caravan(CARAVAN_B),
-            Caravan(CARAVAN_C)
-    };
+    Caravan* d = new Caravan(CARAVAN_D);
+    Caravan* e = new Caravan(CARAVAN_E);
+    Caravan* f = new Caravan(CARAVAN_F);
+    Caravan* a = new Caravan(CARAVAN_A);
+    Caravan* b = new Caravan(CARAVAN_B);
+    Caravan* c = new Caravan(CARAVAN_C);
+
+    std::array<Caravan*, TABLE_CARAVANS_MAX> caravans = { d, e, f, a, b, c };
 
     uint8_t caravan_name_to_index_value(CaravanName cn);
 
@@ -38,7 +38,7 @@ public:
 
     void play_face_card(CaravanName cn, Card c, uint8_t pos);
 
-    void play_numeric_card(CaravanName cn, Card c);
+    void play_numeral_card(CaravanName cn, Card c);
 };
 
 #endif //CARAVAN_TABLE_H

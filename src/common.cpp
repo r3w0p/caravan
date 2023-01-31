@@ -7,7 +7,7 @@
 #include "exceptions.h"
 
 
-bool is_numeric_card(Card c) {
+bool is_numeral_card(Card c) {
     return (c.rank >= ACE and c.rank <= TEN);
 }
 

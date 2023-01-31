@@ -40,7 +40,7 @@ const uint8_t VIEW_STDSCR_ROW_OPTION = 68;
  */
 
 enum PlayerName {
-    NO_PLAYER, PLAYER_A, PLAYER_B
+    NO_PLAYER, PLAYER_BOTTOM, PLAYER_TOP
 };
 enum Direction {
     ANY, ASCENDING, DESCENDING
@@ -49,13 +49,12 @@ enum CaravanName {
     NO_CARAVAN, CARAVAN_A, CARAVAN_B, CARAVAN_C, CARAVAN_D, CARAVAN_E, CARAVAN_F
 };
 enum OptionType {
-    NO_OPTION, OPTION_PLAY, OPTION_DISCARD, OPTION_CLEAR
+    NO_OPTION, OPTION_EXIT, OPTION_PLAY, OPTION_DISCARD, OPTION_CLEAR
 };
 enum Suit {
     NO_SUIT, CLUBS, DIAMONDS, HEARTS, SPADES
 };
 enum Rank {
-    NO_RANK,
     ACE,
     TWO,
     THREE,
@@ -108,17 +107,18 @@ typedef struct GameConfig {
 } GameConfig;
 
 typedef struct GameOption {
-    OptionType type;
-    uint8_t pos_hand;
-    CaravanName caravan_name;
-    uint8_t pos_caravan;
+    OptionType type {};
+    uint8_t pos_hand {};
+    CaravanName caravan_name {};
+    uint8_t pos_caravan {};
+    Card card {};
 } GameOption;
 
 /*
  * FUNCTIONS
  */
 
-bool is_numeric_card(Card c);
+bool is_numeral_card(Card c);
 
 bool is_face_card(Card c);
 

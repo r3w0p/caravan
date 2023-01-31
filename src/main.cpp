@@ -19,11 +19,11 @@ int main() {
         gc = {
                 30, 1, true,
                 30, 1, true,
-                PLAYER_A
+                PLAYER_BOTTOM
         };
 
-        ua = new UserHuman(PLAYER_A);
-        ub = new UserBotSimple(PLAYER_B);
+        ua = new UserHuman(PLAYER_BOTTOM);
+        ub = new UserBotSimple(PLAYER_TOP);
 
         e = new Engine(gc);
         v = new ViewCLI();

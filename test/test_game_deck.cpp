@@ -17,7 +17,7 @@ TEST (TestGameDeck, CaravanDeck_30Cards_1SampleDeck_Balanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeric_card(c_back))
+        if (is_numeral_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -36,7 +36,7 @@ TEST (TestGameDeck, CaravanDeck_30Cards_1SampleDeck_NotBalanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeric_card(c_back))
+        if (is_numeral_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -55,7 +55,7 @@ TEST (TestGameDeck, CaravanDeck_90Cards_2SampleDecks_Balanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeric_card(c_back))
+        if (is_numeral_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -74,7 +74,7 @@ TEST (TestGameDeck, CaravanDeck_90Cards_2SampleDecks_NotBalanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeric_card(c_back))
+        if (is_numeral_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -93,7 +93,7 @@ TEST (TestGameDeck, CaravanDeck_156Cards_3SampleDecks_Balanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeric_card(c_back))
+        if (is_numeral_card(c_back))
             sum_num += 1;
 
         d->pop_back();
@@ -112,7 +112,7 @@ TEST (TestGameDeck, CaravanDeck_156Cards_3SampleDecks_NotBalanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeric_card(c_back))
+        if (is_numeral_card(c_back))
             sum_num += 1;
 
         d->pop_back();

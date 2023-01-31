@@ -5,6 +5,8 @@
 #include "view.h"
 #include <curses.h>
 #include <iostream>
+#include <stdlib.h>
+#include <sstream>
 
 
 WINDOW *create_window(uint16_t h, uint16_t w, uint16_t y, uint16_t x) {
@@ -29,8 +31,28 @@ WINDOW *create_window_input(uint16_t y, uint16_t x) {
     return create_window(1, 5, y, x);
 }
 
+
+char caravan_name_to_letter(CaravanName cn) {
+    switch(cn) {
+        case CARAVAN_A:
+            return 'A';
+        case CARAVAN_B:
+            return 'B';
+        case CARAVAN_C:
+            return 'C';
+        case CARAVAN_D:
+            return 'D';
+        case CARAVAN_E:
+            return 'E';
+        case CARAVAN_F:
+            return 'F';
+        default:
+            throw CaravanFatalException("Invalid caravan name.");
+    }
+}
+
 std::string player_name_to_str(PlayerName pn, bool ahuman, bool bhuman) {
-    if(pn == PLAYER_A) {
+    if(pn == PLAYER_BOTTOM) {
         if(ahuman) {
             if(bhuman)
                 // A is human; B is human
@@ -43,7 +65,7 @@ std::string player_name_to_str(PlayerName pn, bool ahuman, bool bhuman) {
             // A is not human
             return "BOT";
 
-    } else if(pn == PLAYER_B) {
+    } else if(pn == PLAYER_TOP) {
         if(bhuman) {
             if(ahuman)
                 // B is human; A is human
@@ -113,34 +135,34 @@ std::string rank_to_str(Rank r, bool lead) {
     }
 }
 
-std::string card_num_to_str(uint8_t num) {
+std::string card_num_to_str(uint8_t num, bool lead) {
     switch (num) {
         case 1:
-            return " 1";
+            return lead ? " 1" : "1";
         case 2:
-            return " 2";
+            return lead ? " 2" : "2";
         case 3:
-            return " 3";
+            return lead ? " 3" : "3";
         case 4:
-            return " 4";
+            return lead ? " 4" : "4";
         case 5:
-            return " 5";
+            return lead ? " 5" : "5";
         case 6:
-            return " 6";
+            return lead ? " 6" : "6";
         case 7:
-            return " 7";
+            return lead ? " 7" : "7";
         case 8:
-            return " 8";
+            return lead ? " 8" : "8";
         case 9:
-            return " 9";
+            return lead ? " 9" : "9";
         case 10:
             return "10";
         default:
-            throw CaravanFatalException("Invalid card number.");
+            throw CaravanFatalException("Invalid card numeral.");
     }
 }
 
-void print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s, bool colour) {
+void mv_print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s, bool colour) {
     short colour_pair;
     wchar_t wstr[2];
 
@@ -172,6 +194,38 @@ void print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s, bool colour) {
         wattroff(win, COLOR_PAIR(colour_pair));
 }
 
+void w_print_suit(WINDOW *win, Suit s, bool colour) {
+    short colour_pair;
+    wchar_t wstr[2];
+
+    if(colour) {
+        switch (s) {
+            case DIAMONDS:
+            case HEARTS:
+                colour_pair = PAIR_RED_BLACK;
+                break;
+            case CLUBS:
+            case SPADES:
+                colour_pair = PAIR_CYAN_BLACK;
+                break;
+            default:
+                return;
+        }
+
+        wattron(win, COLOR_PAIR(colour_pair));
+    }
+
+    wstr[0] = suit_to_wchar_t(s);
+    wstr[1] = L'\0';
+
+    if(waddwstr(win, wstr) == ERR)
+        throw CaravanFatalException(
+                "Failed to print suit: mvwaddwstr error.");
+
+    if(colour)
+        wattroff(win, COLOR_PAIR(colour_pair));
+}
+
 void print_card(WINDOW *win, uint16_t y, uint16_t x,
                 Card c, uint8_t num, bool up, bool conceal, bool colour) {
 
@@ -190,7 +244,7 @@ void print_card(WINDOW *win, uint16_t y, uint16_t x,
     if(!conceal) {
         if(c.rank != JOKER) {
             mvwprintw(win, y + 2, x + 1, rank_to_str(c.rank, true).c_str());
-            print_suit(win, y + 2, x + 3, c.suit, colour);
+            mv_print_suit(win, y + 2, x + 3, c.suit, colour);
         } else
             mvwprintw(win, y + 2, x + 2, "JO");
     } else
@@ -215,7 +269,7 @@ void print_faces(WINDOW *win,
         mvwprintw(win, y+1, x+i, r.c_str());
 
         if(c.suit != NO_SUIT)
-            print_suit(win, y+2, x+i, c.suit, colour);
+            mv_print_suit(win, y + 2, x + i, c.suit, colour);
         else
             mvwprintw(win, y+2, x+i, "O");
     }
@@ -236,7 +290,7 @@ void print_caravan_down(WINDOW *win, Table *t, CaravanName cn, bool colour) {
         mvwprintw(win, 1, 0, std::to_string(cvn_bid).c_str());
 
     if(cvn_suit != NO_SUIT)
-        print_suit(win, 2, 0, cvn_suit, colour);
+        mv_print_suit(win, 2, 0, cvn_suit, colour);
 
     if(cvn_dir != ANY)
         mvwprintw(win, 3, 0, cvn_dir == ASCENDING ? "ASC" : "DES");
@@ -246,7 +300,7 @@ void print_caravan_down(WINDOW *win, Table *t, CaravanName cn, bool colour) {
         slot = t->get_slot_at(cn, pos);
         offset = amt * i;
 
-        mvwprintw(win, offset + 2, 5, card_num_to_str(pos).c_str());
+        mvwprintw(win, offset + 2, 5, card_num_to_str(pos, true).c_str());
         print_card(win, offset, 8, slot.card, pos, false, false, colour);
         print_faces(win, offset, 14, slot.faces, slot.i_faces, colour);
     }
@@ -267,7 +321,7 @@ void print_caravan_up(WINDOW *win, Table *t, CaravanName cn, bool colour) {
         mvwprintw(win, (amt * 9) + 1, 0, cvn_dir == ASCENDING ? "ASC" : "DES");
 
     if(cvn_suit != NO_SUIT)
-        print_suit(win, (amt * 9) + 2, 0, cvn_suit, colour);
+        mv_print_suit(win, (amt * 9) + 2, 0, cvn_suit, colour);
 
     if(cvn_bid > 0)
         mvwprintw(win, (amt * 9) + 3, 0, std::to_string(cvn_bid).c_str());
@@ -277,78 +331,70 @@ void print_caravan_up(WINDOW *win, Table *t, CaravanName cn, bool colour) {
         slot = t->get_slot_at(cn, pos);
         offset = amt * (10 - pos);
 
-        mvwprintw(win, offset + 2, 5, card_num_to_str(pos).c_str());
+        mvwprintw(win, offset + 2, 5, card_num_to_str(pos, true).c_str());
         print_card(win, offset, 8, slot.card, pos, true, false, colour);
         print_faces(win, offset, 14, slot.faces, slot.i_faces, colour);
     }
 }
 
-std::string generate_option_msg(PlayerName pn, GameOption go) {
-    /*
-    if (go.type == OPTION_PLAY) {
-        return player_name_to_str(pn) +
-               " played " +
-               (go.pos_caravan == 0
-                ? "numeric"
-                : "face") +
-               " card onto " +
-               caravan_name_to_str(go.caravan_name) +
-               (go.pos_caravan == 0
-                ? ""
-                : " at position " + std::to_string(go.pos_caravan)) +
-               ".";
+void print_option_msg(WINDOW *win, int y, int x, std::string pname,
+                      GameOption* go, bool conceal, bool colour) {
+    wmove(win, y, x);
+    wclrtoeol(win);
 
-    } else if (go.type == OPTION_DISCARD) {
-        return player_name_to_str(pn) +
-               " discarded a card from their hand.";
+    if (go->type == OPTION_PLAY) {
+        wprintw(win, pname.c_str());
+        wprintw(win, ": PLAY ");
 
-    } else if (go.type == OPTION_CLEAR) {
-        return player_name_to_str(pn) +
-               " cleared caravan " +
-               caravan_name_to_str(go.caravan_name) +
-               ".";
+        wprintw(win, rank_to_str(go->card.rank, false).c_str());
+
+        if(go->card.suit != NO_SUIT)
+            w_print_suit(win, go->card.suit, colour);
+
+        wprintw(win, " ON ");
+
+        waddch(win, caravan_name_to_letter(go->caravan_name));
+        if(go->pos_caravan > 0)
+            wprintw(win, card_num_to_str(go->pos_caravan, false).c_str());
+
+    } else if(go->type == OPTION_DISCARD) {
+        wprintw(win, pname.c_str());
+        wprintw(win, ": DISCARD ");
+        if(conceal)
+            wprintw(win, "FROM HAND");
+
+        else {
+            wprintw(win, rank_to_str(go->card.rank, false).c_str());
+
+            if(go->card.suit != NO_SUIT)
+                w_print_suit(win, go->card.suit, colour);
+        }
+
+    } else if(go->type == OPTION_CLEAR) {
+        wprintw(win, pname.c_str());
+        wprintw(win, ": CLEAR ");
+        waddch(win, caravan_name_to_letter(go->caravan_name));
     }
-
-    throw CaravanFatalException("Invalid option for message generation.");
-     */
-    // TODO
-    return "";
 }
 
 void update_dialog(
         WINDOW *win, Engine *e, User *ua, User *ub,
-        std::string pa_err, std::string pb_err, bool colour) {
+        GameOption* go_bottom, GameOption* go_top,
+        bool colour) {
 
     std::string pna = player_name_to_str(
-            PLAYER_A, ua->is_human(), ub->is_human());
+            PLAYER_BOTTOM, ua->is_human(), ub->is_human());
     std::string pnb = player_name_to_str(
-            PLAYER_B, ua->is_human(), ub->is_human());
+            PLAYER_TOP, ua->is_human(), ub->is_human());
     std::string pturn = e->get_player_turn() == ua->get_name() ? pna : pnb;
     std::string pwinner;
 
     if(e->get_winner() == NO_PLAYER) {
+        if(e->get_player(PLAYER_BOTTOM)->get_moves_count() > 0)
+            print_option_msg(win, 0, 0, pna, go_bottom, !ua->is_human(), colour);
 
-        if(e->get_player(PLAYER_A)->get_moves_count() > 0) {
-            mvwprintw(win, 0, 0, pna.c_str());
-
-            if(pa_err.empty()) {
-                // TODO error message
-
-            } else {
-                // TODO activity
-            }
-        }
-
-        if(e->get_player(PLAYER_B)->get_moves_count() > 0) {
-            mvwprintw(win, 1, 0, pnb.c_str());
-
-            if(pb_err.empty()) {
-                // TODO error message
-
-            } else {
-                // TODO activity
-            }
-        }
+        if(e->get_player(PLAYER_TOP)->get_moves_count() > 0)
+            print_option_msg(win, 1, 0, pnb, go_top, !ub->is_human(), colour);
 
         mvwprintw(win, 3, 0, "[");
         mvwprintw(win, 3, 1, pturn.c_str());
@@ -363,6 +409,7 @@ void update_dialog(
         mvwprintw(win, 3, 0, "WINNER:");
         mvwprintw(win, 3, 8, pwinner.c_str());
     }
+
 }
 
 void print_player_up(WINDOW *win, Player *p, bool conceal, bool colour) {
@@ -411,7 +458,7 @@ void print_player_up(WINDOW *win, Player *p, bool conceal, bool colour) {
         offset = amt * (8 - pos);
 
         if(!conceal)
-            mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos).c_str());
+            mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos, true).c_str());
 
         print_card(win, offset, 8 + 6, card, pos, true, conceal, colour);
     }
@@ -458,7 +505,7 @@ void print_player_down(WINDOW *win, Player *p, bool conceal, bool colour) {
         offset = amt * i;
 
         if(!conceal)
-            mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos).c_str());
+            mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos, true).c_str());
 
         print_card(win, offset, 8 + 6, card, pos, false, conceal, colour);
     }
@@ -570,6 +617,10 @@ ViewCLI::ViewCLI() {
         init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
     }
 
+    instring = "";
+    err_msg = "";
+    err_display = false;
+
     win_cvn_a = create_window_caravan(35, 3);
     win_cvn_b = create_window_caravan(35, 29);
     win_cvn_c = create_window_caravan(35, 55);
@@ -582,98 +633,184 @@ ViewCLI::ViewCLI() {
     win_player_a = create_window_player(35, 84);
 
     win_dialog = create_window_dialog(62, 81);
-    win_input = create_window_input(65, 89);
 
     refresh();
-
-    pa_err = "";
-    pb_err = "";
 }
 
-void ViewCLI::update(Engine *e, User *ua, User *ub) {
-    bool conceal_a;
-    bool conceal_b;
-    Player *pa = e->get_player(ua->get_name());
-    Player *pb = e->get_player(ub->get_name());
+void ViewCLI::update(Engine *e, User *ubottom, User *utop, GameOption* go_bottom, GameOption* go_top) {
+    bool conceal_bottom;
+    bool conceal_top;
+    Player *pbottom;
+    Player *ptop;
 
-    // TODO may need to call some sort of clear() function
+    wclear(stdscr);
+    wclear(win_cvn_a);
+    wclear(win_cvn_b);
+    wclear(win_cvn_c);
+    wclear(win_cvn_d);
+    wclear(win_cvn_e);
+    wclear(win_cvn_f);
+    wclear(win_player_a);
+    wclear(win_player_b);
+    wclear(win_dialog);
 
-    // Print table
+    try {
+        // Print table
+        update_table(stdscr);
 
-    update_table(stdscr);
+        // Print caravans
+        print_caravan_down(win_cvn_a, e->get_table(), CARAVAN_A, has_colour);
+        print_caravan_down(win_cvn_b, e->get_table(), CARAVAN_B, has_colour);
+        print_caravan_down(win_cvn_c, e->get_table(), CARAVAN_C, has_colour);
 
-    // Print caravans
+        print_caravan_up(win_cvn_d, e->get_table(), CARAVAN_D, has_colour);
+        print_caravan_up(win_cvn_e, e->get_table(), CARAVAN_E, has_colour);
+        print_caravan_up(win_cvn_f, e->get_table(), CARAVAN_F, has_colour);
 
-    print_caravan_down(win_cvn_a, e->get_table(), CARAVAN_A, has_colour);
-    print_caravan_down(win_cvn_b, e->get_table(), CARAVAN_B, has_colour);
-    print_caravan_down(win_cvn_c, e->get_table(), CARAVAN_C, has_colour);
+        // Print hands
+        pbottom = e->get_player(ubottom->get_name());
+        ptop = e->get_player(utop->get_name());
 
-    print_caravan_up(win_cvn_d, e->get_table(), CARAVAN_D, has_colour);
-    print_caravan_up(win_cvn_e, e->get_table(), CARAVAN_E, has_colour);
-    print_caravan_up(win_cvn_f, e->get_table(), CARAVAN_F, has_colour);
+        if (ubottom->is_human() and !utop->is_human()) {
+            // Do not conceal human; conceal bot
+            conceal_bottom = false;
+            conceal_top = true;
 
-    // Print hands
+        } else if (!ubottom->is_human() and utop->is_human()) {
+            // Conceal bot; do not conceal human
+            conceal_bottom = true;
+            conceal_top = false;
 
-    if (ua->is_human() and !ub->is_human()) {
-        // Do not conceal human; conceal bot
-        conceal_a = false;
-        conceal_b = true;
+        } else if (ubottom->is_human() and utop->is_human()) {
+            // Human vs human; conceal if not player's turn
+            conceal_bottom = e->get_player_turn() != pbottom->get_name();
+            conceal_top = e->get_player_turn() != ptop->get_name();
 
-    } else if (!ua->is_human() and ub->is_human()) {
-        // Conceal bot; do not conceal human
-        conceal_a = true;
-        conceal_b = false;
+        } else {
+            // Never conceal if both players are bots
+            conceal_bottom = false;
+            conceal_top = false;
+        }
 
-    } else if(ua->is_human() and ub->is_human()) {
-        // Human vs human; conceal if not player's turn
-        conceal_a = e->get_player_turn() != pa->get_name();
-        conceal_b = e->get_player_turn() != pb->get_name();
+        print_player_down(win_player_a, pbottom, conceal_bottom, has_colour);
+        print_player_up(win_player_b, ptop, conceal_top, has_colour);
 
-    } else {
-        // Never conceal if both players are bots
-        conceal_a = false;
-        conceal_b = false;
+        // Update dialog
+        update_dialog(win_dialog, e, ubottom, utop, go_bottom, go_top, has_colour);
+
+    } catch (CaravanException &e) {
+        err_msg = e.what();
     }
 
-    print_player_down(win_player_a, pa, conceal_a, has_colour);
-    print_player_up(win_player_b, pb, conceal_b, has_colour);
+    // Update message
 
-    // Update dialog
+    if(!err_msg.empty()) {
+        wmove(stdscr, 68, 0);
+        wprintw(stdscr, err_msg.c_str());
+        err_msg = "";
+        err_display = true;
 
-    update_dialog(win_dialog, e, ua, ub, pa_err, pb_err, has_colour);
+    } else
+        err_display = false;
 
     // Refresh windows
 
-    refresh();
+    wrefresh(stdscr);
 
     wrefresh(win_cvn_a);
     wrefresh(win_cvn_b);
     wrefresh(win_cvn_c);
-
     wrefresh(win_cvn_d);
     wrefresh(win_cvn_e);
     wrefresh(win_cvn_f);
-
     wrefresh(win_player_a);
     wrefresh(win_player_b);
-
     wrefresh(win_dialog);
-    wrefresh(win_input);
+
+    if(e->get_winner() != NO_PLAYER)
+        getch();
 }
 
-void ViewCLI::set_err(PlayerName pn, std::string msg) {
-    if(pn == PLAYER_A)
-        pa_err = msg;
-    else if(pn == PLAYER_B)
-        pb_err = msg;
-    else
-        throw CaravanFatalException("Invalid player name.");
+void ViewCLI::set_message(std::string msg) {
+    err_msg = msg;
+}
+
+/**
+ * @param win
+ * @param y
+ * @param x
+ * @param input Where to store the input. Length must be >= max.
+ * @param max The maximum length of the input (+1 for null-termination).
+ * @param start The starting string to populate the input space.
+ */
+void wget_input_alphanum(WINDOW * win, int y, int x, int* input, int max, std::string start) {
+    int i_input;
+    int c_input;
+
+    i_input = 0;
+    wmove(win, y, x);
+
+    for(i_input = 0; start[i_input] != '\0'; i_input++) {
+        waddch(win, start[i_input]);
+        input[i_input] = (unsigned char) start[i_input];
+    }
+
+    //wmove(win, y, x + i_input);
+    wclrtoeol(win);
+    wrefresh(win);
+
+    while(true) {
+        c_input = wgetch(win);
+
+        if(c_input == x) {
+            // ASCII 8 == BACKSPACE
+            if(i_input == 0)
+                // Pressing backspace when no characters, reset cursor
+                wmove(win, y, x);
+            else {
+                // Remove existing character on screen
+                i_input -= 1;
+                wmove(win, y, x + i_input);
+                wclrtoeol(win);
+            }
+
+        } else if(c_input == 13) {
+            // ASCII 13 == ENTER
+            // Write null to end of string and exit
+            input[i_input] = '\0';
+            break;
+
+        } else if(
+                (c_input >= 48 and c_input <= 57) or
+                (c_input >= 65 and c_input <= 90) or
+                (c_input >= 97 and c_input <= 122)) {
+            // ALPHANUMERIC
+            if(i_input == max-1) {
+                // Remove character if overrun
+                wmove(win, y, x + i_input);
+                waddch(win, ' ');
+                wmove(win, y, x + i_input);
+            } else {
+                // Account for new character
+                input[i_input] = c_input;
+                i_input += 1;
+            }
+
+        } else {
+            // OTHER
+            // Remove any other character
+            wmove(win, y, x + i_input);
+            wclrtoeol(win);
+        }
+
+        wrefresh(win);
+    }
 }
 
 GameOption ViewCLI::option(Engine *e, User *u) {
     GameOption go;
-    char input[6];
-    bool reached_end_ok;
+    int input[6];
+    std::ostringstream instream;
 
     if (e->is_closed())
         throw CaravanFatalException("The game has already closed.");
@@ -681,122 +818,112 @@ GameOption ViewCLI::option(Engine *e, User *u) {
     if(!u->is_human())
         return ((UserBot*) u)->generate_option(e);
 
-    reached_end_ok = false;
+    wget_input_alphanum(win_dialog, 3, 8, input, 6, err_display ? instring : "");
 
-    do {
-        wmove(win_input, 0, 0);
-        wclrtoeol(win_input);
-        wmove(win_input, 0, 0);
+    for (int i: input) {
+        instream << (char) i;
 
-        wrefresh(win_input);
+        if ((char) i == '\0')
+            break;
+    }
 
-        wscanw(win_input, "%5s", input);
+    instring = instream.str();
 
-        // TODO exit option
+    if(input[0] == '\0')
+        throw CaravanFatalException("A command has not been entered.");
 
-        /*
-         * FIRST
-         * - OPTION TYPE
-         */
+    // EXIT
 
-        switch (input[0]) {
-            case 'P':
-            case 'p':
-                go.type = OPTION_PLAY;
-                /*
-                 * P2F
-                 * "Play numeric card at hand pos 2 onto caravan F"
-                 *
-                 * P4F10
-                 * "Play face card at hand pos 4 onto caravan F, slot 10"
-                 */
+    if((input[0] == 'E' or input[0] == 'e') and
+       (input[1] == 'X' or input[1] == 'x') and
+       (input[2] == 'I' or input[2] == 'i') and
+       (input[3] == 'T' or input[3] == 't'))
+
+        return { OPTION_EXIT };
+
+    /*
+     * FIRST
+     * - OPTION TYPE
+     */
+
+    switch (input[0]) {
+        case 'P':
+        case 'p':
+            go.type = OPTION_PLAY;
+            /*
+             * P2F
+             * "Play numeral card at hand pos 2 onto caravan F"
+             *
+             * P4F10
+             * "Play face card at hand pos 4 onto caravan F, slot 10"
+             */
+            break;
+        case 'D':
+        case 'd':
+            go.type = OPTION_DISCARD;
+            /*
+             * D3
+             * "Discard card at hand pos 3"
+             */
+            break;
+        case 'C':
+        case 'c':
+            /*
+             * CE
+             * "Clear caravan E"
+             */
+            go.type = OPTION_CLEAR;
+            break;
+        default:
+            throw CaravanGameException("Invalid option '" + instring.substr(0, 1) + "', must be one of: (P)lay, (D)iscard, (C)lear.");
+    }
+
+    /*
+     * SECOND
+     * - HAND POSITION or
+     * - CARAVAN NAME
+     */
+
+    if (go.type == OPTION_PLAY or go.type == OPTION_DISCARD) {
+
+        if(input[1] == '\0')
+            throw CaravanFatalException("A hand position has not been entered.");
+
+        switch (input[1]) {
+            case '1':
+                go.pos_hand = 1;
                 break;
-            case 'D':
-            case 'd':
-                go.type = OPTION_DISCARD;
-                /*
-                 * D3
-                 * "Discard card at hand pos 3"
-                 */
+            case '2':
+                go.pos_hand = 2;
                 break;
-            case 'C':
-            case 'c':
-                /*
-                 * CE
-                 * "Clear caravan E"
-                 */
-                go.type = OPTION_CLEAR;
+            case '3':
+                go.pos_hand = 3;
+                break;
+            case '4':
+                go.pos_hand = 4;
+                break;
+            case '5':
+                go.pos_hand = 5;
+                break;
+            case '6':
+                go.pos_hand = 6;
+                break;
+            case '7':
+                go.pos_hand = 7;
+                break;
+            case '8':
+                go.pos_hand = 8;
                 break;
             default:
-                set_err(u->get_name(), "Invalid option type.");
-                continue;  // mandatory: ask again...
+                throw CaravanGameException("Invalid hand position '" + instring.substr(1, 1) + "'.");
         }
 
-        /*
-         * SECOND
-         * - HAND POSITION or
-         * - CARAVAN NAME
-         */
+    } else if (go.type == OPTION_CLEAR) {
 
-        if (go.type == OPTION_PLAY or go.type == OPTION_DISCARD) {
-            switch (input[1]) {
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                    go.pos_hand = (uint8_t) input[1] - '0';
-                    break;
-                default:
-                    set_err(u->get_name(), "Invalid hand position.");
-                    continue;  // mandatory for play/discard: ask again...
-            }
+        if(input[1] == '\0')
+            throw CaravanFatalException("A caravan name has not been entered.");
 
-        } else if (go.type == OPTION_CLEAR) {
-            switch (input[1]) {
-                case 'A':
-                case 'a':
-                    go.caravan_name = CARAVAN_A;
-                    break;
-                case 'B':
-                case 'b':
-                    go.caravan_name = CARAVAN_B;
-                    break;
-                case 'C':
-                case 'c':
-                    go.caravan_name = CARAVAN_C;
-                    break;
-                case 'D':
-                case 'd':
-                    go.caravan_name = CARAVAN_D;
-                    break;
-                case 'E':
-                case 'e':
-                    go.caravan_name = CARAVAN_E;
-                    break;
-                case 'F':
-                case 'f':
-                    go.caravan_name = CARAVAN_F;
-                    break;
-                default:
-                    set_err(u->get_name(), "Invalid caravan name.");
-                    continue;  // mandatory for clear: ask again...
-            }
-        }
-
-        // Discard/clear does not require caravan name/pos
-        if (go.type == OPTION_DISCARD or go.type == OPTION_CLEAR)
-            return go;
-
-        /*
-         * THIRD
-         * - CARAVAN NAME
-         */
-
-        switch (input[2]) {
+        switch (input[1]) {
             case 'A':
             case 'a':
                 go.caravan_name = CARAVAN_A;
@@ -822,44 +949,96 @@ GameOption ViewCLI::option(Engine *e, User *u) {
                 go.caravan_name = CARAVAN_F;
                 break;
             default:
-                set_err(u->get_name(), "Invalid caravan name.");
-                continue;
+                throw CaravanGameException("Invalid caravan name '" + instring.substr(1, 1) + "', must be between: A-F.");
         }
+    }
 
-        /*
-         * FOURTH (and FIFTH)
-         * - CARAVAN POSITION (used when selecting Face card only)
-         */
+    // Discard/clear does not require caravan name/pos
+    if (go.type == OPTION_DISCARD or go.type == OPTION_CLEAR)
+        return go;
 
-        switch (input[3]) {
-            case '1':
-                go.pos_caravan = input[4] != '0' ? 1 : 10;
-                break;
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                go.pos_caravan = (uint8_t) input[1] - '0';
-                break;
-            default:
-                // Numeric card does not require caravan pos
-                go.pos_caravan = 0;
-        }
+    /*
+     * THIRD
+     * - CARAVAN NAME
+     */
 
-        reached_end_ok = true;
+    if(input[2] == '\0')
+        throw CaravanFatalException("A caravan name has not been entered.");
 
-    } while(!reached_end_ok);
+    switch (input[2]) {
+        case 'A':
+        case 'a':
+            go.caravan_name = CARAVAN_A;
+            break;
+        case 'B':
+        case 'b':
+            go.caravan_name = CARAVAN_B;
+            break;
+        case 'C':
+        case 'c':
+            go.caravan_name = CARAVAN_C;
+            break;
+        case 'D':
+        case 'd':
+            go.caravan_name = CARAVAN_D;
+            break;
+        case 'E':
+        case 'e':
+            go.caravan_name = CARAVAN_E;
+            break;
+        case 'F':
+        case 'f':
+            go.caravan_name = CARAVAN_F;
+            break;
+        default:
+            throw CaravanGameException("Invalid caravan name '" + instring.substr(2, 1) + "', must be between: A-F.");
+    }
 
-    if(u->get_name() == PLAYER_A)
-        pa_option = go;
-    else if(u->get_name() == PLAYER_B)
-        pb_option = go;
-    else
-        throw CaravanFatalException("Invalid player name.");
+    /*
+     * FOURTH (and FIFTH)
+     * - CARAVAN POSITION (used when selecting Face card only)
+     */
+
+    // Caravan position only specified here when playing a face card
+    if((char) input[3] == '\0') {
+        go.pos_caravan = 0;
+        return go;
+    }
+
+    switch (input[3]) {
+        case '1':
+            if (input[4] != '0')
+                go.pos_caravan = 1;
+            else
+                go.pos_caravan = 10;
+            break;
+        case '2':
+            go.pos_caravan = 2;
+            break;
+        case '3':
+            go.pos_caravan = 3;
+            break;
+        case '4':
+            go.pos_caravan = 4;
+            break;
+        case '5':
+            go.pos_caravan = 5;
+            break;
+        case '6':
+            go.pos_caravan = 6;
+            break;
+        case '7':
+            go.pos_caravan = 7;
+            break;
+        case '8':
+            go.pos_caravan = 8;
+            break;
+        case '9':
+            go.pos_caravan = 9;
+            break;
+        default:
+            throw CaravanGameException("Invalid caravan position '" + instring.substr(3, ((char) input[4] == '\0') ? 1 : 2) + "'.");
+    }
 
     return go;
 }

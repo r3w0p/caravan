@@ -24,11 +24,11 @@ protected:
 
     bool has_sold(CaravanName cn);
 
-    void option_clear(Player *p_ptr, GameOption go);
+    void option_clear(Player *p_ptr, GameOption* go);
 
-    void option_discard(Player *p_ptr, GameOption go);
+    void option_discard(Player *p_ptr, GameOption* go);
 
-    void option_play(Player *p_ptr, GameOption go);
+    void option_play(Player *p_ptr, GameOption* go);
 
 public:
     explicit Engine(GameConfig gc) {
@@ -48,8 +48,8 @@ public:
                 gc.pb_balanced_sample);
 
         table_ptr = new Table();
-        pa_ptr = new Player(PLAYER_A, deck_pa_ptr);
-        pb_ptr = new Player(PLAYER_B, deck_pb_ptr);
+        pa_ptr = new Player(PLAYER_BOTTOM, deck_pa_ptr);
+        pb_ptr = new Player(PLAYER_TOP, deck_pb_ptr);
 
         closed = false;
         p_turn = gc.pn_first == pa_ptr->get_name() ? pa_ptr : pb_ptr;
@@ -69,7 +69,7 @@ public:
 
     bool is_closed();
 
-    void play_option(GameOption go);
+    void play_option(GameOption* go);
 };
 
 #endif //CARAVAN_ENGINE_H

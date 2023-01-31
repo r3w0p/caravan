@@ -13,12 +13,12 @@ uint8_t random_uint8_t(uint8_t min, uint8_t max) {
     return distr(gen);
 }
 
-uint8_t pos_card_numeric(Player *p) {
+uint8_t pos_card_numeral(Player *p) {
     uint8_t size_hand = p->get_size_hand();
     Hand h = p->get_hand();
 
     for (int i = 0; i < size_hand; ++i)
-        if (is_numeric_card(h[i]))
+        if (is_numeral_card(h[i]))
             return i + 1;
 
     return 0;
@@ -52,14 +52,14 @@ GameOption UserBotSimple::generate_option(Engine *e) {
 
     pcns_me = e->get_player_caravan_names(name);
     pcns_opp = e->get_player_caravan_names(
-            name == PLAYER_A ? PLAYER_B : PLAYER_A);
+            name == PLAYER_BOTTOM ? PLAYER_TOP : PLAYER_BOTTOM);
 
     if (p->get_moves_count() < MOVES_START_ROUND) {
-        pos_hand = pos_card_numeric(p);
+        pos_hand = pos_card_numeral(p);
 
         if (pos_hand == 0)
             throw CaravanFatalException(
-                    "Bot does not have enough numeric cards to finish "
+                    "Bot does not have enough numeral cards to finish "
                     "the Start round.");
 
         moves = p->get_moves_count();
@@ -82,7 +82,7 @@ GameOption UserBotSimple::generate_option(Engine *e) {
         for (uint8_t pos = 1; pos <= p_hand_size; ++pos) {
             c_hand = p->get_from_hand_at(pos);
 
-            if (is_numeric_card(c_hand)) {
+            if (is_numeral_card(c_hand)) {
                 for (uint8_t i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
                     bid_me = t->get_caravan_bid(pcns_me[i]);
                     bid_opp = t->get_caravan_bid(pcns_opp[i]);

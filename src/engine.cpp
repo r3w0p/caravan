@@ -101,7 +101,7 @@ bool Engine::is_closed() {
     return closed;
 }
 
-void Engine::play_option(GameOption go) {
+void Engine::play_option(GameOption* go) {
     if (closed)
         throw CaravanFatalException(
                 "The game has already closed.");
@@ -110,7 +110,7 @@ void Engine::play_option(GameOption go) {
         throw CaravanFatalException(
                 "The game has already been won.");
 
-    switch (go.type) {
+    switch (go->type) {
         case OPTION_PLAY:
             option_play(p_turn, go);
             break;
@@ -180,55 +180,57 @@ bool Engine::has_sold(CaravanName cn) {
     return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
-void Engine::option_clear(Player *p_ptr, GameOption go) {
+void Engine::option_clear(Player *p_ptr, GameOption* go) {
     PlayerCaravanNames pcns = get_player_caravan_names(p_ptr->get_name());
 
-    if (pcns[0] != go.caravan_name and
-        pcns[1] != go.caravan_name and
-        pcns[2] != go.caravan_name)
+    if (pcns[0] != go->caravan_name and
+        pcns[1] != go->caravan_name and
+        pcns[2] != go->caravan_name)
         throw CaravanGameException(
                 "A player cannot clear their opponent's caravans.");
 
-    table_ptr->clear_caravan(go.caravan_name);
+    table_ptr->clear_caravan(go->caravan_name);
 }
 
-void Engine::option_discard(Player *p_ptr, GameOption go) {
-    p_ptr->discard_from_hand_at(go.pos_hand);
+void Engine::option_discard(Player *p_ptr, GameOption* go) {
+    Card c_hand;
+    c_hand = p_ptr->discard_from_hand_at(go->pos_hand);
+    go->card = c_hand;
 }
 
-void Engine::option_play(Player *p_ptr, GameOption go) {
-    Card c_hand = p_ptr->get_from_hand_at(go.pos_hand);
+void Engine::option_play(Player *p_ptr, GameOption* go) {
+    Card c_hand = p_ptr->get_from_hand_at(go->pos_hand);
 
     bool in_start_stage = p_ptr->get_moves_count() < MOVES_START_ROUND;
     bool pa_playing_num_onto_pa_caravans;
     bool pb_playing_num_onto_pb_caravans;
 
-    if (is_numeric_card(c_hand)) {
+    if (is_numeral_card(c_hand)) {
         pa_playing_num_onto_pa_caravans =
                 p_ptr->get_name() == pa_ptr->get_name() and
-                (go.caravan_name == CARAVAN_A or
-                 go.caravan_name == CARAVAN_B or
-                 go.caravan_name == CARAVAN_C);
+                (go->caravan_name == CARAVAN_A or
+                 go->caravan_name == CARAVAN_B or
+                 go->caravan_name == CARAVAN_C);
 
         pb_playing_num_onto_pb_caravans =
                 p_ptr->get_name() == pb_ptr->get_name() and
-                (go.caravan_name == CARAVAN_D or
-                 go.caravan_name == CARAVAN_E or
-                 go.caravan_name == CARAVAN_F);
+                (go->caravan_name == CARAVAN_D or
+                 go->caravan_name == CARAVAN_E or
+                 go->caravan_name == CARAVAN_F);
 
         if (!(pa_playing_num_onto_pa_caravans or
               pb_playing_num_onto_pb_caravans))
             throw CaravanGameException(
-                    "A numeric card can only be played on "
-                    "a player's own caravans.");
+                    "A numeral card can only be played on "
+                    "a player's own caravan.");
 
         if (in_start_stage and
-            table_ptr->get_caravan_size(go.caravan_name) > 0)
+            table_ptr->get_caravan_size(go->caravan_name) > 0)
             throw CaravanGameException(
-                    "A numeric card must be played on an empty caravan "
+                    "A numeral card must be played on an empty caravan "
                     "during the Start round.");
 
-        table_ptr->play_numeric_card(go.caravan_name, c_hand);
+        table_ptr->play_numeral_card(go->caravan_name, c_hand);
 
     } else {
         if (in_start_stage)
@@ -237,10 +239,11 @@ void Engine::option_play(Player *p_ptr, GameOption go) {
                     "Start round.");
 
         table_ptr->play_face_card(
-                go.caravan_name,
+                go->caravan_name,
                 c_hand,
-                go.pos_caravan);
+                go->pos_caravan);
     }
 
-    p_ptr->discard_from_hand_at(go.pos_hand);
+    p_ptr->discard_from_hand_at(go->pos_hand);
+    go->card = c_hand;
 }

@@ -17,9 +17,9 @@ protected:
     Track track;
     uint8_t i_track;
 
-    static uint8_t numeric_rank_to_int_value(Rank r);
+    static uint8_t numeral_rank_to_int_value(Rank r);
 
-    void remove_numeric_card(uint8_t i);
+    void remove_numeral_card(uint8_t i);
 
 public:
     explicit Caravan(CaravanName pn) {
@@ -42,13 +42,13 @@ public:
 
     Suit get_suit();
 
-    void put_numeric_card(Card c);
+    void put_numeral_card(Card c);
 
     Card put_face_card(Card c, uint8_t pos);
 
-    void remove_rank(Rank r, uint8_t exclude);
+    void remove_rank(Rank r, uint8_t pos_exclude);
 
-    void remove_suit(Suit s, uint8_t exclude);
+    void remove_suit(Suit s, uint8_t pos_exclude);
 };
 
 #endif //CARAVAN_CARAVAN_H
