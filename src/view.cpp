@@ -617,7 +617,7 @@ ViewCLI::ViewCLI() {
         init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
     }
 
-    instring = "";
+    uinput = "";
     err_msg = "";
     err_display = false;
 
@@ -629,8 +629,8 @@ ViewCLI::ViewCLI() {
     win_cvn_e = create_window_caravan(0, 29);
     win_cvn_f = create_window_caravan(0, 55);
 
-    win_player_b = create_window_player(6, 84);
-    win_player_a = create_window_player(35, 84);
+    win_player_top = create_window_player(6, 84);
+    win_player_bottom = create_window_player(35, 84);
 
     win_dialog = create_window_dialog(62, 81);
 
@@ -650,8 +650,8 @@ void ViewCLI::update(Engine *e, User *ubottom, User *utop, GameOption* go_bottom
     wclear(win_cvn_d);
     wclear(win_cvn_e);
     wclear(win_cvn_f);
-    wclear(win_player_a);
-    wclear(win_player_b);
+    wclear(win_player_bottom);
+    wclear(win_player_top);
     wclear(win_dialog);
 
     try {
@@ -692,8 +692,8 @@ void ViewCLI::update(Engine *e, User *ubottom, User *utop, GameOption* go_bottom
             conceal_top = false;
         }
 
-        print_player_down(win_player_a, pbottom, conceal_bottom, has_colour);
-        print_player_up(win_player_b, ptop, conceal_top, has_colour);
+        print_player_down(win_player_bottom, pbottom, conceal_bottom, has_colour);
+        print_player_up(win_player_top, ptop, conceal_top, has_colour);
 
         // Update dialog
         update_dialog(win_dialog, e, ubottom, utop, go_bottom, go_top, has_colour);
@@ -723,15 +723,15 @@ void ViewCLI::update(Engine *e, User *ubottom, User *utop, GameOption* go_bottom
     wrefresh(win_cvn_d);
     wrefresh(win_cvn_e);
     wrefresh(win_cvn_f);
-    wrefresh(win_player_a);
-    wrefresh(win_player_b);
+    wrefresh(win_player_bottom);
+    wrefresh(win_player_top);
     wrefresh(win_dialog);
 
     if(e->get_winner() != NO_PLAYER)
         getch();
 }
 
-void ViewCLI::set_message(std::string msg) {
+void ViewCLI::error_message(std::string msg) {
     err_msg = msg;
 }
 
@@ -818,7 +818,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
     if(!u->is_human())
         return ((UserBot*) u)->generate_option(e);
 
-    wget_input_alphanum(win_dialog, 3, 8, input, 6, err_display ? instring : "");
+    wget_input_alphanum(win_dialog, 3, 8, input, 6, err_display ? uinput : "");
 
     for (int i: input) {
         instream << (char) i;
@@ -827,7 +827,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
             break;
     }
 
-    instring = instream.str();
+    uinput = instream.str();
 
     if(input[0] == '\0')
         throw CaravanFatalException("A command has not been entered.");
@@ -875,7 +875,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
             go.type = OPTION_CLEAR;
             break;
         default:
-            throw CaravanGameException("Invalid option '" + instring.substr(0, 1) + "', must be one of: (P)lay, (D)iscard, (C)lear.");
+            throw CaravanGameException("Invalid option '" + uinput.substr(0, 1) + "', must be one of: (P)lay, (D)iscard, (C)lear.");
     }
 
     /*
@@ -915,7 +915,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
                 go.pos_hand = 8;
                 break;
             default:
-                throw CaravanGameException("Invalid hand position '" + instring.substr(1, 1) + "'.");
+                throw CaravanGameException("Invalid hand position '" + uinput.substr(1, 1) + "'.");
         }
 
     } else if (go.type == OPTION_CLEAR) {
@@ -949,7 +949,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
                 go.caravan_name = CARAVAN_F;
                 break;
             default:
-                throw CaravanGameException("Invalid caravan name '" + instring.substr(1, 1) + "', must be between: A-F.");
+                throw CaravanGameException("Invalid caravan name '" + uinput.substr(1, 1) + "', must be between: A-F.");
         }
     }
 
@@ -991,7 +991,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
             go.caravan_name = CARAVAN_F;
             break;
         default:
-            throw CaravanGameException("Invalid caravan name '" + instring.substr(2, 1) + "', must be between: A-F.");
+            throw CaravanGameException("Invalid caravan name '" + uinput.substr(2, 1) + "', must be between: A-F.");
     }
 
     /*
@@ -1037,7 +1037,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
             go.pos_caravan = 9;
             break;
         default:
-            throw CaravanGameException("Invalid caravan position '" + instring.substr(3, ((char) input[4] == '\0') ? 1 : 2) + "'.");
+            throw CaravanGameException("Invalid caravan position '" + uinput.substr(3, ((char) input[4] == '\0') ? 1 : 2) + "'.");
     }
 
     return go;

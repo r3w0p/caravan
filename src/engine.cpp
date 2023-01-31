@@ -18,27 +18,27 @@ void Engine::close() {
     closed = true;
 }
 
-Player *Engine::get_player(PlayerName pn) {
+Player *Engine::get_player(PlayerName pname) {
     if (closed)
         throw CaravanFatalException("The game has already closed.");
 
-    if (pa_ptr->get_name() == pn)
+    if (pa_ptr->get_name() == pname)
         return pa_ptr;
 
-    if (pb_ptr->get_name() == pn)
+    if (pb_ptr->get_name() == pname)
         return pb_ptr;
 
     throw CaravanFatalException("Invalid player name.");
 }
 
-PlayerCaravanNames Engine::get_player_caravan_names(PlayerName pn) {
+PlayerCaravanNames Engine::get_player_caravan_names(PlayerName pname) {
     if (closed)
         throw CaravanFatalException("The game has already closed.");
 
-    if (pa_ptr->get_name() == pn)
+    if (pa_ptr->get_name() == pname)
         return PlayerCaravanNames{CARAVAN_A, CARAVAN_B, CARAVAN_C};
 
-    if (pb_ptr->get_name() == pn)
+    if (pb_ptr->get_name() == pname)
         return PlayerCaravanNames{CARAVAN_D, CARAVAN_E, CARAVAN_F};
 
     throw CaravanFatalException("Invalid player name.");
@@ -150,14 +150,14 @@ void Engine::play_option(GameOption* go) {
  * PROTECTED
  */
 
-int8_t Engine::compare_bids(CaravanName cn1, CaravanName cn2) {
+int8_t Engine::compare_bids(CaravanName cvname1, CaravanName cvname2) {
     uint8_t bid_cn1;
     uint8_t bid_cn2;
 
-    if (has_sold(cn1)) {
-        if (has_sold(cn2)) {
-            bid_cn1 = table_ptr->get_caravan_bid(cn1);
-            bid_cn2 = table_ptr->get_caravan_bid(cn2);
+    if (has_sold(cvname1)) {
+        if (has_sold(cvname2)) {
+            bid_cn1 = table_ptr->get_caravan_bid(cvname1);
+            bid_cn2 = table_ptr->get_caravan_bid(cvname2);
 
             if (bid_cn1 > bid_cn2)
                 return -1;  // CN1 sold; CN2 sold; CN1 highest bid
@@ -169,19 +169,19 @@ int8_t Engine::compare_bids(CaravanName cn1, CaravanName cn2) {
         } else
             return -1;  // CN1 sold; CN2 unsold
 
-    } else if (has_sold(cn2))
+    } else if (has_sold(cvname2))
         return 1;  // CN1 unsold; CN2 sold
     else
         return 0;  // CN1 unsold; CN2 unsold
 }
 
-bool Engine::has_sold(CaravanName cn) {
-    uint8_t bid = table_ptr->get_caravan_bid(cn);
+bool Engine::has_sold(CaravanName cvname) {
+    uint8_t bid = table_ptr->get_caravan_bid(cvname);
     return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
-void Engine::option_clear(Player *p_ptr, GameOption* go) {
-    PlayerCaravanNames pcns = get_player_caravan_names(p_ptr->get_name());
+void Engine::option_clear(Player *pptr, GameOption* go) {
+    PlayerCaravanNames pcns = get_player_caravan_names(pptr->get_name());
 
     if (pcns[0] != go->caravan_name and
         pcns[1] != go->caravan_name and
@@ -192,28 +192,28 @@ void Engine::option_clear(Player *p_ptr, GameOption* go) {
     table_ptr->clear_caravan(go->caravan_name);
 }
 
-void Engine::option_discard(Player *p_ptr, GameOption* go) {
+void Engine::option_discard(Player *pptr, GameOption* go) {
     Card c_hand;
-    c_hand = p_ptr->discard_from_hand_at(go->pos_hand);
+    c_hand = pptr->discard_from_hand_at(go->pos_hand);
     go->card = c_hand;
 }
 
-void Engine::option_play(Player *p_ptr, GameOption* go) {
-    Card c_hand = p_ptr->get_from_hand_at(go->pos_hand);
+void Engine::option_play(Player *pptr, GameOption* go) {
+    Card c_hand = pptr->get_from_hand_at(go->pos_hand);
 
-    bool in_start_stage = p_ptr->get_moves_count() < MOVES_START_ROUND;
+    bool in_start_stage = pptr->get_moves_count() < MOVES_START_ROUND;
     bool pa_playing_num_onto_pa_caravans;
     bool pb_playing_num_onto_pb_caravans;
 
     if (is_numeral_card(c_hand)) {
         pa_playing_num_onto_pa_caravans =
-                p_ptr->get_name() == pa_ptr->get_name() and
+                pptr->get_name() == pa_ptr->get_name() and
                 (go->caravan_name == CARAVAN_A or
                  go->caravan_name == CARAVAN_B or
                  go->caravan_name == CARAVAN_C);
 
         pb_playing_num_onto_pb_caravans =
-                p_ptr->get_name() == pb_ptr->get_name() and
+                pptr->get_name() == pb_ptr->get_name() and
                 (go->caravan_name == CARAVAN_D or
                  go->caravan_name == CARAVAN_E or
                  go->caravan_name == CARAVAN_F);
@@ -244,6 +244,6 @@ void Engine::option_play(Player *p_ptr, GameOption* go) {
                 go->pos_caravan);
     }
 
-    p_ptr->discard_from_hand_at(go->pos_hand);
+    pptr->discard_from_hand_at(go->pos_hand);
     go->card = c_hand;
 }

@@ -12,33 +12,35 @@
 
 class Table {
 protected:
-    Caravan* d = new Caravan(CARAVAN_D);
-    Caravan* e = new Caravan(CARAVAN_E);
-    Caravan* f = new Caravan(CARAVAN_F);
     Caravan* a = new Caravan(CARAVAN_A);
     Caravan* b = new Caravan(CARAVAN_B);
     Caravan* c = new Caravan(CARAVAN_C);
+    Caravan* d = new Caravan(CARAVAN_D);
+    Caravan* e = new Caravan(CARAVAN_E);
+    Caravan* f = new Caravan(CARAVAN_F);
 
-    std::array<Caravan*, TABLE_CARAVANS_MAX> caravans = { d, e, f, a, b, c };
+    std::array<Caravan*, TABLE_CARAVANS_MAX> caravans = { a, b, c, d, e, f };
 
-    uint8_t caravan_name_to_index_value(CaravanName cn);
+    uint8_t caravan_name_to_uint8_t_index(CaravanName cvname);
 
 public:
-    void clear_caravan(CaravanName cn);
+    explicit Table();
 
-    uint16_t get_caravan_bid(CaravanName cn);
+    void clear_caravan(CaravanName cvname);
 
-    Slot get_slot_at(CaravanName cn, uint8_t pos);
+    uint16_t get_caravan_bid(CaravanName cvname);
 
-    Direction get_caravan_direction(CaravanName cn);
+    Slot get_slot_at(CaravanName cvname, uint8_t pos);
 
-    uint8_t get_caravan_size(CaravanName cn);
+    Direction get_caravan_direction(CaravanName cvname);
 
-    Suit get_caravan_suit(CaravanName cn);
+    uint8_t get_caravan_size(CaravanName cvname);
 
-    void play_face_card(CaravanName cn, Card c, uint8_t pos);
+    Suit get_caravan_suit(CaravanName cvname);
 
-    void play_numeral_card(CaravanName cn, Card c);
+    void play_face_card(CaravanName cvname, Card card, uint8_t pos);
+
+    void play_numeral_card(CaravanName cvname, Card card);
 };
 
 #endif //CARAVAN_TABLE_H

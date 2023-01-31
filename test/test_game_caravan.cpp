@@ -154,11 +154,11 @@ TEST (TestGameCaravan, GetCardsAt_TwoNumeric_OneFace) {
     cvn.put_numeral_card(c_num_2);
     cvn.put_face_card(c_face_1, 2);
 
-    ts = cvn.get_cards_at(1);
+    ts = cvn.get_slot(1);
     ASSERT_EQ(ts.card.suit, c_num_1.suit);
     ASSERT_EQ(ts.card.rank, c_num_1.rank);
 
-    ts = cvn.get_cards_at(2);
+    ts = cvn.get_slot(2);
     ASSERT_EQ(ts.card.suit, c_num_2.suit);
     ASSERT_EQ(ts.card.rank, c_num_2.rank);
 
@@ -174,7 +174,7 @@ TEST (TestGameCaravan, GetCardsAt_Error_OneNumeric_OutOfRange) {
     cvn.put_numeral_card(c_num);
 
     try {
-        cvn.get_cards_at(2);
+        cvn.get_slot(2);
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -284,7 +284,7 @@ TEST (TestGameCaravan, PutNumericCard_PutFaceNotJack) {
     cvn.put_numeral_card(c_num);
     cvn.put_face_card(c_face, 1);
 
-    ts = cvn.get_cards_at(1);
+    ts = cvn.get_slot(1);
 
     ASSERT_EQ(ts.card.suit, c_num.suit);
     ASSERT_EQ(ts.card.rank, c_num.rank);
@@ -369,7 +369,7 @@ TEST (TestGameCaravan, PutFaceCard) {
     cvn.put_face_card(c_face, 1);
 
     ASSERT_EQ(cvn.get_size(), 1);
-    ts = cvn.get_cards_at(1);
+    ts = cvn.get_slot(1);
 
     ASSERT_EQ(ts.i_faces, 1);
     ASSERT_EQ(ts.faces[0].suit, c_face.suit);
@@ -479,14 +479,14 @@ TEST (TestGameCaravan, RemoveRank_FiveNumeric_OneFace) {
     cvn.remove_rank(ACE, 0);
     ASSERT_EQ(cvn.get_size(), 3);
 
-    ASSERT_EQ(cvn.get_cards_at(1).card.suit, c_num_2.suit);
-    ASSERT_EQ(cvn.get_cards_at(1).card.rank, c_num_2.rank);
+    ASSERT_EQ(cvn.get_slot(1).card.suit, c_num_2.suit);
+    ASSERT_EQ(cvn.get_slot(1).card.rank, c_num_2.rank);
 
-    ASSERT_EQ(cvn.get_cards_at(2).card.suit, c_num_3.suit);
-    ASSERT_EQ(cvn.get_cards_at(2).card.rank, c_num_3.rank);
+    ASSERT_EQ(cvn.get_slot(2).card.suit, c_num_3.suit);
+    ASSERT_EQ(cvn.get_slot(2).card.rank, c_num_3.rank);
 
-    ASSERT_EQ(cvn.get_cards_at(3).card.suit, c_num_4.suit);
-    ASSERT_EQ(cvn.get_cards_at(3).card.rank, c_num_4.rank);
+    ASSERT_EQ(cvn.get_slot(3).card.suit, c_num_4.suit);
+    ASSERT_EQ(cvn.get_slot(3).card.rank, c_num_4.rank);
 }
 
 TEST (TestGameCaravan, RemoveRank_FiveNumeric_OneFace_ExcludeOne) {
@@ -509,17 +509,17 @@ TEST (TestGameCaravan, RemoveRank_FiveNumeric_OneFace_ExcludeOne) {
     cvn.remove_rank(ACE, 5);
     ASSERT_EQ(cvn.get_size(), 4);
 
-    ASSERT_EQ(cvn.get_cards_at(1).card.suit, HEARTS);
-    ASSERT_EQ(cvn.get_cards_at(1).card.rank, TWO);
+    ASSERT_EQ(cvn.get_slot(1).card.suit, HEARTS);
+    ASSERT_EQ(cvn.get_slot(1).card.rank, TWO);
 
-    ASSERT_EQ(cvn.get_cards_at(2).card.suit, CLUBS);
-    ASSERT_EQ(cvn.get_cards_at(2).card.rank, FIVE);
+    ASSERT_EQ(cvn.get_slot(2).card.suit, CLUBS);
+    ASSERT_EQ(cvn.get_slot(2).card.rank, FIVE);
 
-    ASSERT_EQ(cvn.get_cards_at(3).card.suit, CLUBS);
-    ASSERT_EQ(cvn.get_cards_at(3).card.rank, TWO);
+    ASSERT_EQ(cvn.get_slot(3).card.suit, CLUBS);
+    ASSERT_EQ(cvn.get_slot(3).card.rank, TWO);
 
-    ASSERT_EQ(cvn.get_cards_at(4).card.suit, DIAMONDS);
-    ASSERT_EQ(cvn.get_cards_at(4).card.rank, ACE);
+    ASSERT_EQ(cvn.get_slot(4).card.suit, DIAMONDS);
+    ASSERT_EQ(cvn.get_slot(4).card.rank, ACE);
 }
 
 TEST (TestGameCaravan, RemoveRank_Error_ExcludeOutOfRange) {
@@ -569,14 +569,14 @@ TEST (TestGameCaravan, RemoveSuit_FiveNumeric_OneFace) {
     cvn.remove_suit(CLUBS, 0);
     ASSERT_EQ(cvn.get_size(), 3);
 
-    ASSERT_EQ(cvn.get_cards_at(1).card.suit, c_num_1.suit);
-    ASSERT_EQ(cvn.get_cards_at(1).card.rank, c_num_1.rank);
+    ASSERT_EQ(cvn.get_slot(1).card.suit, c_num_1.suit);
+    ASSERT_EQ(cvn.get_slot(1).card.rank, c_num_1.rank);
 
-    ASSERT_EQ(cvn.get_cards_at(2).card.suit, c_num_2.suit);
-    ASSERT_EQ(cvn.get_cards_at(2).card.rank, c_num_2.rank);
+    ASSERT_EQ(cvn.get_slot(2).card.suit, c_num_2.suit);
+    ASSERT_EQ(cvn.get_slot(2).card.rank, c_num_2.rank);
 
-    ASSERT_EQ(cvn.get_cards_at(3).card.suit, c_num_5.suit);
-    ASSERT_EQ(cvn.get_cards_at(3).card.rank, c_num_5.rank);
+    ASSERT_EQ(cvn.get_slot(3).card.suit, c_num_5.suit);
+    ASSERT_EQ(cvn.get_slot(3).card.rank, c_num_5.rank);
 }
 
 
@@ -600,17 +600,17 @@ TEST (TestGameCaravan, RemoveSuit_FiveNumeric_OneFace_ExcludeOne) {
     cvn.remove_suit(CLUBS, 3);
     ASSERT_EQ(cvn.get_size(), 4);
 
-    ASSERT_EQ(cvn.get_cards_at(1).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_cards_at(1).card.rank, ACE);
+    ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(1).card.rank, ACE);
 
-    ASSERT_EQ(cvn.get_cards_at(2).card.suit, HEARTS);
-    ASSERT_EQ(cvn.get_cards_at(2).card.rank, TWO);
+    ASSERT_EQ(cvn.get_slot(2).card.suit, HEARTS);
+    ASSERT_EQ(cvn.get_slot(2).card.rank, TWO);
 
-    ASSERT_EQ(cvn.get_cards_at(3).card.suit, CLUBS);
-    ASSERT_EQ(cvn.get_cards_at(3).card.rank, FIVE);
+    ASSERT_EQ(cvn.get_slot(3).card.suit, CLUBS);
+    ASSERT_EQ(cvn.get_slot(3).card.rank, FIVE);
 
-    ASSERT_EQ(cvn.get_cards_at(4).card.suit, DIAMONDS);
-    ASSERT_EQ(cvn.get_cards_at(4).card.rank, ACE);
+    ASSERT_EQ(cvn.get_slot(4).card.suit, DIAMONDS);
+    ASSERT_EQ(cvn.get_slot(4).card.rank, ACE);
 }
 
 TEST (TestGameCaravan, RemoveSuit_Error_ExcludeOutOfRange) {
@@ -660,14 +660,14 @@ TEST (TestGameCaravan, RemoveNumericCard_RemovePos10) {
 
     ASSERT_EQ(cvn.get_size(), 9);
 
-    ASSERT_EQ(cvn.get_cards_at(1).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_cards_at(1).card.rank, ACE);
+    ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(1).card.rank, ACE);
 
-    ASSERT_EQ(cvn.get_cards_at(9).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_cards_at(9).card.rank, NINE);
+    ASSERT_EQ(cvn.get_slot(9).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(9).card.rank, NINE);
 
     try {
-        cvn.get_cards_at(10);
+        cvn.get_slot(10);
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -698,14 +698,14 @@ TEST (TestGameCaravan, RemoveNumericCard_RemovePos1) {
 
     ASSERT_EQ(cvn.get_size(), 9);
 
-    ASSERT_EQ(cvn.get_cards_at(1).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_cards_at(1).card.rank, TWO);
+    ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(1).card.rank, TWO);
 
-    ASSERT_EQ(cvn.get_cards_at(9).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_cards_at(9).card.rank, TEN);
+    ASSERT_EQ(cvn.get_slot(9).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(9).card.rank, TEN);
 
     try {
-        cvn.get_cards_at(10);
+        cvn.get_slot(10);
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -735,17 +735,17 @@ TEST (TestGameCaravan, RemoveNumericCard_RemovePos5) {
 
     ASSERT_EQ(cvn.get_size(), 9);
 
-    ASSERT_EQ(cvn.get_cards_at(1).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_cards_at(1).card.rank, ACE);
+    ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(1).card.rank, ACE);
 
-    ASSERT_EQ(cvn.get_cards_at(5).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_cards_at(5).card.rank, SIX);
+    ASSERT_EQ(cvn.get_slot(5).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(5).card.rank, SIX);
 
-    ASSERT_EQ(cvn.get_cards_at(9).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_cards_at(9).card.rank, TEN);
+    ASSERT_EQ(cvn.get_slot(9).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(9).card.rank, TEN);
 
     try {
-        cvn.get_cards_at(10);
+        cvn.get_slot(10);
         FAIL();
 
     } catch (CaravanGameException &e) {

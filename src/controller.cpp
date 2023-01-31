@@ -51,7 +51,7 @@ void Controller::run() {
             }
 
         } catch (CaravanException &e) {
-            view_ptr->set_message(e.what());
+            view_ptr->error_message(e.what());
 
             if(user_turn->get_name() == PLAYER_BOTTOM)
                 go_bottom = go_temp;

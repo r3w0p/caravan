@@ -20,15 +20,15 @@ protected:
     bool closed;
     Player *p_turn;
 
-    int8_t compare_bids(CaravanName cn1, CaravanName cn2);
+    int8_t compare_bids(CaravanName cvname1, CaravanName cvname2);
 
-    bool has_sold(CaravanName cn);
+    bool has_sold(CaravanName cvname);
 
-    void option_clear(Player *p_ptr, GameOption* go);
+    void option_clear(Player *pptr, GameOption* go);
 
-    void option_discard(Player *p_ptr, GameOption* go);
+    void option_discard(Player *pptr, GameOption* go);
 
-    void option_play(Player *p_ptr, GameOption* go);
+    void option_play(Player *pptr, GameOption* go);
 
 public:
     explicit Engine(GameConfig gc) {
@@ -57,9 +57,9 @@ public:
 
     void close();
 
-    Player *get_player(PlayerName pn);
+    Player *get_player(PlayerName pname);
 
-    PlayerCaravanNames get_player_caravan_names(PlayerName pn);
+    PlayerCaravanNames get_player_caravan_names(PlayerName pname);
 
     PlayerName get_player_turn();
 

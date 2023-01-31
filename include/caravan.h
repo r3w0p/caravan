@@ -12,27 +12,24 @@
 
 
 class Caravan {
+
 protected:
     CaravanName name;
     Track track;
     uint8_t i_track;
 
-    static uint8_t numeral_rank_to_int_value(Rank r);
+    static uint8_t numeral_rank_to_uint8_t(Rank rank);
 
-    void remove_numeral_card(uint8_t i);
+    void remove_numeral_card(uint8_t index);
 
 public:
-    explicit Caravan(CaravanName pn) {
-        name = pn;
-        track = {};
-        i_track = 0;
-    }
+    explicit Caravan(CaravanName cvname);
 
     void clear();
 
     uint16_t get_bid();
 
-    Slot get_cards_at(uint8_t pos);
+    Slot get_slot(uint8_t pos);
 
     Direction get_direction();
 
@@ -42,13 +39,13 @@ public:
 
     Suit get_suit();
 
-    void put_numeral_card(Card c);
+    void put_numeral_card(Card card);
 
-    Card put_face_card(Card c, uint8_t pos);
+    Card put_face_card(Card card, uint8_t pos);
 
-    void remove_rank(Rank r, uint8_t pos_exclude);
+    void remove_rank(Rank rank, uint8_t pos_exclude);
 
-    void remove_suit(Suit s, uint8_t pos_exclude);
+    void remove_suit(Suit suit, uint8_t pos_exclude);
 };
 
 #endif //CARAVAN_CARAVAN_H

@@ -19,7 +19,7 @@ public:
     virtual void update(Engine *e, User *ubottom, User *utop, GameOption* go_bottom, GameOption* go_top) = 0;
     virtual GameOption option(Engine *e, User *u) = 0;
     virtual void close() = 0;
-    virtual void set_message(std::string msg) = 0;
+    virtual void error_message(std::string msg) = 0;
 };
 
 class ViewCLI : public View {
@@ -31,17 +31,15 @@ protected:
     WINDOW* win_cvn_a;
     WINDOW* win_cvn_b;
     WINDOW* win_cvn_c;
-
     WINDOW* win_cvn_d;
     WINDOW* win_cvn_e;
     WINDOW* win_cvn_f;
 
-    WINDOW* win_player_b;
-    WINDOW* win_player_a;
-
+    WINDOW* win_player_bottom;
+    WINDOW* win_player_top;
     WINDOW* win_dialog;
 
-    std::string instring;
+    std::string uinput;
     std::string err_msg;
     bool err_display;
 
@@ -50,7 +48,7 @@ public:
     void update(Engine *e, User *ubottom, User *utop, GameOption* go_bottom, GameOption* go_top);
     GameOption option(Engine *e, User *u) override;
     void close() override;
-    void set_message(std::string msg);
+    void error_message(std::string msg);
 };
 
 #endif //CARAVAN_VIEW_H

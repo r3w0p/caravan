@@ -87,8 +87,8 @@ typedef std::array<CaravanName, 3> PlayerCaravanNames;
 
 
 typedef struct Slot {
-    Card card{};
-    Faces faces{};
+    Card card {};
+    Faces faces {};
     uint8_t i_faces = 0;
 } Slot;
 
