@@ -28,3 +28,6 @@ add_executable(test_caravan
         ${test_caravan_tests})
 
 target_link_libraries(test_caravan gtest pdcurses)
+
+include(GoogleTest)
+gtest_discover_tests(test_caravan)
