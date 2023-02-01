@@ -22,12 +22,6 @@ jobs:
           cmakeVersion: 3.23.2
           ninjaVersion: 1.11.1
 
-      - name: Setup GCC
-        uses: egor-tensin/setup-gcc@v1.3
-        with:
-          version: 11
-          platform: x64
-
       - name: Check Dependencies
         run: |
           echo cmake
