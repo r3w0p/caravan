@@ -21,6 +21,8 @@ jobs:
         with:
           cmakeVersion: 3.25.2
           ninjaVersion: 1.11.1
+
+      - name: Check Dependencies
         run: |
           cmake --version
           ninja --version
