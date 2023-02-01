@@ -62,4 +62,3 @@ add_library(pdcurses STATIC
         window.c)
 
 target_link_libraries(caravan pdcurses)
-include_directories(../include)

@@ -16,13 +16,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: CMake Install
-        uses: jwlawson/actions-setup-cmake@v1.13
+      - name: Install Dependencies
+        uses: lukka/get-cmake@v3.25.2
         with:
-          cmake-version: '3.25.2'
-
-      - name: Ninja Install
-        uses: seanmiddleditch/gha-setup-ninja@v3
+          cmakeVersion: 3.25.2
+          ninjaVersion: 1.11.1
+        run: |
+          cmake --version
+          ninja --version
 
       - name: CMake Setup
         run: cmake -S . -B ${{github.workspace}}/build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
