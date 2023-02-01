@@ -23,7 +23,6 @@ jobs:
           ninjaVersion: 1.11.1
 
       - name: Check Dependencies
-        uses: lukka/get-cmake@v3.25.2
         run: |
           echo cmake
           cmake --version
