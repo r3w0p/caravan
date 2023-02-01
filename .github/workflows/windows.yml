@@ -16,11 +16,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install Dependencies
+      - name: Setup CMake and Ninja
         uses: lukka/get-cmake@v3.25.2
         with:
-          cmakeVersion: 3.25.2
+          cmakeVersion: 3.23.2
           ninjaVersion: 1.11.1
+
+      - name: Setup GCC
+        uses: egor-tensin/setup-gcc@v1.3
+        with:
+          version: 11
+          platform: x64
 
       - name: Check Dependencies
         run: |
@@ -33,7 +39,7 @@ jobs:
           echo g++
           g++ --version
 
-      - name: CMake Setup
+      - name: CMake Build
         run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build (caravan)
