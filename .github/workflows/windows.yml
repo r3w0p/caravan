@@ -5,7 +5,7 @@ on:
     branches: [ develop ]
 
 env:
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
 
 jobs:
   build:
@@ -16,27 +16,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install Dependencies
+      - name: Install CMake and Ninja
         uses: lukka/get-cmake@v3.25.2
         with:
           cmakeVersion: 3.25.2
           ninjaVersion: 1.11.1
 
-      - name: Check Dependencies
-        run: |
-          cmake --version
-          ninja --version
+      - name: Install MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
 
       - name: CMake Setup
-        run: cmake -S . -B ${{github.workspace}}/build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-      #- name: Build (caravan)
-      #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target caravan
+      - name: Build (caravan)
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target caravan
 
-      - name: Build (tests)
-        run: cmake --build ${{github.workspace}}/build --target test_caravan
+      - name: Build (test_caravan)
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target test_caravan
 
-      - name: Test
+      - name: CTest
         run: |
           cd ${{github.workspace}}/build
           ctest
