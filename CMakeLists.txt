@@ -12,11 +12,9 @@ set(PROJECT_DESCRIPTION "A CLI version of the Caravan card game from Fallout: Ne
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
 add_subdirectory(src)
-add_subdirectory(lib)
 add_subdirectory(include)
+add_subdirectory(lib)
 add_subdirectory(test)
-
-include_directories(include)
 
 set_target_properties(caravan PROPERTIES LINK_SEARCH_START_STATIC ON)
 set_target_properties(caravan PROPERTIES LINK_SEARCH_END_STATIC ON)

@@ -16,7 +16,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Ninja Setup
+      - name: CMake Install
+        uses: jwlawson/actions-setup-cmake@v1.13
+        with:
+          cmake-version: '3.25.2'
+
+      - name: Ninja Install
         uses: seanmiddleditch/gha-setup-ninja@v3
 
       - name: CMake Setup
@@ -30,5 +35,5 @@ jobs:
 
       - name: Test
         run: |
-          cd build
+          cd ${{github.workspace}}/build
           ctest
