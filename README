@@ -47,9 +47,9 @@ command, a message will appear below the game table to help you.
 
 ---
 
-To PLAY a numeral card, you must type 'P', then the number for the card in your
-hand that you want to play, then the caravan name. For example, to PLAY card 2
-from your hand onto caravan B:
+To PLAY a numeral card, type 'P', then the number for the card in your hand that
+you want to play, then the caravan name. For example, to PLAY card 2 from your
+hand onto caravan B:
 
 [YOU] > P2B
 
@@ -59,13 +59,13 @@ hand onto numeral at position 3 in caravan F:
 
 [YOU] > P4F3
 
-To DISCARD a card, you must type 'D', then the number for the card in your hand
-that you want to play. For example, to DISCARD card 3 from your hand:
+To DISCARD a card, type 'D', then the number for the card in your hand that you
+want to play. For example, to DISCARD card 3 from your hand:
 
 [YOU] > D3
 
-To CLEAR on of your caravans, you must type 'C', then the name of the caravan
-that you want to clear. For example, to CLEAR caravan A:
+To CLEAR on of your caravans, type 'C', then the name of the caravan that you
+want to clear. For example, to CLEAR caravan A:
 
 [YOU] > CA
 

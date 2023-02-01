@@ -1,4 +1,5 @@
-add_executable(caravan main.cpp)
+include_directories(../include)
+include_directories(../lib/pdcurses-3.9/include)
 
 add_library(caravan_src STATIC
         bot_simple.cpp
@@ -13,7 +14,6 @@ add_library(caravan_src STATIC
         user.cpp
         view.cpp)
 
-target_link_libraries(caravan caravan_src)
+add_executable(caravan main.cpp)
 
-include_directories(../include)
-include_directories(../lib/pdcurses-3.9/include)
+target_link_libraries(caravan caravan_src)

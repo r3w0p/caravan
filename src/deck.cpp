@@ -5,6 +5,7 @@
 #include <chrono>
 #include <random>
 #include <vector>
+#include <algorithm>
 #include "deck.h"
 #include "exceptions.h"
 

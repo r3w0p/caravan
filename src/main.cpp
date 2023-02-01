@@ -7,7 +7,7 @@
 #include "controller.h"
 #include "bot_simple.h"
 
-int main() {
+int main(int argc, char ** argv) {
     GameConfig gc;
     UserHuman *ua;
     UserBotSimple *ub;

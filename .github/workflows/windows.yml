@@ -1,0 +1,31 @@
+name: Windows
+
+on:
+  push:
+    branches: [ develop ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Ninja Setup
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
+      - name: CMake Setup
+        run: cmake -S . -B ${{github.workspace}}/build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build (caravan)
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target caravan
+
+      - name: Build (tests)
+        run: cmake --build ${{github.workspace}}/build --target test_caravan
+
+      - name: Test
+        run: ${{github.workspace}}/build/test/test_caravan.exe
