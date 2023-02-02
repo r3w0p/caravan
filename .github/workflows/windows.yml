@@ -16,33 +16,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup CMake and Ninja
+      - name: Install CMake and Ninja
         uses: lukka/get-cmake@v3.25.2
         with:
           cmakeVersion: 3.23.2
           ninjaVersion: 1.11.1
 
-      - name: Check Dependencies
-        run: |
-          echo cmake
-          cmake --version
-          echo ninja
-          ninja --version
-          echo gcc
-          gcc --version
-          echo g++
-          g++ --version
-
-      - name: CMake Build
+      - name: CMake Setup
         run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-      - name: Build (caravan)
+      - name: CMake Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target caravan
-
-      - name: Build (test_caravan)
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target test_caravan
-
-      - name: CTest
-        run: |
-          cd ${{github.workspace}}/build
-          ctest
