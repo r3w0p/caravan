@@ -2,7 +2,7 @@ include_directories(../include)
 include_directories(../lib/pdcurses-3.9/include)
 
 add_library(caravan_src STATIC
-        bot_simple.cpp
+        bot_easy.cpp
         caravan.cpp
         common.cpp
         controller.cpp

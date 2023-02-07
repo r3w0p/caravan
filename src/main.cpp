@@ -5,12 +5,12 @@
 #include <iostream>
 #include "view.h"
 #include "controller.h"
-#include "bot_simple.h"
+#include "bot_easy.h"
 
 int main(int argc, char ** argv) {
     GameConfig gc;
     UserHuman *ua;
-    UserBotSimple *ub;
+    UserBotEasy *ub;
     Engine *e;
     ViewCLI *v;
     Controller *c;
@@ -23,7 +23,7 @@ int main(int argc, char ** argv) {
         };
 
         ua = new UserHuman(PLAYER_BOTTOM);
-        ub = new UserBotSimple(PLAYER_TOP);
+        ub = new UserBotEasy(PLAYER_TOP);
 
         e = new Engine(gc);
         v = new ViewCLI();

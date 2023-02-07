@@ -6,7 +6,7 @@
 #include "../include/engine.h"
 
 
-TEST (TestGameEngine, Close) {
+TEST (TestEngine, Close) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -19,7 +19,7 @@ TEST (TestGameEngine, Close) {
     ASSERT_TRUE(e.is_closed());
 }
 
-TEST (TestGameEngine, Close_Error_AlreadyClosed) {
+TEST (TestEngine, Close_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -40,7 +40,7 @@ TEST (TestGameEngine, Close_Error_AlreadyClosed) {
     }
 }
 
-TEST (TestGameEngine, GetPlayer_Both) {
+TEST (TestEngine, GetPlayer_Both) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -52,7 +52,7 @@ TEST (TestGameEngine, GetPlayer_Both) {
     ASSERT_EQ(e.get_player(PLAYER_TOP)->get_name(), PLAYER_TOP);
 }
 
-TEST (TestGameEngine, GetPlayer_Error_AlreadyClosed) {
+TEST (TestEngine, GetPlayer_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -73,7 +73,7 @@ TEST (TestGameEngine, GetPlayer_Error_AlreadyClosed) {
     }
 }
 
-TEST (TestGameEngine, GetPlayer_Error_InvalidName) {
+TEST (TestEngine, GetPlayer_Error_InvalidName) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -92,7 +92,7 @@ TEST (TestGameEngine, GetPlayer_Error_InvalidName) {
     }
 }
 
-TEST (TestGameEngine, GetPlayerTurn) {
+TEST (TestEngine, GetPlayerTurn) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -103,7 +103,7 @@ TEST (TestGameEngine, GetPlayerTurn) {
     ASSERT_EQ(e.get_player_turn(), PLAYER_BOTTOM);
 }
 
-TEST (TestGameEngine, GetPlayerTurn_Error_AlreadyClosed) {
+TEST (TestEngine, GetPlayerTurn_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -124,7 +124,7 @@ TEST (TestGameEngine, GetPlayerTurn_Error_AlreadyClosed) {
     }
 }
 
-TEST (TestGameEngine, GetTable_Error_AlreadyClosed) {
+TEST (TestEngine, GetTable_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -145,7 +145,7 @@ TEST (TestGameEngine, GetTable_Error_AlreadyClosed) {
     }
 }
 
-TEST (TestGameEngine, GetWinner_NoMoves) {
+TEST (TestEngine, GetWinner_NoMoves) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -156,7 +156,7 @@ TEST (TestGameEngine, GetWinner_NoMoves) {
     ASSERT_EQ(e.get_winner(), NO_PLAYER);
 }
 
-TEST (TestGameEngine, GetWinner_Error_AlreadyClosed) {
+TEST (TestEngine, GetWinner_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -177,7 +177,7 @@ TEST (TestGameEngine, GetWinner_Error_AlreadyClosed) {
     }
 }
 
-TEST (TestGameEngine, PlayOption_Error_AlreadyClosed) {
+TEST (TestEngine, PlayOption_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -199,7 +199,7 @@ TEST (TestGameEngine, PlayOption_Error_AlreadyClosed) {
     }
 }
 
-TEST (TestGameEngine, PlayOption_Error_StartRound_Remove) {
+TEST (TestEngine, PlayOption_Error_StartRound_Remove) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
@@ -219,7 +219,7 @@ TEST (TestGameEngine, PlayOption_Error_StartRound_Remove) {
     }
 }
 
-TEST (TestGameEngine, PlayOption_Error_StartRound_Clear) {
+TEST (TestEngine, PlayOption_Error_StartRound_Clear) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,

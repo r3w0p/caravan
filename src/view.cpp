@@ -3,9 +3,7 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "view.h"
-#include <curses.h>
 #include <iostream>
-#include <stdlib.h>
 #include <sstream>
 
 
@@ -255,8 +253,7 @@ void print_card(WINDOW *win, uint16_t y, uint16_t x,
     mvwprintw(win, y+3, x, "|___|");
 }
 
-void print_faces(WINDOW *win,
-                 uint16_t y, uint16_t x,
+void print_faces(WINDOW *win, uint16_t y, uint16_t x,
                  Faces f, uint8_t i_faces, bool colour) {
     Card c;
     std::string r;
@@ -511,7 +508,10 @@ void print_player_down(WINDOW *win, Player *p, bool conceal, bool colour) {
     }
 }
 
-void update_table(WINDOW *win) {
+void update_table(WINDOW *win,
+                  CaravanName cvnad, CaravanName cvnbe, CaravanName cvncf,
+                  PlayerName pnwin,
+                  bool colour) {
     // CORNERS
     mvwprintw(win, 0, 0, "+--");
     mvwprintw(win, 1, 0, "|");
@@ -533,33 +533,85 @@ void update_table(WINDOW *win) {
     mvwprintw(win, 32, 0, "|");
     mvwprintw(win, 31, 0, "|");
 
-    mvwprintw(win, 32, 1, "-----------");
     mvwprintw(win, 32, 12, "[D]");
-    mvwprintw(win, 32, 15, "-----------");
+
+    if(cvnad == CARAVAN_D) {
+        if(colour)
+            wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+        mvwprintw(win, 32, 1, "===========");
+        mvwprintw(win, 32, 15, "===========");
+
+        if(colour)
+            wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+    } else {
+        mvwprintw(win, 32, 1, "-----------");
+        mvwprintw(win, 32, 15, "-----------");
+    }
 
     mvwprintw(win, 32, 26, "|");
     mvwprintw(win, 31, 26, "|");
 
-    mvwprintw(win, 32, 27, "-----------");
     mvwprintw(win, 32, 38, "[E]");
-    mvwprintw(win, 32, 41, "-----------");
+
+    if(cvnbe == CARAVAN_E) {
+        if(colour)
+            wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+        mvwprintw(win, 32, 27, "===========");
+        mvwprintw(win, 32, 41, "===========");
+
+        if(colour)
+            wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+    } else {
+        mvwprintw(win, 32, 27, "-----------");
+        mvwprintw(win, 32, 41, "-----------");
+    }
 
     mvwprintw(win, 32, 52, "|");
     mvwprintw(win, 31, 52, "|");
 
-    mvwprintw(win, 32, 53, "-----------");
     mvwprintw(win, 32, 64, "[F]");
-    mvwprintw(win, 32, 67, "-----------");
+
+    if(cvncf == CARAVAN_F) {
+        if(colour)
+            wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+        mvwprintw(win, 32, 53, "===========");
+        mvwprintw(win, 32, 67, "===========");
+
+        if(colour)
+            wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+    } else {
+        mvwprintw(win, 32, 53, "-----------");
+        mvwprintw(win, 32, 67, "-----------");
+    }
 
     mvwprintw(win, 32, 78, "|");
     mvwprintw(win, 31, 78, "|");
 
-    mvwprintw(win, 32, 84-3, "|");
-    mvwprintw(win, 31, 84-3, "|");
+    mvwprintw(win, 32, 81, "|");
+    mvwprintw(win, 31, 81, "|");
 
-    mvwprintw(win, 32, 85-3, "---------");
-    mvwprintw(win, 32, 94-3, "[BOT]");
-    mvwprintw(win, 32, 99-3, "---------");
+    mvwprintw(win, 32, 91, "[BOT]");
+
+    if(pnwin == PLAYER_TOP) {
+        if(colour)
+            wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+        mvwprintw(win, 32, 82, "=========");
+        mvwprintw(win, 32, 96, "=========");
+
+        if(colour)
+            wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+    } else {
+        mvwprintw(win, 32, 82, "---------");
+        mvwprintw(win, 32, 96, "---------");
+    }
 
     mvwprintw(win, 32, 105, "|");
     mvwprintw(win, 31, 105, "|");
@@ -568,177 +620,103 @@ void update_table(WINDOW *win) {
     mvwprintw(win, 34, 0, "|");
     mvwprintw(win, 35, 0, "|");
 
-    mvwprintw(win, 34, 1, "-----------");
     mvwprintw(win, 34, 12, "[A]");
-    mvwprintw(win, 34, 15, "-----------");
+
+    if(cvnad == CARAVAN_A) {
+        if(colour)
+            wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+        mvwprintw(win, 34, 1, "===========");
+        mvwprintw(win, 34, 15, "===========");
+
+        if(colour)
+            wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+    } else {
+        mvwprintw(win, 34, 1, "-----------");
+        mvwprintw(win, 34, 15, "-----------");
+    }
 
     mvwprintw(win, 34, 26, "|");
     mvwprintw(win, 35, 26, "|");
 
-    mvwprintw(win, 34, 27, "-----------");
     mvwprintw(win, 34, 38, "[B]");
-    mvwprintw(win, 34, 41, "-----------");
+
+    if(cvnbe == CARAVAN_B) {
+        if(colour)
+            wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+        mvwprintw(win, 34, 27, "===========");
+        mvwprintw(win, 34, 41, "===========");
+
+        if(colour)
+            wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+    } else {
+        mvwprintw(win, 34, 27, "-----------");
+        mvwprintw(win, 34, 41, "-----------");
+    }
 
     mvwprintw(win, 34, 52, "|");
     mvwprintw(win, 35, 52, "|");
 
-    mvwprintw(win, 34, 53, "-----------");
     mvwprintw(win, 34, 64, "[C]");
-    mvwprintw(win, 34, 67, "-----------");
+
+    if(cvncf == CARAVAN_C) {
+        if(colour)
+            wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+        mvwprintw(win, 34, 53, "===========");
+        mvwprintw(win, 34, 67, "===========");
+
+        if(colour)
+            wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
+
+    } else {
+        mvwprintw(win, 34, 53, "-----------");
+        mvwprintw(win, 34, 67, "-----------");
+    }
 
     mvwprintw(win, 34, 78, "|");
     mvwprintw(win, 35, 78, "|");
 
-    mvwprintw(win, 34, 84-3, "|");
-    mvwprintw(win, 35, 84-3, "|");
+    mvwprintw(win, 34, 81, "|");
+    mvwprintw(win, 35, 81, "|");
 
-    mvwprintw(win, 34, 85-3, "---------");
-    mvwprintw(win, 34, 94-3, "[YOU]");
-    mvwprintw(win, 34, 99-3, "---------");
+    mvwprintw(win, 34, 91, "[YOU]");
 
-    mvwprintw(win, 34, 108-3, "|");
-    mvwprintw(win, 35, 108-3, "|");
-}
+    if(pnwin == PLAYER_BOTTOM) {
+        if(colour)
+            wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-ViewCLI::ViewCLI() {
-    initscr();
-    raw();
-    getmaxyx(stdscr, r_max, c_max);
+        mvwprintw(win, 34, 82, "=========");
+        mvwprintw(win, 34, 96, "=========");
 
-    if(r_max < VIEW_ROW_MIN or c_max < VIEW_COL_MIN)
-        throw CaravanFatalException("Terminal is too small.");
+        if(colour)
+            wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-    has_colour = has_colors();
-
-    if(has_colour) {
-        start_color();
-        init_pair(PAIR_WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);
-        init_pair(PAIR_RED_BLACK, COLOR_RED, COLOR_BLACK);
-        init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
+    } else {
+        mvwprintw(win, 34, 82, "---------");
+        mvwprintw(win, 34, 96, "---------");
     }
 
-    uinput = "";
-    err_msg = "";
-    err_display = false;
-
-    win_cvn_a = create_window_caravan(35, 3);
-    win_cvn_b = create_window_caravan(35, 29);
-    win_cvn_c = create_window_caravan(35, 55);
-
-    win_cvn_d = create_window_caravan(0, 3);
-    win_cvn_e = create_window_caravan(0, 29);
-    win_cvn_f = create_window_caravan(0, 55);
-
-    win_player_top = create_window_player(6, 84);
-    win_player_bottom = create_window_player(35, 84);
-
-    win_dialog = create_window_dialog(62, 81);
-
-    refresh();
+    mvwprintw(win, 34, 105, "|");
+    mvwprintw(win, 35, 105, "|");
 }
 
-void ViewCLI::update(Engine *e, User *ubottom, User *utop, GameOption* go_bottom, GameOption* go_top) {
-    bool conceal_bottom;
-    bool conceal_top;
-    Player *pbottom;
-    Player *ptop;
-
-    wclear(stdscr);
-    wclear(win_cvn_a);
-    wclear(win_cvn_b);
-    wclear(win_cvn_c);
-    wclear(win_cvn_d);
-    wclear(win_cvn_e);
-    wclear(win_cvn_f);
-    wclear(win_player_bottom);
-    wclear(win_player_top);
-    wclear(win_dialog);
-
-    try {
-        // Print table
-        update_table(stdscr);
-
-        // Print caravans
-        print_caravan_down(win_cvn_a, e->get_table(), CARAVAN_A, has_colour);
-        print_caravan_down(win_cvn_b, e->get_table(), CARAVAN_B, has_colour);
-        print_caravan_down(win_cvn_c, e->get_table(), CARAVAN_C, has_colour);
-
-        print_caravan_up(win_cvn_d, e->get_table(), CARAVAN_D, has_colour);
-        print_caravan_up(win_cvn_e, e->get_table(), CARAVAN_E, has_colour);
-        print_caravan_up(win_cvn_f, e->get_table(), CARAVAN_F, has_colour);
-
-        // Print hands
-        pbottom = e->get_player(ubottom->get_name());
-        ptop = e->get_player(utop->get_name());
-
-        if (ubottom->is_human() and !utop->is_human()) {
-            // Do not conceal human; conceal bot
-            conceal_bottom = false;
-            conceal_top = true;
-
-        } else if (!ubottom->is_human() and utop->is_human()) {
-            // Conceal bot; do not conceal human
-            conceal_bottom = true;
-            conceal_top = false;
-
-        } else if (ubottom->is_human() and utop->is_human()) {
-            // Human vs human; conceal if not player's turn
-            conceal_bottom = e->get_player_turn() != pbottom->get_name();
-            conceal_top = e->get_player_turn() != ptop->get_name();
-
-        } else {
-            // Never conceal if both players are bots
-            conceal_bottom = false;
-            conceal_top = false;
-        }
-
-        print_player_down(win_player_bottom, pbottom, conceal_bottom, has_colour);
-        print_player_up(win_player_top, ptop, conceal_top, has_colour);
-
-        // Update dialog
-        update_dialog(win_dialog, e, ubottom, utop, go_bottom, go_top, has_colour);
-
-    } catch (CaravanException &e) {
-        err_msg = e.what();
-    }
-
-    // Update message
-
-    if(!err_msg.empty()) {
-        wmove(stdscr, 68, 0);
-        wprintw(stdscr, err_msg.c_str());
-        err_msg = "";
-        err_display = true;
-
-    } else
-        err_display = false;
-
-    // Refresh windows
-
-    wrefresh(stdscr);
-
-    wrefresh(win_cvn_a);
-    wrefresh(win_cvn_b);
-    wrefresh(win_cvn_c);
-    wrefresh(win_cvn_d);
-    wrefresh(win_cvn_e);
-    wrefresh(win_cvn_f);
-    wrefresh(win_player_bottom);
-    wrefresh(win_player_top);
-    wrefresh(win_dialog);
-
-    if(e->get_winner() != NO_PLAYER)
-        getch();
-}
-
+/**
+ * Sets an error message to display on screen.
+ *
+ * @param msg The message.
+ */
 void ViewCLI::error_message(std::string msg) {
     err_msg = msg;
 }
 
 /**
- * @param win
- * @param y
- * @param x
+ * @param win The window in which to get input.
+ * @param y The Y coordinate in the window for input start.
+ * @param x The X coordinate in the window for input start.
  * @param input Where to store the input. Length must be >= max.
  * @param max The maximum length of the input (+1 for null-termination).
  * @param start The starting string to populate the input space.
@@ -747,7 +725,6 @@ void wget_input_alphanum(WINDOW * win, int y, int x, int* input, int max, std::s
     int i_input;
     int c_input;
 
-    i_input = 0;
     wmove(win, y, x);
 
     for(i_input = 0; start[i_input] != '\0'; i_input++) {
@@ -807,6 +784,12 @@ void wget_input_alphanum(WINDOW * win, int y, int x, int* input, int max, std::s
     }
 }
 
+/**
+ * Get option from player via text input.
+ * @param e The game engine.
+ * @param u The user whose turn it is.
+ * @return The user's option.
+ */
 GameOption ViewCLI::option(Engine *e, User *u) {
     GameOption go;
     int input[6];
@@ -1043,6 +1026,148 @@ GameOption ViewCLI::option(Engine *e, User *u) {
     return go;
 }
 
+/**
+ * Close the view.
+ */
 void ViewCLI::close() {
     endwin();
+}
+
+ViewCLI::ViewCLI() {
+    initscr();
+    raw();
+    getmaxyx(stdscr, r_max, c_max);
+
+    if(r_max < VIEW_ROW_MIN or c_max < VIEW_COL_MIN)
+        throw CaravanFatalException("Terminal is too small.");
+
+    has_colour = has_colors();
+
+    if(has_colour) {
+        start_color();
+        init_pair(PAIR_WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);
+        init_pair(PAIR_RED_BLACK, COLOR_RED, COLOR_BLACK);
+        init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
+        init_pair(PAIR_YELLOW_BLACK, COLOR_YELLOW, COLOR_BLACK);
+    }
+
+    uinput = "";
+    err_msg = "";
+    err_display = false;
+
+    win_cvn_a = create_window_caravan(35, 3);
+    win_cvn_b = create_window_caravan(35, 29);
+    win_cvn_c = create_window_caravan(35, 55);
+
+    win_cvn_d = create_window_caravan(0, 3);
+    win_cvn_e = create_window_caravan(0, 29);
+    win_cvn_f = create_window_caravan(0, 55);
+
+    win_player_top = create_window_player(6, 84);
+    win_player_bottom = create_window_player(35, 84);
+
+    win_dialog = create_window_dialog(62, 81);
+
+    refresh();
+}
+
+void ViewCLI::update(Engine *e, User *ubottom, User *utop,
+                     GameOption* go_bottom, GameOption* go_top) {
+    bool conceal_bottom;
+    bool conceal_top;
+    Player *pbottom;
+    Player *ptop;
+
+    wclear(stdscr);
+    wclear(win_cvn_a);
+    wclear(win_cvn_b);
+    wclear(win_cvn_c);
+    wclear(win_cvn_d);
+    wclear(win_cvn_e);
+    wclear(win_cvn_f);
+    wclear(win_player_bottom);
+    wclear(win_player_top);
+    wclear(win_dialog);
+
+    try {
+        // Print table
+        update_table(
+                stdscr,
+                e->winning_bid(CARAVAN_A, CARAVAN_D),
+                e->winning_bid(CARAVAN_B, CARAVAN_E),
+                e->winning_bid(CARAVAN_C, CARAVAN_F),
+                e->get_winner(),
+                has_colour);
+
+        // Print caravans
+        print_caravan_down(win_cvn_a, e->get_table(), CARAVAN_A, has_colour);
+        print_caravan_down(win_cvn_b, e->get_table(), CARAVAN_B, has_colour);
+        print_caravan_down(win_cvn_c, e->get_table(), CARAVAN_C, has_colour);
+
+        print_caravan_up(win_cvn_d, e->get_table(), CARAVAN_D, has_colour);
+        print_caravan_up(win_cvn_e, e->get_table(), CARAVAN_E, has_colour);
+        print_caravan_up(win_cvn_f, e->get_table(), CARAVAN_F, has_colour);
+
+        // Print hands
+        pbottom = e->get_player(ubottom->get_name());
+        ptop = e->get_player(utop->get_name());
+
+        if (ubottom->is_human() and !utop->is_human()) {
+            // Do not conceal human; conceal bot
+            conceal_bottom = false;
+            conceal_top = true;
+
+        } else if (!ubottom->is_human() and utop->is_human()) {
+            // Conceal bot; do not conceal human
+            conceal_bottom = true;
+            conceal_top = false;
+
+        } else if (ubottom->is_human() and utop->is_human()) {
+            // Human vs human; conceal if not player's turn
+            conceal_bottom = e->get_player_turn() != pbottom->get_name();
+            conceal_top = e->get_player_turn() != ptop->get_name();
+
+        } else {
+            // Never conceal if both players are bots
+            conceal_bottom = false;
+            conceal_top = false;
+        }
+
+        print_player_down(win_player_bottom, pbottom, conceal_bottom, has_colour);
+        print_player_up(win_player_top, ptop, conceal_top, has_colour);
+
+        // Update dialog
+        update_dialog(win_dialog, e, ubottom, utop, go_bottom, go_top, has_colour);
+
+    } catch (CaravanException &e) {
+        err_msg = e.what();
+    }
+
+    // Update message
+
+    if(!err_msg.empty()) {
+        wmove(stdscr, 68, 0);
+        wprintw(stdscr, err_msg.c_str());
+        err_msg = "";
+        err_display = true;
+
+    } else
+        err_display = false;
+
+    // Refresh windows
+
+    wrefresh(stdscr);
+
+    wrefresh(win_cvn_a);
+    wrefresh(win_cvn_b);
+    wrefresh(win_cvn_c);
+    wrefresh(win_cvn_d);
+    wrefresh(win_cvn_e);
+    wrefresh(win_cvn_f);
+    wrefresh(win_player_bottom);
+    wrefresh(win_player_top);
+    wrefresh(win_dialog);
+
+    if(e->get_winner() != NO_PLAYER)
+        getch();
 }

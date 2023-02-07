@@ -61,6 +61,8 @@ public:
 
     PlayerCaravanNames get_player_caravan_names(PlayerName pname);
 
+    CaravanName winning_bid(CaravanName cvname1, CaravanName cvname2);
+
     PlayerName get_player_turn();
 
     Table *get_table();

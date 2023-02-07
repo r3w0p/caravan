@@ -59,12 +59,25 @@ Table *Engine::get_table() {
 }
 
 PlayerName Engine::get_winner() {
+    uint8_t won_pa;
+    uint8_t won_pb;
+    int8_t comp[3];
+
     if (closed)
         throw CaravanFatalException("The game has already closed.");
 
-    uint8_t won_pa = 0;
-    uint8_t won_pb = 0;
-    int8_t comp[3];
+    // The first player with an empty hand loses
+
+    if(get_player(PLAYER_BOTTOM)->get_size_hand() == 0)
+        return PLAYER_TOP;
+
+    if(get_player(PLAYER_TOP)->get_size_hand() == 0)
+        return PLAYER_BOTTOM;
+
+    // Check bid sizes
+
+    won_pa = 0;
+    won_pb = 0;
 
     comp[0] = compare_bids(CARAVAN_A, CARAVAN_D);
     comp[1] = compare_bids(CARAVAN_B, CARAVAN_E);
@@ -146,6 +159,17 @@ void Engine::play_option(GameOption* go) {
         p_turn = pa_ptr;
 }
 
+CaravanName Engine::winning_bid(CaravanName cvname1, CaravanName cvname2) {
+    int8_t bidcomp = compare_bids(cvname1, cvname2);
+
+    if(bidcomp < 0)
+        return cvname1;
+    else if(bidcomp > 0)
+        return cvname2;
+    else
+        return NO_CARAVAN;
+}
+
 /*
  * PROTECTED
  */
@@ -161,7 +185,7 @@ int8_t Engine::compare_bids(CaravanName cvname1, CaravanName cvname2) {
 
             if (bid_cn1 > bid_cn2)
                 return -1;  // CN1 sold; CN2 sold; CN1 highest bid
-            else if (bid_cn2 > bid_cn1)
+            else if (bid_cn1 < bid_cn2)
                 return 1;  // CN1 sold; CN2 sold; CN2 highest bid
             else
                 return 0;  // CN1 sold; CN2 sold; matching bids
@@ -171,6 +195,7 @@ int8_t Engine::compare_bids(CaravanName cvname1, CaravanName cvname2) {
 
     } else if (has_sold(cvname2))
         return 1;  // CN1 unsold; CN2 sold
+
     else
         return 0;  // CN1 unsold; CN2 unsold
 }

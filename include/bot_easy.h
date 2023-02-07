@@ -2,17 +2,17 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#ifndef CARAVAN_BOT_SIMPLE_H
-#define CARAVAN_BOT_SIMPLE_H
+#ifndef CARAVAN_BOT_EASY_H
+#define CARAVAN_BOT_EASY_H
 
 
 #include "user.h"
 
-class UserBotSimple : public UserBot {
+class UserBotEasy : public UserBot {
 public:
-    explicit UserBotSimple(PlayerName pn) : UserBot(pn) {};
+    explicit UserBotEasy(PlayerName pn) : UserBot(pn) {};
 
     GameOption generate_option(Engine *e) override;
 };
 
-#endif //CARAVAN_BOT_SIMPLE_H
+#endif //CARAVAN_BOT_EASY_H

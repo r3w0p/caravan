@@ -13,6 +13,7 @@
 const short PAIR_WHITE_BLACK = 1;
 const short PAIR_RED_BLACK = 2;
 const short PAIR_CYAN_BLACK = 3;
+const short PAIR_YELLOW_BLACK = 4;
 
 class View {
 public:

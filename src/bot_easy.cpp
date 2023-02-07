@@ -3,7 +3,7 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include <random>
-#include "bot_simple.h"
+#include "bot_easy.h"
 
 uint8_t random_uint8_t(uint8_t min, uint8_t max) {
     std::random_device rd;
@@ -24,7 +24,7 @@ uint8_t pos_card_numeral(Player *p) {
     return 0;
 }
 
-GameOption UserBotSimple::generate_option(Engine *e) {
+GameOption UserBotEasy::generate_option(Engine *e) {
     Player *p;
     uint8_t p_hand_size;
     Table *t;
@@ -54,6 +54,7 @@ GameOption UserBotSimple::generate_option(Engine *e) {
     pcns_opp = e->get_player_caravan_names(
             name == PLAYER_BOTTOM ? PLAYER_TOP : PLAYER_BOTTOM);
 
+    // Add numeral cards for start round
     if (p->get_moves_count() < MOVES_START_ROUND) {
         pos_hand = pos_card_numeral(p);
 
@@ -77,6 +78,7 @@ GameOption UserBotSimple::generate_option(Engine *e) {
                 "Bot cannot be in Start state after 3 moves.");
 
     } else {
+        // After start round
         t = e->get_table();
 
         for (uint8_t pos = 1; pos <= p_hand_size; ++pos) {
@@ -147,13 +149,17 @@ GameOption UserBotSimple::generate_option(Engine *e) {
                     }
                 }
 
-                slot_cvn = t->get_slot_at(pcns_opp[i_cvn_most_cards],
-                                          size_cvn);
+                // If there exists an opp caravan with at least 1 card on it
+                if(i_cvn_most_cards < PLAYER_CARAVANS_MAX) {
+                    slot_cvn = t->get_slot_at(
+                            pcns_opp[i_cvn_most_cards], size_cvn);
 
-                if (i_cvn_most_cards < PLAYER_CARAVANS_MAX and
-                    slot_cvn.i_faces < TRACK_FACE_MAX) {
-                    return {OPTION_PLAY, pos, pcns_opp[i_cvn_most_cards],
-                            n_cvn_most_cards};
+                    if (slot_cvn.i_faces < TRACK_FACE_MAX) {
+                        return {OPTION_PLAY,
+                                pos,
+                                pcns_opp[i_cvn_most_cards],
+                                n_cvn_most_cards};
+                    }
                 }
             }
         }
