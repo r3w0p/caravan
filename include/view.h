@@ -26,8 +26,10 @@ public:
 class ViewCLI : public View {
 protected:
     bool has_colour;
-    uint8_t r_max;
-    uint8_t c_max;
+    uint16_t y_max;
+    uint16_t x_max;
+    uint16_t y_offset;
+    uint16_t x_offset;
 
     WINDOW* win_cvn_a;
     WINDOW* win_cvn_b;

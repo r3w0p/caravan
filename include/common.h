@@ -30,8 +30,8 @@ const uint8_t HAND_SIZE_MAX_POST_START = 5;
 const uint8_t HAND_POS_MIN = 1;
 const uint8_t TABLE_CARAVANS_MAX = 6;
 const uint8_t PLAYER_CARAVANS_MAX = 3;
-const uint8_t VIEW_ROW_MIN = 68;
-const uint8_t VIEW_COL_MIN = 106;
+const uint8_t VIEW_Y_MIN = 68;
+const uint8_t VIEW_X_MIN = 106;
 
 const uint8_t VIEW_STDSCR_ROW_OPTION = 68;
 

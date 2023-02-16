@@ -7,7 +7,7 @@
 #include "controller.h"
 #include "bot_easy.h"
 
-int main(int argc, char ** argv) {
+int main(int argc, char **argv) {
     GameConfig gc;
     UserHuman *ua;
     UserBotEasy *ub;
@@ -31,7 +31,7 @@ int main(int argc, char ** argv) {
 
         c->run();
 
-    } catch (std::exception &e) {
+    } catch (CaravanFatalException &e) {
         std::cout << e.what() << std::endl;
     }
 

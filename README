@@ -3,7 +3,7 @@
 | (_| (_| | | | (_| |\ \/ / (_| | | | |
  \___\__,_|_|  \__,_| \__/ \__,_|_| |_|
 
-| v0.9 | GPL-3.0 | (c) 2022-2023 r3w0p |
+| v0.10.0 | GPL-3.0 | (c) 2022-2023 r3w0p |
 
 A CLI version of the Caravan card game from Fallout: New Vegas.
 
@@ -16,8 +16,8 @@ The game is played in the same way as the original card game, with only a few
 changes and restrictions, as follows.
 
 (1) The names of the caravans have been changed to six letters, from A to F,
-where caravan A, B, and C are for one player, and D, E, and F are for the other.
-Caravan A competes against D, B against E, and C against F.
+where caravans A, B, and C are for one player, and D, E, and F are for the
+other. Caravan A competes against D, B against E, and C against F.
 
 (2) Deck building has been simplified to create fairer games. A caravan deck
 comprises between 30 and 156 cards sampled randomly from between 1 and 3
@@ -38,7 +38,7 @@ CONTROLS
 Each card in your hand has a number to the left of it, which indicates the
 number you would enter if you wanted to PLAY or DISCARD it. Similarly, each
 numeral card in every caravan also has a number to the left of it, which is used
-to PLAY a face card onto it and also indicates its position in the card stack.
+to PLAY a face card onto it and indicates its position in the card stack.
 
 The game is played by entering commands that indicate whether you want to PLAY
 a card from your hand, DISCARD a card from your hand, CLEAR all cards from one
@@ -57,7 +57,7 @@ hand onto caravan B:
 
 To PLAY a face card, you must additionally specify the position of the numeral
 card in the caravan you are targeting. For example, to PLAY card 4 from your
-hand onto numeral at position 3 in caravan F:
+hand onto the numeral at position 3 in caravan F:
 
 [YOU] > P4F3
 
@@ -66,7 +66,7 @@ want to play. For example, to DISCARD card 3 from your hand:
 
 [YOU] > D3
 
-To CLEAR on of your caravans, type 'C', then the name of the caravan that you
+To CLEAR one of your caravans, type 'C', then the name of the caravan that you
 want to clear. For example, to CLEAR caravan A:
 
 [YOU] > CA

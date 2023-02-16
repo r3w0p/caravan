@@ -13,8 +13,8 @@ void Controller::run() {
     User *user_turn;
     PlayerCaravanNames cvns;
 
-    go_bottom = { NO_OPTION };
-    go_top = { NO_OPTION };
+    go_bottom = {NO_OPTION};
+    go_top = {NO_OPTION};
 
     do {
         user_turn = engine_ptr->get_player_turn() == user_a_ptr->get_name() ?
@@ -27,12 +27,12 @@ void Controller::run() {
 
         try {
             // Get user's next move
-            if(user_turn->get_name() == PLAYER_BOTTOM) {
+            if (user_turn->get_name() == PLAYER_BOTTOM) {
                 go_temp = go_bottom;
                 go_bottom = view_ptr->option(engine_ptr, user_turn);
 
                 // Immediately quit on exit request
-                if(go_bottom.type == OPTION_EXIT)
+                if (go_bottom.type == OPTION_EXIT)
                     return;
 
                 // Attempt to play user's desired move
@@ -43,7 +43,7 @@ void Controller::run() {
                 go_top = view_ptr->option(engine_ptr, user_turn);
 
                 // Immediately quit on exit request
-                if(go_top.type == OPTION_EXIT)
+                if (go_top.type == OPTION_EXIT)
                     return;
 
                 // Attempt to play user's desired move
@@ -53,7 +53,7 @@ void Controller::run() {
         } catch (CaravanException &e) {
             view_ptr->error_message(e.what());
 
-            if(user_turn->get_name() == PLAYER_BOTTOM)
+            if (user_turn->get_name() == PLAYER_BOTTOM)
                 go_bottom = go_temp;
             else
                 go_top = go_temp;

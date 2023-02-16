@@ -68,10 +68,10 @@ PlayerName Engine::get_winner() {
 
     // The first player with an empty hand loses
 
-    if(get_player(PLAYER_BOTTOM)->get_size_hand() == 0)
+    if (get_player(PLAYER_BOTTOM)->get_size_hand() == 0)
         return PLAYER_TOP;
 
-    if(get_player(PLAYER_TOP)->get_size_hand() == 0)
+    if (get_player(PLAYER_TOP)->get_size_hand() == 0)
         return PLAYER_BOTTOM;
 
     // Check bid sizes
@@ -114,7 +114,7 @@ bool Engine::is_closed() {
     return closed;
 }
 
-void Engine::play_option(GameOption* go) {
+void Engine::play_option(GameOption *go) {
     if (closed)
         throw CaravanFatalException(
                 "The game has already closed.");
@@ -162,9 +162,9 @@ void Engine::play_option(GameOption* go) {
 CaravanName Engine::winning_bid(CaravanName cvname1, CaravanName cvname2) {
     int8_t bidcomp = compare_bids(cvname1, cvname2);
 
-    if(bidcomp < 0)
+    if (bidcomp < 0)
         return cvname1;
-    else if(bidcomp > 0)
+    else if (bidcomp > 0)
         return cvname2;
     else
         return NO_CARAVAN;
@@ -205,7 +205,7 @@ bool Engine::has_sold(CaravanName cvname) {
     return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
-void Engine::option_clear(Player *pptr, GameOption* go) {
+void Engine::option_clear(Player *pptr, GameOption *go) {
     PlayerCaravanNames pcns = get_player_caravan_names(pptr->get_name());
 
     if (pcns[0] != go->caravan_name and
@@ -217,13 +217,13 @@ void Engine::option_clear(Player *pptr, GameOption* go) {
     table_ptr->clear_caravan(go->caravan_name);
 }
 
-void Engine::option_discard(Player *pptr, GameOption* go) {
+void Engine::option_discard(Player *pptr, GameOption *go) {
     Card c_hand;
     c_hand = pptr->discard_from_hand_at(go->pos_hand);
     go->card = c_hand;
 }
 
-void Engine::option_play(Player *pptr, GameOption* go) {
+void Engine::option_play(Player *pptr, GameOption *go) {
     Card c_hand = pptr->get_from_hand_at(go->pos_hand);
 
     bool in_start_stage = pptr->get_moves_count() < MOVES_START_ROUND;

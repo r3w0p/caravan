@@ -173,7 +173,7 @@ void Caravan::put_numeral_card(Card card) {
                 "The caravan is at its maximum numeral card capacity.");
 
     if (i_track > 0) {
-        if (card.rank == track[i_track-1].card.rank)
+        if (card.rank == track[i_track - 1].card.rank)
             throw CaravanGameException(
                     "A numeral card must not have same rank as "
                     "the most recent card in the caravan.");
@@ -181,7 +181,7 @@ void Caravan::put_numeral_card(Card card) {
         if (i_track > 1) {
             dir = get_direction();
             suit = get_suit();
-            ascends = card.rank > track[i_track-1].card.rank;
+            ascends = card.rank > track[i_track - 1].card.rank;
 
             not_same_suit = card.suit != suit;
             not_same_dir = (dir == ASCENDING and !ascends) or
@@ -194,7 +194,7 @@ void Caravan::put_numeral_card(Card card) {
         }
     }
 
-    track[i_track] = { card, {}, 0 };
+    track[i_track] = {card, {}, 0};
     i_track += 1;
 }
 
@@ -207,14 +207,15 @@ Card Caravan::put_face_card(Card card, uint8_t pos) {
     uint8_t i;
     Card c_on;
 
-    if(pos < TRACK_NUMERIC_MIN)
+    if (pos < TRACK_NUMERIC_MIN)
         throw CaravanGameException(
                 "A caravan position has not been entered.");
 
 
     if (pos > i_track)
         throw CaravanGameException(
-                "There is not a numeral card at caravan position " + std::to_string(pos) + ".");
+                "There is not a numeral card at caravan position " +
+                std::to_string(pos) + ".");
 
     if (!is_face_card(card))
         throw CaravanGameException(

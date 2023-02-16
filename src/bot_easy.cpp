@@ -150,7 +150,7 @@ GameOption UserBotEasy::generate_option(Engine *e) {
                 }
 
                 // If there exists an opp caravan with at least 1 card on it
-                if(i_cvn_most_cards < PLAYER_CARAVANS_MAX) {
+                if (i_cvn_most_cards < PLAYER_CARAVANS_MAX) {
                     slot_cvn = t->get_slot_at(
                             pcns_opp[i_cvn_most_cards], size_cvn);
 

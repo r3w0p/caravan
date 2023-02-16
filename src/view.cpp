@@ -5,10 +5,11 @@
 #include "view.h"
 #include <iostream>
 #include <sstream>
+#include <cmath>
 
 
 WINDOW *create_window(uint16_t h, uint16_t w, uint16_t y, uint16_t x) {
-    WINDOW * local_win;
+    WINDOW *local_win;
     local_win = newwin(h, w, y, x);
     return local_win;
 }
@@ -25,13 +26,8 @@ WINDOW *create_window_dialog(uint16_t y, uint16_t x) {
     return create_window(4, 24, y, x);
 }
 
-WINDOW *create_window_input(uint16_t y, uint16_t x) {
-    return create_window(1, 5, y, x);
-}
-
-
 char caravan_name_to_letter(CaravanName cn) {
-    switch(cn) {
+    switch (cn) {
         case CARAVAN_A:
             return 'A';
         case CARAVAN_B:
@@ -50,9 +46,9 @@ char caravan_name_to_letter(CaravanName cn) {
 }
 
 std::string player_name_to_str(PlayerName pn, bool ahuman, bool bhuman) {
-    if(pn == PLAYER_BOTTOM) {
-        if(ahuman) {
-            if(bhuman)
+    if (pn == PLAYER_BOTTOM) {
+        if (ahuman) {
+            if (bhuman)
                 // A is human; B is human
                 return "PL1";
             else
@@ -63,9 +59,9 @@ std::string player_name_to_str(PlayerName pn, bool ahuman, bool bhuman) {
             // A is not human
             return "BOT";
 
-    } else if(pn == PLAYER_TOP) {
-        if(bhuman) {
-            if(ahuman)
+    } else if (pn == PLAYER_TOP) {
+        if (bhuman) {
+            if (ahuman)
                 // B is human; A is human
                 return "PL2";
             else
@@ -164,7 +160,7 @@ void mv_print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s, bool colour) {
     short colour_pair;
     wchar_t wstr[2];
 
-    if(colour) {
+    if (colour) {
         switch (s) {
             case DIAMONDS:
             case HEARTS:
@@ -184,11 +180,11 @@ void mv_print_suit(WINDOW *win, uint16_t y, uint16_t x, Suit s, bool colour) {
     wstr[0] = suit_to_wchar_t(s);
     wstr[1] = L'\0';
 
-    if(mvwaddwstr(win, y, x, wstr) == ERR)
+    if (mvwaddwstr(win, y, x, wstr) == ERR)
         throw CaravanFatalException(
                 "Failed to print suit: mvwaddwstr error.");
 
-    if(colour)
+    if (colour)
         wattroff(win, COLOR_PAIR(colour_pair));
 }
 
@@ -196,7 +192,7 @@ void w_print_suit(WINDOW *win, Suit s, bool colour) {
     short colour_pair;
     wchar_t wstr[2];
 
-    if(colour) {
+    if (colour) {
         switch (s) {
             case DIAMONDS:
             case HEARTS:
@@ -216,31 +212,31 @@ void w_print_suit(WINDOW *win, Suit s, bool colour) {
     wstr[0] = suit_to_wchar_t(s);
     wstr[1] = L'\0';
 
-    if(waddwstr(win, wstr) == ERR)
+    if (waddwstr(win, wstr) == ERR)
         throw CaravanFatalException(
                 "Failed to print suit: mvwaddwstr error.");
 
-    if(colour)
+    if (colour)
         wattroff(win, COLOR_PAIR(colour_pair));
 }
 
 void print_card(WINDOW *win, uint16_t y, uint16_t x,
                 Card c, uint8_t num, bool up, bool conceal, bool colour) {
 
-    if(!up) {
-        if(num == 1)
+    if (!up) {
+        if (num == 1)
             mvwprintw(win, y, x, " ___ ");
         else
             mvwprintw(win, y, x, "|___|");
     } else
         mvwprintw(win, y, x, " ___ ");
 
-    mvwprintw(win, y+1, x, "|   |");
+    mvwprintw(win, y + 1, x, "|   |");
 
-    mvwprintw(win, y+2, x, "|");
+    mvwprintw(win, y + 2, x, "|");
 
-    if(!conceal) {
-        if(c.rank != JOKER) {
+    if (!conceal) {
+        if (c.rank != JOKER) {
             mvwprintw(win, y + 2, x + 1, rank_to_str(c.rank, true).c_str());
             mv_print_suit(win, y + 2, x + 3, c.suit, colour);
         } else
@@ -248,9 +244,9 @@ void print_card(WINDOW *win, uint16_t y, uint16_t x,
     } else
         mvwprintw(win, y + 2, x + 1, "###");
 
-    mvwprintw(win, y+2, x+4, "|");
+    mvwprintw(win, y + 2, x + 4, "|");
 
-    mvwprintw(win, y+3, x, "|___|");
+    mvwprintw(win, y + 3, x, "|___|");
 }
 
 void print_faces(WINDOW *win, uint16_t y, uint16_t x,
@@ -258,17 +254,17 @@ void print_faces(WINDOW *win, uint16_t y, uint16_t x,
     Card c;
     std::string r;
 
-    for(uint8_t i = 0; i < i_faces; i++) {
+    for (uint8_t i = 0; i < i_faces; i++) {
         c = f[i];
         r = c.rank == JOKER ? "J" : rank_to_str(c.rank, false);
 
-        mvwprintw(win, y, x+i, "_");
-        mvwprintw(win, y+1, x+i, r.c_str());
+        mvwprintw(win, y, x + i, "_");
+        mvwprintw(win, y + 1, x + i, r.c_str());
 
-        if(c.suit != NO_SUIT)
+        if (c.suit != NO_SUIT)
             mv_print_suit(win, y + 2, x + i, c.suit, colour);
         else
-            mvwprintw(win, y+2, x+i, "O");
+            mvwprintw(win, y + 2, x + i, "O");
     }
 }
 
@@ -283,17 +279,17 @@ void print_caravan_down(WINDOW *win, Table *t, CaravanName cn, bool colour) {
     Slot slot;
     uint8_t pos;
 
-    if(cvn_bid > 0)
+    if (cvn_bid > 0)
         mvwprintw(win, 1, 0, std::to_string(cvn_bid).c_str());
 
-    if(cvn_suit != NO_SUIT)
+    if (cvn_suit != NO_SUIT)
         mv_print_suit(win, 2, 0, cvn_suit, colour);
 
-    if(cvn_dir != ANY)
+    if (cvn_dir != ANY)
         mvwprintw(win, 3, 0, cvn_dir == ASCENDING ? "ASC" : "DES");
 
-    for(uint8_t i = 0; i < cvn_size; i++) {
-        pos = i+1;
+    for (uint8_t i = 0; i < cvn_size; i++) {
+        pos = i + 1;
         slot = t->get_slot_at(cn, pos);
         offset = amt * i;
 
@@ -314,17 +310,17 @@ void print_caravan_up(WINDOW *win, Table *t, CaravanName cn, bool colour) {
     Slot slot;
     uint8_t pos;
 
-    if(cvn_dir != ANY)
+    if (cvn_dir != ANY)
         mvwprintw(win, (amt * 9) + 1, 0, cvn_dir == ASCENDING ? "ASC" : "DES");
 
-    if(cvn_suit != NO_SUIT)
+    if (cvn_suit != NO_SUIT)
         mv_print_suit(win, (amt * 9) + 2, 0, cvn_suit, colour);
 
-    if(cvn_bid > 0)
+    if (cvn_bid > 0)
         mvwprintw(win, (amt * 9) + 3, 0, std::to_string(cvn_bid).c_str());
 
-    for(uint8_t i = 0; i < cvn_size; i++) {
-        pos = i+1;
+    for (uint8_t i = 0; i < cvn_size; i++) {
+        pos = i + 1;
         slot = t->get_slot_at(cn, pos);
         offset = amt * (10 - pos);
 
@@ -334,8 +330,8 @@ void print_caravan_up(WINDOW *win, Table *t, CaravanName cn, bool colour) {
     }
 }
 
-void print_option_msg(WINDOW *win, int y, int x, std::string pname,
-                      GameOption* go, bool conceal, bool colour) {
+void print_option_msg(WINDOW *win, int y, int x, const std::string &pname,
+                      GameOption *go, bool conceal, bool colour) {
     wmove(win, y, x);
     wclrtoeol(win);
 
@@ -345,29 +341,29 @@ void print_option_msg(WINDOW *win, int y, int x, std::string pname,
 
         wprintw(win, rank_to_str(go->card.rank, false).c_str());
 
-        if(go->card.suit != NO_SUIT)
+        if (go->card.suit != NO_SUIT)
             w_print_suit(win, go->card.suit, colour);
 
         wprintw(win, " ON ");
 
         waddch(win, caravan_name_to_letter(go->caravan_name));
-        if(go->pos_caravan > 0)
+        if (go->pos_caravan > 0)
             wprintw(win, card_num_to_str(go->pos_caravan, false).c_str());
 
-    } else if(go->type == OPTION_DISCARD) {
+    } else if (go->type == OPTION_DISCARD) {
         wprintw(win, pname.c_str());
         wprintw(win, ": DISCARD ");
-        if(conceal)
+        if (conceal)
             wprintw(win, "FROM HAND");
 
         else {
             wprintw(win, rank_to_str(go->card.rank, false).c_str());
 
-            if(go->card.suit != NO_SUIT)
+            if (go->card.suit != NO_SUIT)
                 w_print_suit(win, go->card.suit, colour);
         }
 
-    } else if(go->type == OPTION_CLEAR) {
+    } else if (go->type == OPTION_CLEAR) {
         wprintw(win, pname.c_str());
         wprintw(win, ": CLEAR ");
         waddch(win, caravan_name_to_letter(go->caravan_name));
@@ -376,7 +372,7 @@ void print_option_msg(WINDOW *win, int y, int x, std::string pname,
 
 void update_dialog(
         WINDOW *win, Engine *e, User *ua, User *ub,
-        GameOption* go_bottom, GameOption* go_top,
+        GameOption *go_bottom, GameOption *go_top,
         bool colour) {
 
     std::string pna = player_name_to_str(
@@ -386,12 +382,14 @@ void update_dialog(
     std::string pturn = e->get_player_turn() == ua->get_name() ? pna : pnb;
     std::string pwinner;
 
-    if(e->get_winner() == NO_PLAYER) {
-        if(e->get_player(PLAYER_BOTTOM)->get_moves_count() > 0)
-            print_option_msg(win, 0, 0, pna, go_bottom, !ua->is_human(), colour);
+    if (e->get_winner() == NO_PLAYER) {
+        if (e->get_player(PLAYER_BOTTOM)->get_moves_count() > 0)
+            print_option_msg(win, 0, 0, pna,
+                             go_bottom, !ua->is_human(), colour);
 
-        if(e->get_player(PLAYER_TOP)->get_moves_count() > 0)
-            print_option_msg(win, 1, 0, pnb, go_top, !ub->is_human(), colour);
+        if (e->get_player(PLAYER_TOP)->get_moves_count() > 0)
+            print_option_msg(win, 1, 0, pnb,
+                             go_top, !ub->is_human(), colour);
 
         mvwprintw(win, 3, 0, "[");
         mvwprintw(win, 3, 1, pturn.c_str());
@@ -420,12 +418,12 @@ void print_player_up(WINDOW *win, Player *p, bool conceal, bool colour) {
     uint8_t size_deck = p->get_size_deck();
     uint8_t size_hand = p->get_size_hand();
 
-    if(size_deck > 0) {
+    if (size_deck > 0) {
         yoff = amt * 7;
 
-        if(size_deck < 10)
+        if (size_deck < 10)
             xoff = 3;
-        else if(size_deck < 100)
+        else if (size_deck < 100)
             xoff = 2;
         else
             xoff = 1;
@@ -439,25 +437,27 @@ void print_player_up(WINDOW *win, Player *p, bool conceal, bool colour) {
 
         mvwprintw(win, yoff + 3, 0, "|___|");
 
-        if(size_deck > 1) {
-            mvwprintw(win, yoff-1, 0, " ___ ");
+        if (size_deck > 1) {
+            mvwprintw(win, yoff - 1, 0, " ___ ");
             mvwprintw(win, yoff, 0, "/");
             mvwprintw(win, yoff, 4, "/|");
-            mvwprintw(win, yoff+1, 5, "|");
-            mvwprintw(win, yoff+2, 5, "|");
-            mvwprintw(win, yoff+3, 5, "/");
+            mvwprintw(win, yoff + 1, 5, "|");
+            mvwprintw(win, yoff + 2, 5, "|");
+            mvwprintw(win, yoff + 3, 5, "/");
         }
     }
 
-    for(uint8_t i = 0; i < size_hand; i++) {
-        pos = i+1;
+    for (uint8_t i = 0; i < size_hand; i++) {
+        pos = i + 1;
         card = p->get_from_hand_at(pos);
         offset = amt * (8 - pos);
 
-        if(!conceal)
-            mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos, true).c_str());
+        if (!conceal)
+            mvwprintw(win, offset + 2, 5 + 6,
+                      card_num_to_str(pos, true).c_str());
 
-        print_card(win, offset, 8 + 6, card, pos, true, conceal, colour);
+        print_card(win, offset, 8 + 6, card, pos, true,
+                   conceal, colour);
     }
 }
 
@@ -471,10 +471,10 @@ void print_player_down(WINDOW *win, Player *p, bool conceal, bool colour) {
     uint8_t size_deck = p->get_size_deck();
     uint8_t size_hand = p->get_size_hand();
 
-    if(size_deck > 0) {
-        if(size_deck < 10)
+    if (size_deck > 0) {
+        if (size_deck < 10)
             xoff = 3;
-        else if(size_deck < 100)
+        else if (size_deck < 100)
             xoff = 2;
         else
             xoff = 1;
@@ -488,7 +488,7 @@ void print_player_down(WINDOW *win, Player *p, bool conceal, bool colour) {
 
         mvwprintw(win, 3, 0, "|___|");
 
-        if(size_deck > 1) {
+        if (size_deck > 1) {
             mvwprintw(win, 1, 5, "\\");
             mvwprintw(win, 2, 5, "|");
             mvwprintw(win, 3, 5, "|");
@@ -496,212 +496,215 @@ void print_player_down(WINDOW *win, Player *p, bool conceal, bool colour) {
         }
     }
 
-    for(uint8_t i = 0; i < size_hand; i++) {
-        pos = i+1;
+    for (uint8_t i = 0; i < size_hand; i++) {
+        pos = i + 1;
         card = p->get_from_hand_at(pos);
         offset = amt * i;
 
-        if(!conceal)
-            mvwprintw(win, offset + 2, 5 + 6, card_num_to_str(pos, true).c_str());
+        if (!conceal)
+            mvwprintw(win, offset + 2, 5 + 6,
+                      card_num_to_str(pos, true).c_str());
 
-        print_card(win, offset, 8 + 6, card, pos, false, conceal, colour);
+        print_card(win, offset, 8 + 6, card, pos, false,
+                   conceal, colour);
     }
 }
 
 void update_table(WINDOW *win,
+                  uint16_t y_offset, uint16_t x_offset,
                   CaravanName cvnad, CaravanName cvnbe, CaravanName cvncf,
                   PlayerName pnwin,
                   bool colour) {
     // CORNERS
-    mvwprintw(win, 0, 0, "+--");
-    mvwprintw(win, 1, 0, "|");
-    mvwprintw(win, 2, 0, "|");
+    mvwprintw(win, y_offset + 0, x_offset + 0, "+--");
+    mvwprintw(win, y_offset + 1, x_offset + 0, "|");
+    mvwprintw(win, y_offset + 2, x_offset + 0, "|");
 
-    mvwprintw(win, 0, 103, "--+");
-    mvwprintw(win, 1, 105, "|");
-    mvwprintw(win, 2, 105, "|");
+    mvwprintw(win, y_offset + 0, x_offset + 103, "--+");
+    mvwprintw(win, y_offset + 1, x_offset + 105, "|");
+    mvwprintw(win, y_offset + 2, x_offset + 105, "|");
 
-    mvwprintw(win, 64, 0, "|");
-    mvwprintw(win, 65, 0, "|");
-    mvwprintw(win, 66, 0, "+--");
+    mvwprintw(win, y_offset + 64, x_offset + 0, "|");
+    mvwprintw(win, y_offset + 65, x_offset + 0, "|");
+    mvwprintw(win, y_offset + 66, x_offset + 0, "+--");
 
-    mvwprintw(win, 64, 105, "|");
-    mvwprintw(win, 65, 105, "|");
-    mvwprintw(win, 66, 103, "--+");
+    mvwprintw(win, y_offset + 64, x_offset + 105, "|");
+    mvwprintw(win, y_offset + 65, x_offset + 105, "|");
+    mvwprintw(win, y_offset + 66, x_offset + 103, "--+");
 
     // TOP
-    mvwprintw(win, 32, 0, "|");
-    mvwprintw(win, 31, 0, "|");
+    mvwprintw(win, y_offset + 32, x_offset + 0, "|");
+    mvwprintw(win, y_offset + 31, x_offset + 0, "|");
 
-    mvwprintw(win, 32, 12, "[D]");
+    mvwprintw(win, y_offset + 32, x_offset + 12, "[D]");
 
-    if(cvnad == CARAVAN_D) {
-        if(colour)
+    if (cvnad == CARAVAN_D) {
+        if (colour)
             wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-        mvwprintw(win, 32, 1, "===========");
-        mvwprintw(win, 32, 15, "===========");
+        mvwprintw(win, y_offset + 32, x_offset + 1, "===========");
+        mvwprintw(win, y_offset + 32, x_offset + 15, "===========");
 
-        if(colour)
+        if (colour)
             wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
     } else {
-        mvwprintw(win, 32, 1, "-----------");
-        mvwprintw(win, 32, 15, "-----------");
+        mvwprintw(win, y_offset + 32, x_offset + 1, "-----------");
+        mvwprintw(win, y_offset + 32, x_offset + 15, "-----------");
     }
 
-    mvwprintw(win, 32, 26, "|");
-    mvwprintw(win, 31, 26, "|");
+    mvwprintw(win, y_offset + 32, x_offset + 26, "|");
+    mvwprintw(win, y_offset + 31, x_offset + 26, "|");
 
-    mvwprintw(win, 32, 38, "[E]");
+    mvwprintw(win, y_offset + 32, x_offset + 38, "[E]");
 
-    if(cvnbe == CARAVAN_E) {
-        if(colour)
+    if (cvnbe == CARAVAN_E) {
+        if (colour)
             wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-        mvwprintw(win, 32, 27, "===========");
-        mvwprintw(win, 32, 41, "===========");
+        mvwprintw(win, y_offset + 32, x_offset + 27, "===========");
+        mvwprintw(win, y_offset + 32, x_offset + 41, "===========");
 
-        if(colour)
+        if (colour)
             wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
     } else {
-        mvwprintw(win, 32, 27, "-----------");
-        mvwprintw(win, 32, 41, "-----------");
+        mvwprintw(win, y_offset + 32, x_offset + 27, "-----------");
+        mvwprintw(win, y_offset + 32, x_offset + 41, "-----------");
     }
 
-    mvwprintw(win, 32, 52, "|");
-    mvwprintw(win, 31, 52, "|");
+    mvwprintw(win, y_offset + 32, x_offset + 52, "|");
+    mvwprintw(win, y_offset + 31, x_offset + 52, "|");
 
-    mvwprintw(win, 32, 64, "[F]");
+    mvwprintw(win, y_offset + 32, x_offset + 64, "[F]");
 
-    if(cvncf == CARAVAN_F) {
-        if(colour)
+    if (cvncf == CARAVAN_F) {
+        if (colour)
             wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-        mvwprintw(win, 32, 53, "===========");
-        mvwprintw(win, 32, 67, "===========");
+        mvwprintw(win, y_offset + 32, x_offset + 53, "===========");
+        mvwprintw(win, y_offset + 32, x_offset + 67, "===========");
 
-        if(colour)
+        if (colour)
             wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
     } else {
-        mvwprintw(win, 32, 53, "-----------");
-        mvwprintw(win, 32, 67, "-----------");
+        mvwprintw(win, y_offset + 32, x_offset + 53, "-----------");
+        mvwprintw(win, y_offset + 32, x_offset + 67, "-----------");
     }
 
-    mvwprintw(win, 32, 78, "|");
-    mvwprintw(win, 31, 78, "|");
+    mvwprintw(win, y_offset + 32, x_offset + 78, "|");
+    mvwprintw(win, y_offset + 31, x_offset + 78, "|");
 
-    mvwprintw(win, 32, 81, "|");
-    mvwprintw(win, 31, 81, "|");
+    mvwprintw(win, y_offset + 32, x_offset + 81, "|");
+    mvwprintw(win, y_offset + 31, x_offset + 81, "|");
 
-    mvwprintw(win, 32, 91, "[BOT]");
+    mvwprintw(win, y_offset + 32, x_offset + 91, "[BOT]");
 
-    if(pnwin == PLAYER_TOP) {
-        if(colour)
+    if (pnwin == PLAYER_TOP) {
+        if (colour)
             wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-        mvwprintw(win, 32, 82, "=========");
-        mvwprintw(win, 32, 96, "=========");
+        mvwprintw(win, y_offset + 32, x_offset + 82, "=========");
+        mvwprintw(win, y_offset + 32, x_offset + 96, "=========");
 
-        if(colour)
+        if (colour)
             wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
     } else {
-        mvwprintw(win, 32, 82, "---------");
-        mvwprintw(win, 32, 96, "---------");
+        mvwprintw(win, y_offset + 32, x_offset + 82, "---------");
+        mvwprintw(win, y_offset + 32, x_offset + 96, "---------");
     }
 
-    mvwprintw(win, 32, 105, "|");
-    mvwprintw(win, 31, 105, "|");
+    mvwprintw(win, y_offset + 32, x_offset + 105, "|");
+    mvwprintw(win, y_offset + 31, x_offset + 105, "|");
 
     // BOTTOM
-    mvwprintw(win, 34, 0, "|");
-    mvwprintw(win, 35, 0, "|");
+    mvwprintw(win, y_offset + 34, x_offset + 0, "|");
+    mvwprintw(win, y_offset + 35, x_offset + 0, "|");
 
-    mvwprintw(win, 34, 12, "[A]");
+    mvwprintw(win, y_offset + 34, x_offset + 12, "[A]");
 
-    if(cvnad == CARAVAN_A) {
-        if(colour)
+    if (cvnad == CARAVAN_A) {
+        if (colour)
             wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-        mvwprintw(win, 34, 1, "===========");
-        mvwprintw(win, 34, 15, "===========");
+        mvwprintw(win, y_offset + 34, x_offset + 1, "===========");
+        mvwprintw(win, y_offset + 34, x_offset + 15, "===========");
 
-        if(colour)
+        if (colour)
             wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
     } else {
-        mvwprintw(win, 34, 1, "-----------");
-        mvwprintw(win, 34, 15, "-----------");
+        mvwprintw(win, y_offset + 34, x_offset + 1, "-----------");
+        mvwprintw(win, y_offset + 34, x_offset + 15, "-----------");
     }
 
-    mvwprintw(win, 34, 26, "|");
-    mvwprintw(win, 35, 26, "|");
+    mvwprintw(win, y_offset + 34, x_offset + 26, "|");
+    mvwprintw(win, y_offset + 35, x_offset + 26, "|");
 
-    mvwprintw(win, 34, 38, "[B]");
+    mvwprintw(win, y_offset + 34, x_offset + 38, "[B]");
 
-    if(cvnbe == CARAVAN_B) {
-        if(colour)
+    if (cvnbe == CARAVAN_B) {
+        if (colour)
             wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-        mvwprintw(win, 34, 27, "===========");
-        mvwprintw(win, 34, 41, "===========");
+        mvwprintw(win, y_offset + 34, x_offset + 27, "===========");
+        mvwprintw(win, y_offset + 34, x_offset + 41, "===========");
 
-        if(colour)
+        if (colour)
             wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
     } else {
-        mvwprintw(win, 34, 27, "-----------");
-        mvwprintw(win, 34, 41, "-----------");
+        mvwprintw(win, y_offset + 34, x_offset + 27, "-----------");
+        mvwprintw(win, y_offset + 34, x_offset + 41, "-----------");
     }
 
-    mvwprintw(win, 34, 52, "|");
-    mvwprintw(win, 35, 52, "|");
+    mvwprintw(win, y_offset + 34, x_offset + 52, "|");
+    mvwprintw(win, y_offset + 35, x_offset + 52, "|");
 
-    mvwprintw(win, 34, 64, "[C]");
+    mvwprintw(win, y_offset + 34, x_offset + 64, "[C]");
 
-    if(cvncf == CARAVAN_C) {
-        if(colour)
+    if (cvncf == CARAVAN_C) {
+        if (colour)
             wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-        mvwprintw(win, 34, 53, "===========");
-        mvwprintw(win, 34, 67, "===========");
+        mvwprintw(win, y_offset + 34, x_offset + 53, "===========");
+        mvwprintw(win, y_offset + 34, x_offset + 67, "===========");
 
-        if(colour)
+        if (colour)
             wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
     } else {
-        mvwprintw(win, 34, 53, "-----------");
-        mvwprintw(win, 34, 67, "-----------");
+        mvwprintw(win, y_offset + 34, x_offset + 53, "-----------");
+        mvwprintw(win, y_offset + 34, x_offset + 67, "-----------");
     }
 
-    mvwprintw(win, 34, 78, "|");
-    mvwprintw(win, 35, 78, "|");
+    mvwprintw(win, y_offset + 34, x_offset + 78, "|");
+    mvwprintw(win, y_offset + 35, x_offset + 78, "|");
 
-    mvwprintw(win, 34, 81, "|");
-    mvwprintw(win, 35, 81, "|");
+    mvwprintw(win, y_offset + 34, x_offset + 81, "|");
+    mvwprintw(win, y_offset + 35, x_offset + 81, "|");
 
-    mvwprintw(win, 34, 91, "[YOU]");
+    mvwprintw(win, y_offset + 34, x_offset + 91, "[YOU]");
 
-    if(pnwin == PLAYER_BOTTOM) {
-        if(colour)
+    if (pnwin == PLAYER_BOTTOM) {
+        if (colour)
             wattron(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
-        mvwprintw(win, 34, 82, "=========");
-        mvwprintw(win, 34, 96, "=========");
+        mvwprintw(win, y_offset + 34, x_offset + 82, "=========");
+        mvwprintw(win, y_offset + 34, x_offset + 96, "=========");
 
-        if(colour)
+        if (colour)
             wattroff(win, COLOR_PAIR(PAIR_YELLOW_BLACK));
 
     } else {
-        mvwprintw(win, 34, 82, "---------");
-        mvwprintw(win, 34, 96, "---------");
+        mvwprintw(win, y_offset + 34, x_offset + 82, "---------");
+        mvwprintw(win, y_offset + 34, x_offset + 96, "---------");
     }
 
-    mvwprintw(win, 34, 105, "|");
-    mvwprintw(win, 35, 105, "|");
+    mvwprintw(win, y_offset + 34, x_offset + 105, "|");
+    mvwprintw(win, y_offset + 35, x_offset + 105, "|");
 }
 
 /**
@@ -721,13 +724,14 @@ void ViewCLI::error_message(std::string msg) {
  * @param max The maximum length of the input (+1 for null-termination).
  * @param start The starting string to populate the input space.
  */
-void wget_input_alphanum(WINDOW * win, int y, int x, int* input, int max, std::string start) {
+void wget_input_alphanum(WINDOW *win, int y, int x, int *input,
+                         int max, std::string start) {
     int i_input;
     int c_input;
 
     wmove(win, y, x);
 
-    for(i_input = 0; start[i_input] != '\0'; i_input++) {
+    for (i_input = 0; start[i_input] != '\0'; i_input++) {
         waddch(win, start[i_input]);
         input[i_input] = (unsigned char) start[i_input];
     }
@@ -736,12 +740,12 @@ void wget_input_alphanum(WINDOW * win, int y, int x, int* input, int max, std::s
     wclrtoeol(win);
     wrefresh(win);
 
-    while(true) {
+    while (true) {
         c_input = wgetch(win);
 
-        if(c_input == x) {
+        if (c_input == x) {
             // ASCII 8 == BACKSPACE
-            if(i_input == 0)
+            if (i_input == 0)
                 // Pressing backspace when no characters, reset cursor
                 wmove(win, y, x);
             else {
@@ -751,18 +755,18 @@ void wget_input_alphanum(WINDOW * win, int y, int x, int* input, int max, std::s
                 wclrtoeol(win);
             }
 
-        } else if(c_input == 13) {
+        } else if (c_input == 13) {
             // ASCII 13 == ENTER
             // Write null to end of string and exit
             input[i_input] = '\0';
             break;
 
-        } else if(
+        } else if (
                 (c_input >= 48 and c_input <= 57) or
                 (c_input >= 65 and c_input <= 90) or
                 (c_input >= 97 and c_input <= 122)) {
             // ALPHANUMERIC
-            if(i_input == max-1) {
+            if (i_input == max - 1) {
                 // Remove character if overrun
                 wmove(win, y, x + i_input);
                 waddch(win, ' ');
@@ -798,10 +802,11 @@ GameOption ViewCLI::option(Engine *e, User *u) {
     if (e->is_closed())
         throw CaravanFatalException("The game has already closed.");
 
-    if(!u->is_human())
-        return ((UserBot*) u)->generate_option(e);
+    if (!u->is_human())
+        return ((UserBot *) u)->generate_option(e);
 
-    wget_input_alphanum(win_dialog, 3, 8, input, 6, err_display ? uinput : "");
+    wget_input_alphanum(win_dialog, 3, 8, input, 6,
+                        err_display ? uinput : "");
 
     for (int i: input) {
         instream << (char) i;
@@ -812,17 +817,17 @@ GameOption ViewCLI::option(Engine *e, User *u) {
 
     uinput = instream.str();
 
-    if(input[0] == '\0')
+    if (input[0] == '\0')
         throw CaravanFatalException("A command has not been entered.");
 
     // EXIT
 
-    if((input[0] == 'E' or input[0] == 'e') and
-       (input[1] == 'X' or input[1] == 'x') and
-       (input[2] == 'I' or input[2] == 'i') and
-       (input[3] == 'T' or input[3] == 't'))
+    if ((input[0] == 'E' or input[0] == 'e') and
+        (input[1] == 'X' or input[1] == 'x') and
+        (input[2] == 'I' or input[2] == 'i') and
+        (input[3] == 'T' or input[3] == 't'))
 
-        return { OPTION_EXIT };
+        return {OPTION_EXIT};
 
     /*
      * FIRST
@@ -858,7 +863,10 @@ GameOption ViewCLI::option(Engine *e, User *u) {
             go.type = OPTION_CLEAR;
             break;
         default:
-            throw CaravanGameException("Invalid option '" + uinput.substr(0, 1) + "', must be one of: (P)lay, (D)iscard, (C)lear.");
+            throw CaravanGameException(
+                    "Invalid option '" +
+                    uinput.substr(0, 1) +
+                    "', must be one of: (P)lay, (D)iscard, (C)lear.");
     }
 
     /*
@@ -869,8 +877,9 @@ GameOption ViewCLI::option(Engine *e, User *u) {
 
     if (go.type == OPTION_PLAY or go.type == OPTION_DISCARD) {
 
-        if(input[1] == '\0')
-            throw CaravanFatalException("A hand position has not been entered.");
+        if (input[1] == '\0')
+            throw CaravanFatalException(
+                    "A hand position has not been entered.");
 
         switch (input[1]) {
             case '1':
@@ -898,13 +907,16 @@ GameOption ViewCLI::option(Engine *e, User *u) {
                 go.pos_hand = 8;
                 break;
             default:
-                throw CaravanGameException("Invalid hand position '" + uinput.substr(1, 1) + "'.");
+                throw CaravanGameException(
+                        "Invalid hand position '" +
+                        uinput.substr(1, 1) + "'.");
         }
 
     } else if (go.type == OPTION_CLEAR) {
 
-        if(input[1] == '\0')
-            throw CaravanFatalException("A caravan name has not been entered.");
+        if (input[1] == '\0')
+            throw CaravanFatalException(
+                    "A caravan name has not been entered.");
 
         switch (input[1]) {
             case 'A':
@@ -932,7 +944,10 @@ GameOption ViewCLI::option(Engine *e, User *u) {
                 go.caravan_name = CARAVAN_F;
                 break;
             default:
-                throw CaravanGameException("Invalid caravan name '" + uinput.substr(1, 1) + "', must be between: A-F.");
+                throw CaravanGameException(
+                        "Invalid caravan name '" +
+                        uinput.substr(1, 1) +
+                        "', must be between: A-F.");
         }
     }
 
@@ -945,8 +960,9 @@ GameOption ViewCLI::option(Engine *e, User *u) {
      * - CARAVAN NAME
      */
 
-    if(input[2] == '\0')
-        throw CaravanFatalException("A caravan name has not been entered.");
+    if (input[2] == '\0')
+        throw CaravanFatalException(
+                "A caravan name has not been entered.");
 
     switch (input[2]) {
         case 'A':
@@ -974,7 +990,10 @@ GameOption ViewCLI::option(Engine *e, User *u) {
             go.caravan_name = CARAVAN_F;
             break;
         default:
-            throw CaravanGameException("Invalid caravan name '" + uinput.substr(2, 1) + "', must be between: A-F.");
+            throw CaravanGameException(
+                    "Invalid caravan name '" +
+                    uinput.substr(2, 1) +
+                    "', must be between: A-F.");
     }
 
     /*
@@ -983,7 +1002,7 @@ GameOption ViewCLI::option(Engine *e, User *u) {
      */
 
     // Caravan position only specified here when playing a face card
-    if((char) input[3] == '\0') {
+    if ((char) input[3] == '\0') {
         go.pos_caravan = 0;
         return go;
     }
@@ -1020,7 +1039,9 @@ GameOption ViewCLI::option(Engine *e, User *u) {
             go.pos_caravan = 9;
             break;
         default:
-            throw CaravanGameException("Invalid caravan position '" + uinput.substr(3, ((char) input[4] == '\0') ? 1 : 2) + "'.");
+            throw CaravanGameException(
+                    "Invalid caravan position '" + uinput.substr(
+                            3, ((char) input[4] == '\0') ? 1 : 2) + "'.");
     }
 
     return go;
@@ -1036,14 +1057,18 @@ void ViewCLI::close() {
 ViewCLI::ViewCLI() {
     initscr();
     raw();
-    getmaxyx(stdscr, r_max, c_max);
+    getmaxyx(stdscr, y_max, x_max);
 
-    if(r_max < VIEW_ROW_MIN or c_max < VIEW_COL_MIN)
-        throw CaravanFatalException("Terminal is too small.");
+    if (y_max < VIEW_Y_MIN or x_max < VIEW_X_MIN)
+        throw CaravanFatalException(
+                "The terminal is too small to display the game.");
+
+    y_offset = static_cast <uint16_t> (std::floor((y_max - VIEW_Y_MIN) / 2));
+    x_offset = static_cast <uint16_t> (std::floor((x_max - VIEW_X_MIN) / 2));
 
     has_colour = has_colors();
 
-    if(has_colour) {
+    if (has_colour) {
         start_color();
         init_pair(PAIR_WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);
         init_pair(PAIR_RED_BLACK, COLOR_RED, COLOR_BLACK);
@@ -1055,24 +1080,24 @@ ViewCLI::ViewCLI() {
     err_msg = "";
     err_display = false;
 
-    win_cvn_a = create_window_caravan(35, 3);
-    win_cvn_b = create_window_caravan(35, 29);
-    win_cvn_c = create_window_caravan(35, 55);
+    win_cvn_a = create_window_caravan(y_offset + 35, x_offset + 3);
+    win_cvn_b = create_window_caravan(y_offset + 35, x_offset + 29);
+    win_cvn_c = create_window_caravan(y_offset + 35, x_offset + 55);
 
-    win_cvn_d = create_window_caravan(0, 3);
-    win_cvn_e = create_window_caravan(0, 29);
-    win_cvn_f = create_window_caravan(0, 55);
+    win_cvn_d = create_window_caravan(y_offset + 0, x_offset + 3);
+    win_cvn_e = create_window_caravan(y_offset + 0, x_offset + 29);
+    win_cvn_f = create_window_caravan(y_offset + 0, x_offset + 55);
 
-    win_player_top = create_window_player(6, 84);
-    win_player_bottom = create_window_player(35, 84);
+    win_player_top = create_window_player(y_offset + 6, x_offset + 84);
+    win_player_bottom = create_window_player(y_offset + 35, x_offset + 84);
 
-    win_dialog = create_window_dialog(62, 81);
+    win_dialog = create_window_dialog(y_offset + 62, x_offset + 81);
 
     refresh();
 }
 
 void ViewCLI::update(Engine *e, User *ubottom, User *utop,
-                     GameOption* go_bottom, GameOption* go_top) {
+                     GameOption *go_bottom, GameOption *go_top) {
     bool conceal_bottom;
     bool conceal_top;
     Player *pbottom;
@@ -1093,6 +1118,8 @@ void ViewCLI::update(Engine *e, User *ubottom, User *utop,
         // Print table
         update_table(
                 stdscr,
+                y_offset,
+                x_offset,
                 e->winning_bid(CARAVAN_A, CARAVAN_D),
                 e->winning_bid(CARAVAN_B, CARAVAN_E),
                 e->winning_bid(CARAVAN_C, CARAVAN_F),
@@ -1100,13 +1127,19 @@ void ViewCLI::update(Engine *e, User *ubottom, User *utop,
                 has_colour);
 
         // Print caravans
-        print_caravan_down(win_cvn_a, e->get_table(), CARAVAN_A, has_colour);
-        print_caravan_down(win_cvn_b, e->get_table(), CARAVAN_B, has_colour);
-        print_caravan_down(win_cvn_c, e->get_table(), CARAVAN_C, has_colour);
+        print_caravan_down(win_cvn_a, e->get_table(),
+                           CARAVAN_A, has_colour);
+        print_caravan_down(win_cvn_b, e->get_table(),
+                           CARAVAN_B, has_colour);
+        print_caravan_down(win_cvn_c, e->get_table(),
+                           CARAVAN_C, has_colour);
 
-        print_caravan_up(win_cvn_d, e->get_table(), CARAVAN_D, has_colour);
-        print_caravan_up(win_cvn_e, e->get_table(), CARAVAN_E, has_colour);
-        print_caravan_up(win_cvn_f, e->get_table(), CARAVAN_F, has_colour);
+        print_caravan_up(win_cvn_d, e->get_table(),
+                         CARAVAN_D, has_colour);
+        print_caravan_up(win_cvn_e, e->get_table(),
+                         CARAVAN_E, has_colour);
+        print_caravan_up(win_cvn_f, e->get_table(),
+                         CARAVAN_F, has_colour);
 
         // Print hands
         pbottom = e->get_player(ubottom->get_name());
@@ -1133,11 +1166,14 @@ void ViewCLI::update(Engine *e, User *ubottom, User *utop,
             conceal_top = false;
         }
 
-        print_player_down(win_player_bottom, pbottom, conceal_bottom, has_colour);
-        print_player_up(win_player_top, ptop, conceal_top, has_colour);
+        print_player_down(win_player_bottom, pbottom,
+                          conceal_bottom, has_colour);
+        print_player_up(win_player_top, ptop,
+                        conceal_top, has_colour);
 
         // Update dialog
-        update_dialog(win_dialog, e, ubottom, utop, go_bottom, go_top, has_colour);
+        update_dialog(win_dialog, e, ubottom, utop,
+                      go_bottom, go_top, has_colour);
 
     } catch (CaravanException &e) {
         err_msg = e.what();
@@ -1145,9 +1181,8 @@ void ViewCLI::update(Engine *e, User *ubottom, User *utop,
 
     // Update message
 
-    if(!err_msg.empty()) {
-        wmove(stdscr, 68, 0);
-        wprintw(stdscr, err_msg.c_str());
+    if (!err_msg.empty()) {
+        mvwprintw(stdscr, y_offset + 68, x_offset, err_msg.c_str());
         err_msg = "";
         err_display = true;
 
@@ -1168,6 +1203,6 @@ void ViewCLI::update(Engine *e, User *ubottom, User *utop,
     wrefresh(win_player_top);
     wrefresh(win_dialog);
 
-    if(e->get_winner() != NO_PLAYER)
+    if (e->get_winner() != NO_PLAYER)
         getch();
 }
