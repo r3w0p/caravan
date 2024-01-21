@@ -2,6 +2,10 @@
 !.gitignore
 !LICENSE
 !README.md
+!Cargo.toml
 
 !.github/
 !.github/**
+
+!src/
+!src/**
