@@ -1,22 +1,26 @@
-enable_testing()
+cmake_minimum_required(VERSION 3.27)
 
-cmake_minimum_required(VERSION 3.23)
+project(caravan VERSION 1.0.0)
 
-set(CMAKE_CXX_STANDARD 20)
-add_definitions(-DPDC_WIDE)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-project(caravan VERSION 0.9)
-
-set(PROJECT_COPYRIGHT "Copyright (c) 2022-2023 r3w0p")
-set(PROJECT_DESCRIPTION "A CLI version of the Caravan card game from Fallout: New Vegas.")
+set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
+set(PROJECT_DESCRIPTION "A TUI version of the Caravan card game from Fallout: New Vegas.")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
-add_subdirectory(src)
-add_subdirectory(include)
-add_subdirectory(lib)
-add_subdirectory(test)
-
-set_target_properties(caravan PROPERTIES LINK_SEARCH_START_STATIC ON)
-set_target_properties(caravan PROPERTIES LINK_SEARCH_END_STATIC ON)
-
-target_link_options(caravan PRIVATE -static-libgcc -static-libstdc++ -static)
+include(FetchContent)
+set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
+FetchContent_Declare(ftxui
+  GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
+  GIT_TAG v5.0.0
+)
+FetchContent_MakeAvailable(ftxui)
+ 
+add_executable(caravan src/main.cpp)
+target_link_libraries(caravan
+  PRIVATE ftxui::screen
+  PRIVATE ftxui::dom
+  PRIVATE ftxui::component # Not needed for this example.
+)
