@@ -158,8 +158,24 @@ int main() {
             }) | size(HEIGHT, EQUAL, 35),
         
         }) | size(HEIGHT, EQUAL, 67),
+
+        separatorEmpty(),
+        separatorEmpty(),
+        separatorEmpty(),
+
+        window(  // input area
+            text(" INPUT ") | hcenter | bold,
+            vbox({
+                text("YOU played QC on F7, changing F's direction"),
+                text("OPP played JS on A5, removing 3D"),
+
+                separatorEmpty(),
+
+                text("YOU > "),
+            }) | borderEmpty
+        ) | size(WIDTH, EQUAL, 60) | vcenter,  // add height
     
-    }) | hcenter | size(WIDTH, EQUAL, 76) | size(HEIGHT, EQUAL, 70);
+    }) | hcenter | size(HEIGHT, EQUAL, 70);  // size(WIDTH, EQUAL, 76)
 
     auto terminal_size = Terminal::Size();
     auto document_width = 76;

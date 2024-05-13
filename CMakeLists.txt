@@ -12,15 +12,43 @@ set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
+
+# FTXUI
 FetchContent_Declare(ftxui
-  GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
-  GIT_TAG v5.0.0
+    GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
+    GIT_TAG v5.0.0
 )
 FetchContent_MakeAvailable(ftxui)
- 
+
+# GoogleTest
+include(FetchContent)
+FetchContent_Declare(googletest
+    GIT_REPOSITORY https://github.com/google/googletest
+    GIT_TAG v1.14.0
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+# Tests setup
+enable_testing()
+
+add_executable(tests
+    test/model/test_deck.cpp
+)
+
+target_link_libraries(tests
+    GTest::gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(tests)
+
+# Caravan setup
 add_executable(caravan src/main.cpp)
+
 target_link_libraries(caravan
-  PRIVATE ftxui::screen
-  PRIVATE ftxui::dom
-  PRIVATE ftxui::component # Not needed for this example.
+    PRIVATE ftxui::screen
+    PRIVATE ftxui::dom
+    PRIVATE ftxui::component # Not needed for this example.
 )
