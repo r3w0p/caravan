@@ -6,6 +6,10 @@
 #include "ftxui/dom/node.hpp"      // for Render
 #include "ftxui/screen/color.hpp"  // for ftxui
 
+#include <chrono>
+#include <thread>
+
+
 int main() {
     using namespace ftxui;
     
@@ -158,7 +162,7 @@ int main() {
             }) | size(HEIGHT, EQUAL, 35),
         
         }) | size(HEIGHT, EQUAL, 67),
-
+        /*
         separatorEmpty(),
         separatorEmpty(),
         separatorEmpty(),
@@ -174,8 +178,9 @@ int main() {
                 text("YOU > "),
             }) | borderEmpty
         ) | size(WIDTH, EQUAL, 60) | vcenter,  // add height
+        */
     
-    }) | hcenter | size(HEIGHT, EQUAL, 70);  // size(WIDTH, EQUAL, 76)
+    }) | border | hcenter | size(HEIGHT, EQUAL, 70);
 
     auto terminal_size = Terminal::Size();
     auto document_width = 76;
@@ -188,11 +193,19 @@ int main() {
         exit(1);
     }
 
-    auto screen = Screen::Create(Dimension::Full(), Dimension::Fixed(70));
-    //auto screen = ScreenInteractive::FixedSize(terminal_size.dimx, 70);
+    auto screen = Screen::Create(Dimension::Fixed(document_width), Dimension::Fixed(document_height));
+    screen.Clear();
+
     Render(screen, document);
     screen.Print();
     
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000 * 3));
+
+    screen.Clear();
+
+    printf("Terminal: x=%d y=%d\n", terminal_size.dimx, terminal_size.dimy);
+    printf("Document: x=%d y=%d\n", document_width, document_height);
+
     return 0;
 }
 

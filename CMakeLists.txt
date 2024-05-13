@@ -21,7 +21,6 @@ FetchContent_Declare(ftxui
 FetchContent_MakeAvailable(ftxui)
 
 # GoogleTest
-include(FetchContent)
 FetchContent_Declare(googletest
     GIT_REPOSITORY https://github.com/google/googletest
     GIT_TAG v1.14.0
@@ -30,22 +29,18 @@ FetchContent_Declare(googletest
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-# Tests setup
-enable_testing()
 
-add_executable(tests
-    test/model/test_deck.cpp
+include_directories(include)
+
+add_library(model
+    include/model/deck.h
+
+    src/model/deck.cpp
 )
 
-target_link_libraries(tests
-    GTest::gtest_main
-)
 
-include(GoogleTest)
-gtest_discover_tests(tests)
 
-# Caravan setup
-add_executable(caravan src/main.cpp)
+add_executable(caravan src/main1.cpp)
 
 target_link_libraries(caravan
     PRIVATE ftxui::screen
