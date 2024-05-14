@@ -40,7 +40,7 @@ add_library(model
 
 
 
-add_executable(caravan src/main1.cpp)
+add_executable(caravan "src/main.cpp")
 
 target_link_libraries(caravan
     PRIVATE ftxui::screen
