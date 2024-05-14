@@ -31,6 +31,12 @@ FetchContent_MakeAvailable(googletest)
 
 include_directories(include)
 
+add_library(controller
+    "include/caravan/controller/controller.h"
+
+    "src/caravan/controller/controller.cpp"
+)
+
 add_library(core
     "include/caravan/core/common.h"
     "include/caravan/core/exceptions.h"
@@ -53,14 +59,31 @@ add_library(model
     "src/caravan/model/table.cpp"
 )
 
+add_library(user
+    "include/caravan/user/bot_easy.h"
+    "include/caravan/user/user.h"
+
+    "src/caravan/user/bot_easy.cpp"
+    "src/caravan/user/user.cpp"
+)
+
+add_library(view
+    "include/caravan/view/view.h"
+
+    "src/caravan/view/view.cpp"
+)
+
 # caravan.exe
 add_executable(caravan
     "src/caravan/main.cpp"
 )
 
 target_link_libraries(caravan
+    controller
     core
     model
+    user
+    view
     ftxui::screen
     ftxui::dom
     ftxui::component
@@ -79,8 +102,11 @@ add_executable(tests
 
 target_link_libraries(tests
     GTest::gtest_main
+    controller
     core
     model
+    user
+    view
 )
 
 include(GoogleTest)
