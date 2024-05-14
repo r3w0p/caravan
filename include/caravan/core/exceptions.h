@@ -2,8 +2,8 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#ifndef CARAVAN_EXCEPTIONS_H
-#define CARAVAN_EXCEPTIONS_H
+#ifndef CARAVAN_CORE_EXCEPTIONS_H
+#define CARAVAN_CORE_EXCEPTIONS_H
 
 #include <string>
 
@@ -26,4 +26,4 @@ public:
     explicit CaravanGameException(std::string msg) : CaravanException(msg) {}
 };
 
-#endif //CARAVAN_EXCEPTIONS_H
+#endif //CARAVAN_CORE_EXCEPTIONS_H

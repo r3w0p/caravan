@@ -2,8 +2,8 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#ifndef CARAVAN_COMMON_H
-#define CARAVAN_COMMON_H
+#ifndef CARAVAN_CORE_COMMON_H
+#define CARAVAN_CORE_COMMON_H
 
 #include <cstdint>
 #include <array>
@@ -122,4 +122,4 @@ bool is_numeral_card(Card c);
 
 bool is_face_card(Card c);
 
-#endif //CARAVAN_COMMON_H
+#endif //CARAVAN_CORE_COMMON_H

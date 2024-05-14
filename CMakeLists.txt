@@ -40,11 +40,20 @@ add_library(core
 )
 
 add_library(model
+    "include/caravan/model/caravan.h"
     "include/caravan/model/deck.h"
+    "include/caravan/model/game.h"
+    "include/caravan/model/player.h"
+    "include/caravan/model/table.h"
 
+    "src/caravan/model/caravan.cpp"
     "src/caravan/model/deck.cpp"
+    "src/caravan/model/game.cpp"
+    "src/caravan/model/player.cpp"
+    "src/caravan/model/table.cpp"
 )
 
+# caravan.exe
 add_executable(caravan
     "src/caravan/main.cpp"
 )
@@ -57,12 +66,15 @@ target_link_libraries(caravan
     ftxui::component
 )
 
-
-# Google Test
+# test.exe
 enable_testing()
 
 add_executable(tests
+    "test/caravan/model/test_caravan.cpp"
     "test/caravan/model/test_deck.cpp"
+    "test/caravan/model/test_game.cpp"
+    "test/caravan/model/test_player.cpp"
+    "test/caravan/model/test_table.cpp"
 )
 
 target_link_libraries(tests
