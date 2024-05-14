@@ -6,8 +6,9 @@
 #include <random>
 #include <vector>
 #include <algorithm>
-#include "../../include/model/deck.h"
-#include "../../include/exceptions.h"
+#include "caravan/model/deck.h"
+#include "caravan/core/common.h"
+#include "caravan/core/exceptions.h"
 
 /**
  * @param num_cards The number of cards to have in the caravan deck,

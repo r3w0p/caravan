@@ -3,8 +3,8 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "gtest/gtest.h"
-#include "../../include/model/deck.h"
-#include "../../include/exceptions.h"
+#include "caravan/model/deck.h"
+#include "caravan/core/exceptions.h"
 
 
 TEST (TestDeck, CaravanDeck_30Cards_1SampleDeck_Balanced) {

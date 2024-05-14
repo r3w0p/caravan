@@ -5,7 +5,7 @@
 #ifndef CARAVAN_MODEL_DECK_H
 #define CARAVAN_MODEL_DECK_H
 
-#include "common.h"
+#include "caravan/core/common.h"
 
 class DeckBuilder {
 protected:

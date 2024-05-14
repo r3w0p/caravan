@@ -29,21 +29,47 @@ FetchContent_Declare(googletest
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-
 include_directories(include)
 
-add_library(model
-    include/model/deck.h
+add_library(core
+    "include/caravan/core/common.h"
+    "include/caravan/core/exceptions.h"
 
-    src/model/deck.cpp
+    "src/caravan/core/common.cpp"
+    "src/caravan/core/exceptions.cpp"
 )
 
+add_library(model
+    "include/caravan/model/deck.h"
 
+    "src/caravan/model/deck.cpp"
+)
 
-add_executable(caravan "src/main.cpp")
+add_executable(caravan
+    "src/caravan/main.cpp"
+)
 
 target_link_libraries(caravan
-    PRIVATE ftxui::screen
-    PRIVATE ftxui::dom
-    PRIVATE ftxui::component # Not needed for this example.
+    core
+    model
+    ftxui::screen
+    ftxui::dom
+    ftxui::component
 )
+
+
+# Google Test
+enable_testing()
+
+add_executable(tests
+    "test/caravan/model/test_deck.cpp"
+)
+
+target_link_libraries(tests
+    GTest::gtest_main
+    core
+    model
+)
+
+include(GoogleTest)
+gtest_discover_tests(tests)
