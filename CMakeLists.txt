@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.27)
 
 project(caravan VERSION 1.0.0)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -10,6 +10,7 @@ set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
 set(PROJECT_DESCRIPTION "A TUI version of the Caravan card game from Fallout: New Vegas.")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
+set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static")
 
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
@@ -34,10 +35,9 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 # ---
 
-
-# --- caravan libraries
 include_directories(include)
 
+# --- caravan libraries
 add_library(controller
         "include/caravan/controller/controller.h"
 

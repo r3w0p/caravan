@@ -2,8 +2,8 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#ifndef CARAVAN_BOT_EASY_H
-#define CARAVAN_BOT_EASY_H
+#ifndef CARAVAN_USER_BOT_EASY_H
+#define CARAVAN_USER_BOT_EASY_H
 
 
 #include "caravan/user/user.h"
@@ -15,4 +15,4 @@ public:
     GameOption generate_option(Game *g) override;
 };
 
-#endif //CARAVAN_BOT_EASY_H
+#endif //CARAVAN_USER_BOT_EASY_H
