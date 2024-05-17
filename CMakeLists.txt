@@ -10,104 +10,113 @@ set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
 set(PROJECT_DESCRIPTION "A TUI version of the Caravan card game from Fallout: New Vegas.")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
+
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 
-# FTXUI
+
+# --- FTXUI
 FetchContent_Declare(ftxui
-    GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
-    GIT_TAG v5.0.0
+        GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
+        GIT_TAG v5.0.0
 )
 FetchContent_MakeAvailable(ftxui)
+# ---
 
-# GoogleTest
+
+# --- GoogleTest
 FetchContent_Declare(googletest
-    GIT_REPOSITORY https://github.com/google/googletest
-    GIT_TAG v1.14.0
+        GIT_REPOSITORY https://github.com/google/googletest
+        GIT_TAG v1.14.0
 )
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
+# ---
 
+
+# --- caravan libraries
 include_directories(include)
 
 add_library(controller
-    "include/caravan/controller/controller.h"
+        "include/caravan/controller/controller.h"
 
-    "src/caravan/controller/controller.cpp"
+        "src/caravan/controller/controller.cpp"
 )
 
 add_library(core
-    "include/caravan/core/common.h"
-    "include/caravan/core/exceptions.h"
+        "include/caravan/core/common.h"
+        "include/caravan/core/exceptions.h"
 
-    "src/caravan/core/common.cpp"
-    "src/caravan/core/exceptions.cpp"
+        "src/caravan/core/common.cpp"
+        "src/caravan/core/exceptions.cpp"
 )
 
 add_library(model
-    "include/caravan/model/caravan.h"
-    "include/caravan/model/deck.h"
-    "include/caravan/model/game.h"
-    "include/caravan/model/player.h"
-    "include/caravan/model/table.h"
+        "include/caravan/model/caravan.h"
+        "include/caravan/model/deck.h"
+        "include/caravan/model/game.h"
+        "include/caravan/model/player.h"
+        "include/caravan/model/table.h"
 
-    "src/caravan/model/caravan.cpp"
-    "src/caravan/model/deck.cpp"
-    "src/caravan/model/game.cpp"
-    "src/caravan/model/player.cpp"
-    "src/caravan/model/table.cpp"
+        "src/caravan/model/caravan.cpp"
+        "src/caravan/model/deck.cpp"
+        "src/caravan/model/game.cpp"
+        "src/caravan/model/player.cpp"
+        "src/caravan/model/table.cpp"
 )
 
 add_library(user
-    "include/caravan/user/bot_easy.h"
-    "include/caravan/user/user.h"
+        "include/caravan/user/bot_easy.h"
+        "include/caravan/user/user.h"
 
-    "src/caravan/user/bot_easy.cpp"
-    "src/caravan/user/user.cpp"
+        "src/caravan/user/bot_easy.cpp"
+        "src/caravan/user/user.cpp"
 )
 
 add_library(view
-    "include/caravan/view/view.h"
+        "include/caravan/view/view.h"
 
-    "src/caravan/view/view.cpp"
+        "src/caravan/view/view.cpp"
 )
+# ---
 
-# caravan.exe
+
+# --- caravan.exe
 add_executable(caravan
-    "src/caravan/main.cpp"
+        "src/caravan/main.cpp"
 )
 
 target_link_libraries(caravan
-    controller
-    core
-    model
-    user
-    view
-    ftxui::screen
-    ftxui::dom
-    ftxui::component
+        PRIVATE controller
+        PRIVATE core
+        PRIVATE model
+        PRIVATE user
+        PRIVATE view
+        PRIVATE ftxui::screen
+        PRIVATE ftxui::dom
+        PRIVATE ftxui::component
 )
+# ---
 
-# test.exe
+
+# --- test.exe
 enable_testing()
 
 add_executable(tests
-    "test/caravan/model/test_caravan.cpp"
-    "test/caravan/model/test_deck.cpp"
-    "test/caravan/model/test_game.cpp"
-    "test/caravan/model/test_player.cpp"
-    "test/caravan/model/test_table.cpp"
+        "test/caravan/model/test_caravan.cpp"
+        "test/caravan/model/test_deck.cpp"
+        "test/caravan/model/test_game.cpp"
+        "test/caravan/model/test_player.cpp"
+        "test/caravan/model/test_table.cpp"
 )
 
 target_link_libraries(tests
-    GTest::gtest_main
-    controller
-    core
-    model
-    user
-    view
+        PRIVATE GTest::gtest_main
+        PRIVATE core
+        PRIVATE model
 )
 
 include(GoogleTest)
 gtest_discover_tests(tests)
+# ---
