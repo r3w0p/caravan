@@ -12,3 +12,8 @@ bool is_numeral_card(Card c) {
 bool is_face_card(Card c) {
     return (c.rank >= JACK and c.rank <= JOKER);
 }
+
+template<typename T>
+void Publisher<T>::subscribe(T *sub) {
+    subscribers.push_back(sub);
+}

@@ -76,9 +76,15 @@ add_library(user
 )
 
 add_library(view
+        "include/caravan/view/tui.h"
         "include/caravan/view/view.h"
 
-        "src/caravan/view/view.cpp"
+        "src/caravan/view/tui.cpp"
+)
+
+target_link_libraries(view
+    PRIVATE ftxui::dom
+    PRIVATE ftxui::component
 )
 # ---
 
@@ -94,8 +100,6 @@ target_link_libraries(caravan
         PRIVATE model
         PRIVATE user
         PRIVATE view
-        PRIVATE ftxui::dom
-        PRIVATE ftxui::component
 )
 # ---
 

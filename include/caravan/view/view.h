@@ -8,13 +8,24 @@
 #include <string>
 #include "caravan/model/game.h"
 #include "caravan/user/user.h"
+#include "caravan/core/common.h"
 
-class View {
+class ViewSubscriber {
 public:
-    virtual void update(Game *g, User *ubottom, User *utop, GameOption* go_bottom, GameOption* go_top) = 0;
-    virtual GameOption option(Game *g, User *u) = 0;
-    virtual void close() = 0;
-    virtual void error_message(std::string msg) = 0;
+    virtual void on_view_update() = 0;  // TODO
+};
+
+class View : Publisher<ViewSubscriber> {
+protected:
+    User *user_top_ptr;
+    User *user_bottom_ptr;
+    bool closed;
+public:
+    explicit View(User *utop, User *ubottom) :
+        user_top_ptr(utop), user_bottom_ptr(ubottom), closed(false) {}
+
+    virtual void run() = 0;
+    void close() { closed = true; };
 };
 
 #endif //CARAVAN_VIEW_H

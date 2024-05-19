@@ -8,10 +8,14 @@
 #include <string>
 #include "caravan/model/game.h"
 #include "caravan/user/user.h"
+#include "caravan/view/view.h"
 
-class TUI {
+class TUI : public View {
 public:
-    explicit TUI();
+    explicit TUI(User *utop, User *ubottom) :
+        View(utop, ubottom) {};
+
+    void run() override;
 };
 
 #endif //CARAVAN_VIEW_TUI_H
