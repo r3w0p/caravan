@@ -35,9 +35,10 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 # ---
 
-include_directories(include)
 
 # --- caravan libraries
+include_directories(include)
+
 add_library(controller
         "include/caravan/controller/controller.h"
 
@@ -93,7 +94,6 @@ target_link_libraries(caravan
         PRIVATE model
         PRIVATE user
         PRIVATE view
-        PRIVATE ftxui::screen
         PRIVATE ftxui::dom
         PRIVATE ftxui::component
 )
