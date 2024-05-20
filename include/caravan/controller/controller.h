@@ -11,18 +11,11 @@
 #include "caravan/user/user.h"
 #include "caravan/view/view.h"
 
-
-class Controller {
-protected:
-    Game *game_ptr;
-    View *view_ptr;
-    User *user_a_ptr;
-    User *user_b_ptr;
+class ControllerSubscriber {
 public:
-    explicit Controller(Game *g, View *v, User *ua, User *ub) :
-        game_ptr(g), view_ptr(v), user_a_ptr(ua), user_b_ptr(ub) {};
-
-    void run();
+    virtual void on_user_input(std::string input, bool complete) = 0;  // TODO
 };
+
+class Controller : public ViewSubscriber, Publisher<ControllerSubscriber> {};
 
 #endif //CARAVAN_CONTROLLER_H

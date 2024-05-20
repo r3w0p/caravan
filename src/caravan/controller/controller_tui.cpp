@@ -2,10 +2,8 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#include "caravan/controller/controller.h"
-#include <string>
+#include "caravan/controller/controller_tui.h"
 
+void ControllerTUI::on_view_update() {
 
-void Controller::run() {
-    // TODO
 }

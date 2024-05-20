@@ -5,15 +5,13 @@
 #ifndef CARAVAN_VIEW_TUI_H
 #define CARAVAN_VIEW_TUI_H
 
-#include <string>
-#include "caravan/model/game.h"
-#include "caravan/user/user.h"
 #include "caravan/view/view.h"
+#include "caravan/core/common.h"
 
-class TUI : public View {
+class ViewTUI : public View {
 public:
-    explicit TUI(User *utop, User *ubottom) :
-        View(utop, ubottom) {};
+    using View::subscribe;
+    explicit ViewTUI(User *utop, User *ubottom) : View(utop, ubottom) {};
 
     void run() override;
 };

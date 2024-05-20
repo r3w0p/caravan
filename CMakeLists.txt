@@ -41,8 +41,9 @@ include_directories(include)
 
 add_library(controller
         "include/caravan/controller/controller.h"
+        "include/caravan/controller/controller_tui.h"
 
-        "src/caravan/controller/controller.cpp"
+        "src/caravan/controller/controller_tui.cpp"
 )
 
 add_library(core
@@ -76,10 +77,10 @@ add_library(user
 )
 
 add_library(view
-        "include/caravan/view/tui.h"
         "include/caravan/view/view.h"
+        "include/caravan/view/view_tui.h"
 
-        "src/caravan/view/tui.cpp"
+        "src/caravan/view/view_tui.cpp"
 )
 
 target_link_libraries(view

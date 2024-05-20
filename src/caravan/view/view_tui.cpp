@@ -4,7 +4,7 @@
 
 #include "caravan/user/user.h"
 #include "caravan/view/view.h"
-#include "caravan/view/tui.h"
+#include "caravan/view/view_tui.h"
 
 #include <memory>
 #include <string>
@@ -15,7 +15,7 @@
 #include "ftxui/dom/elements.hpp"
 
 
-void TUI::run() {
+void ViewTUI::run() {
     using namespace ftxui;
 
     // Input data

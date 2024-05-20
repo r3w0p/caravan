@@ -21,8 +21,10 @@ protected:
     User *user_bottom_ptr;
     bool closed;
 public:
+    using Publisher<ViewSubscriber>::subscribe;
+
     explicit View(User *utop, User *ubottom) :
-        user_top_ptr(utop), user_bottom_ptr(ubottom), closed(false) {}
+        user_top_ptr(utop), user_bottom_ptr(ubottom), closed(false) {};
 
     virtual void run() = 0;
     void close() { closed = true; };
