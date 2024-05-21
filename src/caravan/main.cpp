@@ -5,23 +5,35 @@
 #include "caravan/view/view_tui.h"
 #include "caravan/user/bot_easy.h"
 #include "caravan/controller/controller_tui.h"
-
+#include <iostream>
 
 int main() {
-    auto *utop = new UserHuman(PLAYER_TOP);
-    auto *ubottom = new UserHuman(PLAYER_BOTTOM);
+    User *utop;
+    User *ubottom;
 
-    auto *v = new ViewTUI(utop, ubottom);
-    auto *c = new ControllerTUI();
-    // auto *m = ...
+    ViewTUI *v;
+    Controller *c;
+    // Model *m;
 
-    // TODO Subscribe
-    v->subscribe(c);
+    try {
+        utop = new UserHuman(PLAYER_TOP);
+        ubottom = new UserHuman(PLAYER_BOTTOM);
 
-    v->run();
+        v = new ViewTUI(utop, ubottom);
+        c = new ControllerTUI();
+        // m = ...
+
+        // TODO Subscribe components
+        v->subscribe(c);
+
+        v->run();
+
+    } catch (CaravanFatalException &e) {
+        std::cout << e.what() << std::endl;
+    }
 
     v->close();
-    // TODO c->close();
+    c->close();
     // TODO m->close();
 
     delete v;

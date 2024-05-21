@@ -14,9 +14,12 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
-
 void ViewTUI::run() {
+    // TODO on_model_exit, close the game
+
     using namespace ftxui;
+
+    if(closed) return;
 
     // Input data
     std::string user_input;

@@ -81,7 +81,6 @@ typedef std::vector<Card> Deck;
 typedef std::array<Card, TRACK_FACE_MAX> Faces;
 typedef std::array<CaravanName, 3> PlayerCaravanNames;
 
-
 typedef struct Slot {
     Card card {};
     Faces faces {};
@@ -91,24 +90,31 @@ typedef struct Slot {
 typedef std::array<Slot, TRACK_NUMERIC_MAX> Track;
 
 typedef struct GameConfig {
-    uint8_t pa_num_cards;
-    uint8_t pa_num_sample_decks;
-    bool pa_balanced_sample;
+    uint8_t pa_num_cards {0};
+    uint8_t pa_num_sample_decks {0};
+    bool pa_balanced_sample {false};
 
-    uint8_t pb_num_cards;
-    uint8_t pb_num_sample_decks;
-    bool pb_balanced_sample;
+    uint8_t pb_num_cards {0};
+    uint8_t pb_num_sample_decks {0};
+    bool pb_balanced_sample {false};
 
-    PlayerName pn_first;
+    PlayerName pn_first {NO_PLAYER};
 } GameConfig;
 
-typedef struct GameOption {
+typedef struct GameOption {  // TODO remove
     OptionType type {};
     uint8_t pos_hand {};
     CaravanName caravan_name {};
     uint8_t pos_caravan {};
     Card card {};
 } GameOption;
+
+typedef struct GameCommand {
+    OptionType type {NO_OPTION};
+    uint8_t pos_hand {0};
+    CaravanName caravan_name {NO_CARAVAN};
+    uint8_t pos_caravan {0};
+} GameCommand;
 
 /*
  * FUNCTIONS
@@ -122,12 +128,12 @@ bool is_face_card(Card c);
  * CLASSES
  */
 
-template <typename T>
+template <class T>
 class Publisher {
 protected:
     std::vector<T*> subscribers;
 public:
-    void subscribe(T *sub);
+    virtual void subscribe(T *sub) = 0;
 };
 
 #endif //CARAVAN_CORE_COMMON_H

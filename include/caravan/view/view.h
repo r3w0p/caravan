@@ -12,22 +12,24 @@
 
 class ViewSubscriber {
 public:
-    virtual void on_view_update() = 0;  // TODO
+    virtual void on_view_user_input(std::string input) = 0;
 };
 
-class View : Publisher<ViewSubscriber> {
+class View : public Publisher<ViewSubscriber> {
 protected:
     User *user_top_ptr;
     User *user_bottom_ptr;
     bool closed;
 public:
-    using Publisher<ViewSubscriber>::subscribe;
-
+    virtual ~View() = default;
     explicit View(User *utop, User *ubottom) :
         user_top_ptr(utop), user_bottom_ptr(ubottom), closed(false) {};
 
     virtual void run() = 0;
+    void subscribe(ViewSubscriber *sub) override;
     void close() { closed = true; };
 };
+
+
 
 #endif //CARAVAN_VIEW_H

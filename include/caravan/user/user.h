@@ -12,6 +12,7 @@ class User {
 protected:
     PlayerName name;
 public:
+    virtual ~User() = default;
     explicit User(PlayerName pn) : name(pn) {};
 
     PlayerName get_name() { return name; }

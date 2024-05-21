@@ -13,9 +13,18 @@
 
 class ControllerSubscriber {
 public:
-    virtual void on_user_input(std::string input, bool complete) = 0;  // TODO
+    virtual void on_controller_command(GameCommand command) = 0;  // TODO
 };
 
-class Controller : public ViewSubscriber, Publisher<ControllerSubscriber> {};
+class Controller : public ViewSubscriber, public Publisher<ControllerSubscriber> {
+protected:
+    bool closed;
+public:
+    virtual ~Controller() = default;
+    explicit Controller() : closed(false) {};
+
+    void subscribe(ControllerSubscriber *sub) override;
+    void close() { closed = true; };
+};
 
 #endif //CARAVAN_CONTROLLER_H

@@ -10,7 +10,6 @@
 
 class ViewTUI : public View {
 public:
-    using View::subscribe;
     explicit ViewTUI(User *utop, User *ubottom) : View(utop, ubottom) {};
 
     void run() override;
