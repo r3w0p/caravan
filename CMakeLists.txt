@@ -59,12 +59,16 @@ add_library(model
         "include/caravan/model/caravan.h"
         "include/caravan/model/deck.h"
         "include/caravan/model/game.h"
+        "include/caravan/model/model.h"
+        "include/caravan/model/model_tui.h"
         "include/caravan/model/player.h"
         "include/caravan/model/table.h"
 
         "src/caravan/model/caravan.cpp"
         "src/caravan/model/deck.cpp"
         "src/caravan/model/game.cpp"
+        "src/caravan/model/model.cpp"
+        "src/caravan/model/model_tui.cpp"
         "src/caravan/model/player.cpp"
         "src/caravan/model/table.cpp"
 )

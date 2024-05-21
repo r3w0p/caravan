@@ -14,6 +14,32 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
+std::shared_ptr<ftxui::Node> gen_game(
+        std::shared_ptr<ftxui::ComponentBase> comp_user_input,
+        std::string user_input,
+        std::string command) {
+    using namespace ftxui;
+    return vbox({
+        hbox(text(" YOU > "), comp_user_input->Render()),
+        separator(),
+        text("Current: " + user_input),
+        text("Command: " + command),
+    }) | border;
+}
+
+std::shared_ptr<ftxui::Node> gen_terminal_too_small(
+        ftxui::Dimensions terminal, uint16_t min_x, uint16_t min_y) {
+    using namespace ftxui;
+    return vbox({
+        text("Terminal too small"),
+        separatorEmpty(),
+        text("Width:  " + std::to_string(terminal.dimx) + " < " + std::to_string(min_x)),
+        text("Height: " + std::to_string(terminal.dimy) + " < " + std::to_string(min_y)),
+        separatorEmpty(),
+        text("Resize terminal or press Ctrl+C"),
+    }) | center;
+}
+
 void ViewTUI::run() {
     // TODO on_model_exit, close the game
 
@@ -51,16 +77,7 @@ void ViewTUI::run() {
         // TODO prevent user input change during this display
         if (terminal_size.dimx < min_terminal_x || terminal_size.dimy < min_terminal_y) {
             user_input = "";
-            return vbox({
-                    text("Terminal too small"),
-                    separatorEmpty(),
-                    text("Width:  " + std::to_string(terminal_size.dimx) + " < " +
-                         std::to_string(min_terminal_x)),
-                    text("Height: " + std::to_string(terminal_size.dimy) + " < " +
-                         std::to_string(min_terminal_y)),
-                    separatorEmpty(),
-                    text("Resize terminal or press Ctrl+C"),
-            }) | center;
+            return gen_terminal_too_small(terminal_size, min_terminal_x, min_terminal_y);
         }
 
         if(user_input.ends_with('\n')) {
@@ -71,13 +88,7 @@ void ViewTUI::run() {
         // TODO immediately wipe command once passed to controller
 
         // Generate game as normal
-        return vbox({
-                hbox(text(" YOU > "), comp_user_input->Render()),
-                separator(),
-                text("Current: " + user_input),
-                text("Command: " + command),
-                text("Terminal: x=" + std::to_string(terminal_size.dimx) + " y=" + std::to_string(terminal_size.dimy)),
-        }) | border;
+        return gen_game(comp_user_input, user_input, command);
     });
 
     auto screen = ScreenInteractive::Fullscreen();
