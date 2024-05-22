@@ -14,8 +14,8 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
-const uint16_t MIN_X = 150;
-const uint16_t MIN_Y = 70;
+const uint16_t MIN_X = 130;
+const uint16_t MIN_Y = 68;
 
 const uint16_t WIDTH_CARAVAN = 16;
 const uint16_t HEIGHT_CARAVAN = 34;
@@ -91,7 +91,7 @@ std::shared_ptr<ftxui::Node> gen_caravan(std::string title, bool top) {
     return window(
         text(title) | hcenter | bold,
         content
-    ) | size(WIDTH, EQUAL, WIDTH_CARAVAN) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN);
+    ) | center | size(WIDTH, EQUAL, WIDTH_CARAVAN) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN);
 }
 
 std::shared_ptr<ftxui::Node> gen_deck_card(std::string position, std::wstring card) {
@@ -151,7 +151,7 @@ std::shared_ptr<ftxui::Node> gen_input(
         separator(),
 
         separatorEmpty(),
-        hbox(separatorEmpty(), paragraph("YOU has yet to move."), separatorEmpty()),
+        hbox(separatorEmpty(), paragraph("YOU played KH onto 8C on Caravan C."), separatorEmpty()),
         separatorEmpty(),
         hbox(separatorEmpty(), paragraph("OPP has yet to move."), separatorEmpty()),
         separatorEmpty(),
@@ -159,9 +159,9 @@ std::shared_ptr<ftxui::Node> gen_input(
         separator(),
 
         separatorEmpty(),
-        hbox(separatorEmpty(), paragraph("YOU's turn to move."), separatorEmpty()),
+        hbox(separatorEmpty(), paragraph("YOU to move next."), separatorEmpty()),
         separatorEmpty(),
-    }) | border | size(WIDTH, EQUAL, 50);
+    }) | border | size(WIDTH, EQUAL, 44);
 }
 
 std::shared_ptr<ftxui::Node> gen_game(
@@ -177,7 +177,9 @@ std::shared_ptr<ftxui::Node> gen_game(
             hbox({  // TOP GAME AREA
                 gen_caravan(" D ", true),
                 separatorEmpty(),
+                separatorEmpty(),
                 gen_caravan(" E ", true),
+                separatorEmpty(),
                 separatorEmpty(),
                 gen_caravan(" F (100, ASC) ", true),
             }),  // top game area
@@ -187,7 +189,9 @@ std::shared_ptr<ftxui::Node> gen_game(
             hbox({  // BOTTOM GAME AREA
                 gen_caravan(" A ", false),
                 separatorEmpty(),
+                separatorEmpty(),
                 gen_caravan(" B (100, ASC) ", false),
+                separatorEmpty(),
                 separatorEmpty(),
                 gen_caravan(" C ", false),
             }),  // bottom game area
@@ -218,7 +222,7 @@ std::shared_ptr<ftxui::Node> gen_game(
             gen_input(comp_user_input, user_input, command, message)
         }),  // input area
 
-    });  // outermost area
+    }) | center;  // outermost area
 }
 
 std::shared_ptr<ftxui::Node> gen_terminal_too_small(
