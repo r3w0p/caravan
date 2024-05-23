@@ -12,7 +12,7 @@
 
 class ViewSubscriber {
 public:
-    virtual void on_view_user_input(std::string input) = 0;
+    virtual void on_view_user_input(std::string input, bool confirmed) = 0;
 };
 
 class View : public Publisher<ViewSubscriber> {

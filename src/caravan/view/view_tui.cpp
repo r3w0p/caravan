@@ -246,6 +246,7 @@ void ViewTUI::run() {
 
     // Input data
     std::string user_input;
+    bool confirmed;
     std::string command;
     std::string message;
     Dimensions terminal_size {};
@@ -283,18 +284,27 @@ void ViewTUI::run() {
         }
 
         // Handle user input
-        if(user_input.ends_with('\n')) {
-            command = user_input;
+        command = user_input;
+        if(command.ends_with('\n')) {
             command.pop_back();  // removes '\n'
             user_input = "";
-            message += command + " ";
+            confirmed = true;
+        } else {
+            confirmed = false;
         }
 
-        if(command == "EXIT") screen.Exit();
+        // Send input to subscribers (i.e., Controller)
+        for (ViewSubscriber *vs: subscribers) {
+            vs->on_view_user_input(command, confirmed);
+        }
 
-        // TODO immediately wipe command once passed to controller
+        // TODO replace this with an 'exit early' signal from the model
+        //  (i.e. not exciting because game has finished, but because of an exit signal from user)
+        //if(command == "EXIT") screen.Exit();
+
         return gen_game(comp_user_input, user_input, command, message);
     });
 
     screen.Loop(renderer);
+    screen.Clear();
 }

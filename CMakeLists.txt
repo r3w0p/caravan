@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
-set(PROJECT_DESCRIPTION "A TUI version of the Caravan card game from Fallout: New Vegas.")
+set(PROJECT_DESCRIPTION "A command-line version of the Caravan card game from Fallout: New Vegas.")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
 set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static")

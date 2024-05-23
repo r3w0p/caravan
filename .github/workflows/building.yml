@@ -22,6 +22,10 @@ jobs:
             os: ubuntu-latest
             compiler: clang++
 
+          - name: MacOS GCC
+            os: macos-latest
+            compiler: g++
+
           #- name: MacOS Clang
           #  os: macos-latest
           #  compiler: clang++
@@ -29,6 +33,10 @@ jobs:
           - name: Windows GCC
             os: windows-latest
             compiler: g++
+
+          - name: Windows Clang
+            os: windows-latest
+            compiler: clang++
 
     steps:
       - name: Checkout
