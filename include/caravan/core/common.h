@@ -36,7 +36,7 @@ const uint8_t PLAYER_CARAVANS_MAX = 3;
  */
 
 enum PlayerName {
-    NO_PLAYER, PLAYER_BOTTOM, PLAYER_TOP
+    NO_PLAYER, PLAYER_ABC, PLAYER_DEF
 };
 enum Direction {
     ANY, ASCENDING, DESCENDING
@@ -101,16 +101,8 @@ typedef struct GameConfig {
     PlayerName pn_first {NO_PLAYER};
 } GameConfig;
 
-typedef struct GameOption {  // TODO remove
-    OptionType type {};
-    uint8_t pos_hand {};
-    CaravanName caravan_name {};
-    uint8_t pos_caravan {};
-    Card card {};
-} GameOption;
-
 typedef struct GameCommand {
-    OptionType type {NO_OPTION};
+    OptionType option {NO_OPTION};
     uint8_t pos_hand {0};
     CaravanName caravan_name {NO_CARAVAN};
     uint8_t pos_caravan {0};
@@ -121,19 +113,6 @@ typedef struct GameCommand {
  */
 
 bool is_numeral_card(Card c);
-
 bool is_face_card(Card c);
-
-/*
- * CLASSES
- */
-
-template <class T>
-class Publisher {
-protected:
-    std::vector<T*> subscribers;
-public:
-    virtual void subscribe(T *sub) = 0;
-};
 
 #endif //CARAVAN_CORE_COMMON_H

@@ -9,10 +9,15 @@
 #include "caravan/core/common.h"
 
 class ViewTUI : public View {
+protected:
+    GameCommand parse_user_input(std::string input, bool confirmed);
+
 public:
-    explicit ViewTUI(User *utop, User *ubottom) : View(utop, ubottom) {};
+    explicit ViewTUI(User *user_abc, User *user_def, Game *game) :
+        View(user_abc, user_def, game) {};
 
     void run() override;
+    void close() override;
 };
 
 #endif //CARAVAN_VIEW_TUI_H

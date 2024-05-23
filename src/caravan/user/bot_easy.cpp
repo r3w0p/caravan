@@ -24,7 +24,7 @@ uint8_t pos_card_numeral(Player *p) {
     return 0;
 }
 
-GameOption UserBotEasy::generate_option(Game *g) {
+GameCommand UserBotEasy::generate_option(Game *g) {
     Player *p;
     uint8_t p_hand_size;
     Table *t;
@@ -52,7 +52,7 @@ GameOption UserBotEasy::generate_option(Game *g) {
 
     pcns_me = g->get_player_caravan_names(name);
     pcns_opp = g->get_player_caravan_names(
-            name == PLAYER_BOTTOM ? PLAYER_TOP : PLAYER_BOTTOM);
+            name == PLAYER_ABC ? PLAYER_DEF : PLAYER_ABC);
 
     // Add numeral cards for start round
     if (p->get_moves_count() < MOVES_START_ROUND) {

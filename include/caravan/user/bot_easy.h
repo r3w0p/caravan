@@ -12,7 +12,7 @@ class UserBotEasy : public UserBot {
 public:
     explicit UserBotEasy(PlayerName pn) : UserBot(pn) {};
 
-    GameOption generate_option(Game *g) override;
+    GameCommand generate_option(Game *g) override;
 };
 
 #endif //CARAVAN_USER_BOT_EASY_H

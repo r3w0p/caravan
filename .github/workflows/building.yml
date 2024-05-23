@@ -22,9 +22,9 @@ jobs:
             os: ubuntu-latest
             compiler: clang++
 
-          - name: MacOS GCC
-            os: macos-latest
-            compiler: g++
+          #- name: MacOS GCC
+          #  os: macos-latest
+          #  compiler: g++
 
           #- name: MacOS Clang
           #  os: macos-latest

@@ -3,34 +3,35 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "caravan/model/game.h"
+#include "caravan/core/common.h"
 
 const std::string EXC_CLOSED = "Game is closed.";
 
 /**
- * @param gc Game configuration.
+ * @param config Game configuration.
  * 
  * @throws CaravanFatalException Invalid player names.
  */
-Game::Game(GameConfig gc) {
-    if (gc.pn_first == NO_PLAYER)
+Game::Game(GameConfig config) {
+    if (config.pn_first == NO_PLAYER)
         throw CaravanFatalException("Invalid player name for first player in game configuration.");
 
     Deck *deck_top = DeckBuilder::build_caravan_deck(
-            gc.pa_num_cards,
-            gc.pa_num_sample_decks,
-            gc.pa_balanced_sample);
+            config.pa_num_cards,
+            config.pa_num_sample_decks,
+            config.pa_balanced_sample);
 
     Deck *deck_bottom = DeckBuilder::build_caravan_deck(
-            gc.pb_num_cards,
-            gc.pb_num_sample_decks,
-            gc.pb_balanced_sample);
+            config.pb_num_cards,
+            config.pb_num_sample_decks,
+            config.pb_balanced_sample);
 
     table_ptr = new Table();
-    pa_ptr = new Player(PLAYER_BOTTOM, deck_bottom);
-    pb_ptr = new Player(PLAYER_TOP, deck_top);
+    pa_ptr = new Player(PLAYER_ABC, deck_bottom);
+    pb_ptr = new Player(PLAYER_DEF, deck_top);
 
     closed = false;
-    p_turn = gc.pn_first == pa_ptr->get_name() ? pa_ptr : pb_ptr;
+    p_turn = config.pn_first == pa_ptr->get_name() ? pa_ptr : pb_ptr;
 }
 
 void Game::close() {
@@ -92,11 +93,11 @@ PlayerName Game::get_winner() {
 
     // The first player with an empty hand loses
 
-    if (get_player(PLAYER_BOTTOM)->get_size_hand() == 0)
-        return PLAYER_TOP;
+    if (get_player(PLAYER_ABC)->get_size_hand() == 0)
+        return PLAYER_DEF;
 
-    if (get_player(PLAYER_TOP)->get_size_hand() == 0)
-        return PLAYER_BOTTOM;
+    if (get_player(PLAYER_DEF)->get_size_hand() == 0)
+        return PLAYER_ABC;
 
     // Check bid sizes
 
@@ -138,16 +139,16 @@ bool Game::is_closed() {
     return closed;
 }
 
-void Game::play_option(GameOption *go) {
+void Game::play_option(GameCommand* command) {
     if (closed) throw CaravanFatalException(EXC_CLOSED);
 
     if (get_winner() != NO_PLAYER)
         throw CaravanFatalException(
                 "The game has already been won.");
 
-    switch (go->type) {
+    switch (command->option) {
         case OPTION_PLAY:
-            option_play(p_turn, go);
+            option_play(p_turn, command);
             break;
 
         case OPTION_DISCARD:
@@ -156,7 +157,7 @@ void Game::play_option(GameOption *go) {
                         "A player cannot discard a card during "
                         "the Start round.");
 
-            option_discard(p_turn, go);
+            option_discard(p_turn, command);
             break;
 
         case OPTION_CLEAR:
@@ -165,7 +166,7 @@ void Game::play_option(GameOption *go) {
                         "A player cannot clear a caravan during "
                         "the Start round.");
 
-            option_clear(p_turn, go);
+            option_clear(p_turn, command);
             break;
 
         default:
@@ -229,26 +230,25 @@ bool Game::has_sold(CaravanName cvname) {
     return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
-void Game::option_clear(Player *pptr, GameOption *go) {
+void Game::option_clear(Player *pptr, GameCommand* command) {
     PlayerCaravanNames pcns = get_player_caravan_names(pptr->get_name());
 
-    if (pcns[0] != go->caravan_name and
-        pcns[1] != go->caravan_name and
-        pcns[2] != go->caravan_name)
+    if (pcns[0] != command->caravan_name and
+        pcns[1] != command->caravan_name and
+        pcns[2] != command->caravan_name)
         throw CaravanGameException(
                 "A player cannot clear their opponent's caravans.");
 
-    table_ptr->clear_caravan(go->caravan_name);
+    table_ptr->clear_caravan(command->caravan_name);
 }
 
-void Game::option_discard(Player *pptr, GameOption *go) {
+void Game::option_discard(Player *pptr, GameCommand* command) {
     Card c_hand;
-    c_hand = pptr->discard_from_hand_at(go->pos_hand);
-    go->card = c_hand;
+    c_hand = pptr->discard_from_hand_at(command->pos_hand);
 }
 
-void Game::option_play(Player *pptr, GameOption *go) {
-    Card c_hand = pptr->get_from_hand_at(go->pos_hand);
+void Game::option_play(Player *pptr, GameCommand* command) {
+    Card c_hand = pptr->get_from_hand_at(command->pos_hand);
 
     bool in_start_stage = pptr->get_moves_count() < MOVES_START_ROUND;
     bool pa_playing_num_onto_pa_caravans;
@@ -257,15 +257,15 @@ void Game::option_play(Player *pptr, GameOption *go) {
     if (is_numeral_card(c_hand)) {
         pa_playing_num_onto_pa_caravans =
                 pptr->get_name() == pa_ptr->get_name() and
-                (go->caravan_name == CARAVAN_A or
-                 go->caravan_name == CARAVAN_B or
-                 go->caravan_name == CARAVAN_C);
+                (command->caravan_name == CARAVAN_A or
+                 command->caravan_name == CARAVAN_B or
+                 command->caravan_name == CARAVAN_C);
 
         pb_playing_num_onto_pb_caravans =
                 pptr->get_name() == pb_ptr->get_name() and
-                (go->caravan_name == CARAVAN_D or
-                 go->caravan_name == CARAVAN_E or
-                 go->caravan_name == CARAVAN_F);
+                (command->caravan_name == CARAVAN_D or
+                 command->caravan_name == CARAVAN_E or
+                 command->caravan_name == CARAVAN_F);
 
         if (!(pa_playing_num_onto_pa_caravans or
               pb_playing_num_onto_pb_caravans))
@@ -274,12 +274,12 @@ void Game::option_play(Player *pptr, GameOption *go) {
                     "a player's own caravan.");
 
         if (in_start_stage and
-            table_ptr->get_caravan_size(go->caravan_name) > 0)
+            table_ptr->get_caravan_size(command->caravan_name) > 0)
             throw CaravanGameException(
                     "A numeral card must be played on an empty caravan "
                     "during the Start round.");
 
-        table_ptr->play_numeral_card(go->caravan_name, c_hand);
+        table_ptr->play_numeral_card(command->caravan_name, c_hand);
 
     } else {
         if (in_start_stage)
@@ -288,11 +288,10 @@ void Game::option_play(Player *pptr, GameOption *go) {
                     "Start round.");
 
         table_ptr->play_face_card(
-                go->caravan_name,
+                command->caravan_name,
                 c_hand,
-                go->pos_caravan);
+                command->pos_caravan);
     }
 
-    pptr->discard_from_hand_at(go->pos_hand);
-    go->card = c_hand;
+    pptr->discard_from_hand_at(command->pos_hand);
 }

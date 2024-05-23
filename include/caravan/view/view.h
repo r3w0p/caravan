@@ -10,26 +10,22 @@
 #include "caravan/user/user.h"
 #include "caravan/core/common.h"
 
-class ViewSubscriber {
-public:
-    virtual void on_view_user_input(std::string input, bool confirmed) = 0;
-};
-
-class View : public Publisher<ViewSubscriber> {
+class View {
 protected:
-    User *user_top_ptr;
-    User *user_bottom_ptr;
+    User *user_abc;
+    User *user_def;
+    Game *game;
     bool closed;
 public:
     virtual ~View() = default;
-    explicit View(User *utop, User *ubottom) :
-        user_top_ptr(utop), user_bottom_ptr(ubottom), closed(false) {};
+    explicit View(User *user_abc, User *user_def, Game *game) :
+            user_abc(user_abc),
+            user_def(user_def),
+            game(game),
+            closed(false) {};
 
     virtual void run() = 0;
-    void subscribe(ViewSubscriber *sub) override;
-    void close() { closed = true; };
+    virtual void close() = 0;
 };
-
-
 
 #endif //CARAVAN_VIEW_H

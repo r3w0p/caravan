@@ -39,14 +39,6 @@ FetchContent_MakeAvailable(googletest)
 # --- caravan libraries
 include_directories(include)
 
-add_library(controller
-        "include/caravan/controller/controller.h"
-        "include/caravan/controller/controller_tui.h"
-
-        "src/caravan/controller/controller.cpp"
-        "src/caravan/controller/controller_tui.cpp"
-)
-
 add_library(core
         "include/caravan/core/common.h"
         "include/caravan/core/exceptions.h"
@@ -59,19 +51,17 @@ add_library(model
         "include/caravan/model/caravan.h"
         "include/caravan/model/deck.h"
         "include/caravan/model/game.h"
-        "include/caravan/model/model.h"
-        "include/caravan/model/model_tui.h"
         "include/caravan/model/player.h"
         "include/caravan/model/table.h"
 
         "src/caravan/model/caravan.cpp"
         "src/caravan/model/deck.cpp"
         "src/caravan/model/game.cpp"
-        "src/caravan/model/model.cpp"
-        "src/caravan/model/model_tui.cpp"
         "src/caravan/model/player.cpp"
         "src/caravan/model/table.cpp"
 )
+
+target_link_libraries(model core)
 
 add_library(user
         "include/caravan/user/bot_easy.h"
@@ -85,7 +75,6 @@ add_library(view
         "include/caravan/view/view.h"
         "include/caravan/view/view_tui.h"
 
-        "src/caravan/view/view.cpp"
         "src/caravan/view/view_tui.cpp"
 )
 
@@ -102,7 +91,6 @@ add_executable(caravan
 )
 
 target_link_libraries(caravan
-        PRIVATE controller
         PRIVATE core
         PRIVATE model
         PRIVATE user

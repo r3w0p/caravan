@@ -3,6 +3,7 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "caravan/model/caravan.h"
+#include "caravan/core/common.h"
 #include "caravan/core/exceptions.h"
 
 const std::string EXC_CLOSED = "Caravan is closed.";

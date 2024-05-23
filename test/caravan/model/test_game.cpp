@@ -10,7 +10,7 @@ TEST (TestGame, Close) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
     Game g{gc};
 
@@ -23,26 +23,26 @@ TEST (TestGame, GetPlayer_Both) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
     Game g{gc};
 
-    ASSERT_EQ(g.get_player(PLAYER_BOTTOM)->get_name(), PLAYER_BOTTOM);
-    ASSERT_EQ(g.get_player(PLAYER_TOP)->get_name(), PLAYER_TOP);
+    ASSERT_EQ(g.get_player(PLAYER_ABC)->get_name(), PLAYER_ABC);
+    ASSERT_EQ(g.get_player(PLAYER_DEF)->get_name(), PLAYER_DEF);
 }
 
 TEST (TestGame, GetPlayer_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
     Game g{gc};
 
     g.close();
 
     try {
-        g.get_player(PLAYER_BOTTOM);
+        g.get_player(PLAYER_ABC);
         FAIL();
 
     } catch (CaravanFatalException &e) {
@@ -56,7 +56,7 @@ TEST (TestGame, GetPlayer_Error_InvalidName) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
     Game g{gc};
 
@@ -75,18 +75,18 @@ TEST (TestGame, GetPlayerTurn) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
     Game g{gc};
 
-    ASSERT_EQ(g.get_player_turn(), PLAYER_BOTTOM);
+    ASSERT_EQ(g.get_player_turn(), PLAYER_ABC);
 }
 
 TEST (TestGame, GetPlayerTurn_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
     Game g{gc};
 
@@ -107,7 +107,7 @@ TEST (TestGame, GetTable_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
     Game g{gc};
 
@@ -128,7 +128,7 @@ TEST (TestGame, GetWinner_NoMoves) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
     Game g{gc};
 
@@ -139,7 +139,7 @@ TEST (TestGame, GetWinner_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
     Game g{gc};
 
@@ -160,15 +160,15 @@ TEST (TestGame, PlayOption_Error_AlreadyClosed) {
     GameConfig gc = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
-    GameOption go = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
+    GameCommand command = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
     Game g{gc};
 
     g.close();
 
     try {
-        g.play_option(&go);
+        g.play_option(&command);
         FAIL();
 
     } catch (CaravanFatalException &e) {
@@ -179,16 +179,16 @@ TEST (TestGame, PlayOption_Error_AlreadyClosed) {
 }
 
 TEST (TestGame, PlayOption_Error_StartRound_Remove) {
-    GameConfig gc = {
+    GameConfig config = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
-    GameOption go = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
-    Game g{gc};
+    GameCommand command = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
+    Game g{config};
 
     try {
-        g.play_option(&go);
+        g.play_option(&command);
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -199,16 +199,16 @@ TEST (TestGame, PlayOption_Error_StartRound_Remove) {
 }
 
 TEST (TestGame, PlayOption_Error_StartRound_Clear) {
-    GameConfig gc = {
+    GameConfig config = {
             30, 1, true,
             30, 1, true,
-            PLAYER_BOTTOM
+            PLAYER_ABC
     };
-    GameOption go = {OPTION_CLEAR, 0, CARAVAN_A, 0};
-    Game g{gc};
+    GameCommand command = {OPTION_CLEAR, 0, CARAVAN_A, 0};
+    Game g{config};
 
     try {
-        g.play_option(&go);
+        g.play_option(&command);
         FAIL();
 
     } catch (CaravanGameException &e) {

@@ -32,7 +32,7 @@ public:
     explicit UserBot(PlayerName pn) : User(pn) {};
 
     bool is_human() override;
-    virtual GameOption generate_option(Game *g) = 0;
+    virtual GameCommand generate_option(Game *g) = 0;
 };
 
 #endif //CARAVAN_USER_H

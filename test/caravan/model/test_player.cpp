@@ -9,7 +9,7 @@
 
 TEST (TestPlayer, GetFromHandAt_Position1) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
     Card c_get;
     Card c_take;
     Card c_getagain;
@@ -29,14 +29,14 @@ TEST (TestPlayer, GetFromHandAt_Position1) {
 
 TEST (TestPlayer, GetName) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
-    ASSERT_EQ(pl.get_name(), PLAYER_BOTTOM);
+    ASSERT_EQ(pl.get_name(), PLAYER_ABC);
 }
 
 TEST (TestPlayer, GetFromHandAt_Error_HandEmpty) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
     for (int i = 0; i < 30; ++i) {
         pl.discard_from_hand_at(1);
@@ -59,7 +59,7 @@ TEST (TestPlayer, GetFromHandAt_Error_HandEmpty) {
 
 TEST (TestPlayer, GetFromHandAt_Error_PositionTooLow) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
     try {
         pl.get_from_hand_at(0);
@@ -74,7 +74,7 @@ TEST (TestPlayer, GetFromHandAt_Error_PositionTooLow) {
 
 TEST (TestPlayer, GetFromHandAt_Error_PositionTooHigh) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
     try {
         pl.get_from_hand_at(9);
@@ -89,21 +89,21 @@ TEST (TestPlayer, GetFromHandAt_Error_PositionTooHigh) {
 
 TEST (TestPlayer, GetSizeDeck_Deck30) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
     ASSERT_EQ(pl.get_size_deck(), 22);
 }
 
 TEST (TestPlayer, GetSizeHand_Deck30) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
     ASSERT_EQ(pl.get_size_hand(), 8);
 }
 
 TEST (TestPlayer, IncrementMovesCount_ThreeTimes) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
     ASSERT_EQ(pl.get_moves_count(), 0);
     pl.increment_moves();
@@ -116,7 +116,7 @@ TEST (TestPlayer, IncrementMovesCount_ThreeTimes) {
 
 TEST (TestPlayer, RemoveFromHandAt_Position1_StartRound) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
     Card c_get;
     Card c_take;
     Card c_getagain;
@@ -139,7 +139,7 @@ TEST (TestPlayer, RemoveFromHandAt_Position1_StartRound) {
 
 TEST (TestPlayer, RemoveFromHandAt_Error_HandEmpty) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
     for (int i = 0; i < 30; ++i) {
         pl.discard_from_hand_at(1);
@@ -160,7 +160,7 @@ TEST (TestPlayer, RemoveFromHandAt_Error_HandEmpty) {
 
 TEST (TestPlayer, RemoveFromHandAt_Error_PositionTooLow) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
     try {
         pl.discard_from_hand_at(0);
@@ -175,7 +175,7 @@ TEST (TestPlayer, RemoveFromHandAt_Error_PositionTooLow) {
 
 TEST (TestPlayer, RemoveFromHandAt_Error_PositionTooHigh) {
     Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
-    Player pl = Player(PLAYER_BOTTOM, d);
+    Player pl = Player(PLAYER_ABC, d);
 
     try {
         pl.discard_from_hand_at(9);
