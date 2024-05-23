@@ -24,7 +24,7 @@ public:
     explicit Controller() : closed(false) {};
 
     void subscribe(ControllerSubscriber *sub) override;
-    void close() { closed = true; };
+    virtual void close() = 0;
 };
 
 #endif //CARAVAN_CONTROLLER_H

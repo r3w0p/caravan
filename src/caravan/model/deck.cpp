@@ -20,7 +20,12 @@
  *        fashion e.g. a random card from deck 1, then deck 2, then 3, then
  *        1, 2, 3, and so on.
  *        If false, then standard decks are sampled randomly.
+ *
  * @return A caravan deck.
+ *
+ * @throws CaravanFatalException Requested number of cards outside of acceptable range.
+ * @throws CaravanFatalException Requested number of sample decks outside of acceptable range.
+ * @throws CaravanFatalException Insufficient cards to sample in order to build deck.
  */
 Deck *DeckBuilder::build_caravan_deck(
         uint8_t num_cards,

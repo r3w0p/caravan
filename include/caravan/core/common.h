@@ -15,8 +15,8 @@
  */
 
 const uint8_t TRACK_NUMERIC_MIN = 1;
-const uint8_t TRACK_NUMERIC_MAX = 10;
-const uint8_t TRACK_FACE_MAX = 5;
+const uint8_t TRACK_NUMERIC_MAX = 8;
+const uint8_t TRACK_FACE_MAX = 3;
 const uint8_t CARAVAN_SOLD_MIN = 21;
 const uint8_t CARAVAN_SOLD_MAX = 26;
 const uint8_t DECK_STANDARD_MAX = 52;

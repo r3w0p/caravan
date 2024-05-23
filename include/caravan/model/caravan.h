@@ -17,13 +17,21 @@ protected:
     CaravanName name;
     Track track;
     uint8_t i_track;
+    bool closed;
 
     static uint8_t numeral_rank_to_uint8_t(Rank rank);
-
     void remove_numeral_card(uint8_t index);
 
 public:
-    explicit Caravan(CaravanName cvname);
+    /**
+     * A caravan that contains all of the information for a given track of numeral
+     * cards and any face cards attached to them, including: the total caravan bid,
+     * its direction, and its suit.
+     *
+     * @param cvname The caravan name.
+     */
+    explicit Caravan(CaravanName cvname) :
+        name(cvname), track({}), i_track(0), closed(false) {};
 
     void clear();
 
@@ -46,6 +54,8 @@ public:
     void remove_rank(Rank rank, uint8_t pos_exclude);
 
     void remove_suit(Suit suit, uint8_t pos_exclude);
+
+    void close();
 };
 
 #endif //CARAVAN_MODEL_CARAVAN_H

@@ -19,27 +19,6 @@ TEST (TestGame, Close) {
     ASSERT_TRUE(g.is_closed());
 }
 
-TEST (TestGame, Close_Error_AlreadyClosed) {
-    GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_BOTTOM
-    };
-    Game g{gc};
-
-    g.close();
-
-    try {
-        g.close();
-        FAIL();
-
-    } catch (CaravanFatalException &e) {
-
-    } catch (...) {
-        FAIL();
-    }
-}
-
 TEST (TestGame, GetPlayer_Both) {
     GameConfig gc = {
             30, 1, true,

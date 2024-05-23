@@ -7,6 +7,10 @@
 
 #include <string>
 
+/*
+ * BASE
+ */
+
 class CaravanException : public std::exception {
 private:
     std::string message;
@@ -16,6 +20,10 @@ public:
     std::string what();
 };
 
+/*
+ * GENERAL
+ */
+
 class CaravanFatalException : public CaravanException {
 public:
     explicit CaravanFatalException(std::string msg) : CaravanException(msg) {}
@@ -24,6 +32,15 @@ public:
 class CaravanGameException : public CaravanException {
 public:
     explicit CaravanGameException(std::string msg) : CaravanException(msg) {}
+};
+
+/*
+ * CONTROLLER
+ */
+
+class CaravanInputException : public CaravanException {
+public:
+    explicit CaravanInputException(std::string msg) : CaravanException(msg) {}
 };
 
 #endif //CARAVAN_CORE_EXCEPTIONS_H

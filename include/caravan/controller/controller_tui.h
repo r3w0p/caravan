@@ -12,6 +12,7 @@ public:
     explicit ControllerTUI() = default;
 
     void on_view_user_input(std::string input, bool confirmed) override;  // from ViewSubscriber
+    void close() override;
 };
 
 #endif //CARAVAN_CONTROLLER_TUI_H

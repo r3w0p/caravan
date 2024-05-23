@@ -4,23 +4,51 @@
 
 #include "caravan/model/game.h"
 
+const std::string EXC_CLOSED = "Game is closed.";
+
+/**
+ * @param gc Game configuration.
+ * 
+ * @throws CaravanFatalException Invalid player names.
+ */
+Game::Game(GameConfig gc) {
+    if (gc.pn_first == NO_PLAYER)
+        throw CaravanFatalException("Invalid player name for first player in game configuration.");
+
+    Deck *deck_top = DeckBuilder::build_caravan_deck(
+            gc.pa_num_cards,
+            gc.pa_num_sample_decks,
+            gc.pa_balanced_sample);
+
+    Deck *deck_bottom = DeckBuilder::build_caravan_deck(
+            gc.pb_num_cards,
+            gc.pb_num_sample_decks,
+            gc.pb_balanced_sample);
+
+    table_ptr = new Table();
+    pa_ptr = new Player(PLAYER_BOTTOM, deck_bottom);
+    pb_ptr = new Player(PLAYER_TOP, deck_top);
+
+    closed = false;
+    p_turn = gc.pn_first == pa_ptr->get_name() ? pa_ptr : pb_ptr;
+}
 
 void Game::close() {
-    if (closed)
-        throw CaravanFatalException("The game has already closed.");
+    if (!closed) {
+        table_ptr->close();
+        pa_ptr->close();
+        pb_ptr->close();
 
-    delete table_ptr;
-    delete deck_pa_ptr;
-    delete deck_pb_ptr;
-    delete pa_ptr;
-    delete pb_ptr;
+        delete table_ptr;
+        delete pa_ptr;
+        delete pb_ptr;
 
-    closed = true;
+        closed = true;
+    }
 }
 
 Player *Game::get_player(PlayerName pname) {
-    if (closed)
-        throw CaravanFatalException("The game has already closed.");
+    if (closed) throw CaravanFatalException(EXC_CLOSED);
 
     if (pa_ptr->get_name() == pname)
         return pa_ptr;
@@ -32,8 +60,7 @@ Player *Game::get_player(PlayerName pname) {
 }
 
 PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) {
-    if (closed)
-        throw CaravanFatalException("The game has already closed.");
+    if (closed) throw CaravanFatalException(EXC_CLOSED);
 
     if (pa_ptr->get_name() == pname)
         return PlayerCaravanNames{CARAVAN_A, CARAVAN_B, CARAVAN_C};
@@ -45,26 +72,23 @@ PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) {
 }
 
 PlayerName Game::get_player_turn() {
-    if (closed)
-        throw CaravanFatalException("The game has already closed.");
+    if (closed) throw CaravanFatalException(EXC_CLOSED);
 
     return p_turn->get_name();
 }
 
 Table *Game::get_table() {
-    if (closed)
-        throw CaravanFatalException("The game has already closed.");
+    if (closed) throw CaravanFatalException(EXC_CLOSED);
 
     return table_ptr;
 }
 
 PlayerName Game::get_winner() {
+    if (closed) throw CaravanFatalException(EXC_CLOSED);
+
     uint8_t won_pa;
     uint8_t won_pb;
     int8_t comp[3];
-
-    if (closed)
-        throw CaravanFatalException("The game has already closed.");
 
     // The first player with an empty hand loses
 
@@ -115,9 +139,7 @@ bool Game::is_closed() {
 }
 
 void Game::play_option(GameOption *go) {
-    if (closed)
-        throw CaravanFatalException(
-                "The game has already closed.");
+    if (closed) throw CaravanFatalException(EXC_CLOSED);
 
     if (get_winner() != NO_PLAYER)
         throw CaravanFatalException(
@@ -160,6 +182,8 @@ void Game::play_option(GameOption *go) {
 }
 
 CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
+    if (closed) throw CaravanFatalException(EXC_CLOSED);
+
     int8_t bidcomp = compare_bids(cvname1, cvname2);
 
     if (bidcomp < 0)

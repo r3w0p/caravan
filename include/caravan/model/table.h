@@ -20,11 +20,14 @@ protected:
     Caravan* f = new Caravan(CARAVAN_F);
 
     std::array<Caravan*, TABLE_CARAVANS_MAX> caravans = { a, b, c, d, e, f };
+    bool closed;
 
     uint8_t caravan_name_to_uint8_t_index(CaravanName cvname);
 
 public:
     explicit Table();
+
+    void close();
 
     void clear_caravan(CaravanName cvname);
 

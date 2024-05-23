@@ -16,21 +16,12 @@ protected:
     Hand hand;
     uint8_t i_hand;
     uint16_t moves;
+    bool closed;
 
 public:
-    explicit Player(PlayerName pn, Deck *d) {
-        name = pn;
-        deck = d;
-        hand = {};
-        i_hand = 0;
-        moves = 0;
+    explicit Player(PlayerName pn, Deck *d);
 
-        while (i_hand < HAND_SIZE_MAX_START) {
-            hand[i_hand] = deck->back();
-            deck->pop_back();
-            i_hand += 1;
-        }
-    }
+    void close();
 
     Card get_from_hand_at(uint8_t pos);
 

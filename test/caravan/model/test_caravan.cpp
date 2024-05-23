@@ -4,6 +4,7 @@
 
 #include "gtest/gtest.h"
 #include "caravan/model/caravan.h"
+#include "caravan/core/common.h"
 #include "caravan/core/exceptions.h"
 
 
@@ -332,8 +333,6 @@ TEST (TestCaravan, PutNumericCard_Error_CaravanFull) {
     Card c_num_7 = {SPADES, FIVE};
     Card c_num_8 = {SPADES, THREE};
     Card c_num_9 = {SPADES, FIVE};
-    Card c_num_10 = {SPADES, THREE};
-    Card c_num_11 = {SPADES, NINE};
 
     cvn.put_numeral_card(c_num_1);
     cvn.put_numeral_card(c_num_2);
@@ -343,13 +342,11 @@ TEST (TestCaravan, PutNumericCard_Error_CaravanFull) {
     cvn.put_numeral_card(c_num_6);
     cvn.put_numeral_card(c_num_7);
     cvn.put_numeral_card(c_num_8);
-    cvn.put_numeral_card(c_num_9);
-    cvn.put_numeral_card(c_num_10);
 
-    ASSERT_EQ(cvn.get_size(), 10);
+    ASSERT_EQ(cvn.get_size(), TRACK_NUMERIC_MAX);
 
     try {
-        cvn.put_numeral_card(c_num_11);
+        cvn.put_numeral_card(c_num_9);
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -437,19 +434,17 @@ TEST (TestCaravan, PutFaceCard_Error_FullFaceCardCapacity) {
     Card c_face_2 = {HEARTS, KING};
     Card c_face_3 = {HEARTS, KING};
     Card c_face_4 = {HEARTS, KING};
-    Card c_face_5 = {HEARTS, KING};
-    Card c_face_6 = {HEARTS, KING};
     Slot ts;
 
     cvn.put_numeral_card(c_num);
     cvn.put_face_card(c_face_1, 1);
     cvn.put_face_card(c_face_2, 1);
     cvn.put_face_card(c_face_3, 1);
-    cvn.put_face_card(c_face_4, 1);
-    cvn.put_face_card(c_face_5, 1);
+
+    ASSERT_EQ(cvn.get_slot(1).faces.size(), TRACK_FACE_MAX);
 
     try {
-        cvn.put_face_card(c_face_6, 1);
+        cvn.put_face_card(c_face_4, 1);
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -640,7 +635,7 @@ TEST (TestCaravan, RemoveSuit_Error_ExcludeOutOfRange) {
     }
 }
 
-TEST (TestCaravan, RemoveNumericCard_RemovePos10) {
+TEST (TestCaravan, RemoveNumericCard_WithJack_Position8) {
     auto cvn = Caravan(CARAVAN_D);
 
     cvn.put_numeral_card({SPADES, ACE});
@@ -651,23 +646,21 @@ TEST (TestCaravan, RemoveNumericCard_RemovePos10) {
     cvn.put_numeral_card({SPADES, SIX});
     cvn.put_numeral_card({SPADES, SEVEN});
     cvn.put_numeral_card({SPADES, EIGHT});
-    cvn.put_numeral_card({SPADES, NINE});
-    cvn.put_numeral_card({SPADES, TEN});
 
-    ASSERT_EQ(cvn.get_size(), 10);
+    ASSERT_EQ(cvn.get_size(), 8);
 
-    cvn.put_face_card({SPADES, JACK}, 10);
+    cvn.put_face_card({SPADES, JACK}, 8);
 
-    ASSERT_EQ(cvn.get_size(), 9);
+    ASSERT_EQ(cvn.get_size(), 7);
 
     ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
     ASSERT_EQ(cvn.get_slot(1).card.rank, ACE);
 
-    ASSERT_EQ(cvn.get_slot(9).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(9).card.rank, NINE);
+    ASSERT_EQ(cvn.get_slot(7).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(7).card.rank, SEVEN);
 
     try {
-        cvn.get_slot(10);
+        cvn.get_slot(8);
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -678,7 +671,7 @@ TEST (TestCaravan, RemoveNumericCard_RemovePos10) {
 }
 
 
-TEST (TestCaravan, RemoveNumericCard_RemovePos1) {
+TEST (TestCaravan, RemoveNumericCard_WithJack_Position1) {
     auto cvn = Caravan(CARAVAN_D);
 
     cvn.put_numeral_card({SPADES, ACE});
@@ -689,23 +682,21 @@ TEST (TestCaravan, RemoveNumericCard_RemovePos1) {
     cvn.put_numeral_card({SPADES, SIX});
     cvn.put_numeral_card({SPADES, SEVEN});
     cvn.put_numeral_card({SPADES, EIGHT});
-    cvn.put_numeral_card({SPADES, NINE});
-    cvn.put_numeral_card({SPADES, TEN});
 
-    ASSERT_EQ(cvn.get_size(), 10);
+    ASSERT_EQ(cvn.get_size(), 8);
 
     cvn.put_face_card({SPADES, JACK}, 1);
 
-    ASSERT_EQ(cvn.get_size(), 9);
+    ASSERT_EQ(cvn.get_size(), 7);
 
     ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
     ASSERT_EQ(cvn.get_slot(1).card.rank, TWO);
 
-    ASSERT_EQ(cvn.get_slot(9).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(9).card.rank, TEN);
+    ASSERT_EQ(cvn.get_slot(7).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(7).card.rank, EIGHT);
 
     try {
-        cvn.get_slot(10);
+        cvn.get_slot(8);
         FAIL();
 
     } catch (CaravanGameException &e) {
@@ -715,7 +706,7 @@ TEST (TestCaravan, RemoveNumericCard_RemovePos1) {
     }
 }
 
-TEST (TestCaravan, RemoveNumericCard_RemovePos5) {
+TEST (TestCaravan, RemoveNumericCard_WithJack_Position5) {
     auto cvn = Caravan(CARAVAN_D);
 
     cvn.put_numeral_card({SPADES, ACE});
@@ -726,14 +717,12 @@ TEST (TestCaravan, RemoveNumericCard_RemovePos5) {
     cvn.put_numeral_card({SPADES, SIX});
     cvn.put_numeral_card({SPADES, SEVEN});
     cvn.put_numeral_card({SPADES, EIGHT});
-    cvn.put_numeral_card({SPADES, NINE});
-    cvn.put_numeral_card({SPADES, TEN});
 
-    ASSERT_EQ(cvn.get_size(), 10);
+    ASSERT_EQ(cvn.get_size(), 8);
 
     cvn.put_face_card({SPADES, JACK}, 5);
 
-    ASSERT_EQ(cvn.get_size(), 9);
+    ASSERT_EQ(cvn.get_size(), 7);
 
     ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
     ASSERT_EQ(cvn.get_slot(1).card.rank, ACE);
@@ -741,11 +730,11 @@ TEST (TestCaravan, RemoveNumericCard_RemovePos5) {
     ASSERT_EQ(cvn.get_slot(5).card.suit, SPADES);
     ASSERT_EQ(cvn.get_slot(5).card.rank, SIX);
 
-    ASSERT_EQ(cvn.get_slot(9).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(9).card.rank, TEN);
+    ASSERT_EQ(cvn.get_slot(7).card.suit, SPADES);
+    ASSERT_EQ(cvn.get_slot(7).card.rank, EIGHT);
 
     try {
-        cvn.get_slot(10);
+        cvn.get_slot(8);
         FAIL();
 
     } catch (CaravanGameException &e) {

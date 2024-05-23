@@ -33,6 +33,8 @@ const uint16_t HEIGHT_CARD = 2;
 const uint16_t WIDTH_FACES = 5;
 const uint16_t HEIGHT_FACES = 2;
 
+const uint8_t INPUT_MAX = 4;
+
 std::shared_ptr<ftxui::Node> gen_position(std::string position) {
     using namespace ftxui;
     return text(position) | borderEmpty | size(WIDTH, EQUAL, WIDTH_POSITION) | size(HEIGHT, EQUAL, HEIGHT_POSITION);
@@ -139,36 +141,52 @@ std::shared_ptr<ftxui::Node> gen_deck(std::string title, bool top, bool hide) {
 
 std::shared_ptr<ftxui::Node> gen_input(
         std::shared_ptr<ftxui::ComponentBase> comp_user_input,
-        std::string user_input,
-        std::string command,
-        std::string message) {
+        std::array<std::string, 2> notifs,
+        std::array<std::string, 2> moves) {
     using namespace ftxui;
-    return vbox({
-        separatorEmpty(),
-        hbox(separatorEmpty(), text("YOU > "), comp_user_input->Render(), separatorEmpty()),
-        separatorEmpty(),
+    Elements e;
 
-        separator(),
+    e.push_back(separatorEmpty());
+    e.push_back(hbox(separatorEmpty(), text("YOU > "), comp_user_input->Render(), separatorEmpty()));  // TODO
+    e.push_back(separatorEmpty());
 
-        separatorEmpty(),
-        hbox(separatorEmpty(), paragraph("YOU played KH onto 8C on Caravan C."), separatorEmpty()),
-        separatorEmpty(),
-        hbox(separatorEmpty(), paragraph("OPP has yet to move."), separatorEmpty()),
-        separatorEmpty(),
+    if(!notifs[0].empty() || !notifs[1].empty()) {
+        e.push_back(separator());
+        e.push_back(separatorEmpty());
 
-        separator(),
+        if(!notifs[0].empty()) {
+            e.push_back(hbox(separatorEmpty(), paragraph(notifs[0]), separatorEmpty()));
+            e.push_back(separatorEmpty());
+        }
 
-        separatorEmpty(),
-        hbox(separatorEmpty(), paragraph("YOU to move next."), separatorEmpty()),
-        separatorEmpty(),
-    }) | border | size(WIDTH, EQUAL, 44);
+        if(!notifs[1].empty()) {
+            e.push_back(hbox(separatorEmpty(), paragraph(notifs[1]), separatorEmpty()));
+            e.push_back(separatorEmpty());
+        }
+    }
+
+    if(!moves[0].empty() || !moves[1].empty()) {
+        e.push_back(separator());
+        e.push_back(separatorEmpty());
+
+        if(!moves[0].empty()) {
+            e.push_back(hbox(separatorEmpty(), paragraph(moves[0]), separatorEmpty()));
+            e.push_back(separatorEmpty());
+        }
+
+        if(!moves[1].empty()) {
+            e.push_back(hbox(separatorEmpty(), paragraph(moves[1]), separatorEmpty()));
+            e.push_back(separatorEmpty());
+        }
+    }
+
+    return vbox(e) | border | size(WIDTH, EQUAL, 44);
 }
 
 std::shared_ptr<ftxui::Node> gen_game(
         std::shared_ptr<ftxui::ComponentBase> comp_user_input,
-        std::string user_input,
-        std::string command,
-        std::string message) {
+        std::array<std::string, 2> notifs,
+        std::array<std::string, 2> moves) {
     using namespace ftxui;
     return hbox({  // OUTERMOST AREA
 
@@ -219,7 +237,7 @@ std::shared_ptr<ftxui::Node> gen_game(
         vbox({  // INPUT AREA
             hbox({}) | borderEmpty | size(HEIGHT, EQUAL, HEIGHT_CARAVAN),
             separatorEmpty(),
-            gen_input(comp_user_input, user_input, command, message)
+            gen_input(comp_user_input, notifs, moves)
         }),  // input area
 
     }) | center;  // outermost area
@@ -234,7 +252,14 @@ std::shared_ptr<ftxui::Node> gen_terminal_too_small(
         text("Width:  " + std::to_string(terminal_size.dimx) + " < " + std::to_string(MIN_X)),
         text("Height: " + std::to_string(terminal_size.dimy) + " < " + std::to_string(MIN_Y)),
         separatorEmpty(),
-        text("Resize terminal or press Ctrl+C"),
+        text("Resize terminal or type Ctrl+C"),
+    }) | center;
+}
+
+std::shared_ptr<ftxui::Node> gen_closed() {
+    using namespace ftxui;
+    return vbox({
+        text(""),
     }) | center;
 }
 
@@ -244,12 +269,18 @@ void ViewTUI::run() {
 
     if(closed) return;
 
-    // Input data
-    std::string user_input;
-    bool confirmed;
-    std::string command;
-    std::string message;
+    // Screen config
+    bool exited;
     Dimensions terminal_size {};
+
+    // User input
+    std::string user_input;
+    std::string command;
+    bool confirmed;
+
+    // Messages to users
+    std::array<std::string, 2> notifs;
+    std::array<std::string, 2> moves;
 
     // Create screen
     ScreenInteractive screen = ScreenInteractive::Fullscreen();
@@ -264,45 +295,71 @@ void ViewTUI::run() {
 
     // Ensure maximum input length
     comp_user_input |= CatchEvent([&](Event event) {
-        return event.is_character() && user_input.size() >= 5;  // TODO what is max input size?
+        return event.is_character() && user_input.size() >= INPUT_MAX;
     });
 
     // Component tree
     auto component = Container::Vertical({ comp_user_input });
 
+    // Initial notifications
+    notifs[0] = "Welcome to Caravan";
+    notifs[1] = "YOU to move first.";  // TODO
+
     // Tweak how the component tree is rendered:
     auto renderer = Renderer(component, [&] {
-        // Closes on exit command from user input
-        if(closed) screen.Exit();
+        try {
+            if(closed) {
+                if(!exited) {
+                    exited = true;
+                    screen.Exit();
+                }
+                return gen_closed();
+            }
 
-        terminal_size = Terminal::Size();
+            terminal_size = Terminal::Size();
 
-        // Error screen if less than minimum terminal dimensions
-        if (terminal_size.dimx < MIN_X || terminal_size.dimy < MIN_Y) {
-            user_input = "";  // Prevent user input change during error
-            return gen_terminal_too_small(terminal_size);
+            // Error screen if less than minimum terminal dimensions
+            if (terminal_size.dimx < MIN_X || terminal_size.dimy < MIN_Y) {
+                user_input = "";  // Prevent user input change during error
+                return gen_terminal_too_small(terminal_size);
+            }
+
+            // Handle user input
+            command = user_input;
+            if(command.ends_with('\n')) {
+                command.pop_back();  // removes '\n'
+                user_input = "";
+                confirmed = true;
+
+                if(!command.empty())
+                    notifs[0] = "YOU entered: " + command;  // TODO player name
+
+            } else {
+                confirmed = false;
+            }
+
+            // Send input to subscribers (i.e., Controller)
+            try {
+                for (ViewSubscriber *vs: subscribers) {
+                    vs->on_view_user_input(command, confirmed);
+                }
+            } catch(CaravanInputException &e) {
+                // TODO on exception, show the previous command entered alongside error message
+                //  "YOU entered P4F8. [error message]"
+                notifs[1] = e.what();
+            }
+
+            // TODO replace this with an 'exit early' signal from the model
+            //  (i.e. not exciting because game has finished, but because of an exit signal from user)
+            //if(command == "EXIT") screen.Exit();
+
+            return gen_game(comp_user_input, notifs, moves);
+
+        } catch(...) {
+            // Close gracefully on any unhandled exceptions
+            closed = true;
+            return gen_closed();
         }
-
-        // Handle user input
-        command = user_input;
-        if(command.ends_with('\n')) {
-            command.pop_back();  // removes '\n'
-            user_input = "";
-            confirmed = true;
-        } else {
-            confirmed = false;
-        }
-
-        // Send input to subscribers (i.e., Controller)
-        for (ViewSubscriber *vs: subscribers) {
-            vs->on_view_user_input(command, confirmed);
-        }
-
-        // TODO replace this with an 'exit early' signal from the model
-        //  (i.e. not exciting because game has finished, but because of an exit signal from user)
-        //if(command == "EXIT") screen.Exit();
-
-        return gen_game(comp_user_input, user_input, command, message);
     });
 
     screen.Loop(renderer);
