@@ -24,10 +24,10 @@ jobs:
             compiler_cc: clang
             compiler_cpp: clang++
 
-          - name: MacOS GCC-8
+          - name: MacOS Clang
             os: macos-latest
-            compiler_cc: gcc-8
-            compiler_cpp: gcc++-8
+            compiler_cc: clang
+            compiler_cpp: clang++
 
           - name: Windows GCC
             os: windows-latest
