@@ -8,6 +8,6 @@ bool UserHuman::is_human() {
     return true;
 }
 
-bool UserBot::is_human() {
-    return false;
+GameCommand UserHuman::generate_option(Game *g) {
+    return {};
 }

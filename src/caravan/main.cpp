@@ -21,7 +21,7 @@ int main() {
 
     try {
         user_abc = new UserHuman(PLAYER_ABC);
-        user_def = new UserHuman(PLAYER_DEF);
+        user_def = new UserBotEasy(PLAYER_DEF);
         game = new Game(config);  // TODO
 
         v = new ViewTUI(user_abc, user_def, game);

@@ -17,8 +17,8 @@ public:
     explicit User(PlayerName pn) : name(pn) {};
 
     PlayerName get_name() { return name; }
-
     virtual bool is_human() = 0;
+    virtual GameCommand generate_option(Game *g) = 0;
 };
 
 class UserHuman : public User {
@@ -26,15 +26,7 @@ public:
     explicit UserHuman(PlayerName pn) : User(pn) {};
 
     bool is_human() override;
-};
-
-class UserBot : public User {
-public:
-    explicit UserBot(PlayerName pn) : User(pn) {};
-
-    bool is_human() override;
-
-    virtual GameCommand generate_option(Game *g) = 0;
+    GameCommand generate_option(Game *g) override;
 };
 
 #endif //CARAVAN_USER_H

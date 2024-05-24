@@ -26,6 +26,14 @@ uint8_t pos_card_numeral(Player *p) {
     return 0;
 }
 
+/*
+ * PUBLIC
+ */
+
+bool UserBotEasy::is_human() {
+    return false;
+}
+
 GameCommand UserBotEasy::generate_option(Game *g) {
     Player *p;
     uint8_t p_hand_size;

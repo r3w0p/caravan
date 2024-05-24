@@ -198,10 +198,10 @@ std::shared_ptr<ftxui::Node> suit_to_text(ViewConfig *vc, Suit suit) {
                 return node_suit;
             case SPADES:
             case CLUBS:
-                return node_suit | color(Color::Blue);
+                return node_suit | color(Color::Palette16::BlueLight);
             case HEARTS:
             case DIAMONDS:
-                return node_suit | color(Color::Red);
+                return node_suit | color(Color::Palette16::RedLight);
             default:
                 throw CaravanFatalException("Invalid suit.");
         }
@@ -860,9 +860,7 @@ void ViewTUI::run() {
     // Tweak how the component tree is rendered:
     auto renderer = Renderer(component, [&] {
         try {
-            if (closed) {
-                return gen_closed();
-            }
+            if (closed) { return gen_closed(); }
 
             terminal_size = Terminal::Size();
             set_current_turn(&vc, game);
@@ -874,24 +872,27 @@ void ViewTUI::run() {
                 return gen_terminal_too_small(terminal_size);
             }
 
-            // TODO if current turn is bot... (also, block input)
+            if(vc.user_turn->is_human()) {
+                // Create new command if ENTER key pressed (i.e., if newline)
+                raw_command = user_input;
+                if (raw_command.ends_with('\n')) {
+                    raw_command.pop_back();  // remove newline
+                    confirmed = true;
+                    user_input = "";
 
-            // Create new command if ENTER key pressed (i.e., if newline)
-            raw_command = user_input;
-            if (raw_command.ends_with('\n')) {
-                raw_command.pop_back();  // remove newline
-                confirmed = true;
-
-                user_input = "";
-
-                if (!raw_command.empty()) {
-                    vc.msg_notif = vc.name_turn + " entered: " + raw_command;
+                    if (!raw_command.empty()) {
+                        vc.msg_notif = vc.name_turn + " entered: " + raw_command;
+                    }
                 }
+
+            } else {  // user with current turn is a bot
+                vc.command = vc.user_turn->generate_option(game);  // TODO generate raw command instead
+                vc.msg_notif = vc.name_turn + " made its move.";  // TODO display raw command
             }
 
-            // Process command
             try {
-                vc.command = parse_user_input(raw_command, confirmed);
+                // Parse raw command to get usable command
+                if (vc.user_turn->is_human()) { vc.command = parse_user_input(raw_command, confirmed); }  // TODO change to allow for bot's raw command
 
                 switch (vc.command.option) {
                     case NO_OPTION:

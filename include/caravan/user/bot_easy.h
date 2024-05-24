@@ -8,10 +8,11 @@
 
 #include "caravan/user/user.h"
 
-class UserBotEasy : public UserBot {
+class UserBotEasy : public User {
 public:
-    explicit UserBotEasy(PlayerName pn) : UserBot(pn) {};
+    explicit UserBotEasy(PlayerName pn) : User(pn) {};
 
+    bool is_human() override;
     GameCommand generate_option(Game *g) override;
 };
 
