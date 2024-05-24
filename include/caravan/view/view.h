@@ -18,13 +18,15 @@ protected:
     bool closed;
 public:
     virtual ~View() = default;
+
     explicit View(User *user_abc, User *user_def, Game *game) :
-            user_abc(user_abc),
-            user_def(user_def),
-            game(game),
-            closed(false) {};
+        user_abc(user_abc),
+        user_def(user_def),
+        game(game),
+        closed(false) {};
 
     virtual void run() = 0;
+
     virtual void close() = 0;
 };
 

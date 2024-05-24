@@ -19,10 +19,14 @@ protected:
     bool closed;
 
     int8_t compare_bids(CaravanName cvname1, CaravanName cvname2);
+
     bool has_sold(CaravanName cvname);
-    void option_clear(Player *pptr, GameCommand* command);
-    void option_discard(Player *pptr, GameCommand* command);
-    void option_play(Player *pptr, GameCommand* command);
+
+    void option_clear(Player *pptr, GameCommand *command);
+
+    void option_discard(Player *pptr, GameCommand *command);
+
+    void option_play(Player *pptr, GameCommand *command);
 
 public:
     explicit Game(GameConfig config);
@@ -43,7 +47,7 @@ public:
 
     bool is_closed();
 
-    void play_option(GameCommand* command);
+    void play_option(GameCommand *command);
 };
 
 #endif //CARAVAN_MODEL_GAME_H

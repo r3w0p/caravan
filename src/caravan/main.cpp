@@ -14,9 +14,9 @@ int main() {
     ViewTUI *v;
 
     GameConfig config = {  // TODO
-    30, 1, true,
-    30, 1, true,
-    PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
 
     try {

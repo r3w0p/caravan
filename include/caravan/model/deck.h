@@ -17,9 +17,9 @@ public:
     DeckBuilder() = delete;
 
     static Deck *build_caravan_deck(
-            uint8_t num_cards,
-            uint8_t num_sample_decks,
-            bool balanced_sample);
+        uint8_t num_cards,
+        uint8_t num_sample_decks,
+        bool balanced_sample);
 };
 
 #endif //CARAVAN_MODEL_DECK_H

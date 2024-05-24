@@ -13,6 +13,7 @@ protected:
     PlayerName name;
 public:
     virtual ~User() = default;
+
     explicit User(PlayerName pn) : name(pn) {};
 
     PlayerName get_name() { return name; }
@@ -32,6 +33,7 @@ public:
     explicit UserBot(PlayerName pn) : User(pn) {};
 
     bool is_human() override;
+
     virtual GameCommand generate_option(Game *g) = 0;
 };
 

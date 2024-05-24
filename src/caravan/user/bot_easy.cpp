@@ -17,9 +17,11 @@ uint8_t pos_card_numeral(Player *p) {
     uint8_t size_hand = p->get_size_hand();
     Hand h = p->get_hand();
 
-    for (int i = 0; i < size_hand; ++i)
-        if (is_numeral_card(h[i]))
+    for (int i = 0; i < size_hand; ++i) {
+        if (is_numeral_card(h[i])) {
             return i + 1;
+        }
+    }
 
     return 0;
 }
@@ -41,41 +43,47 @@ GameCommand UserBotEasy::generate_option(Game *g) {
     uint8_t i_cvn_most_cards;
     uint8_t n_cvn_most_cards;
 
-    if (g->is_closed())
+    if (g->is_closed()) {
         throw CaravanFatalException("The game has already closed.");
+    }
 
     p = g->get_player(name);
     p_hand_size = p->get_size_hand();
 
-    if (p_hand_size == 0)
+    if (p_hand_size == 0) {
         throw CaravanFatalException("Bot has an empty hand.");
+    }
 
     pcns_me = g->get_player_caravan_names(name);
     pcns_opp = g->get_player_caravan_names(
-            name == PLAYER_ABC ? PLAYER_DEF : PLAYER_ABC);
+        name == PLAYER_ABC ? PLAYER_DEF : PLAYER_ABC);
 
     // Add numeral cards for start round
     if (p->get_moves_count() < MOVES_START_ROUND) {
         pos_hand = pos_card_numeral(p);
 
-        if (pos_hand == 0)
+        if (pos_hand == 0) {
             throw CaravanFatalException(
-                    "Bot does not have enough numeral cards to finish "
-                    "the Start round.");
+                "Bot does not have enough numeral cards to finish "
+                "the Start round.");
+        }
 
         moves = p->get_moves_count();
 
-        if (moves == 0)
+        if (moves == 0) {
             return {OPTION_PLAY, pos_hand, pcns_me[0], 0};
+        }
 
-        if (moves == 1)
+        if (moves == 1) {
             return {OPTION_PLAY, pos_hand, pcns_me[1], 0};
+        }
 
-        if (moves == 2)
+        if (moves == 2) {
             return {OPTION_PLAY, pos_hand, pcns_me[2], 0};
+        }
 
         throw CaravanFatalException(
-                "Bot cannot be in Start state after 3 moves.");
+            "Bot cannot be in Start state after 3 moves.");
 
     } else {
         // After start round
@@ -92,44 +100,52 @@ GameCommand UserBotEasy::generate_option(Game *g) {
                     // Skip caravan if sold and winning
                     if (bid_me >= CARAVAN_SOLD_MIN and
                         bid_me <= CARAVAN_SOLD_MAX and
-                        (bid_opp > CARAVAN_SOLD_MAX or bid_me > bid_opp))
+                        (bid_opp > CARAVAN_SOLD_MAX or bid_me > bid_opp)) {
                         continue;
+                    }
 
                     // Clear caravan if bust
-                    if (bid_me > CARAVAN_SOLD_MAX)
+                    if (bid_me > CARAVAN_SOLD_MAX) {
                         return {OPTION_CLEAR, 0, pcns_me[i], 0};
+                    }
 
                     size_cvn = t->get_caravan(pcns_me[i])->get_size();
 
                     // Not sold and caravan full, clear
-                    if (size_cvn == TRACK_NUMERIC_MAX)
+                    if (size_cvn == TRACK_NUMERIC_MAX) {
                         return {OPTION_CLEAR, 0, pcns_me[i], 0};
+                    }
 
                     // Play card if empty
-                    if (size_cvn == 0)
+                    if (size_cvn == 0) {
                         return {OPTION_PLAY, pos, pcns_me[i], 0};
+                    }
 
                     slot_cvn = t->get_caravan(pcns_me[i])->get_slot(size_cvn);
 
                     // Cards have same rank
-                    if (slot_cvn.card.rank == c_hand.rank)
+                    if (slot_cvn.card.rank == c_hand.rank) {
                         continue;
+                    }
 
                     // Same suit, play anything
-                    if (slot_cvn.card.suit == c_hand.suit)
+                    if (slot_cvn.card.suit == c_hand.suit) {
                         return {OPTION_PLAY, pos, pcns_me[i], 0};
+                    }
 
                     dir_cvn = t->get_caravan(pcns_me[i])->get_direction();
 
                     // Card ascending with caravan
                     if (dir_cvn == ASCENDING and
-                        c_hand.rank > slot_cvn.card.rank)
+                        c_hand.rank > slot_cvn.card.rank) {
                         return {OPTION_PLAY, pos, pcns_me[i], 0};
+                    }
 
                     // Card descending with caravan
                     if (dir_cvn == DESCENDING and
-                        c_hand.rank < slot_cvn.card.rank)
+                        c_hand.rank < slot_cvn.card.rank) {
                         return {OPTION_PLAY, pos, pcns_me[i], 0};
+                    }
                 }
 
             } else {
@@ -140,8 +156,9 @@ GameCommand UserBotEasy::generate_option(Game *g) {
                 for (uint8_t i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
                     size_cvn = t->get_caravan(pcns_opp[i])->get_size();
 
-                    if (size_cvn == 0)
+                    if (size_cvn == 0) {
                         continue;
+                    }
 
                     if (size_cvn > n_cvn_most_cards) {
                         i_cvn_most_cards = i;

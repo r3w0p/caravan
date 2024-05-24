@@ -20,6 +20,7 @@ protected:
     bool closed;
 
     static uint8_t numeral_rank_to_uint8_t(Rank rank);
+
     void remove_numeral_card(uint8_t index);
 
 public:

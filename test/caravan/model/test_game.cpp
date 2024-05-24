@@ -8,9 +8,9 @@
 
 TEST (TestGame, Close) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     Game g{gc};
 
@@ -21,9 +21,9 @@ TEST (TestGame, Close) {
 
 TEST (TestGame, GetPlayer_Both) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     Game g{gc};
 
@@ -33,9 +33,9 @@ TEST (TestGame, GetPlayer_Both) {
 
 TEST (TestGame, GetPlayer_Error_AlreadyClosed) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     Game g{gc};
 
@@ -54,9 +54,9 @@ TEST (TestGame, GetPlayer_Error_AlreadyClosed) {
 
 TEST (TestGame, GetPlayer_Error_InvalidName) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     Game g{gc};
 
@@ -73,9 +73,9 @@ TEST (TestGame, GetPlayer_Error_InvalidName) {
 
 TEST (TestGame, GetPlayerTurn) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     Game g{gc};
 
@@ -84,9 +84,9 @@ TEST (TestGame, GetPlayerTurn) {
 
 TEST (TestGame, GetPlayerTurn_Error_AlreadyClosed) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     Game g{gc};
 
@@ -105,9 +105,9 @@ TEST (TestGame, GetPlayerTurn_Error_AlreadyClosed) {
 
 TEST (TestGame, GetTable_Error_AlreadyClosed) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     Game g{gc};
 
@@ -126,9 +126,9 @@ TEST (TestGame, GetTable_Error_AlreadyClosed) {
 
 TEST (TestGame, GetWinner_NoMoves) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     Game g{gc};
 
@@ -137,9 +137,9 @@ TEST (TestGame, GetWinner_NoMoves) {
 
 TEST (TestGame, GetWinner_Error_AlreadyClosed) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     Game g{gc};
 
@@ -158,9 +158,9 @@ TEST (TestGame, GetWinner_Error_AlreadyClosed) {
 
 TEST (TestGame, PlayOption_Error_AlreadyClosed) {
     GameConfig gc = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     GameCommand command = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
     Game g{gc};
@@ -180,9 +180,9 @@ TEST (TestGame, PlayOption_Error_AlreadyClosed) {
 
 TEST (TestGame, PlayOption_Error_StartRound_Remove) {
     GameConfig config = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     GameCommand command = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
     Game g{config};
@@ -200,9 +200,9 @@ TEST (TestGame, PlayOption_Error_StartRound_Remove) {
 
 TEST (TestGame, PlayOption_Error_StartRound_Clear) {
     GameConfig config = {
-            30, 1, true,
-            30, 1, true,
-            PLAYER_ABC
+        30, 1, true,
+        30, 1, true,
+        PLAYER_ABC
     };
     GameCommand command = {OPTION_CLEAR, 0, CARAVAN_A, 0};
     Game g{config};

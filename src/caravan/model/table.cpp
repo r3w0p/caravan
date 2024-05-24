@@ -42,7 +42,7 @@ void Table::close() {
  * @throws CaravanFatalException Table is closed.
  */
 Caravan *Table::get_caravan(CaravanName cvname) {
-    if (closed) throw CaravanFatalException(EXC_CLOSED);
+    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     switch (cvname) {
         case CARAVAN_A:
             return a;
@@ -67,7 +67,7 @@ Caravan *Table::get_caravan(CaravanName cvname) {
  * @throws CaravanFatalException Table is closed.
  */
 void Table::clear_caravan(CaravanName cvname) {
-    if (closed) throw CaravanFatalException(EXC_CLOSED);
+    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     get_caravan(cvname)->clear();
 }
 
@@ -80,12 +80,13 @@ void Table::clear_caravan(CaravanName cvname) {
  * @throws CaravanFatalException Table is closed.
  */
 void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
-    if (closed) throw CaravanFatalException(EXC_CLOSED);
+    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     Caravan *cvn_target = get_caravan(cvname);
 
-    if (card.rank == QUEEN and pos != cvn_target->get_size())
+    if (card.rank == QUEEN and pos != cvn_target->get_size()) {
         throw CaravanGameException(
-                "A QUEEN can only be played on the latest numeral card in a caravan.");
+            "A QUEEN can only be played on the latest numeral card in a caravan.");
+    }
 
     // Play Face card on Caravan.
     // Returns the Numeric card that the Face card was played on.
@@ -94,23 +95,26 @@ void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
     // If Face card was JOKER.
     if (card.rank == JOKER) {
         // Remove from original caravan, excluding the affected card.
-        if (c_target.rank == ACE)
+        if (c_target.rank == ACE) {
             cvn_target->remove_suit(c_target.suit, pos);
-        else
+        } else {
             cvn_target->remove_rank(c_target.rank, pos);
+        }
 
         // Remove from other caravans, not excluding any cards.
         for (int k = 0; k < TABLE_CARAVANS_MAX; k++) {
             Caravan *p_next = caravans[k];
 
             // Ignore original caravan already handled.
-            if (p_next->get_name() == cvn_target->get_name())
+            if (p_next->get_name() == cvn_target->get_name()) {
                 continue;
+            }
 
-            if (c_target.rank == ACE)
+            if (c_target.rank == ACE) {
                 p_next->remove_suit(c_target.suit, 0);
-            else
+            } else {
                 p_next->remove_rank(c_target.rank, 0);
+            }
         }
     }
 }
@@ -122,6 +126,6 @@ void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
  * @throws CaravanFatalException Table is closed.
  */
 void Table::play_numeral_card(CaravanName cvname, Card card) {
-    if (closed) throw CaravanFatalException(EXC_CLOSED);
+    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     get_caravan(cvname)->put_numeral_card(card);
 }

@@ -82,30 +82,30 @@ typedef std::array<Card, TRACK_FACE_MAX> Faces;
 typedef std::array<CaravanName, 3> PlayerCaravanNames;
 
 typedef struct Slot {
-    Card card {};
-    Faces faces {};
+    Card card{};
+    Faces faces{};
     uint8_t i_faces = 0;
 } Slot;
 
 typedef std::array<Slot, TRACK_NUMERIC_MAX> Track;
 
 typedef struct GameConfig {
-    uint8_t pa_num_cards {0};
-    uint8_t pa_num_sample_decks {0};
-    bool pa_balanced_sample {false};
+    uint8_t pa_num_cards{0};
+    uint8_t pa_num_sample_decks{0};
+    bool pa_balanced_sample{false};
 
-    uint8_t pb_num_cards {0};
-    uint8_t pb_num_sample_decks {0};
-    bool pb_balanced_sample {false};
+    uint8_t pb_num_cards{0};
+    uint8_t pb_num_sample_decks{0};
+    bool pb_balanced_sample{false};
 
-    PlayerName pn_first {NO_PLAYER};
+    PlayerName pn_first{NO_PLAYER};
 } GameConfig;
 
 typedef struct GameCommand {
-    OptionType option {NO_OPTION};
-    uint8_t pos_hand {0};
-    CaravanName caravan_name {NO_CARAVAN};
-    uint8_t pos_caravan {0};
+    OptionType option{NO_OPTION};
+    uint8_t pos_hand{0};
+    CaravanName caravan_name{NO_CARAVAN};
+    uint8_t pos_caravan{0};
     Card hand{};
     Card board{};
 } GameCommand;
@@ -115,6 +115,7 @@ typedef struct GameCommand {
  */
 
 bool is_numeral_card(Card c);
+
 bool is_face_card(Card c);
 
 #endif //CARAVAN_CORE_COMMON_H

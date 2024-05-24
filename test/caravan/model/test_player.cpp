@@ -24,7 +24,7 @@ TEST (TestPlayer, GetFromHandAt_Position1) {
 
     c_getagain = pl.get_hand()[0];
     ASSERT_TRUE(
-            c_getagain.suit == c_take.suit and c_getagain.rank == c_take.rank);
+        c_getagain.suit == c_take.suit and c_getagain.rank == c_take.rank);
 }
 
 TEST (TestPlayer, GetName) {

@@ -28,9 +28,9 @@
  * @throws CaravanFatalException Insufficient cards to sample in order to build deck.
  */
 Deck *DeckBuilder::build_caravan_deck(
-        uint8_t num_cards,
-        uint8_t num_sample_decks,
-        bool balanced_sample) {
+    uint8_t num_cards,
+    uint8_t num_sample_decks,
+    bool balanced_sample) {
 
     uint8_t total_sample_cards;
     Deck sample_decks[3];
@@ -40,23 +40,26 @@ Deck *DeckBuilder::build_caravan_deck(
     uint8_t first_hand_num_cards;
 
     if (num_cards < DECK_CARAVAN_MIN or
-        num_cards > DECK_CARAVAN_MAX)
+        num_cards > DECK_CARAVAN_MAX) {
         throw CaravanFatalException(
-                "A caravan deck must have between "
-                "30 and 156 cards (inclusive).");
+            "A caravan deck must have between "
+            "30 and 156 cards (inclusive).");
+    }
 
     if (num_sample_decks < SAMPLE_DECKS_MIN or
-        num_sample_decks > SAMPLE_DECKS_MAX)
+        num_sample_decks > SAMPLE_DECKS_MAX) {
         throw CaravanFatalException(
-                "A caravan deck must sample from between "
-                "1 and 3 standard card decks (inclusive).");
+            "A caravan deck must sample from between "
+            "1 and 3 standard card decks (inclusive).");
+    }
 
     total_sample_cards = num_sample_decks * DECK_STANDARD_MAX;
 
-    if (total_sample_cards < num_cards)
+    if (total_sample_cards < num_cards) {
         throw CaravanFatalException(
-                "There are insufficient cards to sample for the "
-                "caravan deck.");
+            "There are insufficient cards to sample for the "
+            "caravan deck.");
+    }
 
     d = new Deck();
 
@@ -65,8 +68,9 @@ Deck *DeckBuilder::build_caravan_deck(
         i_next = 0;
         first_hand_num_cards = 0;
 
-        for (int i = 0; i < num_sample_decks; ++i)
+        for (int i = 0; i < num_sample_decks; ++i) {
             sample_decks[i] = DeckBuilder::build_standard_deck(true);
+        }
 
         if (balanced_sample) {
             // Sample decks in a round-robin fashion
@@ -78,8 +82,9 @@ Deck *DeckBuilder::build_caravan_deck(
                 i_next = (i_next + 1) % num_sample_decks;
 
                 if ((num_cards - d->size()) < HAND_SIZE_MAX_START and
-                    is_numeral_card(c_next))
+                    is_numeral_card(c_next)) {
                     first_hand_num_cards += 1;
+                }
             }
 
         } else {
@@ -87,7 +92,7 @@ Deck *DeckBuilder::build_caravan_deck(
             std::random_device rd;
             std::mt19937 gen(rd());
             std::uniform_int_distribution<> distr(
-                    0, num_sample_decks - 1);
+                0, num_sample_decks - 1);
 
             while (d->size() < num_cards) {
                 i_next = distr(gen);
@@ -97,8 +102,9 @@ Deck *DeckBuilder::build_caravan_deck(
                     sample_decks[i_next].pop_back();
 
                     if ((num_cards - d->size()) < HAND_SIZE_MAX_START and
-                        is_numeral_card(c_next))
+                        is_numeral_card(c_next)) {
                         first_hand_num_cards += 1;
+                    }
                 }
             }
         }
@@ -119,20 +125,23 @@ Deck *DeckBuilder::build_caravan_deck(
 Deck DeckBuilder::build_standard_deck(bool shuffle) {
     Deck d;
 
-    for (int i = CLUBS; i <= SPADES; ++i)
-        for (int j = ACE; j <= KING; ++j)
+    for (int i = CLUBS; i <= SPADES; ++i) {
+        for (int j = ACE; j <= KING; ++j) {
             d.push_back({
-                static_cast<Suit>(i),
-                static_cast<Rank>(j)
-            });
+                            static_cast<Suit>(i),
+                            static_cast<Rank>(j)
+                        });
+        }
+    }
 
     d.push_back({NO_SUIT, JOKER});
     d.push_back({NO_SUIT, JOKER});
 
-    if (shuffle)
+    if (shuffle) {
         return shuffle_deck(d);
-    else
+    } else {
         return d;
+    }
 }
 
 /**

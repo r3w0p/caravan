@@ -17,6 +17,7 @@ public:
         View(user_abc, user_def, game) {};
 
     void run() override;
+
     void close() override;
 };
 
