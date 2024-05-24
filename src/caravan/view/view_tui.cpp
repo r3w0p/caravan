@@ -377,21 +377,6 @@ void process_fourth(std::string input, GameCommand *command) {
     }
 }
 
-bool process_exit(std::string input, GameCommand *command) {
-    if(
-        input.size() == 4 and
-        (input.at(0) == 'E' or input.at(0) == 'e') and
-        (input.at(1) == 'X' or input.at(1) == 'x') and
-        (input.at(2) == 'I' or input.at(2) == 'i') and
-        (input.at(3) == 'T' or input.at(3) == 't')
-    ) {
-        command->option = OPTION_EXIT;
-        return true;
-    }
-
-    return false;
-}
-
 GameCommand ViewTUI::parse_user_input(std::string input, bool confirmed) {
     GameCommand command;
     bool is_exit;
@@ -405,36 +390,29 @@ GameCommand ViewTUI::parse_user_input(std::string input, bool confirmed) {
     if(!confirmed) return command;
 
     /*
-     * EXIT
+     * FIRST
+     * - COMMAND TYPE
      */
-    is_exit = process_exit(input, &command);
+    process_first(input, &command);
 
-    if(!is_exit) {
-        /*
-         * FIRST
-         * - COMMAND TYPE
-         */
-        process_first(input, &command);
+    /*
+     * SECOND
+     * - HAND POSITION or
+     * - CARAVAN NAME
+     */
+    process_second(input, &command);
 
-        /*
-         * SECOND
-         * - HAND POSITION or
-         * - CARAVAN NAME
-         */
-        process_second(input, &command);
+    /*
+     * THIRD
+     * - CARAVAN NAME
+     */
+    process_third(input, &command);
 
-        /*
-         * THIRD
-         * - CARAVAN NAME
-         */
-        process_third(input, &command);
-
-        /*
-         * FOURTH
-         * - CARAVAN POSITION (used when selecting Face card only)
-         */
-         process_fourth(input, &command);
-    }
+    /*
+     * FOURTH
+     * - CARAVAN POSITION (used when selecting Face card only)
+     */
+     process_fourth(input, &command);
 
     return command;
 }
@@ -756,7 +734,6 @@ void ViewTUI::run() {
     if(closed) return;
 
     // Screen config
-    bool called_exit;
     Dimensions terminal_size {};
 
     // User input
@@ -791,6 +768,7 @@ void ViewTUI::run() {
 
     // Create screen
     ScreenInteractive screen = ScreenInteractive::Fullscreen();
+    screen.TrackMouse(false);
 
     // User input component
     Component comp_user_input = Input(&user_input, "");
@@ -817,10 +795,6 @@ void ViewTUI::run() {
     auto renderer = Renderer(component, [&] {
         try {
             if(closed) {
-                if (!called_exit) {
-                    called_exit = true;
-                    screen.Exit();
-                }
                 return gen_closed();
             }
 
@@ -855,9 +829,6 @@ void ViewTUI::run() {
                 switch (vc.command.option) {
                     case NO_OPTION:
                         break;
-                    case OPTION_EXIT:
-                        closed = true;
-                        return gen_closed();
                     default:
                         // Screen refresh on game change
                         screen.PostEvent(Event::Custom);
@@ -915,6 +886,14 @@ void ViewTUI::run() {
             closed = true;
             return gen_closed();
         }
+    });
+
+    renderer |= ftxui::CatchEvent([&](ftxui::Event event) {
+        if (event == Event::Escape) {
+            screen.Exit();
+            return true;
+        }
+        return false;
     });
 
     screen.Loop(renderer);

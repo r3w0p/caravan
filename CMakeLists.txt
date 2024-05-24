@@ -15,10 +15,15 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static")
 
 include(FetchContent)
 
+set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
+set(FETCHCONTENT_QUIET FALSE)
+
 # --- FTXUI
 FetchContent_Declare(ftxui
         GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
         GIT_TAG v5.0.0
+        GIT_PROGRESS TRUE
+        GIT_SHALLOW FALSE
 )
 FetchContent_MakeAvailable(ftxui)
 # ---
