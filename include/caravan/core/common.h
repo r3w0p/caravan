@@ -36,19 +36,36 @@ const uint8_t PLAYER_CARAVANS_MAX = 3;
  */
 
 enum PlayerName {
-    NO_PLAYER, PLAYER_ABC, PLAYER_DEF
+    NO_PLAYER,
+    PLAYER_ABC,
+    PLAYER_DEF
 };
 enum Direction {
-    ANY, ASCENDING, DESCENDING
+    ANY,
+    ASCENDING,
+    DESCENDING
 };
 enum CaravanName {
-    NO_CARAVAN, CARAVAN_A, CARAVAN_B, CARAVAN_C, CARAVAN_D, CARAVAN_E, CARAVAN_F
+    NO_CARAVAN,
+    CARAVAN_A,
+    CARAVAN_B,
+    CARAVAN_C,
+    CARAVAN_D,
+    CARAVAN_E,
+    CARAVAN_F
 };
 enum OptionType {
-    NO_OPTION, OPTION_PLAY, OPTION_DISCARD, OPTION_CLEAR
+    NO_OPTION,
+    OPTION_PLAY,
+    OPTION_DISCARD,
+    OPTION_CLEAR
 };
 enum Suit {
-    NO_SUIT, CLUBS, DIAMONDS, HEARTS, SPADES
+    NO_SUIT,
+    CLUBS,
+    DIAMONDS,
+    HEARTS,
+    SPADES
 };
 enum Rank {
     ACE,
