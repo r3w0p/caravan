@@ -519,7 +519,7 @@ std::shared_ptr<ftxui::Node> gen_caravan(Game *game, CaravanName cn, bool top) {
     content = vbox(e);
     title = L" " + caravan_to_wstr(cn, true) + L" ";
 
-    if (game->get_table()->get_caravan_size(cn) > 0) {
+    if (game->get_table()->get_caravan(cn)->get_size() > 0) {
         title +=
                 L"(" +
                 std::to_wstring(caravan->get_bid()) +

@@ -205,8 +205,8 @@ int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
 
     if (has_sold(cvname1)) {
         if (has_sold(cvname2)) {
-            bid_cn1 = table_ptr->get_caravan_bid(cvname1);
-            bid_cn2 = table_ptr->get_caravan_bid(cvname2);
+            bid_cn1 = table_ptr->get_caravan(cvname1)->get_bid();
+            bid_cn2 = table_ptr->get_caravan(cvname2)->get_bid();
 
             if (bid_cn1 > bid_cn2)
                 return -1;  // CN1 sold; CN2 sold; CN1 highest bid
@@ -226,7 +226,7 @@ int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
 }
 
 bool Game::has_sold(CaravanName cvname) {
-    uint8_t bid = table_ptr->get_caravan_bid(cvname);
+    uint8_t bid = table_ptr->get_caravan(cvname)->get_bid();
     return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
@@ -278,7 +278,7 @@ void Game::option_play(Player *pptr, GameCommand* command) {
                     "a player's own caravan.");
 
         if (in_start_stage and
-            table_ptr->get_caravan_size(command->caravan_name) > 0)
+            table_ptr->get_caravan(command->caravan_name)->get_size() > 0)
             throw CaravanGameException(
                     "A numeral card must be played on an empty caravan "
                     "during the Start round.");
@@ -292,8 +292,7 @@ void Game::option_play(Player *pptr, GameCommand* command) {
                     "Start round.");
 
         // Log to command
-        command->board = table_ptr->get_slot_at(command->caravan_name, command->pos_caravan).card;
-
+        command->board = table_ptr->get_caravan(command->caravan_name)->get_slot(command->pos_caravan).card;
         table_ptr->play_face_card(
                 command->caravan_name,
                 c_hand,

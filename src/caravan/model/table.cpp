@@ -34,7 +34,15 @@ void Table::close() {
     }
 }
 
-Caravan* Table::get_caravan(CaravanName cvname) {
+/**
+ * @param cvname The caravan to get.
+ * @return Pointer to the caravan.
+ *
+ * @throws CaravanFatalException Invalid caravan name.
+ * @throws CaravanFatalException Table is closed.
+ */
+Caravan *Table::get_caravan(CaravanName cvname) {
+    if (closed) throw CaravanFatalException(EXC_CLOSED);
     switch (cvname) {
         case CARAVAN_A:
             return a;
@@ -60,63 +68,7 @@ Caravan* Table::get_caravan(CaravanName cvname) {
  */
 void Table::clear_caravan(CaravanName cvname) {
     if (closed) throw CaravanFatalException(EXC_CLOSED);
-    caravans[caravan_name_to_uint8_t_index(cvname)]->clear();
-}
-
-/**
- * @param cvname A caravan name.
- * @return The current bid of the named caravan.
- *
- * @throws CaravanFatalException Table is closed.
- */
-uint16_t Table::get_caravan_bid(CaravanName cvname) {
-    if (closed) throw CaravanFatalException(EXC_CLOSED);
-    return caravans[caravan_name_to_uint8_t_index(cvname)]->get_bid();
-}
-
-/**
- * @param cvname A caravan name.
- * @param pos The position at the named caravan.
- * @return The slot (i.e. numeral card and attached face cards) at the position.
- *
- * @throws CaravanFatalException Table is closed.
- */
-Slot Table::get_slot_at(CaravanName cvname, uint8_t pos) {
-    if (closed) throw CaravanFatalException(EXC_CLOSED);
-    return caravans[caravan_name_to_uint8_t_index(cvname)]->get_slot(pos);
-}
-
-/**
- * @param cvname A caravan name.
- * @return The current direction of the named caravan.
- *
- * @throws CaravanFatalException Table is closed.
- */
-Direction Table::get_caravan_direction(CaravanName cvname) {
-    if (closed) throw CaravanFatalException(EXC_CLOSED);
-    return caravans[caravan_name_to_uint8_t_index(cvname)]->get_direction();
-}
-
-/**
- * @param cvname A caravan name.
- * @return The current number of numeral cards in the named caravan.
- *
- * @throws CaravanFatalException Table is closed.
- */
-uint8_t Table::get_caravan_size(CaravanName cvname) {
-    if (closed) throw CaravanFatalException(EXC_CLOSED);
-    return caravans[caravan_name_to_uint8_t_index(cvname)]->get_size();
-}
-
-/**
- * @param cvname A caravan name.
- * @return The current suit of the named caravan.
- *
- * @throws CaravanFatalException Table is closed.
- */
-Suit Table::get_caravan_suit(CaravanName cvname) {
-    if (closed) throw CaravanFatalException(EXC_CLOSED);
-    return caravans[caravan_name_to_uint8_t_index(cvname)]->get_suit();
+    get_caravan(cvname)->clear();
 }
 
 /**
@@ -129,7 +81,7 @@ Suit Table::get_caravan_suit(CaravanName cvname) {
  */
 void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
     if (closed) throw CaravanFatalException(EXC_CLOSED);
-    Caravan *cvn_target = caravans[caravan_name_to_uint8_t_index(cvname)];
+    Caravan *cvn_target = get_caravan(cvname);
 
     if (card.rank == QUEEN and pos != cvn_target->get_size())
         throw CaravanGameException(
@@ -171,36 +123,5 @@ void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
  */
 void Table::play_numeral_card(CaravanName cvname, Card card) {
     if (closed) throw CaravanFatalException(EXC_CLOSED);
-    Caravan *caravan_ptr = caravans[caravan_name_to_uint8_t_index(cvname)];
-    caravan_ptr->put_numeral_card(card);
-}
-
-/*
- * PROTECTED
- */
-
-/**
- * @param cvname A caravan name.
- * @return The index of the named caravan, as it is stored in the table's
- *         internal array of caravans.
- *
- * @throws CaravanFatalException Invalid caravan name.
- */
-uint8_t Table::caravan_name_to_uint8_t_index(CaravanName cvname) {
-    switch (cvname) {
-        case CARAVAN_A:
-            return 0;
-        case CARAVAN_B:
-            return 1;
-        case CARAVAN_C:
-            return 2;
-        case CARAVAN_D:
-            return 3;
-        case CARAVAN_E:
-            return 4;
-        case CARAVAN_F:
-            return 5;
-        default:
-            throw CaravanFatalException("Invalid caravan name.");
-    }
+    get_caravan(cvname)->put_numeral_card(card);
 }

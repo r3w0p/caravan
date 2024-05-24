@@ -21,8 +21,6 @@ FetchContent_Declare(ftxui
         GIT_TAG v5.0.0
 )
 FetchContent_MakeAvailable(ftxui)
-# For MacOS to avoid error: "Target "component" links to Threads::Threads but the target was not found."
-find_package(Threads REQUIRED)
 # ---
 
 

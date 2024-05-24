@@ -3,7 +3,6 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "caravan/core/common.h"
-#include "caravan/core/exceptions.h"
 
 bool is_numeral_card(Card c) {
     return (c.rank >= ACE and c.rank <= TEN);

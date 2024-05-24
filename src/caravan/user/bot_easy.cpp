@@ -86,8 +86,8 @@ GameCommand UserBotEasy::generate_option(Game *g) {
 
             if (is_numeral_card(c_hand)) {
                 for (uint8_t i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
-                    bid_me = t->get_caravan_bid(pcns_me[i]);
-                    bid_opp = t->get_caravan_bid(pcns_opp[i]);
+                    bid_me = t->get_caravan(pcns_me[i])->get_bid();
+                    bid_opp = t->get_caravan(pcns_opp[i])->get_bid();
 
                     // Skip caravan if sold and winning
                     if (bid_me >= CARAVAN_SOLD_MIN and
@@ -99,7 +99,7 @@ GameCommand UserBotEasy::generate_option(Game *g) {
                     if (bid_me > CARAVAN_SOLD_MAX)
                         return {OPTION_CLEAR, 0, pcns_me[i], 0};
 
-                    size_cvn = t->get_caravan_size(pcns_me[i]);
+                    size_cvn = t->get_caravan(pcns_me[i])->get_size();
 
                     // Not sold and caravan full, clear
                     if (size_cvn == TRACK_NUMERIC_MAX)
@@ -109,7 +109,7 @@ GameCommand UserBotEasy::generate_option(Game *g) {
                     if (size_cvn == 0)
                         return {OPTION_PLAY, pos, pcns_me[i], 0};
 
-                    slot_cvn = t->get_slot_at(pcns_me[i], size_cvn);
+                    slot_cvn = t->get_caravan(pcns_me[i])->get_slot(size_cvn);
 
                     // Cards have same rank
                     if (slot_cvn.card.rank == c_hand.rank)
@@ -119,7 +119,7 @@ GameCommand UserBotEasy::generate_option(Game *g) {
                     if (slot_cvn.card.suit == c_hand.suit)
                         return {OPTION_PLAY, pos, pcns_me[i], 0};
 
-                    dir_cvn = t->get_caravan_direction(pcns_me[i]);
+                    dir_cvn = t->get_caravan(pcns_me[i])->get_direction();
 
                     // Card ascending with caravan
                     if (dir_cvn == ASCENDING and
@@ -138,7 +138,7 @@ GameCommand UserBotEasy::generate_option(Game *g) {
 
                 // Put face card randomly on an opp caravan with the most cards
                 for (uint8_t i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
-                    size_cvn = t->get_caravan_size(pcns_opp[i]);
+                    size_cvn = t->get_caravan(pcns_opp[i])->get_size();
 
                     if (size_cvn == 0)
                         continue;
@@ -151,8 +151,7 @@ GameCommand UserBotEasy::generate_option(Game *g) {
 
                 // If there exists an opp caravan with at least 1 card on it
                 if (i_cvn_most_cards < PLAYER_CARAVANS_MAX) {
-                    slot_cvn = t->get_slot_at(
-                            pcns_opp[i_cvn_most_cards], size_cvn);
+                    slot_cvn = t->get_caravan(pcns_opp[i_cvn_most_cards])->get_slot(size_cvn);
 
                     if (slot_cvn.i_faces < TRACK_FACE_MAX) {
                         return {OPTION_PLAY,

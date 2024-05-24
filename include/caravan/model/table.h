@@ -22,8 +22,6 @@ protected:
     std::array<Caravan*, TABLE_CARAVANS_MAX> caravans = { a, b, c, d, e, f };
     bool closed;
 
-    uint8_t caravan_name_to_uint8_t_index(CaravanName cvname);
-
 public:
     explicit Table();
 
@@ -31,13 +29,6 @@ public:
 
     Caravan* get_caravan(CaravanName cvname);
     void clear_caravan(CaravanName cvname);
-
-    // TODO remove caravan convenience functions
-    uint16_t get_caravan_bid(CaravanName cvname);
-    Slot get_slot_at(CaravanName cvname, uint8_t pos);
-    Direction get_caravan_direction(CaravanName cvname);
-    uint8_t get_caravan_size(CaravanName cvname);
-    Suit get_caravan_suit(CaravanName cvname);
 
     void play_face_card(CaravanName cvname, Card card, uint8_t pos);
     void play_numeral_card(CaravanName cvname, Card card);
