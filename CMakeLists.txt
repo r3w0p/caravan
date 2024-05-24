@@ -14,9 +14,9 @@ set(PROJECT_URL "https://github.com/r3w0p/caravan")
 set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static")
 
 include(FetchContent)
-
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 set(FETCHCONTENT_QUIET FALSE)
+
 
 # --- FTXUI
 FetchContent_Declare(ftxui
