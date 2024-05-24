@@ -245,10 +245,14 @@ void Game::option_clear(Player *pptr, GameCommand* command) {
 void Game::option_discard(Player *pptr, GameCommand* command) {
     Card c_hand;
     c_hand = pptr->discard_from_hand_at(command->pos_hand);
+
+    command->hand = c_hand;  // Log to command
 }
 
 void Game::option_play(Player *pptr, GameCommand* command) {
     Card c_hand = pptr->get_from_hand_at(command->pos_hand);
+
+    command->hand = c_hand;  // Log to command
 
     bool in_start_stage = pptr->get_moves_count() < MOVES_START_ROUND;
     bool pa_playing_num_onto_pa_caravans;
@@ -281,11 +285,14 @@ void Game::option_play(Player *pptr, GameCommand* command) {
 
         table_ptr->play_numeral_card(command->caravan_name, c_hand);
 
-    } else {
+    } else {  // is a face card
         if (in_start_stage)
             throw CaravanGameException(
                     "A face card cannot be played during the "
                     "Start round.");
+
+        // Log to command
+        command->board = table_ptr->get_slot_at(command->caravan_name, command->pos_caravan).card;
 
         table_ptr->play_face_card(
                 command->caravan_name,

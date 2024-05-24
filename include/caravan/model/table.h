@@ -29,20 +29,17 @@ public:
 
     void close();
 
+    Caravan* get_caravan(CaravanName cvname);
     void clear_caravan(CaravanName cvname);
 
+    // TODO remove caravan convenience functions
     uint16_t get_caravan_bid(CaravanName cvname);
-
     Slot get_slot_at(CaravanName cvname, uint8_t pos);
-
     Direction get_caravan_direction(CaravanName cvname);
-
     uint8_t get_caravan_size(CaravanName cvname);
-
     Suit get_caravan_suit(CaravanName cvname);
 
     void play_face_card(CaravanName cvname, Card card, uint8_t pos);
-
     void play_numeral_card(CaravanName cvname, Card card);
 };
 

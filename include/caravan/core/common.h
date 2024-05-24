@@ -106,6 +106,8 @@ typedef struct GameCommand {
     uint8_t pos_hand {0};
     CaravanName caravan_name {NO_CARAVAN};
     uint8_t pos_caravan {0};
+    Card hand{};
+    Card board{};
 } GameCommand;
 
 /*

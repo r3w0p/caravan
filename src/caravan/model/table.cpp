@@ -34,6 +34,25 @@ void Table::close() {
     }
 }
 
+Caravan* Table::get_caravan(CaravanName cvname) {
+    switch (cvname) {
+        case CARAVAN_A:
+            return a;
+        case CARAVAN_B:
+            return b;
+        case CARAVAN_C:
+            return c;
+        case CARAVAN_D:
+            return d;
+        case CARAVAN_E:
+            return e;
+        case CARAVAN_F:
+            return f;
+        default:
+            throw CaravanFatalException("Invalid caravan name.");
+    }
+}
+
 /**
  * @param cvname The caravan to clear.
  *
