@@ -3,7 +3,6 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "caravan/user/user.h"
-#include "caravan/view/view.h"
 #include "caravan/view/view_tui.h"
 
 #include <memory>
@@ -48,10 +47,10 @@ const std::string NAME_BOT2 = "BOT2";
 
 typedef struct ViewConfig {
     // Pointers to users
-    User *user_abc;
-    User *user_def;
-    User *user_turn;
-    User *user_next;
+    User *user_abc{};
+    User *user_def{};
+    User *user_turn{};
+    User *user_next{};
 
     // Messages to users
     std::string msg_notif;
@@ -70,7 +69,7 @@ typedef struct ViewConfig {
     GameCommand command;
 
     // Colour support
-    bool colour;
+    bool colour{};
 } ViewConfig;
 
 
@@ -168,7 +167,7 @@ std::shared_ptr<ftxui::Node> suit_to_text(ViewConfig *vc, Suit suit) {
                 return node_suit;
             case SPADES:
             case CLUBS:
-                return node_suit | color(Color::Palette16::BlueLight);
+                return node_suit | color(Color::Palette16::CyanLight);
             case HEARTS:
             case DIAMONDS:
                 return node_suit | color(Color::Palette16::RedLight);
@@ -183,8 +182,14 @@ std::shared_ptr<ftxui::Node> suit_to_text(ViewConfig *vc, Suit suit) {
 void push_card(ViewConfig *vc, ftxui::Elements *e, Card card, bool lead) {
     using namespace ftxui;
 
-    e->push_back(text(rank_to_wstr(card.rank, lead)));
-    if(card.rank != JOKER) { e->push_back(suit_to_text(vc, card.suit)); }
+    if (card.rank == JOKER) {
+        if(lead) { e->push_back(text(L" ")); }
+        e->push_back(text(rank_to_wstr(card.rank, lead)));
+
+    } else {
+        e->push_back(text(rank_to_wstr(card.rank, lead)));
+        e->push_back(suit_to_text(vc, card.suit));
+    }
 }
 
 void process_first(std::string input, GameCommand *command) {
@@ -387,11 +392,7 @@ GameCommand ViewTUI::parse_user_input(std::string input, bool confirmed) {
     GameCommand command;
 
     if (closed) { return command; }
-
     if (input.empty()) { return command; }
-
-    // TODO A future feature that highlights parts of the board as a command is typed,
-    //  so that the user has a better idea of what their command will do.
     if (!confirmed) { return command; }
 
     /*
@@ -492,8 +493,8 @@ std::shared_ptr<ftxui::Node> gen_caravan_slot_blank() {
 std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName cn, bool top) {
     using namespace ftxui;
     std::shared_ptr<Node> content;
-    std::wstring title;
     Elements e;
+    Elements title;
 
     Caravan *caravan = game->get_table()->get_caravan(cn);
     uint8_t caravan_size = caravan->get_size();
@@ -510,21 +511,16 @@ std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName
     }
 
     content = vbox(e);
-    title = L" " + caravan_to_wstr(cn, true) + L" ";
 
+    title.push_back(text(L" " + caravan_to_wstr(cn, true) + L" "));
     if (game->get_table()->get_caravan(cn)->get_size() > 0) {
-        title +=
-            L"(" +
-            std::to_wstring(caravan->get_bid()) +
-            L", " +
-            direction_to_wstr(caravan->get_direction()) +
-            L", " +
-            suit_to_wstr(caravan->get_suit()) +
-            L") ";
+        title.push_back(text(L"(" + std::to_wstring(caravan->get_bid()) + L", " + direction_to_wstr(caravan->get_direction()) + L", "));
+        title.push_back(suit_to_text(vc, caravan->get_suit()));
+        title.push_back(text(L") "));
     }
 
     return window(
-        text(title) | hcenter | bold,
+        hbox({title}) | hcenter | bold,
         content
     ) | center | size(WIDTH, EQUAL, WIDTH_CARAVAN) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN);
 }

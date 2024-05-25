@@ -12,23 +12,38 @@ A command-line version of the Caravan card game from Fallout: New Vegas.
 HOW TO PLAY
 ===========
 
-The game is played in the same way as the original card game, with only a few
-changes and restrictions, as follows.
+BUILDING A DECK
 
-(1) The names of the caravans have been changed to six letters, from A to F,
-where caravans A, B, and C are for one player, and D, E, and F are for the
-other. Caravan A competes against D, B against E, and C against F.
+Caravan decks consist of at least 30 cards from one of more traditional playing card sets. The deck may have any number
+of cards of any type that suits a player's strategy, although it cannot have duplicate cards from the same set. For
+example a K♠ from set A and a K♠ from the set B deck is acceptable, but more than one K♠ from set A would be illegal.
 
-(2) Deck building has been simplified to create fairer games. A caravan deck
-comprises between 30 and 156 cards sampled randomly from between 1 and 3
-standard card decks (52 cards + 2 Jokers). The standard decks are shuffled and
-may be sampled equally (a "balanced sample") or randomly.
+RULES
 
-(3) Each caravan has a limit of 10 numeral cards (i.e. ACE to 10). Each numeral
-card has a limit of 5 face cards (i.e. JACK, QUEEN, KING, and JOKER) that can be
-placed on it.
+Caravan is played with two players building three opposing piles (or "caravans") of numbered cards. The goal is to
+outbid your opponent's caravan with the highest value of numbered cards without being too light (under 21) or
+overburdened (over 26).
 
-(4) Bidding has been removed completely.
+The game begins with each player taking eight cards from their deck and placing either one numerical card or ace on each
+caravan. Players may not discard during this initial round.
+
+Once both players have started their three caravans, each player may do one of the following on their turn: 1. Play one
+card and draw a new card from his or her deck to their hand: 2. Discard one card from their hand and draw a new card
+from his or her deck: or 3. Discard one of their caravans by removing all cards from that pile.
+
+Caravans have a direction, either ascending or descending numerically, and a suit. The suit is determined with the first
+card placed on a caravan, the direction by the second. All subsequent cards must continue the numerical direction or
+match the suit of the previous card. Cards of the same numerical value cannot be played in sequence, regardless of suit.
+Face cards can be attached to numeric cards in any caravan and will affect them in various ways.
+
+CARD VALUES
+
+Joker - Played against Ace, 2-10. Effects change based on whether it is an ace or numbered card (see below). Multiple jokers may be played on the same card.
+Ace - Value of 1. Jokers played on aces remove all other non-face cards of the ace's suit from the table. E.g. a joker played on an A♠ removes all spades (except face cards and that card, specifically) from the table.
+2-10 - Listed value. Jokers played on these remove all other cards of this value from the table. E.g. a joker player on a 4♥ removes all 4s (other than that card, specifically) from the table.
+Jack - Played against Ace, 2-10. Removes that card, along with any face cards attached to it.
+Queen - Played against Ace, 2-10. Reverses the current direction of the hand, changes the current suit of the hand. Multiple queens may be played on the same card.
+King - Played against Ace, 2-10. Adds the value of that card again. E.g. a king played on a 9 adds 9 to that hand. Multiple kings may be played on the same card for multiplicative effects. E.g. 4 + king = 8. 4 + two kings = 16.
 
 
 ========
@@ -46,8 +61,6 @@ of your caravans, or EXIT the game. The commands are not case sensitive.
 
 Pressing the Enter key will submit your command. If there is a problem with your
 command, a message will appear below the game table to help you.
-
----
 
 To PLAY a numeral card, type 'P', then the number for the card in your hand that
 you want to play, then the caravan name. For example, to PLAY card 2 from your
@@ -71,6 +84,4 @@ want to clear. For example, to CLEAR caravan A:
 
 [YOU] > CA
 
-To EXIT the game, simply type:
-
-[YOU] > EXIT
+To EXIT the game, press Escape.
