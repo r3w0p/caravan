@@ -277,7 +277,7 @@ Card Caravan::put_face_card(Card card, uint8_t pos) {
     if (card.rank == JACK) {
         remove_numeral_card(i);
 
-    } else {
+    } else if(card.rank != JOKER) {
         if (track[i].i_faces == TRACK_FACE_MAX) {
             throw CaravanGameException("The caravan is at its maximum face card capacity.");
         }

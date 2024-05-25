@@ -29,4 +29,6 @@ public:
     GameCommand generate_option(Game *g) override;
 };
 
+// TODO BotFriendly: never plays offensive moves on opponent
+
 #endif //CARAVAN_USER_H

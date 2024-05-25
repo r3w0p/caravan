@@ -13,16 +13,16 @@ int main() {
 
     ViewTUI *v;
 
-    GameConfig config = {  // TODO
-        30, 1, true,
-        30, 1, true,
+    GameConfig config = {  // TODO 30
+        52, 1, true,
+        52, 1, true,
         PLAYER_ABC
     };
 
     try {
         user_abc = new UserHuman(PLAYER_ABC);
         user_def = new UserBotEasy(PLAYER_DEF);
-        game = new Game(config);  // TODO
+        game = new Game(config);
 
         v = new ViewTUI(user_abc, user_def, game);
         v->run();

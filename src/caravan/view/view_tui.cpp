@@ -158,36 +158,6 @@ std::wstring rank_to_wstr(Rank rank, bool lead) {
     }
 }
 
-std::wstring card_num_to_wstr(uint8_t card_num, bool lead) {
-    switch (card_num) {
-        case 1:
-            return lead ? L" 1" : L"1";
-        case 2:
-            return lead ? L" 2" : L"2";
-        case 3:
-            return lead ? L" 3" : L"3";
-        case 4:
-            return lead ? L" 4" : L"4";
-        case 5:
-            return lead ? L" 5" : L"5";
-        case 6:
-            return lead ? L" 6" : L"6";
-        case 7:
-            return lead ? L" 7" : L"7";
-        case 8:
-            return lead ? L" 8" : L"8";
-        default:
-            throw CaravanFatalException("Invalid card numeral.");
-    }
-}
-
-std::wstring card_to_wstr(Card card, bool lead) {
-    std::wstring s;
-    s += rank_to_wstr(card.rank, lead);
-    s += suit_to_wstr(card.suit);
-    return s;
-}
-
 std::shared_ptr<ftxui::Node> suit_to_text(ViewConfig *vc, Suit suit) {
     using namespace ftxui;
     std::shared_ptr<ftxui::Node> node_suit = text(suit_to_wstr(suit));
@@ -214,7 +184,7 @@ void push_card(ViewConfig *vc, ftxui::Elements *e, Card card, bool lead) {
     using namespace ftxui;
 
     e->push_back(text(rank_to_wstr(card.rank, lead)));
-    e->push_back(suit_to_text(vc, card.suit));
+    if(card.rank != JOKER) { e->push_back(suit_to_text(vc, card.suit)); }
 }
 
 void process_first(std::string input, GameCommand *command) {
@@ -559,16 +529,16 @@ std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName
     ) | center | size(WIDTH, EQUAL, WIDTH_CARAVAN) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN);
 }
 
-std::shared_ptr<ftxui::Node> gen_deck_card(ViewConfig *vc, uint8_t position, Card card, bool hide, bool blank = false) {
+std::shared_ptr<ftxui::Node> gen_deck_card(ViewConfig *vc, Game *game, uint8_t position, Card card, bool hide, bool blank = false) {
     using namespace ftxui;
     return hbox({
-                    blank ? gen_position_blank() : gen_position(position),
+                    blank || game->get_winner() != NO_PLAYER ? gen_position_blank() : gen_position(position),
                     blank ? gen_card_blank() : gen_card(vc, card, hide),
                 }) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN_SLOT);
 }
 
 std::shared_ptr<ftxui::Node> gen_deck_card_blank() {
-    return gen_deck_card({}, 0, {}, false, true);
+    return gen_deck_card({}, {}, 0, {}, false, true);
 }
 
 std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
@@ -580,7 +550,9 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
 
     Player *player_abc = game->get_player(PLAYER_ABC);
     Player *player_def = game->get_player(PLAYER_DEF);
+
     Player *player_this = game->get_player(top ? PLAYER_DEF : PLAYER_ABC);
+    User *user_this = player_this->get_name() == vc->user_abc->get_name() ? vc->user_abc : vc->user_def;
 
     uint8_t hand_size_abc = player_abc->get_size_hand();
     uint8_t hand_size_def = player_def->get_size_hand();
@@ -590,14 +562,23 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
     uint8_t hand_max = std::max(std::max(hand_size_abc, hand_size_def), HAND_SIZE_MAX_POST_START);
     bool equalise = hand_size_abc != hand_size_def;
 
-    // Hide if not this user's turn and both players are human; or if this user is a bot playing against a human
+    // if not this user's turn and both players are human; or
+    // if this user is a bot playing against a human; or
+    // if there is a winner and this user is a bot
     bool hide =
         (
+            game->get_winner() == NO_PLAYER &&
             vc->user_turn->get_name() != player_this->get_name() &&
             (vc->user_abc->is_human() && vc->user_def->is_human())
         ) ||
         (
-            !vc->user_turn->is_human() && vc->user_next->is_human()
+            game->get_winner() == NO_PLAYER &&
+            !user_this->is_human() &&
+            (vc->user_abc->is_human() || vc->user_def->is_human())
+        ) ||
+        (
+            game->get_winner() != NO_PLAYER &&
+            !user_this->is_human()
         );
 
     for (uint8_t i = 0; i < hand_max; i++) {
@@ -605,7 +586,7 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
             uint8_t position = top ? hand_max - i : i + 1;
             Card card = player_this->get_hand()[position - 1];
 
-            e.push_back(gen_deck_card(vc, position, card, hide));
+            e.push_back(gen_deck_card(vc, game, position, card, hide));
 
         } else if (i < HAND_SIZE_MAX_POST_START || equalise) {
             e.push_back(gen_deck_card_blank());
@@ -623,17 +604,25 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
 
 std::shared_ptr<ftxui::Node> gen_input(
     ViewConfig *vc,
+    Game *game,
     std::shared_ptr<ftxui::ComponentBase> *comp_user_input) {
     using namespace ftxui;
     Elements e;
 
-    e.push_back(separatorEmpty());
-    e.push_back(
-        hbox(separatorEmpty(), text(vc->name_turn + " > "), (*comp_user_input)->Render(), separatorEmpty()));  // TODO
-    e.push_back(separatorEmpty());
+    bool is_top = game->get_winner() == NO_PLAYER;
+    bool is_mid = !vc->msg_notif.empty() || !vc->msg_err.empty();
+    bool is_low = !vc->msg_move_abc.empty() || !vc->msg_move_def.empty();
 
-    if (!vc->msg_notif.empty() || !vc->msg_err.empty()) {
-        e.push_back(separator());
+    if (is_top) {
+        e.push_back(separatorEmpty());
+        e.push_back(
+            hbox(separatorEmpty(), text(vc->name_turn + " > "), (*comp_user_input)->Render(), separatorEmpty()));
+        e.push_back(separatorEmpty());
+
+        if(is_mid) { e.push_back(separator()); }
+    }
+
+    if (is_mid) {
         e.push_back(separatorEmpty());
 
         if (!vc->msg_notif.empty()) {
@@ -645,10 +634,11 @@ std::shared_ptr<ftxui::Node> gen_input(
             e.push_back(hbox(separatorEmpty(), paragraph(vc->msg_err), separatorEmpty()));
             e.push_back(separatorEmpty());
         }
+
+        if(is_low) { e.push_back(separator()); }
     }
 
-    if (!vc->msg_move_abc.empty() || !vc->msg_move_def.empty()) {
-        e.push_back(separator());
+    if (is_low) {
         e.push_back(separatorEmpty());
 
         if (!vc->msg_move_abc.empty()) {
@@ -718,7 +708,7 @@ std::shared_ptr<ftxui::Node> gen_game(
                     vbox({  // INPUT AREA
                              hbox({}) | borderEmpty | size(HEIGHT, EQUAL, HEIGHT_CARAVAN),
                              separatorEmpty(),
-                             gen_input(vc, comp_user_input)
+                             gen_input(vc, game, comp_user_input)
                          }),  // input area
 
                 }) | center;  // outermost area
@@ -872,6 +862,17 @@ void ViewTUI::run() {
                 return gen_terminal_too_small(terminal_size);
             }
 
+            // If winner, display results
+            if(game->get_winner() != NO_PLAYER) {
+                std::string name_winner = game->get_winner() == user_abc->get_name() ? vc.name_abc : vc.name_def;
+                user_input = "";
+
+                vc.msg_notif = "WINNER: " + vc.name_next;
+                vc.msg_err = "Press Esc to exit.";
+
+                return gen_game(&vc, game, &comp_user_input);
+            }
+
             if(vc.user_turn->is_human()) {
                 // Create new command if ENTER key pressed (i.e., if newline)
                 raw_command = user_input;
@@ -887,12 +888,12 @@ void ViewTUI::run() {
 
             } else {  // user with current turn is a bot
                 vc.command = vc.user_turn->generate_option(game);  // TODO generate raw command instead
-                vc.msg_notif = vc.name_turn + " made its move.";  // TODO display raw command
+                vc.msg_notif = vc.name_turn + " made its move.";
             }
 
             try {
                 // Parse raw command to get usable command
-                if (vc.user_turn->is_human()) { vc.command = parse_user_input(raw_command, confirmed); }  // TODO change to allow for bot's raw command
+                if (vc.user_turn->is_human()) { vc.command = parse_user_input(raw_command, confirmed); }
 
                 switch (vc.command.option) {
                     case NO_OPTION:

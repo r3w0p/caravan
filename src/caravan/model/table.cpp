@@ -92,7 +92,7 @@ void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
     // Returns the Numeric card that the Face card was played on.
     Card c_target = cvn_target->put_face_card(card, pos);
 
-    // If Face card was JOKER.
+    // Process effect of JOKER across all caravans
     if (card.rank == JOKER) {
         // Remove from original caravan, excluding the affected card.
         if (c_target.rank == ACE) {
