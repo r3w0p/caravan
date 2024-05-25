@@ -12,38 +12,73 @@ A command-line version of the Caravan card game from Fallout: New Vegas.
 HOW TO PLAY
 ===========
 
-BUILDING A DECK
+GAMEPLAY
 
-Caravan decks consist of at least 30 cards from one of more traditional playing card sets. The deck may have any number
-of cards of any type that suits a player's strategy, although it cannot have duplicate cards from the same set. For
-example a K♠ from set A and a K♠ from the set B deck is acceptable, but more than one K♠ from set A would be illegal.
+Caravan is played with two players building three opposing piles (or "caravans")
+of numeral cards (A-10). The goal is to outbid your opponent's caravan with the
+highest value of cards without being too light (< 21) or overburdened (> 26).
+Each player has a deck of cards consisting of at least 30 cards from one of more
+traditional playing card sets (i.e., a standard 52-card deck and 2 JOKERs).
 
-RULES
+One player controls caravans A, B, and C. The other player controls caravans D,
+E, and F. Caravan A competes against D; B competes against E; and C competes
+against F.
 
-Caravan is played with two players building three opposing piles (or "caravans") of numbered cards. The goal is to
-outbid your opponent's caravan with the highest value of numbered cards without being too light (under 21) or
-overburdened (over 26).
+The game begins with each player taking 8 cards from their deck and placing
+one numeral card on each caravan; an opening hand must have at least 3 numeral
+cards in it. Players may not discard any cards from their hand, clear any
+caravans, or pick up any cards from their decks during this initial round.
 
-The game begins with each player taking eight cards from their deck and placing either one numerical card or ace on each
-caravan. Players may not discard during this initial round.
+Once both players have started their 3 caravans, each of their decks will now
+have 5 cards in it. Players must always replenish their hand to 5 cards after
+any move made if they have any cards left in their deck. If a player's last move
+does not win them the game, then they lose by running out of cards. On each
+player's turn, they may do one of the following:
 
-Once both players have started their three caravans, each player may do one of the following on their turn: 1. Play one
-card and draw a new card from his or her deck to their hand: 2. Discard one card from their hand and draw a new card
-from his or her deck: or 3. Discard one of their caravans by removing all cards from that pile.
+1. Play a numeral card onto an empty space in a caravan, or play a face card
+   (JACK, QUEEN, KING, JOKER) onto a numeral card in a caravan;
+2. Discard one card from their hand; or
+3. Clear one of their caravans by removing all cards from that pile.
 
-Caravans have a direction, either ascending or descending numerically, and a suit. The suit is determined with the first
-card placed on a caravan, the direction by the second. All subsequent cards must continue the numerical direction or
-match the suit of the previous card. Cards of the same numerical value cannot be played in sequence, regardless of suit.
-Face cards can be attached to numeric cards in any caravan and will affect them in various ways.
+Caravans have a direction, either ascending or descending numerically, and a
+suit. The suit is determined with the first card placed on a caravan, the
+direction by the second. All subsequent cards must continue the numerical
+direction or match the suit of the previous card. Cards of the same numeral
+value cannot be played in sequence, regardless of suit.
+
+A numeral card must be played onto a player's own caravan. A face card can be
+played on any card in any caravan. Face cards affect gameplay in various ways,
+as follows.
 
 CARD VALUES
 
-Joker - Played against Ace, 2-10. Effects change based on whether it is an ace or numbered card (see below). Multiple jokers may be played on the same card.
-Ace - Value of 1. Jokers played on aces remove all other non-face cards of the ace's suit from the table. E.g. a joker played on an A♠ removes all spades (except face cards and that card, specifically) from the table.
-2-10 - Listed value. Jokers played on these remove all other cards of this value from the table. E.g. a joker player on a 4♥ removes all 4s (other than that card, specifically) from the table.
-Jack - Played against Ace, 2-10. Removes that card, along with any face cards attached to it.
-Queen - Played against Ace, 2-10. Reverses the current direction of the hand, changes the current suit of the hand. Multiple queens may be played on the same card.
-King - Played against Ace, 2-10. Adds the value of that card again. E.g. a king played on a 9 adds 9 to that hand. Multiple kings may be played on the same card for multiplicative effects. E.g. 4 + king = 8. 4 + two kings = 16.
+JACK  Played against A-10. Removes that card along with its face cards.
+QUEEN Played against A-10. Reverses the direction of the caravan and changes its
+      suit. Multiple QUEENs may be played onto the same card.
+KING  Played against A-10. Adds the value of that card again.
+      Multiple KINGs may be played on the same card for multiplicative effects.
+      For example, 4 + (1 KING) = 8 and 4 + (2 KINGs) = 16.
+JOKER Played against A-10. Effects change based on whether it is an ACE or other
+      numeral card (see below). Multiple JOKERs may be played on the same card.
+ACE   Value of 1. JOKER played on ACE remove all other non-face cards of
+      the ACE's suit from the table.
+      For example, a JOKER played the ACE of SPADES removes all SPADES (except
+      face cards and the numeral card it was placed on) from the table.
+2-10  Listed value. JOKERs played on these remove all other cards of this
+      value from the table.
+      For example, a JOKER played on a 4 removes all 4s (except the numeral
+      card it was placed on) from the table, regardless of suit.
+
+"POWER'S RULES"
+
+Additional rules have been added to this implementation in order to make it more
+appropriate for the command line, and also to make gameplay more balanced. These
+are as follows.
+
+1. Each caravan can have, at most, 8 numeral cards on it.
+2. Each numeral card can have, at most, 3 face cards on it.
+3. A caravan deck must consist of between 30 to 156 cards (inclusive) sampled
+   from 1 to 3 traditional card decks (inclusive).
 
 
 ========
@@ -51,37 +86,37 @@ CONTROLS
 ========
 
 Each card in your hand has a number to the left of it, which indicates the
-number you would enter if you wanted to PLAY or DISCARD it. Similarly, each
-numeral card in every caravan also has a number to the left of it, which is used
-to PLAY a face card onto it and indicates its position in the card stack.
+number you need to enter if you want to PLAY or DISCARD that card. Similarly,
+each numeral card in every caravan also has a number to the left of it, which
+can be used to PLAY a face card onto it and also indicates its position in the
+caravan's card stack.
 
-The game is played by entering commands that indicate whether you want to PLAY
-a card from your hand, DISCARD a card from your hand, CLEAR all cards from one
-of your caravans, or EXIT the game. The commands are not case sensitive.
-
-Pressing the Enter key will submit your command. If there is a problem with your
-command, a message will appear below the game table to help you.
+On your turn, you must enter a command that indicates whether you want to PLAY a
+card from your hand, DISCARD a card from your hand, or CLEAR all cards from one
+of your caravans; commands are not case sensitive. After you have entered your
+command, press Enter to confirm. If there is a problem with your command, useful
+information will appear in-game to help you.
 
 To PLAY a numeral card, type 'P', then the number for the card in your hand that
 you want to play, then the caravan name. For example, to PLAY card 2 from your
 hand onto caravan B:
 
-[YOU] > P2B
+    > P2B
 
 To PLAY a face card, you must additionally specify the position of the numeral
 card in the caravan you are targeting. For example, to PLAY card 4 from your
 hand onto the numeral at position 3 in caravan F:
 
-[YOU] > P4F3
+    > P4F3
 
 To DISCARD a card, type 'D', then the number for the card in your hand that you
 want to play. For example, to DISCARD card 3 from your hand:
 
-[YOU] > D3
+    > D3
 
 To CLEAR one of your caravans, type 'C', then the name of the caravan that you
 want to clear. For example, to CLEAR caravan A:
 
-[YOU] > CA
+    > CA
 
-To EXIT the game, press Escape.
+To exit the game, press Escape.

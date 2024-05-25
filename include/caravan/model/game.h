@@ -20,6 +20,8 @@ protected:
 
     int8_t compare_bids(CaravanName cvname1, CaravanName cvname2);
 
+    CaravanName winning_bid(CaravanName cvname1, CaravanName cvname2);
+
     bool has_sold(CaravanName cvname);
 
     void option_clear(Player *pptr, GameCommand *command);
@@ -31,13 +33,15 @@ protected:
 public:
     explicit Game(GameConfig config);
 
+    static CaravanName get_opposite_caravan_name(CaravanName cvname);
+
     void close();
 
     Player *get_player(PlayerName pname);
 
     PlayerCaravanNames get_player_caravan_names(PlayerName pname);
 
-    CaravanName winning_bid(CaravanName cvname1, CaravanName cvname2);
+    bool is_caravan_winning(CaravanName cvname);
 
     PlayerName get_player_turn();
 

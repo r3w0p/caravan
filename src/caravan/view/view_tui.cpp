@@ -50,7 +50,6 @@ typedef struct ViewConfig {
     User *user_abc{};
     User *user_def{};
     User *user_turn{};
-    User *user_next{};
 
     // Messages to users
     std::string msg_notif;
@@ -462,8 +461,13 @@ std::shared_ptr<ftxui::Node> gen_faces(ViewConfig *vc, Slot slot, bool blank = f
             Rank r = slot.faces[i].rank;
             Suit s = slot.faces[i].suit;
 
-            ranks += rank_to_wstr(r, false);
-            suits.push_back(suit_to_text(vc, s));
+            if(r == JOKER) {
+                ranks += L"J";
+                suits.push_back(text(L"O"));
+            } else {
+                ranks += rank_to_wstr(r, false);
+                suits.push_back(suit_to_text(vc, s));
+            }
         }
     }
 
@@ -497,6 +501,7 @@ std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName
     Elements title;
 
     Caravan *caravan = game->get_table()->get_caravan(cn);
+    bool winning = game->is_caravan_winning(caravan->get_name());
     uint8_t caravan_size = caravan->get_size();
 
     for (uint8_t i = 0; i < TRACK_NUMERIC_MAX; i++) {
@@ -512,11 +517,19 @@ std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName
 
     content = vbox(e);
 
-    title.push_back(text(L" " + caravan_to_wstr(cn, true) + L" "));
+    std::function<Element(Element)> maybe_colour = winning ? (vc->colour ? color(Color::Palette16::YellowLight) : color(Color::Default)) : color(Color::Default);
+    std::function<Element(Element)> maybe_colour_highlight = winning ? (vc->colour ? color(Color::Palette16::YellowLight) : color(Color::Default)) : color(Color::Default);
+    if(winning) { maybe_colour_highlight = maybe_colour_highlight | underlined; }
+
+    title.push_back(text(L" "));
+    title.push_back(text(caravan_to_wstr(cn, true) + L" ") | maybe_colour);
     if (game->get_table()->get_caravan(cn)->get_size() > 0) {
-        title.push_back(text(L"(" + std::to_wstring(caravan->get_bid()) + L", " + direction_to_wstr(caravan->get_direction()) + L", "));
+        title.push_back(text(L"("));
+        title.push_back(text(std::to_wstring(caravan->get_bid())) | maybe_colour_highlight);
+        title.push_back(text(L", " + direction_to_wstr(caravan->get_direction()) + L", ") | maybe_colour);
         title.push_back(suit_to_text(vc, caravan->get_suit()));
-        title.push_back(text(L") "));
+        title.push_back(text(L")") | maybe_colour);
+        title.push_back(text(L" "));
     }
 
     return window(
@@ -762,16 +775,14 @@ ftxui::Elements get_move_description(ViewConfig *vc) {
 void set_current_turn(ViewConfig *vc, Game *game) {
     if (game->get_player_turn() == PLAYER_ABC) {
         vc->user_turn = vc->user_abc;
-        vc->name_turn = vc->name_abc;
 
-        vc->user_next = vc->user_def;
+        vc->name_turn = vc->name_abc;
         vc->name_next = vc->name_def;
 
     } else {
         vc->user_turn = vc->user_def;
-        vc->name_turn = vc->name_def;
 
-        vc->user_next = vc->user_abc;
+        vc->name_turn = vc->name_def;
         vc->name_next = vc->name_abc;
     }
 }
@@ -863,7 +874,7 @@ void ViewTUI::run() {
                 std::string name_winner = game->get_winner() == user_abc->get_name() ? vc.name_abc : vc.name_def;
                 user_input = "";
 
-                vc.msg_notif = "WINNER: " + vc.name_next;
+                vc.msg_notif = "WINNER: " + name_winner;
                 vc.msg_err = "Press Esc to exit.";
 
                 return gen_game(&vc, game, &comp_user_input);

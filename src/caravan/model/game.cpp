@@ -92,24 +92,11 @@ Table *Game::get_table() {
 PlayerName Game::get_winner() {
     if (closed) { throw CaravanFatalException(EXC_CLOSED); }
 
-    uint8_t won_pa;
-    uint8_t won_pb;
+    uint8_t won_pa = 0;
+    uint8_t won_pb = 0;
     int8_t comp[3];
 
-    // The first player with an empty hand loses
-
-    if (get_player(PLAYER_ABC)->get_size_hand() == 0) {
-        return PLAYER_DEF;
-    }
-
-    if (get_player(PLAYER_DEF)->get_size_hand() == 0) {
-        return PLAYER_ABC;
-    }
-
-    // Check bid sizes
-
-    won_pa = 0;
-    won_pb = 0;
+    // Check if all three caravans have been sold...
 
     comp[0] = compare_bids(CARAVAN_A, CARAVAN_D);
     comp[1] = compare_bids(CARAVAN_B, CARAVAN_E);
@@ -122,24 +109,34 @@ PlayerName Game::get_winner() {
             won_pb += 1;
         } else {
             // All three must be sold for there to be a winner
-            return NO_PLAYER;
+            break;
         }
     }
 
-    if (won_pa >= 2) {
-        return pa_ptr->get_name();
-    } else if (won_pb >= 2) {
-        return pb_ptr->get_name();
+    // Winner is whoever won at least 2 out of the 3 bids
+    if(won_pa + won_pb == 3) {
+        if (won_pa >= 2) {
+            return pa_ptr->get_name();
+
+        } else if (won_pb >= 2) {
+            return pb_ptr->get_name();
+        }
     }
 
-    // Neither player has outbid the other...
+    // Neither player has outbid the other
 
-    // Check if players have empty hands
+    // Check if players have empty hands...
+
     if (pa_ptr->get_size_hand() > 0 and pb_ptr->get_size_hand() == 0) {
         return pa_ptr->get_name();
-    } else if (pb_ptr->get_size_hand() > 0 and pa_ptr->get_size_hand() == 0) {
+
+    } else if (pa_ptr->get_size_hand() == 0 and pb_ptr->get_size_hand() > 0) {
         return pb_ptr->get_name();
     }
+
+    // Neither player has an empty hand
+
+    // Nobody has won yet...
 
     return NO_PLAYER;
 }
@@ -182,7 +179,7 @@ void Game::play_option(GameCommand *command) {
             break;
 
         default:
-            throw CaravanFatalException("Unknown play option.");
+            throw CaravanFatalException("Invalid play option.");
     }
 
     p_turn->increment_moves();
@@ -195,17 +192,32 @@ void Game::play_option(GameCommand *command) {
     }
 }
 
-CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
+bool Game::is_caravan_winning(CaravanName cvname) {
     if (closed) { throw CaravanFatalException(EXC_CLOSED); }
 
-    int8_t bidcomp = compare_bids(cvname1, cvname2);
-
-    if (bidcomp < 0) {
-        return cvname1;
-    } else if (bidcomp > 0) {
-        return cvname2;
+    if(cvname == NO_CARAVAN) {
+        return false;
     } else {
-        return NO_CARAVAN;
+        return winning_bid(cvname, get_opposite_caravan_name(cvname)) == cvname;
+    }
+}
+
+CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
+    switch (cvname) {
+        case CARAVAN_A:
+            return CARAVAN_D;
+        case CARAVAN_B:
+            return CARAVAN_E;
+        case CARAVAN_C:
+            return CARAVAN_F;
+        case CARAVAN_D:
+            return CARAVAN_A;
+        case CARAVAN_E:
+            return CARAVAN_B;
+        case CARAVAN_F:
+            return CARAVAN_C;
+        default:
+            return NO_CARAVAN;
     }
 }
 
@@ -240,6 +252,20 @@ int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
     } else {
         return 0;
     }  // CN1 unsold; CN2 unsold
+}
+
+CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
+    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
+
+    int8_t bidcomp = compare_bids(cvname1, cvname2);
+
+    if (bidcomp < 0) {
+        return cvname1;
+    } else if (bidcomp > 0) {
+        return cvname2;
+    } else {
+        return NO_CARAVAN;
+    }
 }
 
 bool Game::has_sold(CaravanName cvname) {
