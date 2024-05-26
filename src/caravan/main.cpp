@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cxxopts.hpp>
 #include "caravan/view/view_tui.h"
-#include "caravan/user/bot_easy.h"
+#include "caravan/user/bot/normal.h"
 
 const std::string ARG_PVP = "pvp";
 const std::string ARG_BOTS = "bots";
@@ -73,12 +73,12 @@ int main(int argc, char *argv[]) {
             user_def = new UserHuman(PLAYER_DEF);
 
         } else if (bots) {  // bot vs bot
-            user_abc = new UserBotEasy(PLAYER_ABC);
-            user_def = new UserBotEasy(PLAYER_DEF);
+            user_abc = new UserBotNormal(PLAYER_ABC);
+            user_def = new UserBotNormal(PLAYER_DEF);
 
         } else {  // humans vs bot
             user_abc = new UserHuman(PLAYER_ABC);
-            user_def = new UserBotEasy(PLAYER_DEF);
+            user_def = new UserBotNormal(PLAYER_DEF);
         }
 
         GameConfig config = {

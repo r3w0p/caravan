@@ -75,11 +75,11 @@ add_library(model
 target_link_libraries(model core)
 
 add_library(user
-        "include/caravan/user/bot_easy.h"
         "include/caravan/user/user.h"
+        "include/caravan/user/bot/normal.h"
 
-        "src/caravan/user/bot_easy.cpp"
         "src/caravan/user/user.cpp"
+        "src/caravan/user/bot/normal.cpp"
 )
 
 add_library(view

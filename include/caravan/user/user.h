@@ -21,7 +21,7 @@ public:
 
     PlayerName get_name() { return name; }
     virtual bool is_human() = 0;
-    virtual GameCommand generate_option(Game *g) = 0;
+    virtual std::string request_move(Game *g) = 0;
 };
 
 class UserHuman : public User {
@@ -29,7 +29,7 @@ public:
     explicit UserHuman(PlayerName pn) : User(pn) {};
 
     bool is_human() override;
-    GameCommand generate_option(Game *g) override;
+    std::string request_move(Game *g) override;
     void close() override;
 };
 

@@ -894,20 +894,22 @@ void ViewTUI::run() {
                     raw_command.pop_back();  // remove newline
                     confirmed = true;
                     user_input = "";
-
-                    if (!raw_command.empty()) {
-                        vc.msg_notif = vc.name_turn + " entered: " + raw_command;
-                    }
                 }
 
             } else {  // user with current turn is a bot
-                vc.command = vc.user_turn->generate_option(game);  // TODO generate raw command instead
-                vc.msg_notif = vc.name_turn + " made its move.";
+                user_input = "";
+                // TODO add delay before populating raw_command
+                raw_command = vc.user_turn->request_move(game);
+                confirmed = true;
+            }
+
+            if (confirmed && !raw_command.empty()) {
+                vc.msg_notif = vc.name_turn + " entered: " + raw_command;
             }
 
             try {
                 // Parse raw command to get usable command
-                if (vc.user_turn->is_human()) { vc.command = parse_user_input(raw_command, confirmed); }
+                vc.command = parse_user_input(raw_command, confirmed);
 
                 switch (vc.command.option) {
                     case NO_OPTION:

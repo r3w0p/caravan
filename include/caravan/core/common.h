@@ -135,4 +135,8 @@ bool is_numeral_card(Card c);
 
 bool is_face_card(Card c);
 
+std::string caravan_letter_to_str(CaravanName caravan_name);
+
+uint8_t numeral_card_rank_value(Card c);
+
 #endif //CARAVAN_CORE_COMMON_H

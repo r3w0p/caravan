@@ -8,8 +8,8 @@ bool UserHuman::is_human() {
     return true;
 }
 
-GameCommand UserHuman::generate_option(Game *g) {
-    return {};
+std::string UserHuman::request_move(Game *g) {
+    return "";
 }
 
 void UserHuman::close() {
