@@ -11,10 +11,13 @@
 class User {
 protected:
     PlayerName name;
+    bool closed;
 public:
     virtual ~User() = default;
 
     explicit User(PlayerName pn) : name(pn) {};
+
+    virtual void close() = 0;
 
     PlayerName get_name() { return name; }
     virtual bool is_human() = 0;
@@ -27,6 +30,7 @@ public:
 
     bool is_human() override;
     GameCommand generate_option(Game *g) override;
+    void close() override;
 };
 
 #endif //CARAVAN_USER_H

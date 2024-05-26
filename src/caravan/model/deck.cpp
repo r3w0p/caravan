@@ -12,7 +12,7 @@
 
 /**
  * @param num_cards The number of cards to have in the caravan deck,
- *        must be between 30 and 156 cards (inclusive).
+ *        must be between 30 and 162 cards (inclusive).
  * @param num_sample_decks The number of standard card decks
  *        (52 cards + 2 Jokers) from which to sample cards for the caravan deck,
  *        must be between 1 and 3 (inclusive).
@@ -43,7 +43,7 @@ Deck *DeckBuilder::build_caravan_deck(
         num_cards > DECK_CARAVAN_MAX) {
         throw CaravanFatalException(
             "A caravan deck must have between "
-            "30 and 156 cards (inclusive).");
+            "30 and 162 cards (inclusive).");
     }
 
     if (num_sample_decks < SAMPLE_DECKS_MIN or
@@ -53,7 +53,7 @@ Deck *DeckBuilder::build_caravan_deck(
             "1 and 3 standard card decks (inclusive).");
     }
 
-    total_sample_cards = num_sample_decks * DECK_STANDARD_MAX;
+    total_sample_cards = num_sample_decks * DECK_TRADITIONAL_MAX;
 
     if (total_sample_cards < num_cards) {
         throw CaravanFatalException(
@@ -69,7 +69,7 @@ Deck *DeckBuilder::build_caravan_deck(
         first_hand_num_cards = 0;
 
         for (int i = 0; i < num_sample_decks; ++i) {
-            sample_decks[i] = DeckBuilder::build_standard_deck(true);
+            sample_decks[i] = DeckBuilder::build_traditional_deck(true);
         }
 
         if (balanced_sample) {
@@ -120,9 +120,9 @@ Deck *DeckBuilder::build_caravan_deck(
 
 /**
  * @param shuffle If true, deck is shuffled. If false, it is in numeral order.
- * @return A standard card deck (52 cards + 2 Jokers).
+ * @return A traditional deck: standard 52 cards + 2 JOKERs.
  */
-Deck DeckBuilder::build_standard_deck(bool shuffle) {
+Deck DeckBuilder::build_traditional_deck(bool shuffle) {
     Deck d;
 
     for (int i = CLUBS; i <= SPADES; ++i) {

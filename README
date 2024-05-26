@@ -12,8 +12,6 @@ A command-line version of the Caravan card game from Fallout: New Vegas.
 HOW TO PLAY
 ===========
 
-GAMEPLAY
-
 Caravan is played with two players building three opposing piles (or "caravans")
 of numeral cards (A-10). The goal is to outbid your opponent's caravan with the
 highest value of cards without being too light (< 21) or overburdened (> 26).
@@ -62,8 +60,8 @@ JOKER Played against A-10. Effects change based on whether it is an ACE or other
       numeral card (see below). Multiple JOKERs may be played on the same card.
 ACE   Value of 1. JOKER played on ACE remove all other non-face cards of
       the ACE's suit from the table.
-      For example, a JOKER played the ACE of SPADES removes all SPADES (except
-      face cards and the numeral card it was placed on) from the table.
+      For example, a JOKER played on the ACE of SPADES removes all SPADES
+      (except face cards and the numeral card it was placed on) from the table.
 2-10  Listed value. JOKERs played on these remove all other cards of this
       value from the table.
       For example, a JOKER played on a 4 removes all 4s (except the numeral
@@ -77,7 +75,7 @@ are as follows.
 
 1. Each caravan can have, at most, 8 numeral cards on it.
 2. Each numeral card can have, at most, 3 face cards on it.
-3. A caravan deck must consist of between 30 to 156 cards (inclusive) sampled
+3. A caravan deck must consist of between 30 to 162 cards (inclusive) sampled
    from 1 to 3 traditional card decks (inclusive).
 
 

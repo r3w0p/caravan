@@ -34,6 +34,12 @@ bool UserBotEasy::is_human() {
     return false;
 }
 
+void UserBotEasy::close() {
+    if (!closed) {
+        closed = true;
+    }
+}
+
 GameCommand UserBotEasy::generate_option(Game *g) {
     Player *p;
     uint8_t p_hand_size;

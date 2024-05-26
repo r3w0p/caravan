@@ -11,3 +11,9 @@ bool UserHuman::is_human() {
 GameCommand UserHuman::generate_option(Game *g) {
     return {};
 }
+
+void UserHuman::close() {
+    if (!closed) {
+        closed = true;
+    }
+}

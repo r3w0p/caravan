@@ -27,6 +27,15 @@ FetchContent_MakeAvailable(ftxui)
 # ---
 
 
+# --- cxxopts
+FetchContent_Declare(cxxopts
+        GIT_REPOSITORY https://github.com/jarro2783/cxxopts
+        GIT_TAG v3.2.0
+)
+FetchContent_MakeAvailable(cxxopts)
+# ---
+
+
 # --- GoogleTest
 FetchContent_Declare(googletest
         GIT_REPOSITORY https://github.com/google/googletest
@@ -97,6 +106,7 @@ target_link_libraries(caravan
         PRIVATE model
         PRIVATE user
         PRIVATE view
+        PRIVATE cxxopts
 )
 # ---
 

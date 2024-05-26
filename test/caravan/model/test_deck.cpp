@@ -87,12 +87,12 @@ TEST (TestDeck, CaravanDeck_90Cards_2SampleDecks_NotBalanced) {
     ASSERT_TRUE(sum_num >= 3);
 }
 
-TEST (TestDeck, CaravanDeck_156Cards_3SampleDecks_Balanced) {
-    Deck *d = DeckBuilder::build_caravan_deck(156, 3, true);
+TEST (TestDeck, CaravanDeck_162Cards_3SampleDecks_Balanced) {
+    Deck *d = DeckBuilder::build_caravan_deck(162, 3, true);
     uint8_t sum_num = 0;
     Card c_back;
 
-    ASSERT_EQ(d->size(), 156);
+    ASSERT_EQ(d->size(), 162);
 
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
@@ -107,12 +107,12 @@ TEST (TestDeck, CaravanDeck_156Cards_3SampleDecks_Balanced) {
     ASSERT_TRUE(sum_num >= 3);
 }
 
-TEST (TestDeck, CaravanDeck_156Cards_3SampleDecks_NotBalanced) {
-    Deck *d = DeckBuilder::build_caravan_deck(156, 3, false);
+TEST (TestDeck, CaravanDeck_162Cards_3SampleDecks_NotBalanced) {
+    Deck *d = DeckBuilder::build_caravan_deck(162, 3, false);
     uint8_t sum_num = 0;
     Card c_back;
 
-    ASSERT_EQ(d->size(), 156);
+    ASSERT_EQ(d->size(), 162);
 
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();

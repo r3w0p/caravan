@@ -14,6 +14,7 @@ public:
 
     bool is_human() override;
     GameCommand generate_option(Game *g) override;
+    void close() override;
 };
 
 #endif //CARAVAN_USER_BOT_EASY_H
