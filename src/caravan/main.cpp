@@ -68,12 +68,6 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
 
-        GameConfig config = {
-            cards, samples, balanced,
-            cards, samples, balanced,
-            first == FIRST_ABC ? PLAYER_ABC : PLAYER_DEF
-        };
-
         if(pvp) {  // human vs human
             user_abc = new UserHuman(PLAYER_ABC);
             user_def = new UserHuman(PLAYER_DEF);
@@ -86,6 +80,12 @@ int main(int argc, char *argv[]) {
             user_abc = new UserHuman(PLAYER_ABC);
             user_def = new UserBotEasy(PLAYER_DEF);
         }
+
+        GameConfig config = {
+            cards, samples, balanced,
+            cards, samples, balanced,
+            first == FIRST_ABC ? PLAYER_ABC : PLAYER_DEF
+        };
 
         game = new Game(config);
         view = new ViewTUI(user_abc, user_def, game);

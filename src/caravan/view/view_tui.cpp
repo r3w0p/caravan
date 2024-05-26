@@ -54,6 +54,7 @@ typedef struct ViewConfig {
     // Messages to users
     std::string msg_notif;
     std::string msg_err;
+    std::string msg_fatal;
 
     ftxui::Elements msg_move_abc;
     ftxui::Elements msg_move_def;
@@ -729,18 +730,24 @@ std::shared_ptr<ftxui::Node> gen_terminal_too_small(
     return vbox({
                     text("Terminal too small"),
                     separatorEmpty(),
-                    text("Width:  " + std::to_string(terminal_size.dimx) + " < " + std::to_string(MIN_X)),
-                    text("Height: " + std::to_string(terminal_size.dimy) + " < " + std::to_string(MIN_Y)),
+                    text("Width:  " + std::to_string(terminal_size.dimx) + " / " + std::to_string(MIN_X)),
+                    text("Height: " + std::to_string(terminal_size.dimy) + " / " + std::to_string(MIN_Y)),
                     separatorEmpty(),
-                    text("Resize terminal or type Ctrl+C"),
+                    text("Resize terminal or press Escape"),
                 }) | center;
 }
 
-std::shared_ptr<ftxui::Node> gen_closed() {
+std::shared_ptr<ftxui::Node> gen_closed(ViewConfig *vc) {
     using namespace ftxui;
-    return vbox({
-                    text(""),
-                }) | center;
+    Elements e;
+
+    if(!vc->msg_fatal.empty()) {
+        e.push_back(text(vc->msg_fatal));
+        e.push_back(separatorEmpty());
+    }
+    e.push_back(text("Press Escape to leave."));
+
+    return vbox(e) | center;
 }
 
 ftxui::Elements get_move_description(ViewConfig *vc) {
@@ -857,7 +864,7 @@ void ViewTUI::run() {
     // Tweak how the component tree is rendered:
     auto renderer = Renderer(component, [&] {
         try {
-            if (closed) { return gen_closed(); }
+            if (closed) { return gen_closed(&vc); }
 
             terminal_size = Terminal::Size();
             set_current_turn(&vc, game);
@@ -932,10 +939,17 @@ void ViewTUI::run() {
 
             return gen_game(&vc, game, &comp_user_input);
 
-        } catch (...) {
+        } catch (CaravanException &e) {
             // Close gracefully on any unhandled exceptions
             closed = true;
-            return gen_closed();
+            vc.msg_fatal = e.what();
+            return gen_closed(&vc);
+
+        } catch (std::exception &e) {
+            // Close gracefully on any unhandled exceptions
+            closed = true;
+            vc.msg_fatal = "A fatal error occurred.";
+            return gen_closed(&vc);
         }
     });
 

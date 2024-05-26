@@ -107,15 +107,15 @@ typedef struct Slot {
 typedef std::array<Slot, TRACK_NUMERIC_MAX> Track;
 
 typedef struct GameConfig {
-    uint8_t pa_num_cards{0};
-    uint8_t pa_num_sample_decks{0};
-    bool pa_balanced_sample{false};
+    uint8_t player_abc_cards{0};
+    uint8_t player_abc_samples{0};
+    bool player_abc_balanced{false};
 
-    uint8_t pb_num_cards{0};
-    uint8_t pb_num_sample_decks{0};
-    bool pb_balanced_sample{false};
+    uint8_t player_def_cards{0};
+    uint8_t player_def_samples{0};
+    bool player_def_balanced{false};
 
-    PlayerName pn_first{NO_PLAYER};
+    PlayerName player_first{NO_PLAYER};
 } GameConfig;
 
 typedef struct GameCommand {
