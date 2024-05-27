@@ -2,15 +2,16 @@
 !.gitignore
 !CMakeLists.txt
 !LICENSE
-!README.md
+!README
 
 !.github/
 !.github/**
+
 !include/
 !include/**
-!lib/
-!lib/**
+
 !src/
 !src/**
+
 !test/
 !test/**

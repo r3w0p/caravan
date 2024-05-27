@@ -1,22 +1,143 @@
-enable_testing()
+cmake_minimum_required(VERSION 3.27)
 
-cmake_minimum_required(VERSION 3.23)
+project(caravan C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
-add_definitions(-DPDC_WIDE)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-project(caravan VERSION 0.9)
-
-set(PROJECT_COPYRIGHT "Copyright (c) 2022-2023 r3w0p")
-set(PROJECT_DESCRIPTION "A CLI version of the Caravan card game from Fallout: New Vegas.")
+set(PROJECT_VERSION 1.0.0)
+set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
+set(PROJECT_DESCRIPTION "A command-line version of the Caravan card game from Fallout: New Vegas.")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
-add_subdirectory(src)
-add_subdirectory(include)
-add_subdirectory(lib)
-add_subdirectory(test)
+set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static")
 
-set_target_properties(caravan PROPERTIES LINK_SEARCH_START_STATIC ON)
-set_target_properties(caravan PROPERTIES LINK_SEARCH_END_STATIC ON)
+include(FetchContent)
+set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
+set(FETCHCONTENT_QUIET FALSE)
 
-target_link_options(caravan PRIVATE -static-libgcc -static-libstdc++ -static)
+
+# --- FTXUI
+IF (APPLE)
+    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+    set(CMAKE_HAVE_THREADS_LIBRARY 1)
+    set(CMAKE_USE_WIN32_THREADS_INIT 0)
+    set(CMAKE_USE_PTHREADS_INIT 1)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+ENDIF ()
+
+FetchContent_Declare(ftxui
+        GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
+        GIT_TAG v5.0.0
+)
+FetchContent_MakeAvailable(ftxui)
+# ---
+
+
+# --- cxxopts
+FetchContent_Declare(cxxopts
+        GIT_REPOSITORY https://github.com/jarro2783/cxxopts
+        GIT_TAG v3.2.0
+)
+FetchContent_MakeAvailable(cxxopts)
+# ---
+
+
+# --- GoogleTest
+FetchContent_Declare(googletest
+        GIT_REPOSITORY https://github.com/google/googletest
+        GIT_TAG v1.14.0
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+# ---
+
+
+# --- caravan libraries
+include_directories(include)
+
+add_library(core
+        "include/caravan/core/common.h"
+        "include/caravan/core/exceptions.h"
+
+        "src/caravan/core/common.cpp"
+        "src/caravan/core/exceptions.cpp"
+)
+
+add_library(model
+        "include/caravan/model/caravan.h"
+        "include/caravan/model/deck.h"
+        "include/caravan/model/game.h"
+        "include/caravan/model/player.h"
+        "include/caravan/model/table.h"
+
+        "src/caravan/model/caravan.cpp"
+        "src/caravan/model/deck.cpp"
+        "src/caravan/model/game.cpp"
+        "src/caravan/model/player.cpp"
+        "src/caravan/model/table.cpp"
+)
+
+target_link_libraries(model core)
+
+add_library(user
+        "include/caravan/user/user.h"
+        "include/caravan/user/bot/factory.h"
+        "include/caravan/user/bot/normal.h"
+
+        "src/caravan/user/bot/factory.cpp"
+        "src/caravan/user/bot/normal.cpp"
+)
+
+add_library(view
+        "include/caravan/view/view.h"
+        "include/caravan/view/view_tui.h"
+
+        "src/caravan/view/view.cpp"
+        "src/caravan/view/view_tui.cpp"
+)
+
+target_link_libraries(view
+    ftxui::dom
+    ftxui::component
+)
+# ---
+
+
+# --- caravan.exe
+add_executable(caravan
+        "src/caravan/main.cpp"
+)
+
+target_link_libraries(caravan
+        PRIVATE core
+        PRIVATE model
+        PRIVATE user
+        PRIVATE view
+        PRIVATE cxxopts
+)
+# ---
+
+
+# --- test.exe
+enable_testing()
+
+add_executable(tests
+        "test/caravan/model/test_caravan.cpp"
+        "test/caravan/model/test_deck.cpp"
+        "test/caravan/model/test_game.cpp"
+        "test/caravan/model/test_player.cpp"
+        "test/caravan/model/test_table.cpp"
+)
+
+target_link_libraries(tests
+        PRIVATE GTest::gtest_main
+        PRIVATE core
+        PRIVATE model
+)
+
+include(GoogleTest)
+gtest_discover_tests(tests)
+# ---
