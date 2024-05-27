@@ -84,9 +84,10 @@ target_link_libraries(model core)
 
 add_library(user
         "include/caravan/user/user.h"
+        "include/caravan/user/bot/factory.h"
         "include/caravan/user/bot/normal.h"
 
-        "src/caravan/user/user.cpp"
+        "src/caravan/user/bot/factory.cpp"
         "src/caravan/user/bot/normal.cpp"
 )
 
@@ -94,12 +95,13 @@ add_library(view
         "include/caravan/view/view.h"
         "include/caravan/view/view_tui.h"
 
+        "src/caravan/view/view.cpp"
         "src/caravan/view/view_tui.cpp"
 )
 
 target_link_libraries(view
-    PRIVATE ftxui::dom
-    PRIVATE ftxui::component
+    ftxui::dom
+    ftxui::component
 )
 # ---
 

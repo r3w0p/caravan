@@ -31,7 +31,7 @@ protected:
     void option_play(Player *pptr, GameCommand *command);
 
 public:
-    explicit Game(GameConfig config);
+    explicit Game(GameConfig *gc);
 
     static CaravanName get_opposite_caravan_name(CaravanName cvname);
 

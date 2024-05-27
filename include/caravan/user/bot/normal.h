@@ -5,16 +5,14 @@
 #ifndef CARAVAN_USER_BOT_NORMAL_H
 #define CARAVAN_USER_BOT_NORMAL_H
 
-
 #include "caravan/user/user.h"
 
-class UserBotNormal : public User {
+class UserBotNormal : public UserBot {
 public:
-    explicit UserBotNormal(PlayerName pn) : User(pn){};
+    explicit UserBotNormal(PlayerName pn) : UserBot(pn){};
 
-    bool is_human() override;
-    std::string request_move(Game *game) override;
     void close() override;
+    std::string request_move(Game *game) override;
 };
 
 #endif //CARAVAN_USER_BOT_NORMAL_H

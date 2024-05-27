@@ -30,8 +30,6 @@ uint8_t pos_card_numeral(Player *p) {
  * PUBLIC
  */
 
-bool UserBotNormal::is_human() { return false; }
-
 void UserBotNormal::close() {
     if (!closed) {
         closed = true;

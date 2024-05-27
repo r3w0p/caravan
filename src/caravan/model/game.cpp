@@ -12,27 +12,27 @@ const std::string EXC_CLOSED = "Game is closed.";
  * 
  * @throws CaravanFatalException Invalid player names.
  */
-Game::Game(GameConfig config) {
-    if (config.player_first == NO_PLAYER) {
+Game::Game(GameConfig *gc) {
+    if (gc->player_first == NO_PLAYER) {
         throw CaravanFatalException("Invalid player name for first player in game configuration.");
     }
 
     Deck *deck_top = DeckBuilder::build_caravan_deck(
-        config.player_abc_cards,
-        config.player_abc_samples,
-        config.player_abc_balanced);
+        gc->player_abc_cards,
+        gc->player_abc_samples,
+        gc->player_abc_balanced);
 
     Deck *deck_bottom = DeckBuilder::build_caravan_deck(
-        config.player_def_cards,
-        config.player_def_samples,
-        config.player_def_balanced);
+        gc->player_def_cards,
+        gc->player_def_samples,
+        gc->player_def_balanced);
 
     table_ptr = new Table();
     pa_ptr = new Player(PLAYER_ABC, deck_bottom);
     pb_ptr = new Player(PLAYER_DEF, deck_top);
 
     closed = false;
-    p_turn = config.player_first == pa_ptr->get_name() ? pa_ptr : pb_ptr;
+    p_turn = gc->player_first == pa_ptr->get_name() ? pa_ptr : pb_ptr;
 }
 
 void Game::close() {

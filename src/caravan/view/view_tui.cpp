@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <string>
+#include <chrono>
 
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_options.hpp"
@@ -44,34 +45,11 @@ const std::string NAME_PL2 = "PL2";
 const std::string NAME_BOT1 = "BOT1";
 const std::string NAME_BOT2 = "BOT2";
 
-
-typedef struct ViewConfig {
-    // Pointers to users
-    User *user_abc{};
-    User *user_def{};
-    User *user_turn{};
-
-    // Messages to users
-    std::string msg_notif;
-    std::string msg_err;
-    std::string msg_fatal;
-
-    ftxui::Elements msg_move_abc;
-    ftxui::Elements msg_move_def;
-
-    // Names of users
-    std::string name_abc;
-    std::string name_def;
-    std::string name_turn;
-    std::string name_next;
-
-    // Most recent command
-    GameCommand command;
-
-    // Colour support
-    bool colour{};
-} ViewConfig;
-
+uint64_t time_milliseconds() {
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(
+        system_clock::now().time_since_epoch()).count();
+}
 
 std::wstring caravan_to_wstr(CaravanName caravan_name, bool letter_only) {
     switch (caravan_name) {
@@ -576,6 +554,7 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
 
     Player *player_this = game->get_player(top ? PLAYER_DEF : PLAYER_ABC);
     User *user_this = player_this->get_name() == vc->user_abc->get_name() ? vc->user_abc : vc->user_def;
+    User *user_other = player_this->get_name() == vc->user_abc->get_name() ? vc->user_def : vc->user_abc;
 
     uint8_t hand_size_abc = player_abc->get_size_hand();
     uint8_t hand_size_def = player_def->get_size_hand();
@@ -587,7 +566,7 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
 
     // if not this user's turn and both players are human; or
     // if this user is a bot playing against a human; or
-    // if there is a winner and this user is a bot
+    // if there is a winner and this user is a bot playing against a human
     bool hide =
         (
             game->get_winner() == NO_PLAYER &&
@@ -601,7 +580,7 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
         ) ||
         (
             game->get_winner() != NO_PLAYER &&
-            !user_this->is_human()
+            (!user_this->is_human() && user_other->is_human())
         );
 
     for (uint8_t i = 0; i < hand_max; i++) {
@@ -633,7 +612,7 @@ std::shared_ptr<ftxui::Node> gen_input(
     Elements e;
 
     bool is_top = game->get_winner() == NO_PLAYER;
-    bool is_mid = !vc->msg_notif.empty() || !vc->msg_err.empty();
+    bool is_mid = !vc->msg_main.empty() || !vc->msg_important.empty();
     bool is_low = !vc->msg_move_abc.empty() || !vc->msg_move_def.empty();
 
     if (is_top) {
@@ -648,13 +627,13 @@ std::shared_ptr<ftxui::Node> gen_input(
     if (is_mid) {
         e.push_back(separatorEmpty());
 
-        if (!vc->msg_notif.empty()) {
-            e.push_back(hbox(separatorEmpty(), paragraph(vc->msg_notif), separatorEmpty()));
+        if (!vc->msg_main.empty()) {
+            e.push_back(hbox(separatorEmpty(), paragraph(vc->msg_main), separatorEmpty()));
             e.push_back(separatorEmpty());
         }
 
-        if (!vc->msg_err.empty()) {
-            e.push_back(hbox(separatorEmpty(), paragraph(vc->msg_err), separatorEmpty()));
+        if (!vc->msg_important.empty()) {
+            e.push_back(hbox(separatorEmpty(), paragraph(vc->msg_important), separatorEmpty()));
             e.push_back(separatorEmpty());
         }
 
@@ -795,12 +774,14 @@ ftxui::Elements get_move_description(ViewConfig *vc) {
 void set_current_turn(ViewConfig *vc, Game *game) {
     if (game->get_player_turn() == PLAYER_ABC) {
         vc->user_turn = vc->user_abc;
+        vc->user_next = vc->user_def;
 
         vc->name_turn = vc->name_abc;
         vc->name_next = vc->name_def;
 
     } else {
         vc->user_turn = vc->user_def;
+        vc->user_next = vc->user_abc;
 
         vc->name_turn = vc->name_def;
         vc->name_next = vc->name_abc;
@@ -826,27 +807,24 @@ void ViewTUI::run() {
     std::wstring move_description;
 
     // Config for rendering game
-    ViewConfig vc;
-    vc.colour = Terminal::ColorSupport() != ftxui::Terminal::Palette1;
-    vc.user_abc = user_abc;
-    vc.user_def = user_def;
+    vc->colour = Terminal::ColorSupport() != ftxui::Terminal::Palette1;
 
     // Set names of users based on who is human or not
-    if (user_abc->is_human() and user_def->is_human()) {
-        vc.name_abc = NAME_PL1;
-        vc.name_def = NAME_PL2;
+    if (vc->user_abc->is_human() and vc->user_def->is_human()) {
+        vc->name_abc = NAME_PL1;
+        vc->name_def = NAME_PL2;
 
-    } else if (user_abc->is_human() and !user_def->is_human()) {
-        vc.name_abc = NAME_YOU;
-        vc.name_def = NAME_BOT;
+    } else if (vc->user_abc->is_human() and !vc->user_def->is_human()) {
+        vc->name_abc = NAME_YOU;
+        vc->name_def = NAME_BOT;
 
-    } else if (!user_abc->is_human() and user_def->is_human()) {
-        vc.name_abc = NAME_BOT;
-        vc.name_def = NAME_YOU;
+    } else if (!vc->user_abc->is_human() and vc->user_def->is_human()) {
+        vc->name_abc = NAME_BOT;
+        vc->name_def = NAME_YOU;
 
     } else {  // both are bots
-        vc.name_abc = NAME_BOT1;
-        vc.name_def = NAME_BOT2;
+        vc->name_abc = NAME_BOT1;
+        vc->name_def = NAME_BOT2;
     }
 
     // Create screen
@@ -870,17 +848,23 @@ void ViewTUI::run() {
     auto component = Container::Vertical({comp_user_input});
 
     // Initial notifications
-    set_current_turn(&vc, game);
-    vc.msg_notif = "Welcome to Caravan";
-    vc.msg_err = vc.name_turn + " to move first.";
+    set_current_turn(vc, game);
+    vc->msg_main = "Welcome to Caravan";
+    vc->msg_important = vc->name_turn + " to move first.";
+
+    // Monitor bot delay
+    uint64_t time_bot_start = time_milliseconds();
+    uint64_t time_bot_end;
 
     // Tweak how the component tree is rendered:
     auto renderer = Renderer(component, [&] {
+        screen.SetCursor(Screen::Cursor(Screen::Cursor::Hidden));
+
         try {
-            if (closed) { return gen_closed(&vc); }
+            if (closed) { return gen_closed(vc); }
 
             terminal_size = Terminal::Size();
-            set_current_turn(&vc, game);
+            set_current_turn(vc, game);
             confirmed = false;
 
             // Error screen if less than minimum terminal dimensions
@@ -891,16 +875,16 @@ void ViewTUI::run() {
 
             // If winner, display results
             if(game->get_winner() != NO_PLAYER) {
-                std::string name_winner = game->get_winner() == user_abc->get_name() ? vc.name_abc : vc.name_def;
+                std::string name_winner = game->get_winner() == vc->user_abc->get_name() ? vc->name_abc : vc->name_def;
                 user_input = "";
 
-                vc.msg_notif = "WINNER: " + name_winner;
-                vc.msg_err = "Press Esc to exit.";
+                vc->msg_main = "WINNER: " + name_winner;
+                vc->msg_important = "Press Esc to exit.";
 
-                return gen_game(&vc, game, &comp_user_input);
+                return gen_game(vc, game, &comp_user_input);
             }
 
-            if(vc.user_turn->is_human()) {
+            if(vc->user_turn->is_human()) {
                 // Create new command if ENTER key pressed (i.e., if newline)
                 raw_command = user_input;
                 if (raw_command.ends_with('\n')) {
@@ -911,20 +895,30 @@ void ViewTUI::run() {
 
             } else {  // user with current turn is a bot
                 user_input = "";
-                // TODO add delay before populating raw_command
-                raw_command = vc.user_turn->request_move(game);
-                confirmed = true;
+                time_bot_end = time_milliseconds();
+
+                if((float) (time_bot_end-time_bot_start) >= (vc->bot_delay_sec * 1000)) {
+                    // Bot delay has elapsed, make move
+                    raw_command = vc->user_turn->request_move(game);
+                    confirmed = true;
+
+                } else {
+                    // Bot is still thinking of its next move
+                    vc->msg_important = vc->name_turn + " is thinking...";
+                    // Event needed so that delay checks occur
+                    screen.PostEvent(Event::Custom);
+                }
             }
 
             if (confirmed && !raw_command.empty()) {
-                vc.msg_notif = vc.name_turn + " entered: " + raw_command;
+                vc->msg_main = vc->name_turn + " entered: " + raw_command;
             }
 
             try {
                 // Parse raw command to get usable command
-                vc.command = parse_user_input(raw_command, confirmed);
+                vc->command = parse_user_input(raw_command, confirmed);
 
-                switch (vc.command.option) {
+                switch (vc->command.option) {
                     case NO_OPTION:
                         break;
                     default:
@@ -932,39 +926,44 @@ void ViewTUI::run() {
                         screen.PostEvent(Event::Custom);
 
                         // Send command to update game state
-                        // Will throw exception if there is a problem with the command
-                        game->play_option(&vc.command);
+                        // Will throw exception if problem with command
+                        game->play_option(&vc->command);
 
-                        // Set new messages to notify user of game state changes
-                        vc.msg_err = vc.name_next + " to move next.";
+                        // Set message to log next player's turn
+                        vc->msg_important = vc->name_next + " to move next.";
 
-                        if (vc.user_turn->get_name() == PLAYER_ABC) {
-                            vc.msg_move_abc = get_move_description(&vc);
+                        if (vc->user_turn->get_name() == PLAYER_ABC) {
+                            vc->msg_move_abc = get_move_description(vc);
                         } else {
-                            vc.msg_move_def = get_move_description(&vc);
+                            vc->msg_move_def = get_move_description(vc);
+                        }
+
+                        // If next user is bot, start logging bot delay
+                        if(!vc->user_next->is_human()) {
+                            time_bot_start = time_milliseconds();
                         }
                 }
 
             } catch (CaravanGameException &e) {
-                vc.msg_err = e.what();
+                vc->msg_important = e.what();
 
             } catch (CaravanInputException &e) {
-                vc.msg_err = e.what();
+                vc->msg_important = e.what();
             }
 
-            return gen_game(&vc, game, &comp_user_input);
+            return gen_game(vc, game, &comp_user_input);
 
         } catch (CaravanException &e) {
             // Close gracefully on any unhandled exceptions
             closed = true;
-            vc.msg_fatal = e.what();
-            return gen_closed(&vc);
+            vc->msg_fatal = e.what();
+            return gen_closed(vc);
 
         } catch (std::exception &e) {
             // Close gracefully on any unhandled exceptions
             closed = true;
-            vc.msg_fatal = "A fatal error occurred.";
-            return gen_closed(&vc);
+            vc->msg_fatal = "A fatal error occurred.";
+            return gen_closed(vc);
         }
     });
 
@@ -982,14 +981,6 @@ void ViewTUI::run() {
 
 void ViewTUI::close() {
     if (!closed) {
-        // TODO user_abc->close();
-        // TODO user_def->close();
-        game->close();
-
-        delete user_abc;
-        delete user_def;
-        delete game;
-
         closed = true;
     }
 }

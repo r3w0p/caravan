@@ -12,7 +12,7 @@ TEST (TestGame, Close) {
         30, 1, true,
         PLAYER_ABC
     };
-    Game g{gc};
+    Game g{&gc};
 
     ASSERT_FALSE(g.is_closed());
     g.close();
@@ -25,7 +25,7 @@ TEST (TestGame, GetPlayer_Both) {
         30, 1, true,
         PLAYER_ABC
     };
-    Game g{gc};
+    Game g{&gc};
 
     ASSERT_EQ(g.get_player(PLAYER_ABC)->get_name(), PLAYER_ABC);
     ASSERT_EQ(g.get_player(PLAYER_DEF)->get_name(), PLAYER_DEF);
@@ -37,7 +37,7 @@ TEST (TestGame, GetPlayer_Error_AlreadyClosed) {
         30, 1, true,
         PLAYER_ABC
     };
-    Game g{gc};
+    Game g{&gc};
 
     g.close();
 
@@ -58,7 +58,7 @@ TEST (TestGame, GetPlayer_Error_InvalidName) {
         30, 1, true,
         PLAYER_ABC
     };
-    Game g{gc};
+    Game g{&gc};
 
     try {
         g.get_player(NO_PLAYER);
@@ -77,7 +77,7 @@ TEST (TestGame, GetPlayerTurn) {
         30, 1, true,
         PLAYER_ABC
     };
-    Game g{gc};
+    Game g{&gc};
 
     ASSERT_EQ(g.get_player_turn(), PLAYER_ABC);
 }
@@ -88,7 +88,7 @@ TEST (TestGame, GetPlayerTurn_Error_AlreadyClosed) {
         30, 1, true,
         PLAYER_ABC
     };
-    Game g{gc};
+    Game g{&gc};
 
     g.close();
 
@@ -109,7 +109,7 @@ TEST (TestGame, GetTable_Error_AlreadyClosed) {
         30, 1, true,
         PLAYER_ABC
     };
-    Game g{gc};
+    Game g{&gc};
 
     g.close();
 
@@ -130,7 +130,7 @@ TEST (TestGame, GetWinner_NoMoves) {
         30, 1, true,
         PLAYER_ABC
     };
-    Game g{gc};
+    Game g{&gc};
 
     ASSERT_EQ(g.get_winner(), NO_PLAYER);
 }
@@ -141,7 +141,7 @@ TEST (TestGame, GetWinner_Error_AlreadyClosed) {
         30, 1, true,
         PLAYER_ABC
     };
-    Game g{gc};
+    Game g{&gc};
 
     g.close();
 
@@ -163,7 +163,7 @@ TEST (TestGame, PlayOption_Error_AlreadyClosed) {
         PLAYER_ABC
     };
     GameCommand command = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
-    Game g{gc};
+    Game g{&gc};
 
     g.close();
 
@@ -179,13 +179,13 @@ TEST (TestGame, PlayOption_Error_AlreadyClosed) {
 }
 
 TEST (TestGame, PlayOption_Error_StartRound_Remove) {
-    GameConfig config = {
+    GameConfig gc = {
         30, 1, true,
         30, 1, true,
         PLAYER_ABC
     };
     GameCommand command = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
-    Game g{config};
+    Game g{&gc};
 
     try {
         g.play_option(&command);
@@ -199,13 +199,13 @@ TEST (TestGame, PlayOption_Error_StartRound_Remove) {
 }
 
 TEST (TestGame, PlayOption_Error_StartRound_Clear) {
-    GameConfig config = {
+    GameConfig gc = {
         30, 1, true,
         30, 1, true,
         PLAYER_ABC
     };
     GameCommand command = {OPTION_CLEAR, 0, CARAVAN_A, 0};
-    Game g{config};
+    Game g{&gc};
 
     try {
         g.play_option(&command);

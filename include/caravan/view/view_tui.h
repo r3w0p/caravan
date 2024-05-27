@@ -13,8 +13,7 @@ protected:
     GameCommand parse_user_input(std::string input, bool confirmed);
 
 public:
-    explicit ViewTUI(User *user_abc, User *user_def, Game *game) :
-        View(user_abc, user_def, game) {};
+    explicit ViewTUI(ViewConfig *vc, Game *game) : View(vc, game) {};
 
     void run() override;
 
