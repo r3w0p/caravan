@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ tui ]
+    branches: [ main ]
 
 env:
   BUILD_TYPE: Release

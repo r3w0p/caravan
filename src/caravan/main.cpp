@@ -7,14 +7,6 @@
 #include "caravan/view/view_tui.h"
 #include "caravan/user/bot/factory.h"
 
-const std::string ARG_PVP = "pvp";
-const std::string ARG_BVB = "bvb";
-const std::string ARG_FIRST = "first";
-const std::string ARG_CARDS = "cards";
-const std::string ARG_SAMPLES = "samples";
-const std::string ARG_BALANCED = "balanced";
-const std::string ARG_BOT = "bot";
-const std::string ARG_DELAY = "delay";
 
 const uint8_t FIRST_ABC = 1;
 const uint8_t FIRST_DEF = 2;
@@ -28,31 +20,41 @@ int main(int argc, char *argv[]) {
 
     try {
         cxxopts::Options options(
-            "Caravan",
-            "A command-line version of the Caravan card game "
-            "from Fallout: New Vegas.");
+            "caravan",
+            "Caravan: A command-line version of "
+            "the Caravan card game from Fallout: New Vegas.");
 
         options.add_options()
-            (ARG_PVP, "Player vs player.", cxxopts::value<bool>()->default_value("false"))
-            (ARG_BVB, "Bot vs bot.", cxxopts::value<bool>()->default_value("false"))
-            (ARG_FIRST, "Which player goes first.", cxxopts::value<uint8_t>()->default_value("1"))
-            (ARG_CARDS, "Number of cards for each caravan deck.", cxxopts::value<uint8_t>()->default_value("54"))
-            (ARG_SAMPLES, "Number of traditional decks to sample when building caravan decks.", cxxopts::value<uint8_t>()->default_value("1"))
-            (ARG_BALANCED, "Whether caravan decks should contain a balanced number of cards across all sampled traditional decks.", cxxopts::value<bool>()->default_value("true"))
-            (ARG_BOT, "Which bot to play against.", cxxopts::value<std::string>()->default_value("normal"))
-            (ARG_DELAY, "Delay before bot makes its move (in seconds).", cxxopts::value<float>()->default_value("1.0"))
+            ("h,help", "Print help instructions.")
+            ("pvp", "A Player vs Player game.")
+            ("bvb", "A Bot vs Bot game.")
+            ("b,bot", "Which bot to play with.", cxxopts::value<std::string>()->default_value("normal"))
+            ("d,delay", "Delay before bot makes its move (in seconds).", cxxopts::value<float>()->default_value("1.0"))
+            ("f,first", "Which player goes first (1 or 2).", cxxopts::value<uint8_t>()->default_value("1"))
+            ("c,cards", "Number of cards for each caravan deck (30-162, inclusive).", cxxopts::value<uint8_t>()->default_value("54"))
+            ("s,samples", "Number of traditional decks to sample when building caravan decks (1-3, inclusive).", cxxopts::value<uint8_t>()->default_value("1"))
+            ("i,imbalanced",
+             "An imbalanced caravan deck is built by taking as many "
+             "cards from one shuffled sample deck before moving to the next. "
+             "A balanced deck randomly samples cards across all sample decks.")
         ;
 
         auto result = options.parse(argc, argv);
 
-        bool pvp = result[ARG_PVP].as<bool>();
-        bool bots = result[ARG_BVB].as<bool>();
-        uint8_t first = result[ARG_FIRST].as<uint8_t>();
-        uint8_t cards = result[ARG_CARDS].as<uint8_t>();
-        uint8_t samples = result[ARG_SAMPLES].as<uint8_t>();
-        bool balanced = result[ARG_BALANCED].as<bool>();
-        std::string bot = result[ARG_BOT].as<std::string>();
-        float delay = result[ARG_DELAY].as<float>();
+        // Print help instructions.
+        if (result.count("help")) {
+            printf("%s", options.help().c_str());
+            exit(EXIT_SUCCESS);
+        }
+
+        bool pvp = result["pvp"].as<bool>();
+        bool bots = result["bvb"].as<bool>();
+        std::string bot = result["bot"].as<std::string>();
+        float delay = result["delay"].as<float>();
+        uint8_t first = result["first"].as<uint8_t>();
+        uint8_t cards = result["cards"].as<uint8_t>();
+        uint8_t samples = result["samples"].as<uint8_t>();
+        bool imbalanced = result["imbalanced"].as<bool>();
 
         if (pvp && bots) {
             printf("Game cannot be both Player vs Player and Bot vs Bot.");
@@ -93,8 +95,8 @@ int main(int argc, char *argv[]) {
         }
 
         GameConfig gc = {
-            cards, samples, balanced,
-            cards, samples, balanced,
+            cards, samples, !imbalanced,
+            cards, samples, !imbalanced,
             first == FIRST_ABC ? PLAYER_ABC : PLAYER_DEF
         };
 
