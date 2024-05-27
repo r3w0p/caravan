@@ -14,18 +14,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Linux GCC
-            os: ubuntu-latest
-            compiler_cc: gcc
-            compiler_cpp: g++
-
           - name: Linux Clang
             os: ubuntu-latest
             compiler_cc: clang
             compiler_cpp: clang++
 
-          - name: MacOS Clang
-            os: macos-latest
+          - name: Linux GCC
+            os: ubuntu-latest
+            compiler_cc: gcc
+            compiler_cpp: g++
+
+          - name: Windows Clang
+            os: windows-latest
             compiler_cc: clang
             compiler_cpp: clang++
 
@@ -33,7 +33,6 @@ jobs:
             os: windows-latest
             compiler_cc: gcc
             compiler_cpp: g++
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
