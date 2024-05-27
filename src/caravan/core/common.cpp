@@ -13,7 +13,7 @@ bool is_face_card(Card c) {
     return (c.rank >= JACK and c.rank <= JOKER);
 }
 
-std::string caravan_letter_to_str(CaravanName caravan_name) {
+std::string caravan_letter(CaravanName caravan_name) {
     switch (caravan_name) {
         case CARAVAN_A:
             return "A";
@@ -32,7 +32,7 @@ std::string caravan_letter_to_str(CaravanName caravan_name) {
     }
 }
 
-uint8_t numeral_card_rank_value(Card c) {
+uint8_t numeral_rank_value(Card c) {
     switch (c.rank) {
         case ACE:
             return 1;

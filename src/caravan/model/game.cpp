@@ -202,6 +202,16 @@ bool Game::is_caravan_winning(CaravanName cvname) {
     }
 }
 
+bool Game::is_caravan_bust(CaravanName cvname) {
+    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
+
+    if (cvname == NO_CARAVAN) {
+        return false;
+    } else {
+        return table_ptr->get_caravan(cvname)->get_bid() > CARAVAN_SOLD_MAX;
+    }
+}
+
 CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
     switch (cvname) {
         case CARAVAN_A:

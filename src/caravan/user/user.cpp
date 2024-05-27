@@ -4,13 +4,9 @@
 
 #include "caravan/user/user.h"
 
-bool UserHuman::is_human() {
-    return true;
-}
+bool UserHuman::is_human() { return true; }
 
-std::string UserHuman::request_move(Game *g) {
-    return "";
-}
+std::string UserHuman::request_move(Game *game) { return ""; }
 
 void UserHuman::close() {
     if (!closed) {

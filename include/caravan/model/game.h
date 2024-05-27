@@ -43,6 +43,8 @@ public:
 
     bool is_caravan_winning(CaravanName cvname);
 
+    bool is_caravan_bust(CaravanName cvname);
+
     PlayerName get_player_turn();
 
     Table *get_table();

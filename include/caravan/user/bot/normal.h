@@ -10,10 +10,10 @@
 
 class UserBotNormal : public User {
 public:
-    explicit UserBotNormal(PlayerName pn) : User(pn) {};
+    explicit UserBotNormal(PlayerName pn) : User(pn){};
 
     bool is_human() override;
-    std::string request_move(Game *g) override;
+    std::string request_move(Game *game) override;
     void close() override;
 };
 
