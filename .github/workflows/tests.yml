@@ -38,8 +38,5 @@ jobs:
       - name: ls build
         run: ls ${{github.workspace}}/build
 
-      - name: ls build/Release
-        run: ls ${{github.workspace}}/build/Release
-
       - name: Run Tests
-        run: ./${{github.workspace}}/build/${{env.BUILD_TYPE}}/tests
+        run: ./${{github.workspace}}/build/tests
