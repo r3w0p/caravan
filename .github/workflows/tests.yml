@@ -5,20 +5,15 @@ on:
     branches: [ tui ]
 
 env:
+  OS: ubuntu-latest
+  COMPILER_CC: gcc
+  COMPILER_CPP: g++
   BUILD_TYPE: Release
 
 jobs:
   build:
     name: Tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - name: Linux GCC
-            os: ubuntu-latest
-            compiler_cc: gcc
-            compiler_cpp: g++
-
+    runs-on: ${{ env.OS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,10 +25,16 @@ jobs:
           ninjaVersion: "^1.0"     # use most recent 1.x version
 
       - name: CMake Setup
-        run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D CMAKE_C_COMPILER=${{matrix.compiler_cc}} CMAKE_CXX_COMPILER=${{matrix.compiler_cpp}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D CMAKE_C_COMPILER=${{env.COMPILER_CC}} CMAKE_CXX_COMPILER=${{env.COMPILER_Cpp}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: CMake Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target tests
 
+      - name: ls build
+        run: ls ${{github.workspace}}/build
+
+      - name: ls build/Release
+        run: ls ${{github.workspace}}/build/Release
+
       - name: Run Tests
-        run: ./${{github.workspace}}/build/tests
+        run: ./${{github.workspace}}/build/${{env.BUILD_TYPE}}/tests
