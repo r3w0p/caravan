@@ -39,4 +39,4 @@ jobs:
         run: ls ${{github.workspace}}/build
 
       - name: Run Tests
-        run: ./${{github.workspace}}/build/tests
+        run: .${{github.workspace}}/build/tests
