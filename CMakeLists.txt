@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 
-project(caravan C CXX)
+project(caravan LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,21 +11,11 @@ set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
 set(PROJECT_DESCRIPTION "A command-line version of the Caravan card game from Fallout: New Vegas.")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
-set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static")
+#set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static")
 
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 set(FETCHCONTENT_QUIET FALSE)
-
-
-# --- FTXUI
-IF (APPLE)
-    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-    set(CMAKE_HAVE_THREADS_LIBRARY 1)
-    set(CMAKE_USE_WIN32_THREADS_INIT 0)
-    set(CMAKE_USE_PTHREADS_INIT 1)
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-ENDIF ()
 
 FetchContent_Declare(ftxui
         GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
