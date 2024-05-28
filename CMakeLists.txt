@@ -19,6 +19,7 @@ include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 set(FETCHCONTENT_QUIET FALSE)
 
+
 # --- FTXUI
 FetchContent_Declare(ftxui
         GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
