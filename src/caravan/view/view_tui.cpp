@@ -725,7 +725,7 @@ std::shared_ptr<ftxui::Node> gen_terminal_too_small(
                     text("Width:  " + std::to_string(terminal_size.dimx) + " / " + std::to_string(MIN_X)),
                     text("Height: " + std::to_string(terminal_size.dimy) + " / " + std::to_string(MIN_Y)),
                     separatorEmpty(),
-                    text("Resize terminal or press Escape"),
+                    text("Resize terminal or press Esc"),
                 }) | center;
 }
 
@@ -737,7 +737,7 @@ std::shared_ptr<ftxui::Node> gen_closed(ViewConfig *vc) {
         e.push_back(text(vc->msg_fatal));
         e.push_back(separatorEmpty());
     }
-    e.push_back(text("Press Escape to leave."));
+    e.push_back(text("Press Esc to exit."));
 
     return vbox(e) | center;
 }
