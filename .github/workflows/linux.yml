@@ -37,7 +37,7 @@ jobs:
 
       - name: Rename Executable
         working-directory: ./build
-        run: mv caravan.exe caravan_linux_x64
+        run: mv caravan caravan_linux_x64
 
       - name: Upload Executable to Release
         uses: AButler/upload-release-assets@v3.0
