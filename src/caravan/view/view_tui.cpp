@@ -858,7 +858,7 @@ void ViewTUI::run() {
 
     // Tweak how the component tree is rendered:
     auto renderer = Renderer(component, [&] {
-        screen.SetCursor(Screen::Cursor(Screen::Cursor::Hidden));
+        screen.SetCursor(Screen::Cursor({.shape=Screen::Cursor::Hidden}));
 
         try {
             if (closed) { return gen_closed(vc); }
