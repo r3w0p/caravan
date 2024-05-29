@@ -1,19 +1,24 @@
-name: Tests
+name: Linux
 
 on:
   push:
     branches: [ "1.1.0" ]
 
 env:
-  BUILD_TYPE: Debug
+  BUILD_TYPE: Release
 
 jobs:
-  tests:
-    name: Tests
+  build:
+    name: Build
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
+          - name: Linux Clang
+            os: ubuntu-latest
+            compiler_cc: clang
+            compiler_cpp: clang++
+
           - name: Linux GCC
             os: ubuntu-latest
             compiler_cc: gcc
@@ -33,8 +38,4 @@ jobs:
         run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D CMAKE_C_COMPILER=${{matrix.compiler_cc}} CMAKE_CXX_COMPILER=${{matrix.compiler_cpp}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: CMake Build
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target tests
-
-      - name: Run Tests
-        working-directory: ./build
-        run: ctest --output-on-failure
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target caravan

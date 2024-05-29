@@ -1,8 +1,8 @@
-name: Build
+name: Windows
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "1.1.0" ]
 
 env:
   BUILD_TYPE: Release
@@ -14,18 +14,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Linux GCC
-            os: ubuntu-latest
-            compiler_cc: gcc
-            compiler_cpp: g++
-
-          # Commented out due to seemingly unresolvable issue possibly caused by FTXUI:
-          # "Target "component" links to Threads::Threads but the target was not found."
-          #
-          #- name: MacOS Clang
-          #  os: macos-latest
-          #  compiler_c: clang
-          #  compiler_cpp: clang++
+          - name: Windows Clang
+            os: windows-latest
+            compiler_cc: clang
+            compiler_cpp: clang++
 
           - name: Windows GCC
             os: windows-latest
