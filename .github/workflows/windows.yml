@@ -1,8 +1,8 @@
 name: Windows
 
 on:
-  push:
-    branches: [ "1.1.0" ]
+  release:
+    types: [ created ]
 
 env:
   BUILD_TYPE: Release
@@ -14,11 +14,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Windows Clang
-            os: windows-latest
-            compiler_cc: clang
-            compiler_cpp: clang++
-
           - name: Windows GCC
             os: windows-latest
             compiler_cc: gcc
@@ -39,3 +34,13 @@ jobs:
 
       - name: CMake Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target caravan
+
+      - name: Rename Executable
+        working-directory: ./build
+        run: mv caravan.exe caravan_windows_x64.exe
+
+      - name: Upload Executable to Release
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          files: ./build/caravan_windows_x64.exe
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

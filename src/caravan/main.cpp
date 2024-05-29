@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
             (OPTS_VERSION, "Print help instructions.")
             ("pvp", "A Player vs Player game.")
             ("bvb", "A Bot vs Bot game.")
-            ("b,bot", "Which bot to play with.", cxxopts::value<std::string>()->default_value("normal"))
+            ("b,bot", "Which bot to play with (normal, friendly).", cxxopts::value<std::string>()->default_value("normal"))
             ("d,delay", "Delay before bot makes its move (in seconds).", cxxopts::value<float>()->default_value("1.0"))
             ("f,first", "Which player goes first (1 or 2).", cxxopts::value<uint8_t>()->default_value("1"))
             ("c,cards", "Number of cards for each caravan deck (30-162, inclusive).", cxxopts::value<uint8_t>()->default_value("54"))

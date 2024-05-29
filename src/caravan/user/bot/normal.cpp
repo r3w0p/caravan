@@ -10,7 +10,6 @@
  */
 
 const std::string PLAY = "P";
-const std::string DISCARD = "D";
 const std::string CLEAR = "C";
 
 uint8_t pos_card_numeral(Player *p) {
@@ -27,20 +26,14 @@ uint8_t pos_card_numeral(Player *p) {
 }
 
 /*
- * PUBLIC
+ * PROTECTED
  */
 
-void UserBotNormal::close() {
-    if (!closed) {
-        closed = true;
-    }
-}
-
-std::string UserBotNormal::request_move(Game *game) {
-    if (game->is_closed()) {
-        throw CaravanFatalException("The game has already closed.");
-    }
-
+std::string UserBotNormal::generate_move(
+    Game *game,
+    bool allow_numeral,
+    bool allow_face,
+    bool allow_clear) {
     Player *me = game->get_player(name);
     uint8_t my_hand_size = me->get_size_hand();
 
@@ -72,12 +65,14 @@ std::string UserBotNormal::request_move(Game *game) {
         Table *table = game->get_table();
 
         // Clear any caravans that are bust or full of cards
-        for (uint8_t i_cvn = 0; i_cvn < PLAYER_CARAVANS_MAX; i_cvn++) {
-            Caravan *cvn = table->get_caravan(my_cvns[i_cvn]);
+        if(allow_clear) {
+            for (uint8_t i_cvn = 0; i_cvn < PLAYER_CARAVANS_MAX; i_cvn++) {
+                Caravan *cvn = table->get_caravan(my_cvns[i_cvn]);
 
-            if (cvn->get_bid() > CARAVAN_SOLD_MAX ||
-                cvn->get_size() == TRACK_NUMERIC_MAX) {
-                return CLEAR + caravan_letter(my_cvns[i_cvn]);
+                if (cvn->get_bid() > CARAVAN_SOLD_MAX ||
+                    cvn->get_size() == TRACK_NUMERIC_MAX) {
+                    return CLEAR + caravan_letter(my_cvns[i_cvn]);
+                }
             }
         }
 
@@ -85,7 +80,7 @@ std::string UserBotNormal::request_move(Game *game) {
         for (uint8_t pos_hand = 1; pos_hand <= my_hand_size; pos_hand++) {
             Card c_hand = me->get_from_hand_at(pos_hand);
 
-            if (is_numeral_card(c_hand)) {
+            if (is_numeral_card(c_hand) && allow_numeral) {
                 // If numeral, look through caravans
                 for (uint8_t i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
                     Caravan *my_cvn = table->get_caravan(my_cvns[i]);
@@ -154,7 +149,7 @@ std::string UserBotNormal::request_move(Game *game) {
                     }
                 }
 
-            } else {  // is face card
+            } else if(allow_face) {  // is face card
                 uint8_t i_opp_cvn_most_cards = PLAYER_CARAVANS_MAX;
                 uint8_t n_opp_cvn_most_cards = 0;
 
@@ -193,6 +188,27 @@ std::string UserBotNormal::request_move(Game *game) {
         }
     }
 
-    // Bot cannot make any of the other moves, so discard first card in hand
-    return DISCARD + "1";
+    return "";
+}
+
+/*
+ * PUBLIC
+ */
+
+void UserBotNormal::close() {
+    if (!closed) {
+        closed = true;
+    }
+}
+
+std::string UserBotNormal::request_move(Game *game) {
+    if (closed) { throw CaravanFatalException("Bot is closed."); }
+
+    std::string move = generate_move(game, true, true, true);
+
+    // Return move if able to generate one
+    if(!move.empty()) { return move; }
+
+    // If no useful move could be made, discard first card in hand
+    return "D1";
 }

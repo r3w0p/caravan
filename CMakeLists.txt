@@ -80,9 +80,11 @@ add_library(user
         "include/caravan/user/user.h"
         "include/caravan/user/bot/factory.h"
         "include/caravan/user/bot/normal.h"
+        "include/caravan/user/bot/friendly.h"
 
         "src/caravan/user/bot/factory.cpp"
         "src/caravan/user/bot/normal.cpp"
+        "src/caravan/user/bot/friendly.cpp"
 )
 
 add_library(view
