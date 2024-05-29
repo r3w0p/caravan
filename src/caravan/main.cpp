@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
         options.add_options()
             (OPTS_HELP, "Print help instructions.")
-            (OPTS_VERSION, "Print help instructions.")
+            (OPTS_VERSION, "Print software version.")
             ("pvp", "A Player vs Player game.")
             ("bvb", "A Bot vs Bot game.")
             ("b,bot", "Which bot to play with (normal, friendly).", cxxopts::value<std::string>()->default_value("normal"))
