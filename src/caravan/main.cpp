@@ -69,27 +69,27 @@ int main(int argc, char *argv[]) {
         bool imbalanced = result["imbalanced"].as<bool>();
 
         if (pvp && bots) {
-            printf("Game cannot be both Player vs Player and Bot vs Bot.");
+            printf("Game cannot be both Player vs Player and Bot vs Bot.\n");
             exit(EXIT_FAILURE);
         }
 
         if(first < FIRST_ABC || first > FIRST_DEF) {
-            printf("First player must be either %d or %d.", FIRST_ABC, FIRST_DEF);
+            printf("First player must be either %d or %d.\n", FIRST_ABC, FIRST_DEF);
             exit(EXIT_FAILURE);
         }
 
         if (cards < DECK_CARAVAN_MIN || cards > DECK_CARAVAN_MAX) {
-            printf("Caravan decks must have between %d and %d cards (inclusive).", DECK_CARAVAN_MIN, DECK_CARAVAN_MAX);
+            printf("Caravan decks must have between %d and %d cards (inclusive).\n", DECK_CARAVAN_MIN, DECK_CARAVAN_MAX);
             exit(EXIT_FAILURE);
         }
 
         if (samples < SAMPLE_DECKS_MIN || samples > SAMPLE_DECKS_MAX) {
-            printf("Number of caravan deck samples must be between %d and %d (inclusive).", SAMPLE_DECKS_MIN, SAMPLE_DECKS_MIN);
+            printf("Number of caravan deck samples must be between %d and %d (inclusive).\n", SAMPLE_DECKS_MIN, SAMPLE_DECKS_MIN);
             exit(EXIT_FAILURE);
         }
 
         if(delay < 0) {
-            printf("Bot delay cannot be a negative number.");
+            printf("Bot delay cannot be a negative number.\n");
             exit(EXIT_FAILURE);
         }
 
@@ -122,11 +122,11 @@ int main(int argc, char *argv[]) {
         view = new ViewTUI(&vc, game);
 
     } catch (CaravanException &e) {
-        printf("%s", e.what().c_str());
+        printf("%s\n", e.what().c_str());
         exit(EXIT_FAILURE);
 
     } catch (std::exception &e) {
-        printf("%s", e.what());
+        printf("%s\n", e.what());
         exit(EXIT_FAILURE);
     }
 
