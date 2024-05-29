@@ -3,10 +3,15 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include <iostream>
-#include <cxxopts.hpp>
+#include "cxxopts.hpp"
 #include "caravan/view/view_tui.h"
 #include "caravan/user/bot/factory.h"
 
+const std::string OPTS_HELP = "h,help";
+const std::string OPTS_VERSION = "v,version";
+
+const std::string KEY_HELP = "help";
+const std::string KEY_VERSION = "version";
 
 const uint8_t FIRST_ABC = 1;
 const uint8_t FIRST_DEF = 2;
@@ -19,16 +24,14 @@ int main(int argc, char *argv[]) {
     ViewTUI *view;
 
     try {
-        cxxopts::Options options(
-            "caravan",
-            "Caravan: A command-line version of "
-            "the Caravan card game from Fallout: New Vegas.");
+        cxxopts::Options options(CARAVAN_NAME);
 
         options.add_options()
-            ("h,help", "Print help instructions.")
+            (OPTS_HELP, "Print help instructions.")
+            (OPTS_VERSION, "Print help instructions.")
             ("pvp", "A Player vs Player game.")
             ("bvb", "A Bot vs Bot game.")
-            ("b,bot", "Which bot to play with.", cxxopts::value<std::string>()->default_value("normal"))
+            ("b,bot", "Which bot to play with (normal, friendly).", cxxopts::value<std::string>()->default_value("normal"))
             ("d,delay", "Delay before bot makes its move (in seconds).", cxxopts::value<float>()->default_value("1.0"))
             ("f,first", "Which player goes first (1 or 2).", cxxopts::value<uint8_t>()->default_value("1"))
             ("c,cards", "Number of cards for each caravan deck (30-162, inclusive).", cxxopts::value<uint8_t>()->default_value("54"))
@@ -42,8 +45,17 @@ int main(int argc, char *argv[]) {
         auto result = options.parse(argc, argv);
 
         // Print help instructions.
-        if (result.count("help")) {
+        if (result.count(KEY_HELP)) {
+            printf("%s v%s\n\n", CARAVAN_NAME, CARAVAN_VERSION);
+            printf("%s\n", CARAVAN_DESCRIPTION);
+            printf("%s\n", CARAVAN_COPYRIGHT);
+            printf("%s\n", CARAVAN_URL);
             printf("%s", options.help().c_str());
+            exit(EXIT_SUCCESS);
+        }
+
+        if (result.count(KEY_VERSION)) {
+            printf("%s\n", CARAVAN_VERSION);
             exit(EXIT_SUCCESS);
         }
 

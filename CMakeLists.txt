@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.27)
 
-project(caravan LANGUAGES C CXX)
+project(Caravan LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(PROJECT_VERSION 1.0.1)
-set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
+set(PROJECT_VERSION 1.1.0)
 set(PROJECT_DESCRIPTION "A command-line version of the Caravan card game from Fallout: New Vegas.")
+set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
 IF (WIN32 OR WIN64)
@@ -80,9 +80,11 @@ add_library(user
         "include/caravan/user/user.h"
         "include/caravan/user/bot/factory.h"
         "include/caravan/user/bot/normal.h"
+        "include/caravan/user/bot/friendly.h"
 
         "src/caravan/user/bot/factory.cpp"
         "src/caravan/user/bot/normal.cpp"
+        "src/caravan/user/bot/friendly.cpp"
 )
 
 add_library(view
@@ -103,6 +105,14 @@ target_link_libraries(view
 # --- caravan.exe
 add_executable(caravan
         "src/caravan/main.cpp"
+)
+
+target_compile_definitions(caravan
+        PRIVATE CARAVAN_NAME="${PROJECT_NAME}"
+        PRIVATE CARAVAN_VERSION="${PROJECT_VERSION}"
+        PRIVATE CARAVAN_DESCRIPTION="${PROJECT_DESCRIPTION}"
+        PRIVATE CARAVAN_COPYRIGHT="${PROJECT_COPYRIGHT}"
+        PRIVATE CARAVAN_URL="${PROJECT_URL}"
 )
 
 target_link_libraries(caravan
