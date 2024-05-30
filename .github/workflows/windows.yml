@@ -14,10 +14,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Windows GCC
+          - name: Windows GCC x64
             os: windows-latest
             compiler_cc: gcc
             compiler_cpp: g++
+            asset: caravan_windows_x64.exe
 
     steps:
       - name: Checkout
@@ -37,10 +38,10 @@ jobs:
 
       - name: Rename Executable
         working-directory: ./build
-        run: mv caravan.exe caravan_windows_x64.exe
+        run: mv caravan.exe ${{matrix.asset}}
 
       - name: Upload Executable to Release
         uses: AButler/upload-release-assets@v3.0
         with:
-          files: ./build/caravan_windows_x64.exe
+          files: ./build/${{matrix.asset}}
           repo-token: ${{ secrets.GITHUB_TOKEN }}

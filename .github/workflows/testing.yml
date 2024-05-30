@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Linux GCC
+          - name: Linux GCC x64
             os: ubuntu-latest
             compiler_cc: gcc
             compiler_cpp: g++
