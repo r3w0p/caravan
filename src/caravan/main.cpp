@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
         }
 
         bool pvp = result[KEY_PVP].as<bool>();
-        bool bots = result[KEY_BVB].as<bool>();
+        bool bvb = result[KEY_BVB].as<bool>();
         std::string bot = result[KEY_BOT].as<std::string>();
         float delay = result[KEY_DELAY].as<float>();
         uint8_t first = result[KEY_FIRST].as<uint8_t>();
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
         uint8_t samples = result[KEY_SAMPLES].as<uint8_t>();
         bool imbalanced = result[KEY_IMBALANCED].as<bool>();
 
-        if (pvp && bots) {
+        if (pvp && bvb) {
             printf("Game cannot be both Player vs Player and Bot vs Bot.\n");
             exit(EXIT_FAILURE);
         }
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
             user_abc = new UserHuman(PLAYER_ABC);
             user_def = new UserHuman(PLAYER_DEF);
 
-        } else if (bots) {  // bot vs bot
+        } else if (bvb) {  // bot vs bot
             user_abc = BotFactory::get(bot, PLAYER_ABC);
             user_def = BotFactory::get(bot, PLAYER_DEF);
 
