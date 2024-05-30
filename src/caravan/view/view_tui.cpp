@@ -161,11 +161,13 @@ void push_card(ViewConfig *vc, ftxui::Elements *e, Card card, bool lead) {
     using namespace ftxui;
 
     if (card.rank == JOKER) {
+        // Push lead then "JO" to compensate for lack of suit
         if(lead) { e->push_back(text(L" ")); }
-        e->push_back(text(rank_to_wstr(card.rank, lead)));
+        e->push_back(text(rank_to_wstr(card.rank, lead)) | color(Color::Default));
 
     } else {
-        e->push_back(text(rank_to_wstr(card.rank, lead)));
+        // Push rank then suit
+        e->push_back(text(rank_to_wstr(card.rank, lead)) | color(Color::Default));
         e->push_back(suit_to_text(vc, card.suit));
     }
 }
@@ -371,47 +373,60 @@ GameCommand ViewTUI::parse_user_input(std::string input, bool confirmed) {
 
     if (closed) { return command; }
     if (input.empty()) { return command; }
-    if (!confirmed) { return command; }
 
-    /*
-     * FIRST
-     * - COMMAND TYPE
-     */
-    process_first(input, &command);
+    try {
+        /*
+         * FIRST
+         * - COMMAND TYPE
+         */
+        process_first(input, &command);
 
-    /*
-     * SECOND
-     * - HAND POSITION or
-     * - CARAVAN NAME
-     */
-    process_second(input, &command);
+        /*
+         * SECOND
+         * - HAND POSITION or
+         * - CARAVAN NAME
+         */
+        process_second(input, &command);
 
-    /*
-     * THIRD
-     * - CARAVAN NAME
-     */
-    process_third(input, &command);
+        /*
+         * THIRD
+         * - CARAVAN NAME
+         */
+        process_third(input, &command);
 
-    /*
-     * FOURTH
-     * - CARAVAN POSITION (used when selecting Face card only)
-     */
-    process_fourth(input, &command);
+        /*
+         * FOURTH
+         * - CARAVAN POSITION (used when selecting Face card only)
+         */
+        process_fourth(input, &command);
+
+    } catch(CaravanInputException &e) {
+        if(confirmed) {
+            // For confirmed commands: throw to other handling that prints
+            // command errors to the player
+            throw;
+        } else {
+            // For unconfirmed commands: accept whatever was able to be parsed
+            // so that it can be used for highlighting the game board
+            return command;
+        }
+    }
 
     return command;
 }
 
 std::shared_ptr<ftxui::Node> gen_position(uint8_t position, bool blank = false) {
     using namespace ftxui;
-    return text(blank ? "" : std::to_string(position)) | borderEmpty | size(WIDTH, EQUAL, WIDTH_POSITION) | size(HEIGHT, EQUAL, HEIGHT_POSITION);
+    return text(blank ? "" : std::to_string(position)) | borderEmpty | color(Color::Default) | size(WIDTH, EQUAL, WIDTH_POSITION) | size(HEIGHT, EQUAL, HEIGHT_POSITION);
 }
 
 std::shared_ptr<ftxui::Node> gen_position_blank() {
     return gen_position(0, true);
 }
 
-std::shared_ptr<ftxui::Node> gen_card(ViewConfig *vc, Card card, bool hide, bool blank = false) {
+std::shared_ptr<ftxui::Node> gen_card(ViewConfig *vc, Card card, bool hide, bool highlight, bool blank = false) {
     using namespace ftxui;
+    std::shared_ptr<Node> ret;
     Elements value;
 
     if (!blank) {
@@ -422,11 +437,23 @@ std::shared_ptr<ftxui::Node> gen_card(ViewConfig *vc, Card card, bool hide, bool
         }
     }
 
-    return hbox(value) | (blank ? borderEmpty : borderDouble) | size(WIDTH, EQUAL, WIDTH_CARD) | size(HEIGHT, EQUAL, HEIGHT_CARD);
+    ret = hbox(value);
+
+    if(blank) {
+        ret = ret | borderEmpty;
+    } else if(highlight) {
+        ret = ret | borderHeavy | (vc->colour ? color(Color::Palette16::MagentaLight) : color(Color::Default));
+    } else {
+        ret = ret | borderDouble;
+    }
+
+    ret = ret | size(WIDTH, EQUAL, WIDTH_CARD) | size(HEIGHT, EQUAL, HEIGHT_CARD);
+
+    return ret;
 }
 
 std::shared_ptr<ftxui::Node> gen_card_blank() {
-    return gen_card({}, {}, false, true);
+    return gen_card({}, {}, false, false, true);
 }
 
 std::shared_ptr<ftxui::Node> gen_faces(ViewConfig *vc, Slot slot, bool blank = false) {
@@ -451,30 +478,43 @@ std::shared_ptr<ftxui::Node> gen_faces(ViewConfig *vc, Slot slot, bool blank = f
     }
 
     return vbox({
-                    text(ranks),
-                    hbox(suits)
-                }) | borderEmpty | size(WIDTH, EQUAL, WIDTH_FACES) | size(HEIGHT, EQUAL, HEIGHT_FACES);
+        text(ranks) | color(Color::Default),
+        hbox(suits)
+    }) | borderEmpty | size(WIDTH, EQUAL, WIDTH_FACES) | size(HEIGHT, EQUAL, HEIGHT_FACES);
 }
 
 std::shared_ptr<ftxui::Node> gen_faces_blank() {
     return gen_faces({}, {}, true);
 }
 
-std::shared_ptr<ftxui::Node> gen_caravan_slot(ViewConfig *vc, uint8_t position, Slot slot, bool blank = false) {
+std::shared_ptr<ftxui::Node> gen_caravan_slot(ViewConfig *vc, uint8_t position, Slot slot, bool highlight, bool blank = false) {
     using namespace ftxui;
-    return hbox({
-                    blank ? gen_position_blank() : gen_position(position),
-                    blank ? gen_card_blank() : gen_card(vc, slot.card, false),
-                    blank ? gen_faces_blank() : gen_faces(vc, slot),
-                }) | hcenter | size(WIDTH, EQUAL, WIDTH_CARAVAN_SLOT) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN_SLOT);
+    std::shared_ptr<Node> ret;
+    Elements e;
+    e.push_back(blank ? gen_position_blank() : gen_position(position));
+
+    if(blank) {
+        e.push_back(gen_card_blank());
+    } else if(highlight) {
+        e.push_back(gen_card(vc, slot.card, false, highlight));
+    } else {
+        e.push_back(gen_card(vc, slot.card, false, highlight) | color(Color::Default));
+    }
+
+    e.push_back(blank ? gen_faces_blank() : gen_faces(vc, slot));
+
+    ret = hbox(e) | hcenter | size(WIDTH, EQUAL, WIDTH_CARAVAN_SLOT) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN_SLOT);
+
+    return ret;
 }
 
 std::shared_ptr<ftxui::Node> gen_caravan_slot_blank() {
-    return gen_caravan_slot({}, 0, {}, true);
+    return gen_caravan_slot({}, 0, {}, false, true);
 }
 
 std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName cn, bool top) {
     using namespace ftxui;
+    std::shared_ptr<Node> ret;
     std::shared_ptr<Node> content;
     Elements e;
     Elements title;
@@ -486,7 +526,13 @@ std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName
         if ((top && (TRACK_NUMERIC_MAX - i) <= caravan_size) || (!top && i + 1 <= caravan_size)) {
             uint8_t position = top ? TRACK_NUMERIC_MAX - i : i + 1;
 
-            e.push_back(gen_caravan_slot(vc, position, caravan->get_slot(position)));
+            // Highlight caravan slot if selected for placement of face card
+            bool highlight =
+                vc->highlight.option != NO_OPTION &&
+                vc->highlight.caravan_name == cn &&
+                vc->highlight.pos_caravan == position;
+
+            e.push_back(gen_caravan_slot(vc, position, caravan->get_slot(position), highlight));
 
         } else {
             e.push_back(gen_caravan_slot_blank());
@@ -512,7 +558,6 @@ std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName
         }
     }
 
-
     title.push_back(text(L" "));
     title.push_back(text(caravan_to_wstr(cn, true) + L" ") | maybe_colour);
     if (game->get_table()->get_caravan(cn)->get_size() > 0) {
@@ -524,22 +569,33 @@ std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName
         title.push_back(text(L" "));
     }
 
-    return window(
+    ret = window(
         hbox({title}) | hcenter | bold,
         content
     ) | center | size(WIDTH, EQUAL, WIDTH_CARAVAN) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN);
+
+    // Highlight card if caravan selected in unconfirmed command
+    bool highlight =
+        vc->highlight.option != NO_OPTION &&
+        vc->highlight.caravan_name == cn;
+
+    if(highlight) {
+        ret = ret | (vc->colour ? color(Color::Palette16::MagentaLight) : color(Color::Default));
+    }
+
+    return ret;
 }
 
-std::shared_ptr<ftxui::Node> gen_deck_card(ViewConfig *vc, Game *game, uint8_t position, Card card, bool hide, bool blank = false) {
+std::shared_ptr<ftxui::Node> gen_deck_card(ViewConfig *vc, Game *game, uint8_t position, Card card, bool hide, bool highlight, bool blank = false) {
     using namespace ftxui;
     return hbox({
                     blank || game->get_winner() != NO_PLAYER ? gen_position_blank() : gen_position(position),
-                    blank ? gen_card_blank() : gen_card(vc, card, hide),
+                    blank ? gen_card_blank() : gen_card(vc, card, hide, highlight),
                 }) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN_SLOT);
 }
 
 std::shared_ptr<ftxui::Node> gen_deck_card_blank() {
-    return gen_deck_card({}, {}, 0, {}, false, true);
+    return gen_deck_card({}, {}, 0, {}, false, false, true);
 }
 
 std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
@@ -588,7 +644,14 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
             uint8_t position = top ? hand_max - i : i + 1;
             Card card = player_this->get_hand()[position - 1];
 
-            e.push_back(gen_deck_card(vc, game, position, card, hide));
+            // Highlight card if it is this player's turn and unconfirmed
+            // command wants to use this hand card
+            bool highlight =
+                vc->user_turn->get_name() == player_this->get_name() &&
+                vc->highlight.option != NO_OPTION &&
+                vc->highlight.pos_hand == position;
+
+            e.push_back(gen_deck_card(vc, game, position, card, hide, highlight));
 
         } else if (i < HAND_SIZE_MAX_POST_START || equalise) {
             e.push_back(gen_deck_card_blank());
@@ -858,14 +921,17 @@ void ViewTUI::run() {
 
     // Tweak how the component tree is rendered:
     auto renderer = Renderer(component, [&] {
-        screen.SetCursor(Screen::Cursor(Screen::Cursor::Hidden));
+        screen.SetCursor(Screen::Cursor({.shape=Screen::Cursor::Hidden}));
 
         try {
             if (closed) { return gen_closed(vc); }
 
+            // Reset values
             terminal_size = Terminal::Size();
             set_current_turn(vc, game);
             confirmed = false;
+            vc->command = {};
+            vc->highlight = {};
 
             // Error screen if less than minimum terminal dimensions
             if (terminal_size.dimx < MIN_X || terminal_size.dimy < MIN_Y) {
@@ -887,7 +953,9 @@ void ViewTUI::run() {
             if(vc->user_turn->is_human()) {
                 // Create new command if ENTER key pressed (i.e., if newline)
                 raw_command = user_input;
+
                 if (raw_command.ends_with('\n')) {
+                    // A confirmed command ready to send to the game model
                     raw_command.pop_back();  // remove newline
                     confirmed = true;
                     user_input = "";
@@ -915,8 +983,16 @@ void ViewTUI::run() {
             }
 
             try {
-                // Parse raw command to get usable command
-                vc->command = parse_user_input(raw_command, confirmed);
+                if(confirmed) {
+                    // Parse raw command to get usable command
+                    vc->command = parse_user_input(raw_command, confirmed);
+                } else {
+                    // An incomplete command that can be used to highlight
+                    // areas of the board as a hint to the player
+                    vc->highlight = parse_user_input(raw_command, confirmed);
+                }
+
+                raw_command = "";
 
                 switch (vc->command.option) {
                     case NO_OPTION:

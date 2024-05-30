@@ -37,6 +37,9 @@ typedef struct ViewConfig {
     // Most recent command
     GameCommand command;
 
+    // Board highlight
+    GameCommand highlight;
+
     // Colour support
     bool colour{};
 

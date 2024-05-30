@@ -14,10 +14,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Linux GCC
+          - name: Linux GCC x64
             os: ubuntu-latest
             compiler_cc: gcc
             compiler_cpp: g++
+            asset: caravan_linux_x64
 
     steps:
       - name: Checkout
@@ -37,10 +38,10 @@ jobs:
 
       - name: Rename Executable
         working-directory: ./build
-        run: mv caravan caravan_linux_x64
+        run: mv caravan ${{matrix.asset}}
 
       - name: Upload Executable to Release
         uses: AButler/upload-release-assets@v3.0
         with:
-          files: ./build/caravan_linux_x64
+          files: ./build/${{matrix.asset}}
           repo-token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,4 +1,4 @@
-name: Windows
+name: MacOS
 
 on:
   release:
@@ -14,11 +14,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Windows GCC x64
-            os: windows-latest
-            compiler_cc: gcc
-            compiler_cpp: g++
-            asset: caravan_windows_x64.exe
+          - name: MacOS Clang x64
+            os: macos-latest
+            compiler_cc: clang
+            compiler_cpp: clang++
+            asset: caravan_macos_x64
 
     steps:
       - name: Checkout
@@ -38,7 +38,7 @@ jobs:
 
       - name: Rename Executable
         working-directory: ./build
-        run: mv caravan.exe ${{matrix.asset}}
+        run: mv caravan ${{matrix.asset}}
 
       - name: Upload Executable to Release
         uses: AButler/upload-release-assets@v3.0
