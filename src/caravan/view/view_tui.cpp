@@ -469,7 +469,7 @@ std::shared_ptr<ftxui::Node> gen_faces(ViewConfig *vc, Slot slot, bool blank = f
 
             if(r == JOKER) {
                 ranks += L"J";
-                suits.push_back(text(L"O"));
+                suits.push_back(text(L"O") | color(Color::Default));
             } else {
                 ranks += rank_to_wstr(r, false);
                 suits.push_back(suit_to_text(vc, s));

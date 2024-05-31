@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(PROJECT_VERSION 1.2.0)
+set(PROJECT_VERSION 1.2.1)
 set(PROJECT_DESCRIPTION "A command-line version of the Caravan card game from Fallout: New Vegas.")
 set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
