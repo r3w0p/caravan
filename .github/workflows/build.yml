@@ -1,0 +1,66 @@
+name: Build
+
+#on:
+#  release:
+#    types: [ created ]
+
+on:
+  push:
+    branches: [ ai ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - name: Linux GCC x64
+            os: ubuntu-latest
+            compiler_cc: gcc
+            compiler_cpp: g++
+            asset_before: caravan
+            asset_after: caravan_linux_x64
+
+          - name: MacOS Clang x64
+            os: macos-latest
+            compiler_cc: clang
+            compiler_cpp: clang++
+            asset_before: caravan
+            asset_after: caravan_macos_x64
+
+          - name: Windows GCC x64
+            os: windows-latest
+            compiler_cc: gcc
+            compiler_cpp: g++
+            asset_before: caravan.exe
+            asset_after: caravan_windows_x64.exe
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install CMake and Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.27.0"  # use latest 3.27.x version
+          ninjaVersion: "^1.0"     # use latest 1.x version
+
+      - name: CMake Setup
+        run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D CMAKE_C_COMPILER=${{matrix.compiler_cc}} CMAKE_CXX_COMPILER=${{matrix.compiler_cpp}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: CMake Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target caravan
+
+      - name: Rename Executable
+        working-directory: ./build
+        run: mv ${{matrix.asset_before}} ${{matrix.asset_after}}
+
+      #- name: Upload Executable to Release
+      #  uses: AButler/upload-release-assets@v3.0
+      #  with:
+      #    files: ./build/${{matrix.asset_after}}
+      #    repo-token: ${{secrets.GITHUB_TOKEN}}

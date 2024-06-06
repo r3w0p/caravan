@@ -1,15 +1,15 @@
-name: Linux
+name: Tests
 
 on:
-  release:
-    types: [ created ]
+  push:
+    branches: [ ai ]
 
 env:
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
 
 jobs:
-  build:
-    name: Build
+  tests:
+    name: Tests
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -18,7 +18,6 @@ jobs:
             os: ubuntu-latest
             compiler_cc: gcc
             compiler_cpp: g++
-            asset: caravan_linux_x64
 
     steps:
       - name: Checkout
@@ -27,21 +26,15 @@ jobs:
       - name: Install CMake and Ninja
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: "~3.27.0"  # use most recent 3.27.x version
-          ninjaVersion: "^1.0"     # use most recent 1.x version
+          cmakeVersion: "~3.27.0"  # use latest 3.27.x version
+          ninjaVersion: "^1.0"     # use latest 1.x version
 
       - name: CMake Setup
         run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D CMAKE_C_COMPILER=${{matrix.compiler_cc}} CMAKE_CXX_COMPILER=${{matrix.compiler_cpp}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: CMake Build
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target caravan
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target tests
 
-      - name: Rename Executable
+      - name: Run Tests
         working-directory: ./build
-        run: mv caravan ${{matrix.asset}}
-
-      - name: Upload Executable to Release
-        uses: AButler/upload-release-assets@v3.0
-        with:
-          files: ./build/${{matrix.asset}}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+        run: ctest --output-on-failure
