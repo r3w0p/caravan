@@ -9,9 +9,11 @@
 #include "caravan/user/bot/factory.h"
 #include "caravan/user/bot/normal.h"
 #include "caravan/user/bot/friendly.h"
+#include "caravan/user/bot/ai.h"
 
 const std::string NAME_NORMAL = "normal";
 const std::string NAME_FRIENDLY = "friendly";
+const std::string NAME_AI = "ai";
 
 UserBot* BotFactory::get(std::string name, PlayerName player_name) {
     // Set name to lowercase
@@ -22,6 +24,7 @@ UserBot* BotFactory::get(std::string name, PlayerName player_name) {
     // Return bot that matches name, or fail
     if(name == NAME_NORMAL) { return new UserBotNormal(player_name); }
     if(name == NAME_FRIENDLY) { return new UserBotFriendly(player_name); }
+    if(name == NAME_AI) { return new UserBotAI(player_name, false); }
     else {
         throw CaravanFatalException("Unknown bot name '" + name + "'.");
     }

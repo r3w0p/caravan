@@ -127,6 +127,14 @@ typedef struct GameCommand {
     Card board{};
 } GameCommand;
 
+typedef struct TrainConfig {
+    float discount{0.0};
+    float explore{0.0};
+    float learning{0.0};
+    uint32_t episode_max{0};
+    uint32_t episode{0};
+} TrainConfig;
+
 /*
  * FUNCTIONS
  */

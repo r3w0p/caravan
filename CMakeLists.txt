@@ -78,13 +78,15 @@ target_link_libraries(model core)
 
 add_library(user
         "include/caravan/user/user.h"
+        "include/caravan/user/bot/ai.h"
         "include/caravan/user/bot/factory.h"
-        "include/caravan/user/bot/normal.h"
         "include/caravan/user/bot/friendly.h"
+        "include/caravan/user/bot/normal.h"
 
+        "src/caravan/user/bot/ai.cpp"
         "src/caravan/user/bot/factory.cpp"
-        "src/caravan/user/bot/normal.cpp"
         "src/caravan/user/bot/friendly.cpp"
+        "src/caravan/user/bot/normal.cpp"
 )
 
 add_library(view
@@ -116,6 +118,29 @@ target_compile_definitions(caravan
 )
 
 target_link_libraries(caravan
+        PRIVATE core
+        PRIVATE model
+        PRIVATE user
+        PRIVATE view
+        PRIVATE cxxopts
+)
+# ---
+
+
+# --- train.exe
+add_executable(train
+        "src/caravan/train.cpp"
+)
+
+target_compile_definitions(train
+        PRIVATE CARAVAN_NAME="${PROJECT_NAME}"
+        PRIVATE CARAVAN_VERSION="${PROJECT_VERSION}"
+        PRIVATE CARAVAN_DESCRIPTION="${PROJECT_DESCRIPTION}"
+        PRIVATE CARAVAN_COPYRIGHT="${PROJECT_COPYRIGHT}"
+        PRIVATE CARAVAN_URL="${PROJECT_URL}"
+)
+
+target_link_libraries(train
         PRIVATE core
         PRIVATE model
         PRIVATE user
