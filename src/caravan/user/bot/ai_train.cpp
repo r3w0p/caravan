@@ -2,13 +2,13 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#include "caravan/user/bot/ai.h"
+#include "caravan/user/bot/ai_train.h"
 
-UserBotAI::UserBotAI(PlayerName pn) : UserBot(pn) {
-    // TODO set trained policy
+UserBotAITrain::UserBotAITrain(PlayerName pn) : UserBotAI(pn) {
+    // TODO blank policy
 }
 
-std::string UserBotAI::request_move(Game *game) {
+std::string UserBotAITrain::make_move_train(Game *game, TrainConfig *tc) {
     if (closed) { throw CaravanFatalException("Bot is closed."); }
 
     return "D1";  // TODO

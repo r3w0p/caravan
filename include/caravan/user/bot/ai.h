@@ -9,12 +9,14 @@
 
 class UserBotAI : public UserBot {
 protected:
-    bool train;
+    int policy;  // TODO typedef array
+
 public:
-    explicit UserBotAI(PlayerName pn, bool train);
+    explicit UserBotAI(PlayerName pn);
 
     std::string request_move(Game *game) override;
-    std::string request_move_train(Game *game, TrainConfig *tc);
+
+    void get_policy(); // TODO return policy
 };
 
 #endif //CARAVAN_USER_BOT_AI_H

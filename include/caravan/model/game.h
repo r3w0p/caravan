@@ -24,11 +24,11 @@ protected:
 
     bool has_sold(CaravanName cvname);
 
-    void option_clear(Player *pptr, GameCommand *command);
+    bool option_clear(Player *pptr, GameCommand *command, bool check);
 
-    void option_discard(Player *pptr, GameCommand *command);
+    bool option_discard(Player *pptr, GameCommand *command, bool check);
 
-    void option_play(Player *pptr, GameCommand *command);
+    bool option_play(Player *pptr, GameCommand *command, bool check);
 
 public:
     explicit Game(GameConfig *gc);
@@ -54,6 +54,8 @@ public:
     bool is_closed();
 
     void play_option(GameCommand *command);
+
+    bool check_option(GameCommand *command);  // TODO
 };
 
 #endif //CARAVAN_MODEL_GAME_H

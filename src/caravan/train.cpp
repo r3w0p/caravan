@@ -8,43 +8,34 @@
 #include <vector>
 #include <algorithm>
 #include "cxxopts.hpp"
-#include "caravan/user/bot/ai.h"
-
-const std::string OPTS_HELP = "h,help";
-
-const std::string KEY_HELP = "help";
+#include "caravan/user/bot/ai_train.h"
 
 const uint8_t FIRST_ABC = 1;
 const uint8_t FIRST_DEF = 2;
 
 int main(int argc, char *argv[]) {
-    UserBotAI *user_abc;
-    UserBotAI *user_def;
-    UserBotAI *user_turn;
+    UserBotAITrain *user_abc;
+    UserBotAITrain *user_def;
+    UserBotAITrain *user_turn;
     Game *game;
     GameConfig gc;
     TrainConfig tc;
+    uint8_t rand_first;
 
+    // Random player selector
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distr_first(FIRST_ABC, FIRST_DEF);
 
-    uint8_t rand_first;
-
     try {
-        cxxopts::Options options(CARAVAN_NAME);
-
-        options.add_options()
-            (OPTS_HELP, "Print help instructions.")
-        ;
-
-        auto result = options.parse(argc, argv);
-
+        // Training parameters
+        // TODO user-defined arguments for these
         float discount = 0.95;
-        float explore = 0.9;
         float learning = 0.75;
         uint32_t episode_max = 10;
 
+        // Game config uses largest deck with most samples and balance to
+        // maximise chance of encountering every player hand combination.
         gc = {
             .player_abc_cards = DECK_CARAVAN_MAX,
             .player_abc_samples = SAMPLE_DECKS_MAX,
@@ -54,13 +45,14 @@ int main(int argc, char *argv[]) {
             .player_def_balanced = true
         };
 
+        // Train config is passed to bots to manage their training.
         tc = {
             .episode_max = episode_max,
             .episode = 1
         };
 
-        user_abc = new UserBotAI(PLAYER_ABC, true);
-        user_def = new UserBotAI(PLAYER_DEF, true);
+        user_abc = new UserBotAITrain(PLAYER_ABC);
+        user_def = new UserBotAITrain(PLAYER_DEF);
 
         for(; tc.episode <= tc.episode_max; tc.episode++) {
             // Random first player
@@ -82,7 +74,7 @@ int main(int argc, char *argv[]) {
                 //  valid or not; use this to narrow down possible moves that
                 //  can be made per game state; any issues with move when
                 //  passing to game should result in fatal exception
-                user_turn->request_move_train(game, &tc);
+                user_turn->make_move_train(game, &tc);
 
                 // TODO convert string move to command: take functions to do
                 //  this out of view tui; have single function to make this
@@ -94,6 +86,9 @@ int main(int argc, char *argv[]) {
                     user_turn = user_abc;
                 }
             }
+
+            // TODO reward winner here?
+            //  (or maybe bots should figure that out for themselves...)
 
             // Finish game
             game->close();

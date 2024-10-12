@@ -24,7 +24,7 @@ UserBot* BotFactory::get(std::string name, PlayerName player_name) {
     // Return bot that matches name, or fail
     if(name == NAME_NORMAL) { return new UserBotNormal(player_name); }
     if(name == NAME_FRIENDLY) { return new UserBotFriendly(player_name); }
-    if(name == NAME_AI) { return new UserBotAI(player_name, false); }
+    if(name == NAME_AI) { return new UserBotAI(player_name); }
     else {
         throw CaravanFatalException("Unknown bot name '" + name + "'.");
     }

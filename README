@@ -3,7 +3,7 @@
 | (_| (_| | | | (_| |\ \/ / (_| | | | |
  \___\__,_|_|  \__,_| \__/ \__,_|_| |_|
 
-| v1.2.1 | GPL-3.0 | (c) 2022-2024 r3w0p |
+| v1.3.0 | GPL-3.0 | (c) 2022-2024 r3w0p |
 
 A command-line version of the Caravan card game from Fallout: New Vegas.
 
@@ -24,7 +24,7 @@ against F.
 
 The game begins with each player taking 8 cards from their deck and placing
 one numeral card on each caravan; an opening hand must have at least 3 numeral
-cards in it. Players may not discard any cards from their hand, clear any
+cards in it. Players may not discard any cards from their hands, clear any
 caravans, or pick up any cards from their decks during this starting phase.
 
 Once both players have started their 3 caravans, each of their decks will now

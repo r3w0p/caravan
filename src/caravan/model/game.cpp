@@ -155,7 +155,7 @@ void Game::play_option(GameCommand *command) {
 
     switch (command->option) {
         case OPTION_PLAY:
-            option_play(p_turn, command);
+            option_play(p_turn, command, false);
             break;
 
         case OPTION_DISCARD:
@@ -165,7 +165,7 @@ void Game::play_option(GameCommand *command) {
                     "the Start round.");
             }
 
-            option_discard(p_turn, command);
+            option_discard(p_turn, command, false);
             break;
 
         case OPTION_CLEAR:
@@ -175,7 +175,7 @@ void Game::play_option(GameCommand *command) {
                     "the Start round.");
             }
 
-            option_clear(p_turn, command);
+            option_clear(p_turn, command, false);
             break;
 
         default:
@@ -283,27 +283,50 @@ bool Game::has_sold(CaravanName cvname) {
     return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
-void Game::option_clear(Player *pptr, GameCommand *command) {
+bool Game::option_clear(Player *pptr, GameCommand *command, bool check) {
     PlayerCaravanNames pcns = get_player_caravan_names(pptr->get_name());
 
+    // Invalid for a player to clear their opponent's caravans
     if (pcns[0] != command->caravan_name and
         pcns[1] != command->caravan_name and
         pcns[2] != command->caravan_name) {
-        throw CaravanGameException(
-            "A player cannot clear their opponent's caravans.");
+
+        if(check) {
+            return false;
+
+        } else {
+            throw CaravanGameException(
+                "A player cannot clear their opponent's caravans.");
+        }
     }
 
+    // If player's caravan is not empty, then it is valid to clear it
+    if(check) {
+        return table_ptr->get_caravan(
+            command->caravan_name)->get_size() > 0;
+    }
+
+    // Clear the caravan
     table_ptr->clear_caravan(command->caravan_name);
+    return true;
 }
 
-void Game::option_discard(Player *pptr, GameCommand *command) {
+bool Game::option_discard(Player *pptr, GameCommand *command, bool check) {
     Card c_hand;
+    uint8_t size_hand;
+
+    if(check) {
+        size_hand = pptr->get_size_hand();
+        return size_hand > 0 and command->pos_hand <= size_hand;
+    }
+
     c_hand = pptr->discard_from_hand_at(command->pos_hand);
 
     command->hand = c_hand;  // Log to command
+    return true;
 }
 
-void Game::option_play(Player *pptr, GameCommand *command) {
+bool Game::option_play(Player *pptr, GameCommand *command, bool check) {  // TODO check
     Card c_hand = pptr->get_from_hand_at(command->pos_hand);
 
     command->hand = c_hand;  // Log to command
