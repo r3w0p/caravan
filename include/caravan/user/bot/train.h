@@ -2,17 +2,21 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#ifndef CARAVAN_USER_BOT_AI_TRAIN_H
-#define CARAVAN_USER_BOT_AI_TRAIN_H
+#ifndef CARAVAN_USER_BOT_TRAIN_H
+#define CARAVAN_USER_BOT_TRAIN_H
 
 #include "caravan/user/bot/ai.h"
 #include "caravan/core/training.h"
 
-class UserBotAITrain : public UserBotAI {
+class UserBotTrain : public UserBot {
+protected:
+    QTable q_table;
+
+    GameState get_game_state(Game *game, PlayerName pname);
 public:
-    explicit UserBotAITrain(PlayerName pn);
+    explicit UserBotTrain();
 
     std::string make_move_train(Game *game, TrainConfig *tc);
 };
 
-#endif //CARAVAN_USER_BOT_AI_TRAIN_H
+#endif //CARAVAN_USER_BOT_TRAIN_H

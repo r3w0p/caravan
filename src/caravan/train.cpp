@@ -8,15 +8,14 @@
 #include <vector>
 #include <algorithm>
 #include "cxxopts.hpp"
-#include "caravan/user/bot/ai_train.h"
+#include "caravan/user/bot/train.h"
 
 const uint8_t FIRST_ABC = 1;
 const uint8_t FIRST_DEF = 2;
 
 int main(int argc, char *argv[]) {
-    UserBotAITrain *user_abc;
-    UserBotAITrain *user_def;
-    UserBotAITrain *user_turn;
+    UserBotTrain *user_train;
+    PlayerName player_turn;
     Game *game;
     GameConfig gc;
     TrainConfig tc;
@@ -51,14 +50,13 @@ int main(int argc, char *argv[]) {
             .episode = 1
         };
 
-        user_abc = new UserBotAITrain(PLAYER_ABC);
-        user_def = new UserBotAITrain(PLAYER_DEF);
+        // Single bot plays as both players and is trained on both.
+        user_train = new UserBotTrain();
 
         for(; tc.episode <= tc.episode_max; tc.episode++) {
             // Random first player
             rand_first = distr_first(gen);
             gc.player_first = rand_first == FIRST_ABC ? PLAYER_ABC : PLAYER_DEF;
-            user_turn = rand_first == FIRST_ABC ? user_abc : user_def;
 
             // Set training parameters
             tc.discount = discount;
@@ -70,25 +68,8 @@ int main(int argc, char *argv[]) {
 
             // Take turns until a winner is declared
             while(game->get_winner() != NO_PLAYER) {
-                // TODO borrow logic from other bot to determine if move is
-                //  valid or not; use this to narrow down possible moves that
-                //  can be made per game state; any issues with move when
-                //  passing to game should result in fatal exception
-                user_turn->make_move_train(game, &tc);
-
-                // TODO convert string move to command: take functions to do
-                //  this out of view tui; have single function to make this
-                //  conversion and then pass it to the game
-
-                if(user_turn->get_name() == PLAYER_ABC) {
-                    user_turn = user_def;
-                } else {
-                    user_turn = user_abc;
-                }
+                user_train->make_move_train(game, &tc);
             }
-
-            // TODO reward winner here?
-            //  (or maybe bots should figure that out for themselves...)
 
             // Finish game
             game->close();

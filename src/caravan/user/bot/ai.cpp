@@ -5,11 +5,11 @@
 #include "caravan/user/bot/ai.h"
 
 UserBotAI::UserBotAI(PlayerName pn) : UserBot(pn) {
-    // TODO set trained policy
+    // TODO load trained q_table
 }
 
 std::string UserBotAI::request_move(Game *game) {
     if (closed) { throw CaravanFatalException("Bot is closed."); }
 
-    return "D1";  // TODO
+    return "D1";  // TODO use q_table
 }
