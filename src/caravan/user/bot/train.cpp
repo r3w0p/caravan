@@ -4,47 +4,55 @@
 
 #include <array>
 #include <map>
+#include <iostream>
+#include <chrono>
+#include <random>
+#include <algorithm>
 #include "caravan/user/bot/train.h"
 #include "caravan/core/training.h"
 
 UserBotTrain::UserBotTrain() : UserBot(NO_PLAYER) {
-    // Empty by default and populated during training.
+    // Empty by default and populated during training
     q_table = {};
-}
-
-GameState UserBotTrain::get_game_state(Game *game, PlayerName pname) {
-    // caravans A to F...
-    // get numerals from 1-8
-    // for each numeral, get face cards attached to it
-    // {AH, KC, 0, 0} x 8 (all ints, with 0 for any empty slot)
-
-    // my hand...
-    // ordered list of cards in hand
-    // {AC, 2D, 8S, 8S, JO, 0, 0, 0} (all ints, with 0 for empty slot)
-
-    // player indicator...
-    // 0 = player abc
-    // 1 = player def
-
-    // total space needed for game state
-    // 32 per caravan, 6 caravans = 192
-    // 8 for hand
-    // 1 for player
-    // total = 201
+    populate_action_space(&action_space);
 }
 
 std::string UserBotTrain::make_move_train(Game *game, TrainConfig *tc) {
     if (closed) { throw CaravanFatalException("Bot is closed."); }
 
-    PlayerName pturn = game->get_player_turn();
+    // Get name of player whose turn it is
+    PlayerName pname = game->get_player_turn();
 
     // Read game state and maybe add to the q-table if not present
-    // game_state = get_game_state()
-    // if !q_table.contains(game_state) ...
-    // for each action state, set to 0
+    GameState gs;
+    get_game_state(&gs, game, pname);
 
-    // TODO choose an action
-    //  need to determine which actions are available based on current hand
+    if (!q_table.contains(gs)) {
+        // TODO maybe is this needed: q_table[gs] = {};
+        for(uint16_t i = 0; i < SIZE_ACTION_SPACE; i++) {
+            q_table[gs][action_space[i]] = 0;
+        }
+    }
+
+    // Choose an action
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_real_distribution<> distr_explore(0, 1);
+    std::uniform_int_distribution<> distr_action(0, SIZE_ACTION_SPACE-1);
+
+    bool explore = distr_explore(gen) < tc->explore;
+    std::string action;
+
+    if(explore) {
+        // If exploring, fetch a random action from the action space
+        action = action_space[distr_action(gen)];
+
+    } else {
+        // Otherwise, pick the optimal action from the q-table
+        // (Or random action if all actions are equal in value)
+        // TODO
+    }
 
     // TODO perform action
 

@@ -5,7 +5,6 @@
 #include <iostream>
 #include <chrono>
 #include <random>
-#include <vector>
 #include <algorithm>
 #include "cxxopts.hpp"
 #include "caravan/user/bot/train.h"
@@ -60,7 +59,9 @@ int main(int argc, char *argv[]) {
 
             // Set training parameters
             tc.discount = discount;
-            tc.explore = (float) (tc.episode_max - (tc.episode - 1)) / (float) tc.episode_max;
+            tc.explore =
+                (float) (tc.episode_max - (tc.episode - 1)) /
+                (float) tc.episode_max;
             tc.learning = learning;
 
             // Start a new game
@@ -85,9 +86,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    user_abc->close();
-    user_def->close();
+    user_train->close();
 
-    delete user_abc;
-    delete user_def;
+    delete user_train;
 }

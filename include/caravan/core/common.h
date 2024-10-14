@@ -93,6 +93,7 @@ typedef struct Card {
     Rank rank{};
 } Card;
 
+typedef std::array<Card, HAND_SIZE_MAX_START> Hand;
 typedef std::vector<Card> Deck;
 typedef std::array<Card, TRACK_FACE_MAX> Faces;
 typedef std::array<CaravanName, 3> PlayerCaravanNames;

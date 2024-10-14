@@ -10,9 +10,8 @@
 
 class UserBotTrain : public UserBot {
 protected:
+    ActionSpace action_space;
     QTable q_table;
-
-    GameState get_game_state(Game *game, PlayerName pname);
 public:
     explicit UserBotTrain();
 
