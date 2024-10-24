@@ -12,7 +12,7 @@ TEST (TestPlayer, GetFromHandAt_Position1) {
     Player pl = Player(PLAYER_ABC, d);
     Card c_get;
     Card c_take;
-    Card c_getagain;
+    Card c_get_again;
 
     ASSERT_EQ(pl.get_size_hand(), 8);
 
@@ -22,9 +22,9 @@ TEST (TestPlayer, GetFromHandAt_Position1) {
     ASSERT_EQ(pl.get_size_hand(), 8);
     ASSERT_TRUE(c_get.suit == c_take.suit and c_get.rank == c_take.rank);
 
-    c_getagain = pl.get_hand()[0];
+    c_get_again = pl.get_hand()[0];
     ASSERT_TRUE(
-        c_getagain.suit == c_take.suit and c_getagain.rank == c_take.rank);
+        c_get_again.suit == c_take.suit and c_get_again.rank == c_take.rank);
 }
 
 TEST (TestPlayer, GetName) {
@@ -119,7 +119,7 @@ TEST (TestPlayer, RemoveFromHandAt_Position1_StartRound) {
     Player pl = Player(PLAYER_ABC, d);
     Card c_get;
     Card c_take;
-    Card c_getagain;
+    Card c_get_again;
 
     ASSERT_EQ(pl.get_size_hand(), 8);
 
@@ -132,9 +132,9 @@ TEST (TestPlayer, RemoveFromHandAt_Position1_StartRound) {
     ASSERT_TRUE(c_get.suit == c_take.suit and
                 c_get.rank == c_take.rank);
 
-    c_getagain = pl.get_hand()[0];
-    ASSERT_TRUE(c_getagain.suit != c_take.suit or
-                c_getagain.rank != c_take.rank);
+    c_get_again = pl.get_hand()[0];
+    ASSERT_TRUE(c_get_again.suit != c_take.suit or
+                c_get_again.rank != c_take.rank);
 }
 
 TEST (TestPlayer, RemoveFromHandAt_Error_HandEmpty) {

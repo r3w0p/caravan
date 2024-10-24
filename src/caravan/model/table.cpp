@@ -5,33 +5,13 @@
 #include "caravan/model/table.h"
 #include "caravan/core/exceptions.h"
 
-const std::string EXC_CLOSED = "Table is closed.";
-
-/**
- * The table on which caravan tracks are placed, as well as the decks and hands of both players.
- */
-Table::Table() {
-    closed = false;
-}
-
-void Table::close() {
-    if (!closed) {
-        a->close();
-        b->close();
-        c->close();
-        d->close();
-        e->close();
-        f->close();
-
-        delete a;
-        delete b;
-        delete c;
-        delete d;
-        delete e;
-        delete f;
-
-        closed = true;
-    }
+Table::~Table() {
+    delete a;
+    delete b;
+    delete c;
+    delete d;
+    delete e;
+    delete f;
 }
 
 /**
@@ -39,10 +19,8 @@ void Table::close() {
  * @return Pointer to the caravan.
  *
  * @throws CaravanFatalException Invalid caravan name.
- * @throws CaravanFatalException Table is closed.
  */
 Caravan *Table::get_caravan(CaravanName cvname) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     switch (cvname) {
         case CARAVAN_A:
             return a;
@@ -63,11 +41,8 @@ Caravan *Table::get_caravan(CaravanName cvname) {
 
 /**
  * @param cvname The caravan to clear.
- *
- * @throws CaravanFatalException Table is closed.
  */
 void Table::clear_caravan(CaravanName cvname) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     get_caravan(cvname)->clear();
 }
 
@@ -77,10 +52,8 @@ void Table::clear_caravan(CaravanName cvname) {
  * @param pos The position of the numeral card on which to place the face card.
  *
  * @throws CaravanGameException QUEEN not played on latest numeral card in caravan.
- * @throws CaravanFatalException Table is closed.
  */
 void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     Caravan *cvn_target = get_caravan(cvname);
 
     if (card.rank == QUEEN and pos != cvn_target->get_size()) {
@@ -122,10 +95,7 @@ void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
 /**
  * @param cvname A caravan name.
  * @param card A numeral card to place in the caravan.
- *
- * @throws CaravanFatalException Table is closed.
  */
 void Table::play_numeral_card(CaravanName cvname, Card card) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     get_caravan(cvname)->put_numeral_card(card);
 }

@@ -16,8 +16,6 @@ public:
     explicit ViewTUI(ViewConfig *vc, Game *game) : View(vc, game) {};
 
     void run() override;
-
-    void close() override;
 };
 
 #endif //CARAVAN_VIEW_TUI_H

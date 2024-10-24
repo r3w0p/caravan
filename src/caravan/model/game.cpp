@@ -5,8 +5,6 @@
 #include "caravan/model/game.h"
 #include "caravan/core/common.h"
 
-const std::string EXC_CLOSED = "Game is closed.";
-
 /**
  * @param config Game configuration.
  * 
@@ -31,27 +29,16 @@ Game::Game(GameConfig *gc) {
     pa_ptr = new Player(PLAYER_ABC, deck_bottom);
     pb_ptr = new Player(PLAYER_DEF, deck_top);
 
-    closed = false;
     p_turn = gc->player_first == pa_ptr->get_name() ? pa_ptr : pb_ptr;
 }
 
-void Game::close() {
-    if (!closed) {
-        table_ptr->close();
-        pa_ptr->close();
-        pb_ptr->close();
-
-        delete table_ptr;
-        delete pa_ptr;
-        delete pb_ptr;
-
-        closed = true;
-    }
+Game::~Game() {
+    delete table_ptr;
+    delete pa_ptr;
+    delete pb_ptr;
 }
 
 Player *Game::get_player(PlayerName pname) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     if (pa_ptr->get_name() == pname) {
         return pa_ptr;
     }
@@ -64,8 +51,6 @@ Player *Game::get_player(PlayerName pname) {
 }
 
 PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     if (pa_ptr->get_name() == pname) {
         return PlayerCaravanNames{CARAVAN_A, CARAVAN_B, CARAVAN_C};
     }
@@ -78,20 +63,14 @@ PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) {
 }
 
 PlayerName Game::get_player_turn() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     return p_turn->get_name();
 }
 
 Table *Game::get_table() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     return table_ptr;
 }
 
 PlayerName Game::get_winner() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     uint8_t won_pa = 0;
     uint8_t won_pb = 0;
     int8_t comp[3];
@@ -141,13 +120,7 @@ PlayerName Game::get_winner() {
     return NO_PLAYER;
 }
 
-bool Game::is_closed() {
-    return closed;
-}
-
 void Game::play_option(GameCommand *command) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     if (get_winner() != NO_PLAYER) {
         throw CaravanFatalException(
             "The game has already been won.");
@@ -193,8 +166,6 @@ void Game::play_option(GameCommand *command) {
 }
 
 bool Game::is_caravan_winning(CaravanName cvname) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     if(cvname == NO_CARAVAN) {
         return false;
     } else {
@@ -203,8 +174,6 @@ bool Game::is_caravan_winning(CaravanName cvname) {
 }
 
 bool Game::is_caravan_bust(CaravanName cvname) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     if (cvname == NO_CARAVAN) {
         return false;
     } else {
@@ -265,8 +234,6 @@ int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
 }
 
 CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     int8_t bidcomp = compare_bids(cvname1, cvname2);
 
     if (bidcomp < 0) {

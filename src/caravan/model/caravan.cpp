@@ -6,17 +6,13 @@
 #include "caravan/core/common.h"
 #include "caravan/core/exceptions.h"
 
-const std::string EXC_CLOSED = "Caravan is closed.";
 
 /**
  * Remove all cards from the caravan.
  *
  * @throws CaravanGameException Caravan track is empty.
- * @throws CaravanFatalException Caravan is closed.
  */
 void Caravan::clear() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     if (i_track == 0) {
         throw CaravanGameException("Cannot clear empty caravan.");
     }
@@ -26,12 +22,8 @@ void Caravan::clear() {
 
 /**
  * @return Current bid.
- * 
- * @throws CaravanFatalException Caravan is closed.
  */
 uint16_t Caravan::get_bid() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     uint16_t bid;
     uint8_t value;
     uint8_t value_final;
@@ -59,11 +51,8 @@ uint16_t Caravan::get_bid() {
  * @return Slot at position.
  *
  * @throws CaravanGameException Chosen card position is out of range.
- * @throws CaravanFatalException Caravan is closed.
  */
 Slot Caravan::get_slot(uint8_t pos) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     if (pos < TRACK_NUMERIC_MIN or pos > i_track) {
         throw CaravanGameException(
             "The chosen card position is out of range.");
@@ -74,12 +63,8 @@ Slot Caravan::get_slot(uint8_t pos) {
 
 /**
  * @return Current caravan direction.
- * 
- * @throws CaravanFatalException Caravan is closed.
  */
 Direction Caravan::get_direction() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     Direction dir;
     int t_latest;
     int t_pen;
@@ -127,34 +112,22 @@ Direction Caravan::get_direction() {
 
 /**
  * @return Caravan name.
- * 
- * @throws CaravanFatalException Caravan is closed.
  */
 CaravanName Caravan::get_name() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     return name;
 }
 
 /**
  * @return Current number of numeral cards in caravan.
- * 
- * @throws CaravanFatalException Caravan is closed.
  */
 uint8_t Caravan::get_size() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     return i_track;
 }
 
 /**
  * @return Current caravan suit.
- * 
- * @throws CaravanFatalException Caravan is closed.
  */
 Suit Caravan::get_suit() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     Suit last;
     int t;
     int f;
@@ -189,11 +162,8 @@ Suit Caravan::get_suit() {
  * @throws CaravanGameException Caravan is at maximum numeral card capacity.
  * @throws CaravanGameException Numeral card has same rank as most recent card in caravan.
  * @throws CaravanGameException Numeral card does not follow direction of caravan.
- * @throws CaravanFatalException Caravan is closed.
  */
 void Caravan::put_numeral_card(Card card) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     Direction dir;
     Suit suit;
     bool ascends;
@@ -247,11 +217,8 @@ void Caravan::put_numeral_card(Card card) {
  * @throws CaravanGameException No numeral card at chosen position.
  * @throws CaravanGameException Chosen card is not a face card.
  * @throws CaravanGameException Numeral card is at maximum face card capacity.
- * @throws CaravanFatalException Caravan is closed.
  */
 Card Caravan::put_face_card(Card card, uint8_t pos) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     uint8_t i;
     Card c_on;
 
@@ -297,11 +264,8 @@ Card Caravan::put_face_card(Card card, uint8_t pos) {
  *                    removal. If 0, no card is excluded.
  * 
  * @throws CaravanFatalException Exclude position is out of range.
- * @throws CaravanFatalException Caravan is closed.
  */
 void Caravan::remove_rank(Rank rank, uint8_t pos_exclude) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     uint8_t i_track_original;
 
     if (i_track == 0) {
@@ -334,11 +298,8 @@ void Caravan::remove_rank(Rank rank, uint8_t pos_exclude) {
  *                    removal. If 0, no card is excluded.
  *
  * @throws CaravanFatalException Exclude position is out of range.
- * @throws CaravanFatalException Caravan is closed.
  */
 void Caravan::remove_suit(Suit suit, uint8_t pos_exclude) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     uint8_t i_track_original;
 
     if (i_track == 0) {
@@ -363,17 +324,6 @@ void Caravan::remove_suit(Suit suit, uint8_t pos_exclude) {
     }
 }
 
-/**
- * Closes the caravan.
- * 
- * @throws CaravanFatalException Caravan is closed.
- */
-void Caravan::close() {
-    if (!closed) {
-        closed = true;
-    }
-}
-
 /*
  * PROTECTED
  */
@@ -383,7 +333,6 @@ void Caravan::close() {
  * @return An integer equivalent of the numeral, range: 1-10.
  *
  * @throws CaravanFatalException If a non-numeral rank is provided.
- * @throws CaravanFatalException Caravan is closed.
  */
 uint8_t Caravan::numeral_rank_to_uint8_t(Rank rank) {
     switch (rank) {

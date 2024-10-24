@@ -10,6 +10,7 @@
 class BotFactory {
 public:
     BotFactory() = delete;
+
     static UserBot *get(std::string name, PlayerName player_name);
 };
 

@@ -13,7 +13,6 @@ protected:
 public:
     explicit UserBotNormal(PlayerName pn) : UserBot(pn){};
 
-    void close() override;
     std::string request_move(Game *game) override;
 };
 

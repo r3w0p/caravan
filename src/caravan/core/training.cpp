@@ -2,11 +2,19 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
+#include <string>
+#include <array>
+#include <map>
+#include <iostream>
+#include <chrono>
+#include <vector>
+#include <random>
+#include <algorithm>
 #include "caravan/core/exceptions.h"
 #include "caravan/core/common.h"
-#include "caravan/core/training.h"
 #include "caravan/model/game.h"
-#include <string>
+#include "caravan/core/training.h"
+
 
 uint8_t card_to_uint8_t(Card c) {
     if (c.rank == JOKER) { return 1; }
@@ -32,17 +40,6 @@ void get_game_state(GameState *gs, Game *game, PlayerName pname) {
 
     Hand hand = player->get_hand();
     uint8_t size_hand = player->get_size_hand();
-
-    // Get player indicator
-    if (pname == PLAYER_ABC) {
-        (*gs)[i++] = 1;
-    } else if (pname == PLAYER_DEF) {
-        (*gs)[i++] = 2;
-    } else {
-        throw CaravanFatalException(
-            "Invalid player name when getting game state: "
-            "must be either ABC or DEF.");
-    }
 
     // Get state from player's hand
     // {AC, 2D, 8S, 8S, JO, 0, 0, 0} (all ints, with 0 for empty slot)
@@ -127,4 +124,93 @@ void populate_action_space(ActionSpace *as) {
             }
         }
     }
+}
+
+void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, TrainConfig &tc, std::mt19937 &gen) {
+    // Get player names
+    PlayerName pturn = game->get_player_turn();
+    PlayerName popp = pturn == PLAYER_ABC ? PLAYER_DEF : PLAYER_ABC;
+
+    // Read game state and maybe add to the q-table if state not present
+    GameState gs;
+    get_game_state(&gs, game, pturn);
+
+    if (!q_table.contains(gs)) {
+        // TODO maybe is this needed: q_table[gs] = {};
+        for (uint16_t i = 0; i < SIZE_ACTION_SPACE; i++) {
+            q_table[gs][action_space[i]] = 0;
+        }
+    }
+
+    // Choose an action
+    std::string action;
+    GameCommand command;
+    std::vector<std::string> invalid;
+    bool explore = dist_explore(gen) < tc.explore;
+
+    while (true) {
+        if (explore) {
+            // If exploring, fetch a random action from the action space
+            action = action_space[dist_action(gen)];
+
+        } else {
+            // Otherwise, pick the optimal action from the q-table
+            uint16_t pick_index = 0;
+            float pick_value = q_table[gs][action_space[pick_index]];
+
+            for (uint16_t i_action = 1; i_action < SIZE_ACTION_SPACE; i_action++) {
+                // Ignore if already found to be invalid
+                if (std::count(invalid.begin(), invalid.end(), action_space[i_action]) > 0) {
+                    continue;
+                }
+
+                if (q_table[gs][action_space[i_action]] > pick_value) {
+                    pick_index = i_action;
+                    pick_value = q_table[gs][action_space[pick_index]];
+                }
+            }
+
+            action = action_space[pick_index];
+        }
+
+        // If action in invalid list, ignore it and try another
+        if (std::count(invalid.begin(), invalid.end(), action) > 0) {
+            continue;
+        }
+
+        // Generate command for action
+        command = generate_command(action, true);
+
+        // Check action is valid
+        if (!game->check_option(&command)) {
+            // If invalid action for state, add to invalid list and try again
+            invalid.push_back(action);
+            continue;
+
+        } else {
+            // Pick action
+            break;
+        }
+    }
+
+    // Perform action
+    // (Exceptions intentionally not handled)
+    game->play_option(&command);
+
+    // Measure reward (1 = win, -1 = loss, 0 = neither)
+    uint16_t reward;
+
+    if (game->get_winner() == pturn) {
+        reward = 1;
+    } else if (game->get_winner() == popp) {
+        reward = -1;
+    } else {
+        reward = 0;
+    }
+
+    // TODO update q_table
+    float q_value_former = q_table[gs][action];
+    GameState gs_new;
+    get_game_state(&gs_new, game, pturn);
+    //  if a winner: +1 for winning player, -1 for losing player
 }

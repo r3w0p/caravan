@@ -4,30 +4,34 @@
 
 #include <iostream>
 #include <chrono>
+#include <memory>
 #include <random>
 #include <algorithm>
 #include "cxxopts.hpp"
-#include "caravan/user/bot/train.h"
-
-const uint8_t FIRST_ABC = 1;
-const uint8_t FIRST_DEF = 2;
+#include "caravan/core/common.h"
+#include "caravan/model/game.h"
+#include "caravan/core/training.h"
 
 int main(int argc, char *argv[]) {
-    UserBotTrain *user_train;
-    PlayerName player_turn;
-    Game *game;
+    // Game and config
+    std::unique_ptr<Game> game;
     GameConfig gc;
     TrainConfig tc;
     uint8_t rand_first;
 
-    // Random player selector
+    // Training
+    QTable q_table;
+    ActionSpace action_space;
+
+    // Random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distr_first(FIRST_ABC, FIRST_DEF);
 
     try {
-        // Training parameters
-        // TODO user-defined arguments for these
+        // Fill action space with all possible actions
+        populate_action_space(&action_space);
+
+        // Training parameters TODO user-defined arguments
         float discount = 0.95;
         float learning = 0.75;
         uint32_t episode_max = 10;
@@ -49,13 +53,11 @@ int main(int argc, char *argv[]) {
             .episode = 1
         };
 
-        // Single bot plays as both players and is trained on both.
-        user_train = new UserBotTrain();
-
         for(; tc.episode <= tc.episode_max; tc.episode++) {
             // Random first player
-            rand_first = distr_first(gen);
-            gc.player_first = rand_first == FIRST_ABC ? PLAYER_ABC : PLAYER_DEF;
+            rand_first = dist_first_player(gen);
+            gc.player_first = rand_first == NUM_PLAYER_ABC ?
+                PLAYER_ABC : PLAYER_DEF;
 
             // Set training parameters
             tc.discount = discount;
@@ -65,16 +67,13 @@ int main(int argc, char *argv[]) {
             tc.learning = learning;
 
             // Start a new game
-            game = new Game(&gc);
+            game = std::make_unique<Game>(&gc);
 
-            // Take turns until a winner is declared
-            while(game->get_winner() != NO_PLAYER) {
-                user_train->make_move_train(game, &tc);
-            }
+            // Train on game until completion
+            train_on_game(game.get(), q_table, action_space, tc, gen);
 
-            // Finish game
-            game->close();
-            delete game;
+            // Close game
+            game.reset();
         }
 
     } catch (CaravanException &e) {
@@ -85,8 +84,4 @@ int main(int argc, char *argv[]) {
         printf("%s\n", e.what());
         exit(EXIT_FAILURE);
     }
-
-    user_train->close();
-
-    delete user_train;
 }

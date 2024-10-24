@@ -9,7 +9,5 @@ UserBotAI::UserBotAI(PlayerName pn) : UserBot(pn) {
 }
 
 std::string UserBotAI::request_move(Game *game) {
-    if (closed) { throw CaravanFatalException("Bot is closed."); }
-
-    return "D1";  // TODO use q_table
+    return "D1";  // TODO use q_table, or random if state not in there
 }

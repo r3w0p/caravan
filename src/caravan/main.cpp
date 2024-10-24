@@ -148,11 +148,7 @@ int main(int argc, char *argv[]) {
 
     view->run();
 
-    view->close();
-    user_abc->close();
-    user_def->close();
-    game->close();
-
+    // TODO smart pointers
     delete view;
     delete user_abc;
     delete user_def;

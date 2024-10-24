@@ -9,7 +9,6 @@
 #include <cstdint>
 #include "caravan/model/caravan.h"
 
-
 class Table {
 protected:
     Caravan *a = new Caravan(CARAVAN_A);
@@ -20,12 +19,11 @@ protected:
     Caravan *f = new Caravan(CARAVAN_F);
 
     std::array<Caravan *, TABLE_CARAVANS_MAX> caravans = {a, b, c, d, e, f};
-    bool closed;
 
 public:
-    explicit Table();
+    explicit Table() = default;
 
-    void close();
+    ~Table();
 
     Caravan *get_caravan(CaravanName cvname);
 

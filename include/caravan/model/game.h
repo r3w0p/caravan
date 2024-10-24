@@ -16,7 +16,6 @@ protected:
     Player *pa_ptr{};
     Player *pb_ptr{};
     Player *p_turn;
-    bool closed;
 
     int8_t compare_bids(CaravanName cvname1, CaravanName cvname2);
 
@@ -33,9 +32,9 @@ protected:
 public:
     explicit Game(GameConfig *gc);
 
-    static CaravanName get_opposite_caravan_name(CaravanName cvname);
+    ~Game();
 
-    void close();
+    static CaravanName get_opposite_caravan_name(CaravanName cvname);
 
     Player *get_player(PlayerName pname);
 
@@ -50,8 +49,6 @@ public:
     Table *get_table();
 
     PlayerName get_winner();
-
-    bool is_closed();
 
     void play_option(GameCommand *command);
 

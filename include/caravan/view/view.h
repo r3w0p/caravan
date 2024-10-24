@@ -52,13 +52,11 @@ class View {
 protected:
     ViewConfig *vc;
     Game *game;
-    bool closed;
 public:
     explicit View(ViewConfig *vc, Game *game);
+    virtual ~View() = default;
 
     virtual void run() = 0;
-
-    virtual void close() = 0;
 };
 
 #endif //CARAVAN_VIEW_H

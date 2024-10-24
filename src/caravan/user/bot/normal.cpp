@@ -195,15 +195,7 @@ std::string UserBotNormal::generate_move(
  * PUBLIC
  */
 
-void UserBotNormal::close() {
-    if (!closed) {
-        closed = true;
-    }
-}
-
 std::string UserBotNormal::request_move(Game *game) {
-    if (closed) { throw CaravanFatalException("Bot is closed."); }
-
     std::string move = generate_move(game, true, true, true);
 
     // Return move if able to generate one

@@ -10,8 +10,6 @@
  */
 
 std::string UserBotFriendly::request_move(Game *game) {
-    if (closed) { throw CaravanFatalException("Bot is closed."); }
-
     std::string move = generate_move(game, true, false, true);
 
     // Return move if able to generate one

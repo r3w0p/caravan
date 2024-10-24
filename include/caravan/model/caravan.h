@@ -17,7 +17,6 @@ protected:
     CaravanName name;
     Track track;
     uint8_t i_track;
-    bool closed;
 
     static uint8_t numeral_rank_to_uint8_t(Rank rank);
 
@@ -32,7 +31,7 @@ public:
      * @param cvname The caravan name.
      */
     explicit Caravan(CaravanName cvname) :
-        name(cvname), track({}), i_track(0), closed(false) {};
+        name(cvname), track({}), i_track(0) {};
 
     void clear();
 
@@ -55,8 +54,6 @@ public:
     void remove_rank(Rank rank, uint8_t pos_exclude);
 
     void remove_suit(Suit suit, uint8_t pos_exclude);
-
-    void close();
 };
 
 #endif //CARAVAN_MODEL_CARAVAN_H

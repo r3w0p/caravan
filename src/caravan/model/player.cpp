@@ -5,15 +5,12 @@
 #include "caravan/model/player.h"
 #include "caravan/core/exceptions.h"
 
-const std::string EXC_CLOSED = "Player is closed.";
-
 Player::Player(PlayerName pn, Deck *d) {
     name = pn;
     deck = d;
     hand = {};
     i_hand = 0;
     moves = 0;
-    closed = false;
 
     for (; i_hand < HAND_SIZE_MAX_START; i_hand++) {
         hand[i_hand] = deck->back();
@@ -21,17 +18,11 @@ Player::Player(PlayerName pn, Deck *d) {
     }
 }
 
-void Player::close() {
-    if (!closed) {
-        delete deck;
-
-        closed = true;
-    }
+Player::~Player() {
+    delete deck;
 }
 
 Card Player::get_from_hand_at(uint8_t pos) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-
     if (i_hand == 0) {
         throw CaravanFatalException("Player's hand is empty.");
     }
@@ -44,37 +35,30 @@ Card Player::get_from_hand_at(uint8_t pos) {
 }
 
 Hand Player::get_hand() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     return hand;
 }
 
 uint16_t Player::get_moves_count() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     return moves;
 }
 
 PlayerName Player::get_name() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     return name;
 }
 
 uint8_t Player::get_size_deck() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     return deck->size();
 }
 
 uint8_t Player::get_size_hand() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     return i_hand;
 }
 
 void Player::increment_moves() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     moves += 1;
 }
 
 void Player::maybe_add_card_to_hand() {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     // If more cards in the deck
     if (!deck->empty()) {
         // If post-Start and hand not at post-Start max (5 cards)
@@ -88,7 +72,6 @@ void Player::maybe_add_card_to_hand() {
 }
 
 Card Player::discard_from_hand_at(uint8_t pos) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
     uint8_t i;
     Card c_ret;
 

@@ -11,24 +11,20 @@
 class User {
 protected:
     PlayerName name;
-    bool closed;
 public:
+    explicit User(PlayerName pn) : name(pn) {};
+
     virtual ~User() = default;
-
-    explicit User(PlayerName pn) : name(pn), closed(false) {};
-
-    PlayerName get_name() { return name; }
-
-    virtual void close() = 0;
     virtual bool is_human() = 0;
     virtual std::string request_move(Game *game) = 0;
+
+    PlayerName get_name() { return name; }
 };
 
 class UserHuman : public User {
 public:
     explicit UserHuman(PlayerName pn) : User(pn) {};
 
-    void close() override { closed = true; }
     bool is_human() override { return true; }
     std::string request_move(Game *game) override { return {}; }
 };
@@ -37,9 +33,7 @@ class UserBot : public User {
 public:
     explicit UserBot(PlayerName pn) : User(pn) {};
 
-    void close() override { closed = true; }
     bool is_human() override { return false; }
-    std::string request_move(Game *game) override { return {}; }
 };
 
 #endif //CARAVAN_USER_H

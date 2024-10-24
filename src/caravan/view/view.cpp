@@ -8,7 +8,6 @@
 View::View(ViewConfig *vc, Game *game) {
     this->vc = vc;
     this->game = game;
-    this->closed = false;
 
     if(vc->user_abc == nullptr || vc->user_def == nullptr) {
         throw CaravanFatalException("Users must be provided to view.");

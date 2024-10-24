@@ -139,4 +139,6 @@ std::string caravan_letter(CaravanName caravan_name);
 
 uint8_t numeral_rank_value(Card c);
 
+GameCommand generate_command(std::string input, bool confirmed);
+
 #endif //CARAVAN_CORE_COMMON_H
