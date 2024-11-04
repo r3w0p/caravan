@@ -124,7 +124,7 @@ TEST (TestPlayer, RemoveFromHandAt_Position1_StartRound) {
     ASSERT_EQ(pl.get_size_hand(), 8);
 
     c_get = pl.get_hand()[0];
-    c_take = pl.discard_from_hand_at(1);
+    pl.discard_from_hand_at(1, &c_take);
     pl.increment_moves();
     pl.maybe_add_card_to_hand();
 

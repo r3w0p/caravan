@@ -33,8 +33,6 @@ public:
     explicit Caravan(CaravanName cvname) :
         name(cvname), track({}), i_track(0) {};
 
-    void clear();
-
     uint16_t get_bid();
 
     Slot get_slot(uint8_t pos);
@@ -47,13 +45,15 @@ public:
 
     Suit get_suit();
 
-    void put_numeral_card(Card card);
+    bool clear(bool check_only = false);
 
-    Card put_face_card(Card card, uint8_t pos);
+    bool put_numeral_card(Card card, bool check_only = false);
 
-    void remove_rank(Rank rank, uint8_t pos_exclude);
+    bool put_face_card(Card card, uint8_t pos, Card *target = nullptr, bool check_only = false);
 
-    void remove_suit(Suit suit, uint8_t pos_exclude);
+    bool remove_rank(Rank rank, uint8_t pos_exclude, bool check_only = false);
+
+    bool remove_suit(Suit suit, uint8_t pos_exclude, bool check_only = false);
 };
 
 #endif //CARAVAN_MODEL_CARAVAN_H

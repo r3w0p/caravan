@@ -250,7 +250,8 @@ bool Game::has_sold(CaravanName cvname) {
     return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
-bool Game::option_clear(Player *pptr, GameCommand *command, bool check) {
+bool Game::option_clear(Player *pptr, GameCommand *command, bool check_only) {
+    // Intentionally not catching fatal exception if player is not ABC or DEF
     PlayerCaravanNames pcns = get_player_caravan_names(pptr->get_name());
 
     // Invalid for a player to clear their opponent's caravans
@@ -258,7 +259,7 @@ bool Game::option_clear(Player *pptr, GameCommand *command, bool check) {
         pcns[1] != command->caravan_name and
         pcns[2] != command->caravan_name) {
 
-        if(check) {
+        if(check_only) {
             return false;
 
         } else {
@@ -267,36 +268,38 @@ bool Game::option_clear(Player *pptr, GameCommand *command, bool check) {
         }
     }
 
-    // If player's caravan is not empty, then it is valid to clear it
-    if(check) {
-        return table_ptr->get_caravan(
-            command->caravan_name)->get_size() > 0;
-    }
-
     // Clear the caravan
-    table_ptr->clear_caravan(command->caravan_name);
-    return true;
+    return table_ptr->clear_caravan(command->caravan_name, check_only);
 }
 
-bool Game::option_discard(Player *pptr, GameCommand *command, bool check) {
-    Card c_hand;
-    uint8_t size_hand;
+bool Game::option_discard(Player *pptr, GameCommand *command, bool check_only) {
+    Card c_discarded;
+    bool result;
 
-    if(check) {
-        size_hand = pptr->get_size_hand();
-        return size_hand > 0 and command->pos_hand <= size_hand;
+    result = pptr->discard_from_hand_at(
+        command->pos_hand, &c_discarded, check_only);
+
+    if(!check_only) {
+        // Log discarded card to command
+        command->hand = c_discarded;
     }
 
-    c_hand = pptr->discard_from_hand_at(command->pos_hand);
-
-    command->hand = c_hand;  // Log to command
-    return true;
+    return result;
 }
 
-bool Game::option_play(Player *pptr, GameCommand *command, bool check) {  // TODO check
-    Card c_hand = pptr->get_from_hand_at(command->pos_hand);
+bool Game::option_play(Player *pptr, GameCommand *command, bool check_only) {  // TODO apply check_only
+    Card c_hand;
 
-    command->hand = c_hand;  // Log to command
+    // Intentionally not catching fatal exception if player hand is empty
+    try {
+        c_hand = pptr->get_from_hand_at(command->pos_hand);
+    } catch (CaravanGameException &e) {
+        if(check_only) {
+            return false;
+        } else {
+            throw;
+        }
+    }
 
     bool in_start_stage = pptr->get_moves_count() < MOVES_START_ROUND;
     bool pa_playing_num_onto_pa_caravans;
@@ -317,34 +320,63 @@ bool Game::option_play(Player *pptr, GameCommand *command, bool check) {  // TOD
 
         if (!(pa_playing_num_onto_pa_caravans or
               pb_playing_num_onto_pb_caravans)) {
-            throw CaravanGameException(
-                "A numeral card can only be played on "
-                "a player's own caravan.");
+            if(check_only) {
+                return false;
+            } else {
+                throw CaravanGameException(
+                    "A numeral card can only be played on "
+                    "a player's own caravan.");
+            }
         }
 
-        if (in_start_stage and
-            table_ptr->get_caravan(command->caravan_name)->get_size() > 0) {
-            throw CaravanGameException(
-                "A numeral card must be played on an empty caravan "
-                "during the Start round.");
+        if (in_start_stage and table_ptr->get_caravan(
+            command->caravan_name)->get_size() > 0) {
+            if(check_only) {
+                return false;
+            } else {
+                throw CaravanGameException(
+                    "A numeral card must be played on an empty caravan "
+                    "during the Start round.");
+            }
         }
 
-        table_ptr->play_numeral_card(command->caravan_name, c_hand);
+        if(!table_ptr->play_numeral_card(
+            command->caravan_name,
+            c_hand,
+            check_only)) {
+            return false;
+        }
 
     } else {  // is a face card
         if (in_start_stage) {
-            throw CaravanGameException(
-                "A face card cannot be played during the "
-                "Start round.");
+            if(check_only) {
+                return false;
+            } else {
+                throw CaravanGameException(
+                    "A face card cannot be played during the Start round.");
+            }
         }
 
-        // Log to command
-        command->board = table_ptr->get_caravan(command->caravan_name)->get_slot(command->pos_caravan).card;
-        table_ptr->play_face_card(
+        if(!check_only) {
+            // Log to command
+            command->board = table_ptr->get_caravan(
+                command->caravan_name)->get_slot(
+                    command->pos_caravan).card;
+        }
+
+        if(!table_ptr->play_face_card(
             command->caravan_name,
             c_hand,
-            command->pos_caravan);
+            command->pos_caravan,
+            check_only)) {
+            return false;
+        }
     }
 
-    pptr->discard_from_hand_at(command->pos_hand);
+    if(!check_only) {
+        pptr->discard_from_hand_at(
+            command->pos_hand, &command->hand, check_only);
+    }
+
+    return true;
 }

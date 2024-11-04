@@ -5,6 +5,8 @@
 #include "caravan/model/table.h"
 #include "caravan/core/exceptions.h"
 
+// TODO revise docstrings, move them to .h?
+
 Table::~Table() {
     delete a;
     delete b;
@@ -42,8 +44,8 @@ Caravan *Table::get_caravan(CaravanName cvname) {
 /**
  * @param cvname The caravan to clear.
  */
-void Table::clear_caravan(CaravanName cvname) {
-    get_caravan(cvname)->clear();
+bool Table::clear_caravan(CaravanName cvname, bool check_only) {
+    return get_caravan(cvname)->clear(check_only);
 }
 
 /**
@@ -53,25 +55,38 @@ void Table::clear_caravan(CaravanName cvname) {
  *
  * @throws CaravanGameException QUEEN not played on latest numeral card in caravan.
  */
-void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
+bool Table::play_face_card(CaravanName cvname, Card card, uint8_t pos, bool check_only) {  // TODO check only
+    // Intentionally not catching fatal exception if no caravan
     Caravan *cvn_target = get_caravan(cvname);
 
     if (card.rank == QUEEN and pos != cvn_target->get_size()) {
-        throw CaravanGameException(
-            "A QUEEN can only be played on the latest numeral card in a caravan.");
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanGameException(
+                "A QUEEN can only be played on "
+                "the latest numeral card in a caravan.");
+        }
     }
 
     // Play Face card on Caravan.
     // Returns the Numeric card that the Face card was played on.
-    Card c_target = cvn_target->put_face_card(card, pos);
+    Card c_target;
+    if(!cvn_target->put_face_card(card, pos, &c_target, check_only)) {
+        return false;
+    }
 
     // Process effect of JOKER across all caravans
     if (card.rank == JOKER) {
         // Remove from original caravan, excluding the affected card.
         if (c_target.rank == ACE) {
-            cvn_target->remove_suit(c_target.suit, pos);
+            if(!cvn_target->remove_suit(c_target.suit, pos, check_only)) {
+                return false;
+            }
         } else {
-            cvn_target->remove_rank(c_target.rank, pos);
+            if(!cvn_target->remove_rank(c_target.rank, pos, check_only)) {
+                return false;
+            }
         }
 
         // Remove from other caravans, not excluding any cards.
@@ -84,18 +99,24 @@ void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
             }
 
             if (c_target.rank == ACE) {
-                p_next->remove_suit(c_target.suit, 0);
+                if(!p_next->remove_suit(c_target.suit, 0, check_only)) {
+                    return false;
+                }
             } else {
-                p_next->remove_rank(c_target.rank, 0);
+                if(!p_next->remove_rank(c_target.rank, 0, check_only)) {
+                    return false;
+                }
             }
         }
     }
+
+    return true;
 }
 
 /**
  * @param cvname A caravan name.
  * @param card A numeral card to place in the caravan.
  */
-void Table::play_numeral_card(CaravanName cvname, Card card) {
-    get_caravan(cvname)->put_numeral_card(card);
+bool Table::play_numeral_card(CaravanName cvname, Card card, bool check_only) {
+    return get_caravan(cvname)->put_numeral_card(card, check_only);
 }

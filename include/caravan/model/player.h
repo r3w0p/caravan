@@ -38,7 +38,7 @@ public:
 
     void maybe_add_card_to_hand();
 
-    Card discard_from_hand_at(uint8_t pos);
+    bool discard_from_hand_at(uint8_t pos, Card *discarded = nullptr, bool check_only = false);
 };
 
 #endif //CARAVAN_MODEL_PLAYER_H

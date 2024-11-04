@@ -71,29 +71,38 @@ void Player::maybe_add_card_to_hand() {
     }
 }
 
-Card Player::discard_from_hand_at(uint8_t pos) {
-    uint8_t i;
-    Card c_ret;
-
+bool Player::discard_from_hand_at(uint8_t pos, Card *discarded, bool check_only) {
     if (i_hand == 0) {
-        throw CaravanFatalException(
-            "Player's hand is empty.");
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanFatalException("Player's hand is empty.");
+        }
     }
 
     if (pos < HAND_POS_MIN or pos > i_hand) {
-        throw CaravanGameException(
-            "The chosen hand position is out of range.");
+        if (check_only) {
+            return false;
+        } else {
+            throw CaravanGameException(
+                "The chosen hand position is out of range.");
+        }
     }
 
-    i = pos - 1;
-    c_ret = hand[i];
+    if(!check_only) {
+        uint8_t i = pos - 1;
 
-    // Move the cards above it downwards
-    for (i; (i + 1) < i_hand; ++i) {
-        hand[i] = hand[i + 1];
+        if(discarded != nullptr) {
+            *discarded = hand[i];
+        }
+
+        // Move the cards above it downwards
+        for (; (i + 1) < i_hand; ++i) {
+            hand[i] = hand[i + 1];
+        }
+
+        i_hand -= 1;
     }
 
-    i_hand -= 1;
-
-    return c_ret;
+    return true;
 }

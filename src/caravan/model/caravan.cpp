@@ -12,12 +12,21 @@
  *
  * @throws CaravanGameException Caravan track is empty.
  */
-void Caravan::clear() {
+bool Caravan::clear(bool check_only) {
     if (i_track == 0) {
-        throw CaravanGameException("Cannot clear empty caravan.");
+        if(check_only) {
+            return false;
+
+        } else {
+            throw CaravanGameException("Cannot clear empty caravan.");
+        }
     }
 
-    i_track = 0;
+    if(!check_only) {
+        i_track = 0;
+    }
+
+    return true;
 }
 
 /**
@@ -163,7 +172,7 @@ Suit Caravan::get_suit() {
  * @throws CaravanGameException Numeral card has same rank as most recent card in caravan.
  * @throws CaravanGameException Numeral card does not follow direction of caravan.
  */
-void Caravan::put_numeral_card(Card card) {
+bool Caravan::put_numeral_card(Card card, bool check_only) {
     Direction dir;
     Suit suit;
     bool ascends;
@@ -171,20 +180,31 @@ void Caravan::put_numeral_card(Card card) {
     bool not_same_dir;
 
     if (!is_numeral_card(card)) {
-        throw CaravanGameException(
-            "The card must be a numeral card.");
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanGameException("The card must be a numeral card.");
+        }
     }
 
     if (i_track == TRACK_NUMERIC_MAX) {
-        throw CaravanGameException(
-            "The caravan is at its maximum numeral card capacity.");
+        if (check_only) {
+            return false;
+        } else {
+            throw CaravanGameException(
+                "The caravan is at its maximum numeral card capacity.");
+        }
     }
 
     if (i_track > 0) {
         if (card.rank == track[i_track - 1].card.rank) {
-            throw CaravanGameException(
-                "A numeral card must not have same rank as "
-                "the most recent card in the caravan.");
+            if (check_only) {
+                return false;
+            } else {
+                throw CaravanGameException(
+                    "A numeral card must not have same rank as "
+                    "the most recent card in the caravan.");
+            }
         }
 
         if (i_track > 1) {
@@ -197,15 +217,23 @@ void Caravan::put_numeral_card(Card card) {
                            (dir == DESCENDING and ascends);
 
             if (not_same_suit and not_same_dir) {
-                throw CaravanGameException(
-                    "The numeral card must follow the caravan's "
-                    "direction or match the caravan's suit.");
+                if (check_only) {
+                    return false;
+                } else {
+                    throw CaravanGameException(
+                        "The numeral card must follow the caravan's "
+                        "direction or match the caravan's suit.");
+                }
             }
         }
     }
 
-    track[i_track] = {card, {}, 0};
-    i_track += 1;
+    if(!check_only) {
+        track[i_track] = {card, {}, 0};
+        i_track += 1;
+    }
+
+    return true;
 }
 
 /**
@@ -218,42 +246,67 @@ void Caravan::put_numeral_card(Card card) {
  * @throws CaravanGameException Chosen card is not a face card.
  * @throws CaravanGameException Numeral card is at maximum face card capacity.
  */
-Card Caravan::put_face_card(Card card, uint8_t pos) {
+bool Caravan::put_face_card(Card card, uint8_t pos, Card *target, bool check_only) {
     uint8_t i;
     Card c_on;
 
     if (pos < TRACK_NUMERIC_MIN) {
-        throw CaravanGameException(
-            "A caravan position has not been entered.");
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanGameException(
+                "A caravan position has not been entered.");
+        }
     }
 
-
     if (pos > i_track) {
-        throw CaravanGameException(
-            "There is not a numeral card at caravan position " +
-            std::to_string(pos) + ".");
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanGameException(
+                "There is not a numeral card at caravan position " +
+                std::to_string(pos) + ".");
+        }
     }
 
     if (!is_face_card(card)) {
-        throw CaravanGameException("The chosen card must be a face card.");
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanGameException(
+                "The chosen card must be a face card.");
+        }
     }
 
     i = pos - 1;
     c_on = track[i].card;
 
     if (card.rank == JACK) {
-        remove_numeral_card(i);
+        if(!check_only) {
+            remove_numeral_card(i);
+        }
 
     } else {
         if (track[i].i_faces == TRACK_FACE_MAX) {
-            throw CaravanGameException("The caravan is at its maximum face card capacity.");
+            if(check_only) {
+                return false;
+            } else {
+                throw CaravanGameException(
+                    "The caravan is at its maximum face card capacity.");
+            }
         }
 
-        track[i].faces[track[i].i_faces] = card;
-        track[i].i_faces += 1;
+        if(!check_only) {
+            track[i].faces[track[i].i_faces] = card;
+            track[i].i_faces += 1;
+        }
     }
 
-    return c_on;
+    if(!check_only and target != nullptr) {
+        *target = c_on;
+    }
+
+    return true;
 }
 
 /**
@@ -265,29 +318,37 @@ Card Caravan::put_face_card(Card card, uint8_t pos) {
  * 
  * @throws CaravanFatalException Exclude position is out of range.
  */
-void Caravan::remove_rank(Rank rank, uint8_t pos_exclude) {
+bool Caravan::remove_rank(Rank rank, uint8_t pos_exclude, bool check_only) {
     uint8_t i_track_original;
 
     if (i_track == 0) {
-        return;
+        return true;
     }
 
     if (pos_exclude > i_track) {
-        throw CaravanFatalException(
-            "The exclude position is out of range.");
-    }
-
-    i_track_original = i_track;
-
-    for (int t = i_track_original - 1; t >= 0; --t) {
-        if (pos_exclude > 0 and t == (pos_exclude - 1)) {
-            continue;
-        }
-
-        if (track[t].card.rank == rank) {
-            remove_numeral_card(t);
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanFatalException(
+                "The exclude position is out of range.");
         }
     }
+
+    if(!check_only) {
+        i_track_original = i_track;
+
+        for (int t = i_track_original - 1; t >= 0; --t) {
+            if (pos_exclude > 0 and t == (pos_exclude - 1)) {
+                continue;
+            }
+
+            if (track[t].card.rank == rank) {
+                remove_numeral_card(t);
+            }
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -299,29 +360,37 @@ void Caravan::remove_rank(Rank rank, uint8_t pos_exclude) {
  *
  * @throws CaravanFatalException Exclude position is out of range.
  */
-void Caravan::remove_suit(Suit suit, uint8_t pos_exclude) {
+bool Caravan::remove_suit(Suit suit, uint8_t pos_exclude, bool check_only) {
     uint8_t i_track_original;
 
     if (i_track == 0) {
-        return;
+        return true;
     }
 
     if (pos_exclude > i_track) {
-        throw CaravanFatalException(
-            "The exclude position is out of range.");
-    }
-
-    i_track_original = i_track;
-
-    for (int t = i_track_original - 1; t >= 0; --t) {
-        if (pos_exclude > 0 and t == (pos_exclude - 1)) {
-            continue;
-        }
-
-        if (track[t].card.suit == suit) {
-            remove_numeral_card(t);
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanFatalException(
+                "The exclude position is out of range.");
         }
     }
+
+    if(!check_only) {
+        i_track_original = i_track;
+
+        for (int t = i_track_original - 1; t >= 0; --t) {
+            if (pos_exclude > 0 and t == (pos_exclude - 1)) {
+                continue;
+            }
+
+            if (track[t].card.suit == suit) {
+                remove_numeral_card(t);
+            }
+        }
+    }
+
+    return true;
 }
 
 /*

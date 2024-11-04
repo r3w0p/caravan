@@ -376,7 +376,6 @@ TEST (TestCaravan, PutFaceCard) {
 TEST (TestCaravan, PutFaceCard_Error_EmptyCaravan) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_face = {HEARTS, KING};
-    Slot ts;
 
     try {
         cvn.put_face_card(c_face, 1);
@@ -393,7 +392,6 @@ TEST (TestCaravan, PutFaceCard_Error_OutOfRange) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
     Card c_face = {HEARTS, KING};
-    Slot ts;
 
     cvn.put_numeral_card(c_num);
 
@@ -412,7 +410,6 @@ TEST (TestCaravan, PutFaceCard_Error_NotFaceCard) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
-    Slot ts;
 
     cvn.put_numeral_card(c_num_1);
 
@@ -434,7 +431,6 @@ TEST (TestCaravan, PutFaceCard_Error_FullFaceCardCapacity) {
     Card c_face_2 = {HEARTS, KING};
     Card c_face_3 = {HEARTS, KING};
     Card c_face_4 = {HEARTS, KING};
-    Slot ts;
 
     cvn.put_numeral_card(c_num);
     cvn.put_face_card(c_face_1, 1);

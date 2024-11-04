@@ -5,6 +5,9 @@
 #include "gtest/gtest.h"
 #include "caravan/model/game.h"
 
+// TODO tests for game option check_only
+//  check_only == True should result in valid play
+//  check_only == False should result in exception on play attempt
 
 TEST (TestGame, GetPlayer_Both) {
     GameConfig gc = {

@@ -27,11 +27,11 @@ public:
 
     Caravan *get_caravan(CaravanName cvname);
 
-    void clear_caravan(CaravanName cvname);
+    bool clear_caravan(CaravanName cvname, bool check_only = false);
 
-    void play_face_card(CaravanName cvname, Card card, uint8_t pos);
+    bool play_face_card(CaravanName cvname, Card card, uint8_t pos, bool check_only = false);
 
-    void play_numeral_card(CaravanName cvname, Card card);
+    bool play_numeral_card(CaravanName cvname, Card card, bool check_only = false);
 };
 
 #endif //CARAVAN_MODEL_TABLE_H

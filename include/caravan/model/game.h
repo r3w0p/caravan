@@ -23,11 +23,11 @@ protected:
 
     bool has_sold(CaravanName cvname);
 
-    bool option_clear(Player *pptr, GameCommand *command, bool check);
+    bool option_clear(Player *pptr, GameCommand *command, bool check_only);
 
-    bool option_discard(Player *pptr, GameCommand *command, bool check);
+    bool option_discard(Player *pptr, GameCommand *command, bool check_only);
 
-    bool option_play(Player *pptr, GameCommand *command, bool check);
+    bool option_play(Player *pptr, GameCommand *command, bool check_only);
 
 public:
     explicit Game(GameConfig *gc);
