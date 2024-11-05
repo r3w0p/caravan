@@ -2,16 +2,9 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#include <string>
-#include <array>
 #include <map>
-#include <iostream>
-#include <chrono>
-#include <vector>
 #include <random>
 #include <algorithm>
-#include "caravan/core/exceptions.h"
-#include "caravan/core/common.h"
 #include "caravan/model/game.h"
 #include "caravan/core/training.h"
 
@@ -146,6 +139,9 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
     std::string action;
     GameCommand command;
     std::vector<std::string> invalid;
+
+    std::uniform_int_distribution<uint16_t> dist_action(0, SIZE_ACTION_SPACE - 1);
+    std::uniform_real_distribution<float> dist_explore(0, 1);
     bool explore = dist_explore(gen) < tc.explore;
 
     while (true) {

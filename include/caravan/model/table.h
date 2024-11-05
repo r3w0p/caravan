@@ -25,12 +25,39 @@ public:
 
     ~Table();
 
+    /**
+     * @param cvname The caravan to get.
+     * @return Pointer to the caravan.
+     * @throws CaravanFatalException Invalid caravan name.
+     */
     Caravan *get_caravan(CaravanName cvname);
 
+    /**
+     * Remove all cards from the caravan.
+     * @param check_only If true, only check whether operation is valid;
+     *        if false, actually perform the operation.
+     * @return True if operation or check was successful; false otherwise.
+     */
     bool clear_caravan(CaravanName cvname, bool check_only = false);
 
+    /**
+     * @param cvname A caravan name.
+     * @param card A face card.
+     * @param pos The position of the numeral card on which to place the face card.
+     * @param check_only If true, only check whether operation is valid;
+     *        if false, actually perform the operation.
+     * @return True if operation or check was successful; false otherwise.
+     * @throws CaravanGameException QUEEN not played on latest numeral card in caravan.
+     */
     bool play_face_card(CaravanName cvname, Card card, uint8_t pos, bool check_only = false);
 
+    /**
+     * @param cvname A caravan name.
+     * @param card A numeral card to place in the caravan.
+     * @param check_only If true, only check whether operation is valid;
+     *        if false, actually perform the operation.
+     * @return True if operation or check was successful; false otherwise.
+     */
     bool play_numeral_card(CaravanName cvname, Card card, bool check_only = false);
 };
 

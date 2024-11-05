@@ -32,6 +32,7 @@ const std::string KEY_IMBALANCED = "imbalanced";
 const uint8_t FIRST_ABC = 1;
 const uint8_t FIRST_DEF = 2;
 
+// TODO docstrings in .h for all files
 
 int main(int argc, char *argv[]) {
     User *user_abc;

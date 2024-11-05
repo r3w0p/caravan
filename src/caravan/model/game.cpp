@@ -5,14 +5,216 @@
 #include "caravan/model/game.h"
 #include "caravan/core/common.h"
 
-/**
- * @param config Game configuration.
- * 
- * @throws CaravanFatalException Invalid player names.
+
+/*
+ * PROTECTED
  */
+
+int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
+    uint8_t bid_cn1;
+    uint8_t bid_cn2;
+
+    if (has_sold(cvname1)) {
+        if (has_sold(cvname2)) {
+            bid_cn1 = table_ptr->get_caravan(cvname1)->get_bid();
+            bid_cn2 = table_ptr->get_caravan(cvname2)->get_bid();
+
+            if (bid_cn1 > bid_cn2) {
+                return -1;  // CN1 sold; CN2 sold; CN1 highest bid
+            } else if (bid_cn1 < bid_cn2) {
+                return 1;  // CN1 sold; CN2 sold; CN2 highest bid
+            } else {
+                return 0;
+            }  // CN1 sold; CN2 sold; matching bids
+
+        } else {
+            return -1;
+        }  // CN1 sold; CN2 unsold
+
+    } else if (has_sold(cvname2)) {
+        return 1;  // CN1 unsold; CN2 sold
+
+    } else {
+        return 0;
+    }  // CN1 unsold; CN2 unsold
+}
+
+CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
+    int8_t bidcomp = compare_bids(cvname1, cvname2);
+
+    if (bidcomp < 0) {
+        return cvname1;
+    } else if (bidcomp > 0) {
+        return cvname2;
+    } else {
+        return NO_CARAVAN;
+    }
+}
+
+bool Game::has_sold(CaravanName cvname) {
+    uint8_t bid = table_ptr->get_caravan(cvname)->get_bid();
+    return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
+}
+
+bool Game::option_clear(GameCommand *command, bool check_only) {
+    if (p_turn->get_moves_count() < MOVES_START_ROUND) {
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanGameException(
+                "A player cannot clear a caravan during "
+                "the Start round.");
+        }
+    }
+
+    // Intentionally not catching fatal exception if player is not ABC or DEF
+    PlayerCaravanNames pcns = get_player_caravan_names(p_turn->get_name());
+
+    // Invalid for a player to clear their opponent's caravans
+    if (pcns[0] != command->caravan_name and
+        pcns[1] != command->caravan_name and
+        pcns[2] != command->caravan_name) {
+
+        if (check_only) {
+            return false;
+
+        } else {
+            throw CaravanGameException(
+                "A player cannot clear their opponent's caravans.");
+        }
+    }
+
+    // Clear the caravan
+    return table_ptr->clear_caravan(command->caravan_name, check_only);
+}
+
+bool Game::option_discard(GameCommand *command, bool check_only) {
+    Card c_discarded;
+    bool result;
+
+    if (p_turn->get_moves_count() < MOVES_START_ROUND) {
+        if(check_only) {
+            return false;
+        } else {
+            throw CaravanGameException(
+                "A player cannot discard a card during "
+                "the Start round.");
+        }
+    }
+
+    result = p_turn->discard_from_hand_at(
+        command->pos_hand, &c_discarded, check_only);
+
+    if (!check_only) {
+        // Log discarded card to command
+        command->hand = c_discarded;
+    }
+
+    return result;
+}
+
+bool Game::option_play(GameCommand *command, bool check_only) {
+    Card c_hand;
+
+    // Intentionally not catching fatal exception if player hand is empty
+    try {
+        c_hand = p_turn->get_from_hand_at(command->pos_hand);
+    } catch (CaravanGameException &e) {
+        if (check_only) {
+            return false;
+        } else {
+            throw;
+        }
+    }
+
+    bool in_start_stage = p_turn->get_moves_count() < MOVES_START_ROUND;
+    bool pa_playing_num_onto_pa_caravans;
+    bool pb_playing_num_onto_pb_caravans;
+
+    if (is_numeral_card(c_hand)) {
+        pa_playing_num_onto_pa_caravans =
+            p_turn->get_name() == pa_ptr->get_name() and
+            (command->caravan_name == CARAVAN_A or
+             command->caravan_name == CARAVAN_B or
+             command->caravan_name == CARAVAN_C);
+
+        pb_playing_num_onto_pb_caravans =
+            p_turn->get_name() == pb_ptr->get_name() and
+            (command->caravan_name == CARAVAN_D or
+             command->caravan_name == CARAVAN_E or
+             command->caravan_name == CARAVAN_F);
+
+        if (!(pa_playing_num_onto_pa_caravans or
+              pb_playing_num_onto_pb_caravans)) {
+            if (check_only) {
+                return false;
+            } else {
+                throw CaravanGameException(
+                    "A numeral card can only be played on "
+                    "a player's own caravan.");
+            }
+        }
+
+        if (in_start_stage and table_ptr->get_caravan(
+            command->caravan_name)->get_size() > 0) {
+            if (check_only) {
+                return false;
+            } else {
+                throw CaravanGameException(
+                    "A numeral card must be played on an empty caravan "
+                    "during the Start round.");
+            }
+        }
+
+        if (!table_ptr->play_numeral_card(
+            command->caravan_name,
+            c_hand,
+            check_only)) {
+            return false;
+        }
+
+    } else {  // is a face card
+        if (in_start_stage) {
+            if (check_only) {
+                return false;
+            } else {
+                throw CaravanGameException(
+                    "A face card cannot be played during the Start round.");
+            }
+        }
+
+        if (!check_only) {
+            // Log to command
+            command->board = table_ptr->get_caravan(
+                command->caravan_name)->get_slot(
+                command->pos_caravan).card;
+        }
+
+        if (!table_ptr->play_face_card(
+            command->caravan_name,
+            c_hand,
+            command->pos_caravan,
+            check_only)) {
+            return false;
+        }
+    }
+
+    if (!check_only) {
+        p_turn->discard_from_hand_at(
+            command->pos_hand, &command->hand, check_only);
+    }
+
+    return true;
+}
+
+/*
+ * PUBLIC
+ */
+
 Game::Game(GameConfig *gc) {
     if (gc->player_first == NO_PLAYER) {
-        throw CaravanFatalException("Invalid player name for first player in game configuration.");
+        throw CaravanFatalException(
+            "Invalid player name for first player in game configuration.");
     }
 
     Deck *deck_top = DeckBuilder::build_caravan_deck(
@@ -36,6 +238,25 @@ Game::~Game() {
     delete table_ptr;
     delete pa_ptr;
     delete pb_ptr;
+}
+
+CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
+    switch (cvname) {
+        case CARAVAN_A:
+            return CARAVAN_D;
+        case CARAVAN_B:
+            return CARAVAN_E;
+        case CARAVAN_C:
+            return CARAVAN_F;
+        case CARAVAN_D:
+            return CARAVAN_A;
+        case CARAVAN_E:
+            return CARAVAN_B;
+        case CARAVAN_F:
+            return CARAVAN_C;
+        default:
+            return NO_CARAVAN;
+    }
 }
 
 Player *Game::get_player(PlayerName pname) {
@@ -120,6 +341,22 @@ PlayerName Game::get_winner() {
     return NO_PLAYER;
 }
 
+bool Game::is_caravan_bust(CaravanName cvname) {
+    if (cvname == NO_CARAVAN) {
+        return false;
+    } else {
+        return table_ptr->get_caravan(cvname)->get_bid() > CARAVAN_SOLD_MAX;
+    }
+}
+
+bool Game::is_caravan_winning(CaravanName cvname) {
+    if (cvname == NO_CARAVAN) {
+        return false;
+    } else {
+        return winning_bid(cvname, get_opposite_caravan_name(cvname)) == cvname;
+    }
+}
+
 void Game::play_option(GameCommand *command) {
     if (get_winner() != NO_PLAYER) {
         throw CaravanFatalException(
@@ -128,27 +365,15 @@ void Game::play_option(GameCommand *command) {
 
     switch (command->option) {
         case OPTION_PLAY:
-            option_play(p_turn, command, false);
+            option_play(command, false);
             break;
 
         case OPTION_DISCARD:
-            if (p_turn->get_moves_count() < MOVES_START_ROUND) {
-                throw CaravanGameException(
-                    "A player cannot discard a card during "
-                    "the Start round.");
-            }
-
-            option_discard(p_turn, command, false);
+            option_discard(command, false);
             break;
 
         case OPTION_CLEAR:
-            if (p_turn->get_moves_count() < MOVES_START_ROUND) {
-                throw CaravanGameException(
-                    "A player cannot clear a caravan during "
-                    "the Start round.");
-            }
-
-            option_clear(p_turn, command, false);
+            option_clear(command, false);
             break;
 
         default:
@@ -165,218 +390,23 @@ void Game::play_option(GameCommand *command) {
     }
 }
 
-bool Game::is_caravan_winning(CaravanName cvname) {
-    if(cvname == NO_CARAVAN) {
-        return false;
-    } else {
-        return winning_bid(cvname, get_opposite_caravan_name(cvname)) == cvname;
+bool Game::check_option(GameCommand *command) {
+    if (get_winner() != NO_PLAYER) {
+        throw CaravanFatalException(
+            "The game has already been won.");
     }
-}
 
-bool Game::is_caravan_bust(CaravanName cvname) {
-    if (cvname == NO_CARAVAN) {
-        return false;
-    } else {
-        return table_ptr->get_caravan(cvname)->get_bid() > CARAVAN_SOLD_MAX;
-    }
-}
+    switch (command->option) {
+        case OPTION_PLAY:
+            return option_play(command, true);
 
-CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
-    switch (cvname) {
-        case CARAVAN_A:
-            return CARAVAN_D;
-        case CARAVAN_B:
-            return CARAVAN_E;
-        case CARAVAN_C:
-            return CARAVAN_F;
-        case CARAVAN_D:
-            return CARAVAN_A;
-        case CARAVAN_E:
-            return CARAVAN_B;
-        case CARAVAN_F:
-            return CARAVAN_C;
+        case OPTION_DISCARD:
+            return option_discard(command, true);
+
+        case OPTION_CLEAR:
+            return option_clear(command, true);
+
         default:
-            return NO_CARAVAN;
+            throw CaravanFatalException("Invalid play option.");
     }
-}
-
-/*
- * PROTECTED
- */
-
-int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
-    uint8_t bid_cn1;
-    uint8_t bid_cn2;
-
-    if (has_sold(cvname1)) {
-        if (has_sold(cvname2)) {
-            bid_cn1 = table_ptr->get_caravan(cvname1)->get_bid();
-            bid_cn2 = table_ptr->get_caravan(cvname2)->get_bid();
-
-            if (bid_cn1 > bid_cn2) {
-                return -1;  // CN1 sold; CN2 sold; CN1 highest bid
-            } else if (bid_cn1 < bid_cn2) {
-                return 1;  // CN1 sold; CN2 sold; CN2 highest bid
-            } else {
-                return 0;
-            }  // CN1 sold; CN2 sold; matching bids
-
-        } else {
-            return -1;
-        }  // CN1 sold; CN2 unsold
-
-    } else if (has_sold(cvname2)) {
-        return 1;  // CN1 unsold; CN2 sold
-
-    } else {
-        return 0;
-    }  // CN1 unsold; CN2 unsold
-}
-
-CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
-    int8_t bidcomp = compare_bids(cvname1, cvname2);
-
-    if (bidcomp < 0) {
-        return cvname1;
-    } else if (bidcomp > 0) {
-        return cvname2;
-    } else {
-        return NO_CARAVAN;
-    }
-}
-
-bool Game::has_sold(CaravanName cvname) {
-    uint8_t bid = table_ptr->get_caravan(cvname)->get_bid();
-    return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
-}
-
-bool Game::option_clear(Player *pptr, GameCommand *command, bool check_only) {
-    // Intentionally not catching fatal exception if player is not ABC or DEF
-    PlayerCaravanNames pcns = get_player_caravan_names(pptr->get_name());
-
-    // Invalid for a player to clear their opponent's caravans
-    if (pcns[0] != command->caravan_name and
-        pcns[1] != command->caravan_name and
-        pcns[2] != command->caravan_name) {
-
-        if(check_only) {
-            return false;
-
-        } else {
-            throw CaravanGameException(
-                "A player cannot clear their opponent's caravans.");
-        }
-    }
-
-    // Clear the caravan
-    return table_ptr->clear_caravan(command->caravan_name, check_only);
-}
-
-bool Game::option_discard(Player *pptr, GameCommand *command, bool check_only) {
-    Card c_discarded;
-    bool result;
-
-    result = pptr->discard_from_hand_at(
-        command->pos_hand, &c_discarded, check_only);
-
-    if(!check_only) {
-        // Log discarded card to command
-        command->hand = c_discarded;
-    }
-
-    return result;
-}
-
-bool Game::option_play(Player *pptr, GameCommand *command, bool check_only) {  // TODO apply check_only
-    Card c_hand;
-
-    // Intentionally not catching fatal exception if player hand is empty
-    try {
-        c_hand = pptr->get_from_hand_at(command->pos_hand);
-    } catch (CaravanGameException &e) {
-        if(check_only) {
-            return false;
-        } else {
-            throw;
-        }
-    }
-
-    bool in_start_stage = pptr->get_moves_count() < MOVES_START_ROUND;
-    bool pa_playing_num_onto_pa_caravans;
-    bool pb_playing_num_onto_pb_caravans;
-
-    if (is_numeral_card(c_hand)) {
-        pa_playing_num_onto_pa_caravans =
-            pptr->get_name() == pa_ptr->get_name() and
-            (command->caravan_name == CARAVAN_A or
-             command->caravan_name == CARAVAN_B or
-             command->caravan_name == CARAVAN_C);
-
-        pb_playing_num_onto_pb_caravans =
-            pptr->get_name() == pb_ptr->get_name() and
-            (command->caravan_name == CARAVAN_D or
-             command->caravan_name == CARAVAN_E or
-             command->caravan_name == CARAVAN_F);
-
-        if (!(pa_playing_num_onto_pa_caravans or
-              pb_playing_num_onto_pb_caravans)) {
-            if(check_only) {
-                return false;
-            } else {
-                throw CaravanGameException(
-                    "A numeral card can only be played on "
-                    "a player's own caravan.");
-            }
-        }
-
-        if (in_start_stage and table_ptr->get_caravan(
-            command->caravan_name)->get_size() > 0) {
-            if(check_only) {
-                return false;
-            } else {
-                throw CaravanGameException(
-                    "A numeral card must be played on an empty caravan "
-                    "during the Start round.");
-            }
-        }
-
-        if(!table_ptr->play_numeral_card(
-            command->caravan_name,
-            c_hand,
-            check_only)) {
-            return false;
-        }
-
-    } else {  // is a face card
-        if (in_start_stage) {
-            if(check_only) {
-                return false;
-            } else {
-                throw CaravanGameException(
-                    "A face card cannot be played during the Start round.");
-            }
-        }
-
-        if(!check_only) {
-            // Log to command
-            command->board = table_ptr->get_caravan(
-                command->caravan_name)->get_slot(
-                    command->pos_caravan).card;
-        }
-
-        if(!table_ptr->play_face_card(
-            command->caravan_name,
-            c_hand,
-            command->pos_caravan,
-            check_only)) {
-            return false;
-        }
-    }
-
-    if(!check_only) {
-        pptr->discard_from_hand_at(
-            command->pos_hand, &command->hand, check_only);
-    }
-
-    return true;
 }

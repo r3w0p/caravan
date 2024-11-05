@@ -2,13 +2,8 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#include <iostream>
-#include <chrono>
-#include <memory>
 #include <random>
-#include <algorithm>
 #include "cxxopts.hpp"
-#include "caravan/core/common.h"
 #include "caravan/model/game.h"
 #include "caravan/core/training.h"
 
@@ -26,6 +21,8 @@ int main(int argc, char *argv[]) {
     // Random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
+    std::uniform_int_distribution<uint8_t> dist_first_player(
+        NUM_PLAYER_ABC, NUM_PLAYER_DEF);
 
     try {
         // Fill action space with all possible actions

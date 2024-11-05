@@ -36,9 +36,6 @@ typedef struct TrainConfig {
     uint32_t episode{0};
 } TrainConfig;
 
-std::uniform_int_distribution<uint8_t> dist_first_player(NUM_PLAYER_ABC, NUM_PLAYER_DEF);
-std::uniform_int_distribution<uint16_t> dist_action(0, SIZE_ACTION_SPACE - 1);
-std::uniform_real_distribution<float> dist_explore(0, 1);
 
 /*
  * FUNCTIONS

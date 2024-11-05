@@ -23,13 +23,18 @@ protected:
 
     bool has_sold(CaravanName cvname);
 
-    bool option_clear(Player *pptr, GameCommand *command, bool check_only);
+    bool option_clear(GameCommand *command, bool check_only);
 
-    bool option_discard(Player *pptr, GameCommand *command, bool check_only);
+    bool option_discard(GameCommand *command, bool check_only);
 
-    bool option_play(Player *pptr, GameCommand *command, bool check_only);
+    bool option_play(GameCommand *command, bool check_only);
 
 public:
+    /**
+     * @param config Game configuration.
+     *
+     * @throws CaravanFatalException Invalid player names.
+     */
     explicit Game(GameConfig *gc);
 
     ~Game();
@@ -40,19 +45,19 @@ public:
 
     PlayerCaravanNames get_player_caravan_names(PlayerName pname);
 
-    bool is_caravan_winning(CaravanName cvname);
-
-    bool is_caravan_bust(CaravanName cvname);
-
     PlayerName get_player_turn();
 
     Table *get_table();
 
     PlayerName get_winner();
 
+    bool is_caravan_bust(CaravanName cvname);
+
+    bool is_caravan_winning(CaravanName cvname);
+
     void play_option(GameCommand *command);
 
-    bool check_option(GameCommand *command);  // TODO
+    bool check_option(GameCommand *command);
 };
 
 #endif //CARAVAN_MODEL_GAME_H
