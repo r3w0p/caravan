@@ -6,21 +6,21 @@
 #define CARAVAN_MODEL_PLAYER_H
 
 #include <array>
+#include <memory>
+
 #include "caravan/model/deck.h"
 
 
 class Player {
 protected:
     PlayerName name;
-    Deck *deck;
+    std::unique_ptr<Deck> deck;
     Hand hand;
     uint8_t i_hand;
     uint16_t moves;
 
 public:
     explicit Player(PlayerName pn, Deck *d);
-
-    ~Player();
 
     Card get_from_hand_at(uint8_t pos);
 

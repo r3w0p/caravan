@@ -10,29 +10,20 @@
  * PUBLIC
  */
 
-Table::~Table() {
-    delete a;
-    delete b;
-    delete c;
-    delete d;
-    delete e;
-    delete f;
-}
-
 Caravan *Table::get_caravan(CaravanName cvname) {
     switch (cvname) {
         case CARAVAN_A:
-            return a;
+            return caravan_a.get();
         case CARAVAN_B:
-            return b;
+            return caravan_b.get();
         case CARAVAN_C:
-            return c;
+            return caravan_c.get();
         case CARAVAN_D:
-            return d;
+            return caravan_d.get();
         case CARAVAN_E:
-            return e;
+            return caravan_e.get();
         case CARAVAN_F:
-            return f;
+            return caravan_f.get();
         default:
             throw CaravanFatalException("Invalid caravan name.");
     }
@@ -42,7 +33,7 @@ bool Table::clear_caravan(CaravanName cvname, bool check_only) {
     return get_caravan(cvname)->clear(check_only);
 }
 
-bool Table::play_face_card(CaravanName cvname, Card card, uint8_t pos, bool check_only) {  // TODO check only
+bool Table::play_face_card(CaravanName cvname, Card card, uint8_t pos, bool check_only) {
     // Intentionally not catching fatal exception if no caravan
     Caravan *cvn_target = get_caravan(cvname);
 
@@ -78,19 +69,19 @@ bool Table::play_face_card(CaravanName cvname, Card card, uint8_t pos, bool chec
 
         // Remove from other caravans, not excluding any cards.
         for (int k = 0; k < TABLE_CARAVANS_MAX; k++) {
-            Caravan *p_next = caravans[k];
+            Caravan *cvn_other = caravans[k];
 
             // Ignore original caravan already handled.
-            if (p_next->get_name() == cvn_target->get_name()) {
+            if (cvn_other->get_name() == cvn_target->get_name()) {
                 continue;
             }
 
             if (c_target.rank == ACE) {
-                if(!p_next->remove_suit(c_target.suit, 0, check_only)) {
+                if(!cvn_other->remove_suit(c_target.suit, 0, check_only)) {
                     return false;
                 }
             } else {
-                if(!p_next->remove_rank(c_target.rank, 0, check_only)) {
+                if(!cvn_other->remove_rank(c_target.rank, 0, check_only)) {
                     return false;
                 }
             }

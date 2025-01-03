@@ -6,16 +6,18 @@
 #define CARAVAN_MODEL_GAME_H
 
 #include <cstdint>
+#include <memory>
+
 #include "caravan/model/table.h"
 #include "caravan/model/player.h"
 #include "caravan/core/exceptions.h"
 
 class Game {
 protected:
-    Table *table_ptr{};
-    Player *pa_ptr{};
-    Player *pb_ptr{};
-    Player *p_turn;
+    std::unique_ptr<Table> table;
+    std::unique_ptr<Player> player_a;
+    std::unique_ptr<Player> player_b;
+    Player *player_turn;
 
     int8_t compare_bids(CaravanName cvname1, CaravanName cvname2);
 
@@ -33,11 +35,9 @@ public:
     /**
      * @param config Game configuration.
      *
-     * @throws CaravanFatalException Invalid player names.
+     * @throws CaravanFatalException Invalid first player in game configuration.
      */
     explicit Game(GameConfig *gc);
-
-    ~Game();
 
     static CaravanName get_opposite_caravan_name(CaravanName cvname);
 

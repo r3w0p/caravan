@@ -7,7 +7,7 @@
 
 Player::Player(PlayerName pn, Deck *d) {
     name = pn;
-    deck = d;
+    deck.reset(d);
     hand = {};
     i_hand = 0;
     moves = 0;
@@ -16,10 +16,6 @@ Player::Player(PlayerName pn, Deck *d) {
         hand[i_hand] = deck->back();
         deck->pop_back();
     }
-}
-
-Player::~Player() {
-    delete deck;
 }
 
 Card Player::get_from_hand_at(uint8_t pos) {

@@ -7,23 +7,29 @@
 
 #include <array>
 #include <cstdint>
+#include <memory>
 #include "caravan/model/caravan.h"
 
 class Table {
 protected:
-    Caravan *a = new Caravan(CARAVAN_A);
-    Caravan *b = new Caravan(CARAVAN_B);
-    Caravan *c = new Caravan(CARAVAN_C);
-    Caravan *d = new Caravan(CARAVAN_D);
-    Caravan *e = new Caravan(CARAVAN_E);
-    Caravan *f = new Caravan(CARAVAN_F);
+    std::unique_ptr<Caravan> caravan_a = std::make_unique<Caravan>(CARAVAN_A);
+    std::unique_ptr<Caravan> caravan_b = std::make_unique<Caravan>(CARAVAN_B);
+    std::unique_ptr<Caravan> caravan_c = std::make_unique<Caravan>(CARAVAN_C);
+    std::unique_ptr<Caravan> caravan_d = std::make_unique<Caravan>(CARAVAN_D);
+    std::unique_ptr<Caravan> caravan_e = std::make_unique<Caravan>(CARAVAN_E);
+    std::unique_ptr<Caravan> caravan_f = std::make_unique<Caravan>(CARAVAN_F);
 
-    std::array<Caravan *, TABLE_CARAVANS_MAX> caravans = {a, b, c, d, e, f};
+    std::array<Caravan *, TABLE_CARAVANS_MAX> caravans = {
+        caravan_a.get(),
+        caravan_b.get(),
+        caravan_c.get(),
+        caravan_d.get(),
+        caravan_e.get(),
+        caravan_f.get()
+    };
 
 public:
     explicit Table() = default;
-
-    ~Table();
 
     /**
      * @param cvname The caravan to get.

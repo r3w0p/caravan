@@ -120,93 +120,101 @@ void populate_action_space(ActionSpace *as) {
 }
 
 void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, TrainConfig &tc, std::mt19937 &gen) {
-    // Get player names
-    PlayerName pturn = game->get_player_turn();
-    PlayerName popp = pturn == PLAYER_ABC ? PLAYER_DEF : PLAYER_ABC;
-
-    // Read game state and maybe add to the q-table if state not present
     GameState gs;
-    get_game_state(&gs, game, pturn);
-
-    if (!q_table.contains(gs)) {
-        // TODO maybe is this needed: q_table[gs] = {};
-        for (uint16_t i = 0; i < SIZE_ACTION_SPACE; i++) {
-            q_table[gs][action_space[i]] = 0;
-        }
-    }
-
-    // Choose an action
     std::string action;
+    uint16_t action_index;
     GameCommand command;
-    std::vector<std::string> invalid;
 
     std::uniform_int_distribution<uint16_t> dist_action(0, SIZE_ACTION_SPACE - 1);
     std::uniform_real_distribution<float> dist_explore(0, 1);
     bool explore = dist_explore(gen) < tc.explore;
 
-    while (true) {
-        if (explore) {
-            // If exploring, fetch a random action from the action space
-            action = action_space[dist_action(gen)];
+    // Play until winner
+    while (game->get_winner() == NO_PLAYER) {
+        // Determine player
+        PlayerName pturn = game->get_player_turn();
+        PlayerName popp = pturn == PLAYER_ABC ? PLAYER_DEF : PLAYER_ABC;
 
-        } else {
-            // Otherwise, pick the optimal action from the q-table
-            uint16_t pick_index = 0;
-            float pick_value = q_table[gs][action_space[pick_index]];
+        // Get game state in relation to current player
+        get_game_state(&gs, game, pturn);
 
-            for (uint16_t i_action = 1; i_action < SIZE_ACTION_SPACE; i_action++) {
-                // Ignore if already found to be invalid
-                if (std::count(invalid.begin(), invalid.end(), action_space[i_action]) > 0) {
-                    continue;
+        // Maybe add game state and actions if new state discovered
+        if (!q_table.contains(gs)) {
+            // TODO maybe is this needed: q_table[gs] = {};
+            for (uint16_t i = 0; i < SIZE_ACTION_SPACE; i++) {
+                q_table[gs][action_space[i]] = 0;
+            }
+        }
+
+        // Use action pool that depletes as actions are found to be invalid
+        std::vector<std::string> action_pool;
+        for (int i = 0; i < SIZE_ACTION_SPACE; i++) {
+            action_pool.push_back(action_space[i]);
+        }
+
+        // Find a valid action
+        while (true) {
+            if (explore) {
+                // If exploring, fetch a random action from the action pool
+                std::uniform_int_distribution<uint16_t> dist_pool(0, action_pool.size() - 1);
+                action_index = dist_pool(gen);
+                action = action_pool[action_index];
+
+            } else {
+                // Otherwise, pick the optimal action from the q-table
+                action_index = 0;
+                float action_value = q_table[gs][action_pool[action_index]];
+
+                for (uint16_t i_action = 1; i_action < action_pool.size(); i_action++) {
+                    // Change pick if next action has greater value
+                    if (q_table[gs][action_pool[i_action]] > action_value) {
+                        action_index = i_action;
+                        action_value = q_table[gs][action_pool[action_index]];
+                    }
                 }
 
-                if (q_table[gs][action_space[i_action]] > pick_value) {
-                    pick_index = i_action;
-                    pick_value = q_table[gs][action_space[pick_index]];
-                }
+                action = action_pool[action_index];
             }
 
-            action = action_space[pick_index];
+            // Generate command for action
+            command = generate_command(action, true);
+
+            // TODO error if all actions are invalid? should not be possible!
+
+            // Use action if valid
+            if (game->check_option(&command)) break;
+
+            // Remove action from pool and try again
+            action_pool.erase(action_pool.begin() + action_index);
         }
 
-        // If action in invalid list, ignore it and try another
-        if (std::count(invalid.begin(), invalid.end(), action) > 0) {
-            continue;
-        }
+        printf("[%s] %s (%hu, %llu)\n",
+               pturn == PLAYER_ABC ? "ABC" : "DEF",
+               action.c_str(),
+               action_index,
+               action_pool.size());
 
-        // Generate command for action
-        command = generate_command(action, true);
+        // Perform action
+        // (Exceptions intentionally not handled)
+        game->play_option(&command);
 
-        // Check action is valid
-        if (!game->check_option(&command)) {
-            // If invalid action for state, add to invalid list and try again
-            invalid.push_back(action);
-            continue;
+        /*
+        // Measure reward (1 = win, -1 = loss, 0 = neither)
+        uint16_t reward;
 
+        if (game->get_winner() == pturn) {
+            reward = 1;
+        } else if (game->get_winner() == popp) {
+            reward = -1;
         } else {
-            // Pick action
-            break;
+            reward = 0;
         }
+
+        // TODO update q_table
+        // float q_value_former = q_table[gs][action];
+        // GameState gs_new;
+        // get_game_state(&gs_new, game, pturn);
+        //  if a winner: +1 for winning player, -1 for losing player
+        */
     }
-
-    // Perform action
-    // (Exceptions intentionally not handled)
-    game->play_option(&command);
-
-    // Measure reward (1 = win, -1 = loss, 0 = neither)
-    uint16_t reward;
-
-    if (game->get_winner() == pturn) {
-        reward = 1;
-    } else if (game->get_winner() == popp) {
-        reward = -1;
-    } else {
-        reward = 0;
-    }
-
-    // TODO update q_table
-    float q_value_former = q_table[gs][action];
-    GameState gs_new;
-    get_game_state(&gs_new, game, pturn);
-    //  if a winner: +1 for winning player, -1 for losing player
 }

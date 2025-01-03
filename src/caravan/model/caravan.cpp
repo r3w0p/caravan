@@ -8,45 +8,6 @@
 
 
 /*
- * PROTECTED
- */
-
-uint8_t Caravan::numeral_rank_to_uint8_t(Rank rank) {
-    switch (rank) {
-        case ACE:
-            return 1;
-        case TWO:
-            return 2;
-        case THREE:
-            return 3;
-        case FOUR:
-            return 4;
-        case FIVE:
-            return 5;
-        case SIX:
-            return 6;
-        case SEVEN:
-            return 7;
-        case EIGHT:
-            return 8;
-        case NINE:
-            return 9;
-        case TEN:
-            return 10;
-        default:
-            throw CaravanFatalException("Invalid rank.");
-    }
-}
-
-void Caravan::remove_numeral_card(uint8_t index) {
-    for (; (index + 1) < i_track; ++index) {
-        track[index] = track[index + 1];
-    }
-
-    i_track -= 1;
-}
-
-/*
  * PUBLIC
  */
 
@@ -372,4 +333,43 @@ bool Caravan::remove_suit(Suit suit, uint8_t pos_exclude, bool check_only) {
     }
 
     return true;
+}
+
+/*
+ * PROTECTED
+ */
+
+uint8_t Caravan::numeral_rank_to_uint8_t(Rank rank) {
+    switch (rank) {
+        case ACE:
+            return 1;
+        case TWO:
+            return 2;
+        case THREE:
+            return 3;
+        case FOUR:
+            return 4;
+        case FIVE:
+            return 5;
+        case SIX:
+            return 6;
+        case SEVEN:
+            return 7;
+        case EIGHT:
+            return 8;
+        case NINE:
+            return 9;
+        case TEN:
+            return 10;
+        default:
+            throw CaravanFatalException("Invalid rank.");
+    }
+}
+
+void Caravan::remove_numeral_card(uint8_t index) {
+    for (; (index + 1) < i_track; ++index) {
+        track[index] = track[index + 1];
+    }
+
+    i_track -= 1;
 }
