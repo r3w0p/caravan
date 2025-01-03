@@ -5,6 +5,7 @@
 #include <chrono>
 #include <random>
 #include <vector>
+#include <memory>
 #include <algorithm>
 #include "caravan/model/deck.h"
 #include "caravan/core/common.h"

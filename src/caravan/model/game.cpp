@@ -354,6 +354,15 @@ bool Game::option_play(GameCommand *command, bool check_only) {
             }
         }
 
+        if (command->pos_caravan > 0) {
+            if (check_only) {
+                return false;
+            } else {
+                throw CaravanGameException(
+                    "A numeral card must not have a specified caravan position.");
+            }
+        }
+
         if (!table->play_numeral_card(
             command->caravan_name,
             c_hand,
