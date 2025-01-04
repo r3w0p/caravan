@@ -236,13 +236,9 @@ int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
 CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
     int8_t bidcomp = compare_bids(cvname1, cvname2);
 
-    if (bidcomp < 0) {
-        return cvname1;
-    } else if (bidcomp > 0) {
-        return cvname2;
-    } else {
-        return NO_CARAVAN;
-    }
+    if (bidcomp < 0) return cvname1;
+    if (bidcomp > 0) return cvname2;
+    return NO_CARAVAN;
 }
 
 bool Game::has_sold(CaravanName cvname) {
@@ -313,7 +309,6 @@ bool Game::option_play(GameCommand *command, bool check_only) {
         c_hand = player_turn->get_from_hand_at(command->pos_hand);
     } catch (CaravanGameException &e) {
         if (check_only) return false;
-
         throw;
     }
 

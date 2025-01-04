@@ -12,7 +12,7 @@
 
 int main(int argc, char *argv[]) {
     // Game and config
-    std::unique_ptr<Game> game;
+    std::unique_ptr<Game> game = nullptr;
     GameConfig gc;
     TrainConfig tc;
     uint8_t rand_first;
@@ -33,8 +33,8 @@ int main(int argc, char *argv[]) {
 
         // Training parameters TODO user-defined arguments
         float discount = 0.95;
-        float learning = 0.75;
-        uint32_t episode_max = 10;
+        float learning = 0.7;
+        uint32_t episode_max = 1000000;
 
         // Game config uses largest deck with most samples and balance to
         // maximise chance of encountering every player hand combination.
@@ -54,7 +54,10 @@ int main(int argc, char *argv[]) {
         };
 
         for(; tc.episode <= tc.episode_max; tc.episode++) {
-            printf("Episode %d\n", tc.episode);
+            if (tc.episode % 100 == 0) {
+                printf("Episode %d\n", tc.episode);
+                printf("- states: %llu\n", q_table.size());
+            }
 
             // Random first player
             rand_first = dist_first_player(gen);
@@ -64,26 +67,23 @@ int main(int argc, char *argv[]) {
             // Set training parameters
             tc.discount = discount;
 
-            // TODO tc.explore =
-            //    static_cast<float>(tc.episode_max - (tc.episode - 1)) /
-            //    static_cast<float>(tc.episode_max);
-            tc.explore = 1.0;
+            tc.explore =
+                static_cast<float>(tc.episode_max - (tc.episode - 1)) /
+                static_cast<float>(tc.episode_max);
+            //tc.explore = 1.0;
 
             tc.learning = learning;
 
             // Start a new game
-            game = std::make_unique<Game>(&gc);
+            game.reset(new Game(&gc));
 
             // Train on game until completion
             train_on_game(game.get(), q_table, action_space, tc, gen);
 
-            printf("Winner: %s\n", game->get_winner() == PLAYER_ABC ? "ABC" : "DEF");
-
-            // Close game
-            game.reset();
+            //printf("Winner: %s\n", game->get_winner() == PLAYER_ABC ? "ABC" : "DEF");
 
             //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            printf("\n");
+            //printf("\n");
         }
 
     } catch (CaravanException &e) {

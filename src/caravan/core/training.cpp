@@ -117,17 +117,27 @@ void populate_action_space(ActionSpace *as) {
             }
         }
     }
+
+    // Total: 240 + 48 + 6 + 5 = 299
 }
 
 void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, TrainConfig &tc, std::mt19937 &gen) {
     GameState gs;
+    GameCommand command;
+    uint32_t num_moves = 0;
+
     std::string action;
     uint16_t action_index;
-    GameCommand command;
+    float action_value;
 
-    std::uniform_int_distribution<uint16_t> dist_action(0, SIZE_ACTION_SPACE - 1);
+    GameState last_gs_abc;
+    std::string last_action_abc;
+
+    GameState last_gs_def;
+    std::string last_action_def;
+
+    //std::uniform_int_distribution<uint16_t> dist_action(0, SIZE_ACTION_SPACE - 1);
     std::uniform_real_distribution<float> dist_explore(0, 1);
-    bool explore = dist_explore(gen) < tc.explore;
 
     // Play until winner
     while (game->get_winner() == NO_PLAYER) {
@@ -152,6 +162,9 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
             action_pool.push_back(action_space[i]);
         }
 
+        // Determine whether to explore for next move
+        bool explore = dist_explore(gen) < tc.explore;
+
         // Find a valid action
         while (true) {
             if (explore) {
@@ -159,11 +172,12 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
                 std::uniform_int_distribution<uint16_t> dist_pool(0, action_pool.size() - 1);
                 action_index = dist_pool(gen);
                 action = action_pool[action_index];
+                action_value = q_table[gs][action];
 
             } else {
                 // Otherwise, pick the optimal action from the q-table
                 action_index = 0;
-                float action_value = q_table[gs][action_pool[action_index]];
+                action_value = q_table[gs][action_pool[action_index]];
 
                 for (uint16_t i_action = 1; i_action < action_pool.size(); i_action++) {
                     // Change pick if next action has greater value
@@ -188,33 +202,44 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
             action_pool.erase(action_pool.begin() + action_index);
         }
 
-        printf("[%s] %s (%hu, %llu)\n",
-               pturn == PLAYER_ABC ? "ABC" : "DEF",
-               action.c_str(),
-               action_index,
-               action_pool.size());
+        if (action_value > 0)
+            printf("[%s] %s (i=%hu, v=%.2f)\n", pturn == PLAYER_ABC ? "ABC" : "DEF", action.c_str(), action_index, action_value);
 
         // Perform action
         // (Exceptions intentionally not handled)
         game->play_option(&command);
 
-        /*
-        // Measure reward (1 = win, -1 = loss, 0 = neither)
-        uint16_t reward;
+        // Update q-table
+        if (num_moves >= 2) {
+            GameState last_gs = pturn == PLAYER_ABC ? last_gs_abc : last_gs_def;
+            std::string last_action = pturn == PLAYER_ABC ? last_action_abc : last_action_def;
 
-        if (game->get_winner() == pturn) {
-            reward = 1;
-        } else if (game->get_winner() == popp) {
-            reward = -1;
-        } else {
-            reward = 0;
+            if (game->get_winner() != NO_PLAYER) {
+                if (game->get_winner() == pturn) {
+                    q_table[gs][action] = 1;
+                } else {
+                    q_table[gs][action] = -1;
+                }
+            }
+
+            q_table[last_gs][last_action] = q_table[last_gs][last_action] + tc.learning * (tc.discount * q_table[gs][action] - q_table[last_gs][last_action]);
+            /*
+            if (game->get_winner() != NO_PLAYER) {
+                //printf("%f\n", q_table[gs][action]);
+                printf("%f\n", q_table[last_gs][last_action]);
+            }
+            */
         }
 
-        // TODO update q_table
-        // float q_value_former = q_table[gs][action];
-        // GameState gs_new;
-        // get_game_state(&gs_new, game, pturn);
-        //  if a winner: +1 for winning player, -1 for losing player
-        */
+        // Log last move
+        if (pturn == PLAYER_ABC) {
+            last_gs_abc = gs;
+            last_action_abc = action;
+        } else {
+            last_gs_def = gs;
+            last_action_def = action;
+        }
+
+        num_moves += 1;
     }
 }
