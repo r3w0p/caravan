@@ -45,11 +45,11 @@ public:
 
     PlayerCaravanNames get_player_caravan_names(PlayerName pname);
 
-    PlayerName get_player_turn();
+    Player *get_player_turn();
 
     Table *get_table();
 
-    PlayerName get_winner();
+    PlayerName get_winner_name();
 
     bool is_caravan_bust(CaravanName cvname);
 

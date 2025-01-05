@@ -346,7 +346,7 @@ std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *vc, Game *game, CaravanName
 std::shared_ptr<ftxui::Node> gen_deck_card(ViewConfig *vc, Game *game, uint8_t position, Card card, bool hide, bool highlight, bool blank = false) {
     using namespace ftxui;
     return hbox({
-                    blank || game->get_winner() != NO_PLAYER ? gen_position_blank() : gen_position(position),
+                    blank || game->get_winner_name() != NO_PLAYER ? gen_position_blank() : gen_position(position),
                     blank ? gen_card_blank() : gen_card(vc, card, hide, highlight),
                 }) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN_SLOT);
 }
@@ -382,17 +382,17 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
     // if there is a winner and this user is a bot playing against a human
     bool hide =
         (
-            game->get_winner() == NO_PLAYER &&
+            game->get_winner_name() == NO_PLAYER &&
             vc->user_turn->get_name() != player_this->get_name() &&
             (vc->user_abc->is_human() && vc->user_def->is_human())
         ) ||
         (
-            game->get_winner() == NO_PLAYER &&
+            game->get_winner_name() == NO_PLAYER &&
             !user_this->is_human() &&
             (vc->user_abc->is_human() || vc->user_def->is_human())
         ) ||
         (
-            game->get_winner() != NO_PLAYER &&
+            game->get_winner_name() != NO_PLAYER &&
             (!user_this->is_human() && user_other->is_human())
         );
 
@@ -431,7 +431,7 @@ std::shared_ptr<ftxui::Node> gen_input(
     using namespace ftxui;
     Elements e;
 
-    bool is_top = game->get_winner() == NO_PLAYER;
+    bool is_top = game->get_winner_name() == NO_PLAYER;
     bool is_mid = !vc->msg_main.empty() || !vc->msg_important.empty();
     bool is_low = !vc->msg_move_abc.empty() || !vc->msg_move_def.empty();
 
@@ -592,7 +592,7 @@ ftxui::Elements get_move_description(ViewConfig *vc) {
 }
 
 void set_current_turn(ViewConfig *vc, Game *game) {
-    if (game->get_player_turn() == PLAYER_ABC) {
+    if (game->get_player_turn()->get_name() == PLAYER_ABC) {
         vc->user_turn = vc->user_abc;
         vc->user_next = vc->user_def;
 
@@ -693,8 +693,8 @@ void ViewTUI::run() {
             }
 
             // If winner, display results
-            if(game->get_winner() != NO_PLAYER) {
-                std::string name_winner = game->get_winner() == vc->user_abc->get_name() ? vc->name_abc : vc->name_def;
+            if(game->get_winner_name() != NO_PLAYER) {
+                std::string name_winner = game->get_winner_name() == vc->user_abc->get_name() ? vc->name_abc : vc->name_def;
                 user_input = "";
 
                 vc->msg_main = "WINNER: " + name_winner;

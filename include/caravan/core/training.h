@@ -14,19 +14,31 @@
  * CONSTANTS
  */
 
-const uint16_t SIZE_ACTION_SPACE = 299;
+const uint16_t SIZE_ACTION = 5;
+const uint16_t SIZE_ACTION_SPACE = 920;
 const uint16_t SIZE_GAME_STATE = 200;
 
 const uint8_t NUM_PLAYER_ABC = 1;
 const uint8_t NUM_PLAYER_DEF = 2;
 
+const uint8_t KEY_ACTION_NAME = 0;
+const uint8_t KEY_ACTION_SUIT = 1;
+const uint8_t KEY_ACTION_RANK = 2;
+const uint8_t KEY_ACTION_CVN_NAME = 3;
+const uint8_t KEY_ACTION_CVN_POS = 4;
+
+const uint8_t ACTION_NAME_DISCARD = 1;
+const uint8_t ACTION_NAME_CLEAR = 2;
+const uint8_t ACTION_NAME_PLAY = 3;
+
 /*
  * TYPES
  */
 
-typedef std::array<std::string, SIZE_ACTION_SPACE> ActionSpace;
+typedef std::array<uint8_t, SIZE_ACTION> Action;
+typedef std::array<Action, SIZE_ACTION_SPACE> ActionSpace;
 typedef std::array<uint16_t, SIZE_GAME_STATE> GameState;
-typedef std::map<GameState, std::map<std::string, float>> QTable;
+typedef std::map<GameState, std::map<Action, float>> QTable;
 
 typedef struct TrainConfig {
     float discount{0.0};

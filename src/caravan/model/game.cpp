@@ -76,15 +76,15 @@ PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) {
     throw CaravanFatalException("Invalid player name.");
 }
 
-PlayerName Game::get_player_turn() {
-    return player_turn->get_name();
+Player* Game::get_player_turn() {
+    return player_turn;
 }
 
 Table* Game::get_table() {
     return table.get();
 }
 
-PlayerName Game::get_winner() {
+PlayerName Game::get_winner_name() {
     uint8_t won_pa = 0;
     uint8_t won_pb = 0;
     int8_t comp[3];
@@ -149,7 +149,7 @@ bool Game::is_caravan_winning(CaravanName cvname) {
 }
 
 void Game::play_option(GameCommand *command) {
-    if (get_winner() != NO_PLAYER) {
+    if (get_winner_name() != NO_PLAYER) {
         throw CaravanFatalException(
             "The game has already been won.");
     }
@@ -182,7 +182,7 @@ void Game::play_option(GameCommand *command) {
 }
 
 bool Game::check_option(GameCommand *command) {
-    if (get_winner() != NO_PLAYER) {
+    if (get_winner_name() != NO_PLAYER) {
         throw CaravanFatalException(
             "The game has already been won.");
     }
