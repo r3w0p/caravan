@@ -48,27 +48,54 @@ void add_hand_to_game_state(GameState *gs, uint16_t *i_gs, Player *player) {
     uint8_t hand_size = player->get_size_hand();
     std::set<uint8_t> hand_set;
 
-    // Create ordered, unique set of cards from player's hand
+    bool is_numeral = false;
+    bool is_jack = false;
+    bool is_queen = false;
+    bool is_king = false;
+    bool is_joker = false;
+
+    // Check for rank types
     for (uint8_t i_hand = 0; i_hand < hand_size; i_hand++) {
-        hand_set.insert(card_to_uint8_t(hand[i_hand]));
-    }
+        Card card = hand[i_hand];
 
-    uint8_t hand_set_size = hand_set.size();
-    std::set<uint8_t>::iterator hand_set_iter = hand_set.begin();
+        if (is_numeral_card(card)) {
+            is_numeral = true;
 
-    // Add ordered, unique cards to game state, including spaces
-    for (uint8_t i_set = 0; i_set < HAND_SIZE_MAX_START; i_set++) {
-        if (i_set < hand_set_size) {
-            (*gs)[(*i_gs)++] = *hand_set_iter;
-            ++hand_set_iter;
-        } else {
-            (*gs)[(*i_gs)++] = 0;
+        } else if (card.suit == JACK) {
+            is_jack = true;
+
+        } else if (card.suit == QUEEN) {
+            is_queen = true;
+
+        } else if (card.suit == KING) {
+            is_king = true;
+
+        } else if (card.suit == JOKER) {
+            is_joker = true;
         }
     }
+
+    (*gs)[(*i_gs)++] = is_numeral;
+    (*gs)[(*i_gs)++] = is_jack;
+    (*gs)[(*i_gs)++] = is_queen;
+    (*gs)[(*i_gs)++] = is_king;
+    (*gs)[(*i_gs)++] = is_joker;
 }
 
 void add_caravan_to_game_state(GameState *gs, uint16_t *i_gs, Game *game, Caravan *caravan) {
     uint8_t caravan_size = caravan->get_size();
+    uint8_t caravan_bid = caravan->get_bid();
+
+    // Add bid state
+    if (caravan_bid < CARAVAN_SOLD_MIN) {  // light
+        (*gs)[(*i_gs)++] = 0;
+
+    } else if (caravan_bid > CARAVAN_SOLD_MAX) {  // bust
+        (*gs)[(*i_gs)++] = 2;
+
+    } else {  // sold (but not necessarily winning...)
+        (*gs)[(*i_gs)++] = 1;
+    }
 
     // Add whether caravan is winning
     (*gs)[(*i_gs)++] = game->is_caravan_winning(caravan->get_name());
@@ -81,15 +108,6 @@ void add_caravan_to_game_state(GameState *gs, uint16_t *i_gs, Game *game, Carava
 
     // Add caravan suit
     (*gs)[(*i_gs)++] = suit_to_uint8_t(caravan->get_suit());
-
-    // Add rank of highest numeral
-    if (caravan_size > 0) {
-        Slot slot = caravan->get_slot(caravan->get_size());
-        (*gs)[(*i_gs)++] = rank_to_uint8_t(slot.card.rank);
-
-    } else {
-        (*gs)[(*i_gs)++] = 0;
-    }
 }
 
 void get_game_state(GameState *gs, Game *game, PlayerName pname) {
@@ -130,135 +148,174 @@ void get_game_state(GameState *gs, Game *game, PlayerName pname) {
 void populate_action_space(ActionSpace *as) {
     uint16_t i_as = 0;
 
-    // Add DISCARD actions
-    // 4 x 13 + 1 = 53
-    for (uint8_t s = CLUBS; s <= SPADES; s++) {
-        for (uint8_t r = ACE; r <= KING; r++) {
-            (*as)[i_as++] = {ACTION_NAME_DISCARD, s, r, 0, 0};
-        }
-    }
-    (*as)[i_as++] = {ACTION_NAME_DISCARD, NO_SUIT, JOKER, 0, 0};
+    (*as)[i_as++] = ACTION_DISCARD_NUMERAL;
+    (*as)[i_as++] = ACTION_DISCARD_JACK;
+    (*as)[i_as++] = ACTION_DISCARD_QUEEN;
+    (*as)[i_as++] = ACTION_DISCARD_KING;
+    (*as)[i_as++] = ACTION_DISCARD_JOKER;
 
-    // Add CLEAR actions
-    // 3 only (actual caravan determined based on player)
-    for (uint8_t n = 1; n <= 3; n++) {
-        (*as)[i_as++] = {ACTION_NAME_CLEAR, 0, 0, n, 0};
-    }
+    (*as)[i_as++] = ACTION_CLEAR_BUST;
 
-    // Add PLAY for numeral actions
-    // 4 x 10 x 6 = 240
-    for (uint8_t s = CLUBS; s <= SPADES; s++) {
-        for (uint8_t r = ACE; r <= TEN; r++) {
-            for (uint8_t n = 1; n <= 6; n++) {
-                (*as)[i_as++] = {ACTION_NAME_PLAY, s, r, n, 0};
-            }
-        }
-    }
+    (*as)[i_as++] = ACTION_PLAY_NUMERAL_1;
+    (*as)[i_as++] = ACTION_PLAY_NUMERAL_2;
+    (*as)[i_as++] = ACTION_PLAY_NUMERAL_3;
 
-    // Add PLAY for face actions
-    // (4 x 3 x 6 x 8) + (6 x 8) = 624
-    for (uint8_t s = CLUBS; s <= SPADES; s++) {
-        for (uint8_t r = JACK; r <= KING; r++) {
-            for (uint8_t n = 1; n <= 6; n++) {
-                for (uint8_t t = TRACK_NUMERIC_MIN; t <= TRACK_NUMERIC_MAX; t++) {
-                    (*as)[i_as++] = {ACTION_NAME_PLAY, s, r, n, t};
-                }
-            }
-        }
-    }
-    for (uint8_t n = 1; n <= 6; n++) {
-        for (uint8_t t = TRACK_NUMERIC_MIN; t <= TRACK_NUMERIC_MAX; t++) {
-            (*as)[i_as++] = {ACTION_NAME_PLAY, NO_SUIT, JOKER, n, t};
-        }
-    }
+    (*as)[i_as++] = ACTION_PLAY_JACK_SELF;
+    (*as)[i_as++] = ACTION_PLAY_JACK_OPP;
 
-    // Total: 53 + 3 + 240 + 624 = 720
+    (*as)[i_as++] = ACTION_PLAY_QUEEN_SELF;
+    (*as)[i_as++] = ACTION_PLAY_QUEEN_OPP;
+
+    (*as)[i_as++] = ACTION_PLAY_KING_SELF;
+    (*as)[i_as++] = ACTION_PLAY_KING_OPP;
+
+    (*as)[i_as++] = ACTION_PLAY_JOKER;
 }
 
-bool generate_input(std::string *input, Action *action, Game *game) {
-    Player *player = game->get_player_turn();
-    PlayerName pname = player->get_name();
+bool generate_discard_numeral(std::string *input, Player *player) {
     Hand hand = player->get_hand();
+    uint8_t hand_size = player->get_size_hand();
+    std::string ret = "D";
 
-    if ((*action)[KEY_ACTION_NAME] == ACTION_NAME_DISCARD) {
-        Card card = {
-            static_cast<Suit>((*action)[KEY_ACTION_SUIT]),
-            static_cast<Rank>((*action)[KEY_ACTION_RANK])
-        };
+    // Discard first numeral in hand
+    for (uint8_t i = 0; i < hand_size; i++) {
+        if (is_numeral_card(hand[i])) {
+            ret += std::to_string(i+1);
+        }
+    }
 
-        for (uint8_t i = 0; i < player->get_size_hand(); i++) {
-            if (hand[i].suit == card.suit and hand[i].rank == card.rank) {
-                *input = "D" + std::to_string(i+1);
-                return true;
+    // Could not find a numeral
+    if (ret.length() == 1) {
+        return false;
+    }
+
+    *input = ret;
+    return true;
+}
+
+bool generate_discard_rank(std::string *input, Player *player, Rank rank) {
+    Hand hand = player->get_hand();
+    uint8_t hand_size = player->get_size_hand();
+    std::string ret = "D";
+
+    // Discard first card with specified rank in hand
+    for (uint8_t i = 0; i < hand_size; i++) {
+        if (hand[i].rank == rank) {
+            ret += std::to_string(i + 1);
+        }
+    }
+
+    // Could not find card with specified rank
+    if (ret.length() == 1) {
+        return false;
+    }
+
+    *input = ret;
+    return true;
+}
+
+bool generate_clear_bust(std::string *input, Game *game, Player *player) {
+    // Clear busted caravan with the highest bid, if any
+
+    PlayerCaravanNames cvn_names = game->get_player_caravan_names(
+        player->get_name());
+
+    uint8_t to_clear = 0;
+    uint16_t bid_clear = 0;
+
+    for (uint8_t i_cvn = 0; i_cvn < cvn_names.size(); i_cvn++) {
+        Caravan *cvn = game->get_table()->get_caravan(cvn_names[i_cvn]);
+        uint16_t bid = cvn->get_bid();
+
+        // Clear caravan that has bust the most, if any
+        if (bid > CARAVAN_SOLD_MAX and bid > bid_clear) {
+            to_clear = i_cvn + 1;
+            bid_clear = bid;
+        }
+    }
+
+    // No bust caravans to clear
+    if (to_clear == 0) {
+        return false;
+    }
+
+    *input = "C" + caravan_letter(cvn_names[to_clear - 1]);
+    return true;
+}
+
+bool generate_play_numeral(std::string *input, Game *game, Player *player, uint8_t cvn_num) {
+    PlayerCaravanNames cvn_names = game->get_player_caravan_names(
+        player->get_name());
+
+    Caravan *cvn = game->get_table()->get_caravan(cvn_names[cvn_num-1]);
+    uint16_t cvn_bid = cvn->get_bid();
+
+    Hand hand = player->get_hand();
+    uint8_t hand_size = player->get_size_hand();
+
+    uint8_t index_best = 0;
+    uint16_t value_best = 0;
+
+    // Discard first numeral in hand
+    for (uint8_t i = 0; i < hand_size; i++) {
+        Card card = hand[i];
+        if (is_numeral_card(card)) {
+            // TODO skip if wrong direction
+            // TODO skip if invalid suit
+            // TODO skip if adding card would bust the caravan
+
+            if (cvn_bid + numeral_rank_value(card) > CARAVAN_SOLD_MAX) {
+                continue;
+            } else {
+
             }
         }
+    }
 
-    } else if ((*action)[KEY_ACTION_NAME] == ACTION_NAME_CLEAR) {
-        switch ((*action)[KEY_ACTION_CVN_NAME]) {
-            case 1:
-                *input = pname == PLAYER_ABC ? "CA" : "CD";
-                return true;
-            case 2:
-                *input = pname == PLAYER_ABC ? "CB" : "CE";
-                return true;
-            case 3:
-                *input = pname == PLAYER_ABC ? "CC" : "CF";
-                return true;
+    // No (worthwhile) numeral card to play
+    if (index_best == 0) {
+        return false;
+    }
+
+    // whichever card is closest to the last rank without causing bust
+
+
+
+
+}
+
+bool generate_input(std::string *input, Action action, Game *game) {
+    Player *player = game->get_player_turn();
+
+    if (action >= ACTION_DISCARD_NUMERAL and action <= ACTION_DISCARD_JOKER) {
+        switch (action) {
+            case ACTION_DISCARD_NUMERAL:
+                return generate_discard_numeral(input, player);
+            case ACTION_DISCARD_JACK:
+                return generate_discard_rank(input, player, JACK);
+            case ACTION_DISCARD_QUEEN:
+                return generate_discard_rank(input, player, QUEEN);
+            case ACTION_DISCARD_KING:
+                return generate_discard_rank(input, player, KING);
+            case ACTION_DISCARD_JOKER:
+                return generate_discard_rank(input, player, JOKER);
             default:
                 return false;
         }
 
-    } else if ((*action)[KEY_ACTION_NAME] == ACTION_NAME_PLAY) {
-        std::string ret = "P";
+    if (action == ACTION_CLEAR_BUST) {
+        return generate_clear_bust(input, game, player);
 
-        Card card = {
-            static_cast<Suit>((*action)[KEY_ACTION_SUIT]),
-            static_cast<Rank>((*action)[KEY_ACTION_RANK])
-        };
-
-        for (uint8_t i = 0; i < player->get_size_hand(); i++) {
-            if (hand[i].suit == card.suit and hand[i].rank == card.rank) {
-                ret += std::to_string(i+1);
+    } else if (action >= ACTION_PLAY_NUMERAL_1 and action <= ACTION_PLAY_NUMERAL_3) {
+        switch (action) {
+            case ACTION_PLAY_NUMERAL_1:
                 break;
-            }
-        }
-
-        // Unable to find card in hand
-        if (ret.length() == 1) {
-            return false;
-        }
-
-        if ((*action)[KEY_ACTION_CVN_NAME] > 0) {
-            switch ((*action)[KEY_ACTION_CVN_NAME]) {
-                case 1:
-                    ret += pname == PLAYER_ABC ? "A" : "D";
-                    break;
-                case 2:
-                    ret += pname == PLAYER_ABC ? "B" : "E";
-                    break;
-                case 3:
-                    ret += pname == PLAYER_ABC ? "C" : "F";
-                    break;
-                case 4:
-                    ret += pname == PLAYER_ABC ? "D" : "A";
-                    break;
-                case 5:
-                    ret += pname == PLAYER_ABC ? "E" : "B";
-                    break;
-                case 6:
-                    ret += pname == PLAYER_ABC ? "F" : "C";
-                    break;
-                default:
-                    return false;
-            }
-
-            if ((*action)[KEY_ACTION_CVN_POS] > 0) {
-                ret += std::to_string((*action)[KEY_ACTION_CVN_POS]);
-            }
-        }
-
-        *input = ret;
-        return true;
+            case ACTION_PLAY_NUMERAL_2:
+                break;
+            case ACTION_PLAY_NUMERAL_3:
+                break;
+            default:
+                return false;
     }
 
     return false;

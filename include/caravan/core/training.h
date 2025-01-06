@@ -14,28 +14,43 @@
  * CONSTANTS
  */
 
-const uint16_t SIZE_ACTION = 5;
-const uint16_t SIZE_ACTION_SPACE = 920;
-const uint16_t SIZE_GAME_STATE = 38;
+const uint16_t SIZE_GAME_STATE = 35;
 
 const uint8_t NUM_PLAYER_ABC = 1;
 const uint8_t NUM_PLAYER_DEF = 2;
 
-const uint8_t KEY_ACTION_NAME = 0;
-const uint8_t KEY_ACTION_SUIT = 1;
-const uint8_t KEY_ACTION_RANK = 2;
-const uint8_t KEY_ACTION_CVN_NAME = 3;
-const uint8_t KEY_ACTION_CVN_POS = 4;
+// ACTIONS
 
-const uint8_t ACTION_NAME_DISCARD = 1;
-const uint8_t ACTION_NAME_CLEAR = 2;
-const uint8_t ACTION_NAME_PLAY = 3;
+const uint16_t SIZE_ACTION_SPACE = 16;
+typedef uint8_t Action;
+
+const uint8_t ACTION_DISCARD_NUMERAL = 10;
+const uint8_t ACTION_DISCARD_JACK = 11;
+const uint8_t ACTION_DISCARD_QUEEN = 12;
+const uint8_t ACTION_DISCARD_KING = 13;
+const uint8_t ACTION_DISCARD_JOKER = 14;
+
+const uint8_t ACTION_CLEAR_BUST = 20;
+
+const uint8_t ACTION_PLAY_NUMERAL_1 = 30;
+const uint8_t ACTION_PLAY_NUMERAL_2 = 31;
+const uint8_t ACTION_PLAY_NUMERAL_3 = 32;
+
+const uint8_t ACTION_PLAY_JACK_SELF = 40;  // on lowest bust
+const uint8_t ACTION_PLAY_JACK_OPP = 41;  // on highest non-bust
+
+const uint8_t ACTION_PLAY_QUEEN_SELF = 50;  // on LOW+DES, HIGH+ASC, light
+const uint8_t ACTION_PLAY_QUEEN_OPP = 51;  // on LOW+ASC, HIGH+DES, light
+
+const uint8_t ACTION_PLAY_KING_SELF = 60; // lowest non-bust, on card that would not cause bust
+const uint8_t ACTION_PLAY_KING_OPP = 61;  // highest non-bust, on card that would preferably cause bust
+
+const uint8_t ACTION_PLAY_JOKER = 70;  // most frequent opp card, play on self where possible
 
 /*
  * TYPES
  */
 
-typedef std::array<uint8_t, SIZE_ACTION> Action;
 typedef std::array<Action, SIZE_ACTION_SPACE> ActionSpace;
 typedef std::array<uint16_t, SIZE_GAME_STATE> GameState;
 typedef std::map<GameState, std::map<Action, float>> QTable;
