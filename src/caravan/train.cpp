@@ -27,6 +27,9 @@ int main(int argc, char *argv[]) {
     std::uniform_int_distribution<uint8_t> dist_first_player(
         NUM_PLAYER_ABC, NUM_PLAYER_DEF);
 
+    uint16_t checkpoint = 1;
+    uint16_t num_wins = 0;
+
     try {
         // Fill action space with all possible actions
         populate_action_space(&action_space);
@@ -34,7 +37,7 @@ int main(int argc, char *argv[]) {
         // Training parameters TODO user-defined arguments
         float discount = 0.95;
         float learning = 0.7;
-        uint32_t episode_max = 50000;
+        uint32_t episode_max = 2;
 
         // Game config uses largest deck with most samples and balance to
         // maximise chance of encountering every player hand combination.
@@ -62,24 +65,32 @@ int main(int argc, char *argv[]) {
             // Set training parameters
             tc.discount = discount;
 
-            tc.explore =
-                static_cast<float>(tc.episode_max - (tc.episode - 1)) /
-                static_cast<float>(tc.episode_max);
-            //tc.explore = 1.0;
+            if (tc.episode > (tc.episode_max / 2))
+                tc.explore =
+                    static_cast<float>((tc.episode_max/2) - (tc.episode - (tc.episode_max/2) - 1)) /
+                    static_cast<float>(tc.episode_max/2);
+            else
+                tc.explore = 1.0;
 
             tc.learning = learning;
 
-            if (tc.episode % 1000 == 0) {
+            if (tc.episode % checkpoint == 0) {
+                float per_wins = static_cast<float>(num_wins) / static_cast<float>(checkpoint);
+
                 printf("Episode %d\n", tc.episode);
                 printf("- explore: %.2f\n", tc.explore);
                 printf("- states: %llu\n", q_table.size());
+                printf("- wins: %d/%d (%.2f)\n", num_wins, checkpoint, per_wins);
+
+                num_wins = 0;
             }
 
             // Start a new game
             game.reset(new Game(&gc));
 
             // Train on game until completion
-            train_on_game(game.get(), q_table, action_space, tc, gen);
+            if (train_on_game(game.get(), q_table, action_space, gc, tc, gen))
+                num_wins += 1;
 
             //printf("Winner: %s\n", game->get_winner() == PLAYER_ABC ? "ABC" : "DEF");
 

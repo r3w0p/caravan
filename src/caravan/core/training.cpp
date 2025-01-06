@@ -61,16 +61,16 @@ void add_hand_to_game_state(GameState *gs, uint16_t *i_gs, Player *player) {
         if (is_numeral_card(card)) {
             is_numeral = true;
 
-        } else if (card.suit == JACK) {
+        } else if (card.rank == JACK) {
             is_jack = true;
 
-        } else if (card.suit == QUEEN) {
+        } else if (card.rank == QUEEN) {
             is_queen = true;
 
-        } else if (card.suit == KING) {
+        } else if (card.rank == KING) {
             is_king = true;
 
-        } else if (card.suit == JOKER) {
+        } else if (card.rank == JOKER) {
             is_joker = true;
         }
     }
@@ -181,6 +181,7 @@ bool generate_discard_numeral(std::string *input, Player *player) {
     for (uint8_t i = 0; i < hand_size; i++) {
         if (is_numeral_card(hand[i])) {
             ret += std::to_string(i+1);
+            break;
         }
     }
 
@@ -202,6 +203,7 @@ bool generate_discard_rank(std::string *input, Player *player, Rank rank) {
     for (uint8_t i = 0; i < hand_size; i++) {
         if (hand[i].rank == rank) {
             ret += std::to_string(i + 1);
+            break;
         }
     }
 
@@ -235,9 +237,7 @@ bool generate_clear_bust(std::string *input, Game *game, Player *player) {
     }
 
     // No bust caravans to clear
-    if (to_clear == 0) {
-        return false;
-    }
+    if (to_clear == 0) return false;
 
     *input = "C" + caravan_letter(cvn_names[to_clear - 1]);
     return true;
@@ -248,40 +248,72 @@ bool generate_play_numeral(std::string *input, Game *game, Player *player, uint8
         player->get_name());
 
     Caravan *cvn = game->get_table()->get_caravan(cvn_names[cvn_num-1]);
+
+    uint16_t cvn_size = cvn->get_size();
+
+    // Caravan is full
+    if (cvn_size == TRACK_NUMERIC_MAX) return false;
+
     uint16_t cvn_bid = cvn->get_bid();
+
+    // Caravan has the best possible bid or is bust
+    if (cvn_bid >= CARAVAN_SOLD_MAX) return false;
 
     Hand hand = player->get_hand();
     uint8_t hand_size = player->get_size_hand();
 
-    uint8_t index_best = 0;
+    uint8_t pos_best = 0;
     uint16_t value_best = 0;
 
     // Discard first numeral in hand
     for (uint8_t i = 0; i < hand_size; i++) {
-        Card card = hand[i];
-        if (is_numeral_card(card)) {
-            // TODO skip if wrong direction
-            // TODO skip if invalid suit
-            // TODO skip if adding card would bust the caravan
+        Card hcard = hand[i];
+        Direction cvn_dir = cvn->get_direction();
+        Suit cvn_suit = cvn->get_suit();
 
-            if (cvn_bid + numeral_rank_value(card) > CARAVAN_SOLD_MAX) {
-                continue;
+        if (is_numeral_card(hcard)) {
+            uint8_t hcard_value = numeral_rank_value(hcard);
+
+            if (cvn_size > 0) {
+                Card top = cvn->get_slot(cvn_size).card;
+
+                // Skip if ranks match
+                if (hcard.rank == top.rank)
+                    continue;
+
+                // Skip if direction does not match and card has different suit to caravan
+                if (hcard.suit != cvn_suit and cvn_dir == ASCENDING and hcard.rank < top.rank)
+                    continue;
+
+                if (hcard.suit != cvn_suit and cvn_dir == DESCENDING && hcard.rank > top.rank)
+                    continue;
+
+                // Skip if adding card would bust the caravan
+                if (cvn_bid + hcard_value > CARAVAN_SOLD_MAX)
+                    continue;
+
+                // Use numeral if it is closest to top card's rank
+                int diff = std::abs(numeral_rank_value(top) - hcard_value);
+                if (pos_best == 0 or diff < value_best) {
+                    pos_best = i+1;
+                    value_best = diff;
+                }
             } else {
-
+                // Use card with the largest distance from 5 (middle rank)
+                int diff = std::abs(5 - hcard_value);
+                if (pos_best == 0 or diff > value_best) {
+                    pos_best = i+1;
+                    value_best = diff;
+                }
             }
         }
     }
 
     // No (worthwhile) numeral card to play
-    if (index_best == 0) {
-        return false;
-    }
+    if (pos_best == 0) return false;
 
-    // whichever card is closest to the last rank without causing bust
-
-
-
-
+    *input = "P" + std::to_string(pos_best) + caravan_letter(cvn_names[cvn_num-1]);
+    return true;
 }
 
 bool generate_input(std::string *input, Action action, Game *game) {
@@ -302,6 +334,7 @@ bool generate_input(std::string *input, Action action, Game *game) {
             default:
                 return false;
         }
+    }
 
     if (action == ACTION_CLEAR_BUST) {
         return generate_clear_bust(input, game, player);
@@ -309,19 +342,22 @@ bool generate_input(std::string *input, Action action, Game *game) {
     } else if (action >= ACTION_PLAY_NUMERAL_1 and action <= ACTION_PLAY_NUMERAL_3) {
         switch (action) {
             case ACTION_PLAY_NUMERAL_1:
-                break;
+                return generate_play_numeral(input, game, player, 1);
             case ACTION_PLAY_NUMERAL_2:
-                break;
+                return generate_play_numeral(input, game, player, 2);
             case ACTION_PLAY_NUMERAL_3:
-                break;
+                return generate_play_numeral(input, game, player, 3);
             default:
                 return false;
-    }
+        }
+    }  // TODO face cards
 
     return false;
 }
 
-void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, TrainConfig &tc, std::mt19937 &gen) {
+
+bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
+                   GameConfig &gc, TrainConfig &tc, std::mt19937 &gen) {
     GameState gs;
     GameCommand command;
     uint32_t num_moves = 0;
@@ -332,18 +368,20 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
     std::vector<Action> action_pool;
     std::string action_input;
 
-    GameState last_gs_abc;
-    Action last_action_abc;
-    GameState last_gs_def;
-    Action last_action_def;
+    GameState last_gs;
+    Action last_action;
 
     std::uniform_real_distribution<float> dist_explore(0, 1);
+    bool winner = false;
 
     // Play until winner
     while (game->get_winner_name() == NO_PLAYER) {
         // Determine player
         PlayerName pturn = game->get_player_turn()->get_name();
-        PlayerName popp = pturn == PLAYER_ABC ? PLAYER_DEF : PLAYER_ABC;
+
+        // Only first player is learning
+        // Opp always makes random moves and does not influence learning
+        bool learning = pturn == gc.player_first;
 
         // Get game state in relation to current player
         get_game_state(&gs, game, pturn);
@@ -367,9 +405,10 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
 
         // Find a valid action
         while (true) {
-            if (explore or (!q_table.contains(gs))) {
+            if (!learning or explore or (!q_table.contains(gs))) {
                 // If exploring, fetch a random action from the action pool
-                std::uniform_int_distribution<uint16_t> dist_pool(0, action_pool.size() - 1);
+                std::uniform_int_distribution<uint16_t> dist_pool(
+                    0, action_pool.size() - 1);
                 action_index = dist_pool(gen);
                 action = action_pool[action_index];
                 action_value = q_table[gs][action];
@@ -379,13 +418,15 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
                 action_value = 0;
 
                 // Try all known actions first to see if any are above 0
-                for (auto it_q = q_table[gs].begin(); it_q != q_table[gs].end(); it_q++) {
+                for (auto it_q = q_table[gs].begin(); it_q != q_table[gs].end();
+                     it_q++) {
                     Action a = it_q->first;
 
                     // Found an action explored in the past with a better-than-default value
                     if (q_table[gs][a] > action_value) {
                         // Find its index in action pool
-                        auto it_ap = std::find(action_pool.begin(), action_pool.end(), a);
+                        auto it_ap = std::find(action_pool.begin(),
+                                               action_pool.end(), a);
 
                         // Ignore if already removed from pool
                         if (it_ap == action_pool.end()) continue;
@@ -406,7 +447,7 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
             }
 
             // Generate input from action
-            if (generate_input(&action_input, &action, game)) {
+            if (generate_input(&action_input, action, game)) {
                 //printf("%s (%llu)\n", action_input.c_str(), action_pool.size());
 
                 // Generate command for action
@@ -425,42 +466,45 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
         // Clear pool for next time around
         action_pool.clear();
 
-        if (action_value > 0)
+
+        //if (action_value > 0)
             printf("[%s] %s (i=%hu, v=%.2f)\n",
-                pturn == PLAYER_ABC ? "ABC" : "DEF",
-                action_input.c_str(),
-                action_index,
-                action_value);
+                   pturn == PLAYER_ABC ? "ABC" : "DEF",
+                   action_input.c_str(),
+                   action_index,
+                   action_value);
+
 
         // Perform action
         // (Exceptions intentionally not handled)
         game->play_option(&command);
 
         // Update q-table
-        if (num_moves >= 2) {
-            GameState last_gs = pturn == PLAYER_ABC ? last_gs_abc : last_gs_def;
-            Action last_action = pturn == PLAYER_ABC ? last_action_abc : last_action_def;
+        if (learning and num_moves >= 2) {
+            PlayerName winner_name = game->get_winner_name();
 
-            if (game->get_winner_name() != NO_PLAYER) {
-                if (game->get_winner_name() == pturn) {
+            if (winner_name != NO_PLAYER) {
+                if (winner_name == pturn) {
                     q_table[gs][action] = 1;
+                    winner = true;
                 } else {
                     q_table[gs][action] = -1;
                 }
             }
 
-            q_table[last_gs][last_action] = q_table[last_gs][last_action] + tc.learning * (tc.discount * q_table[gs][action] - q_table[last_gs][last_action]);
+            q_table[last_gs][last_action] =
+                q_table[last_gs][last_action] + tc.learning * (
+                    tc.discount * q_table[gs][action] -
+                    q_table[last_gs][last_action]);
         }
 
-        // Log last move
-        if (pturn == PLAYER_ABC) {
-            last_gs_abc = gs;
-            last_action_abc = action;
-        } else {
-            last_gs_def = gs;
-            last_action_def = action;
+        if (learning) {
+            last_gs = gs;
+            last_action = action;
         }
 
         num_moves += 1;
     }
+
+    return winner;
 }

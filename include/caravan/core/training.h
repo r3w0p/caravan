@@ -72,6 +72,6 @@ uint8_t card_to_uint8_t(Card c);
 void get_game_state(GameState *gs, Game *game, PlayerName pname);
 void populate_action_space(ActionSpace *as);
 
-void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, TrainConfig &tc, std::mt19937 &gen);
+bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, GameConfig &gc, TrainConfig &tc, std::mt19937 &gen);
 
 #endif //CARAVAN_CORE_TRAINING_H
