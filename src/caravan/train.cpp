@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
         // Training parameters TODO user-defined arguments
         float discount = 0.95;
         float learning = 0.7;
-        uint32_t episode_max = 1000000;
+        uint32_t episode_max = 50000;
 
         // Game config uses largest deck with most samples and balance to
         // maximise chance of encountering every player hand combination.
@@ -54,11 +54,6 @@ int main(int argc, char *argv[]) {
         };
 
         for(; tc.episode <= tc.episode_max; tc.episode++) {
-            if (tc.episode % 100 == 0) {
-                printf("Episode %d\n", tc.episode);
-                printf("- states: %llu\n", q_table.size());
-            }
-
             // Random first player
             rand_first = dist_first_player(gen);
             gc.player_first = rand_first == NUM_PLAYER_ABC ?
@@ -73,6 +68,12 @@ int main(int argc, char *argv[]) {
             //tc.explore = 1.0;
 
             tc.learning = learning;
+
+            if (tc.episode % 1000 == 0) {
+                printf("Episode %d\n", tc.episode);
+                printf("- explore: %.2f\n", tc.explore);
+                printf("- states: %llu\n", q_table.size());
+            }
 
             // Start a new game
             game.reset(new Game(&gc));

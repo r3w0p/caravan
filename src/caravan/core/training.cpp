@@ -38,6 +38,11 @@ uint8_t suit_to_uint8_t(Suit s) {
     return static_cast<uint8_t>(s);
 }
 
+uint8_t direction_to_uint8_t(Direction d) {
+    // ANY is 0
+    return static_cast<uint8_t>(d);
+}
+
 void add_hand_to_game_state(GameState *gs, uint16_t *i_gs, Player *player) {
     Hand hand = player->get_hand();
     uint8_t hand_size = player->get_size_hand();
@@ -62,36 +67,28 @@ void add_hand_to_game_state(GameState *gs, uint16_t *i_gs, Player *player) {
     }
 }
 
-void add_caravan_to_game_state(GameState *gs, uint16_t *i_gs, Caravan *caravan) {
-    // Current highest numeral position along caravan track
-    uint8_t max_track = caravan->get_size();
+void add_caravan_to_game_state(GameState *gs, uint16_t *i_gs, Game *game, Caravan *caravan) {
+    uint8_t caravan_size = caravan->get_size();
+
+    // Add whether caravan is winning
+    (*gs)[(*i_gs)++] = game->is_caravan_winning(caravan->get_name());
+
+    // Add whether numeral track is full
+    (*gs)[(*i_gs)++] = caravan_size == TRACK_NUMERIC_MAX;
+
+    // Add caravan direction
+    (*gs)[(*i_gs)++] = direction_to_uint8_t(caravan->get_direction());
 
     // Add caravan suit
     (*gs)[(*i_gs)++] = suit_to_uint8_t(caravan->get_suit());
 
-    for (uint8_t i_track = 0; i_track < TRACK_NUMERIC_MAX; i_track++) {
-        // If numeral at track position, fetch slot state
-        if (i_track < max_track) {
-            Slot slot = caravan->get_slot(i_track + 1);
+    // Add rank of highest numeral
+    if (caravan_size > 0) {
+        Slot slot = caravan->get_slot(caravan->get_size());
+        (*gs)[(*i_gs)++] = rank_to_uint8_t(slot.card.rank);
 
-            // Add numeral
-            (*gs)[(*i_gs)++] = rank_to_uint8_t(slot.card.rank);
-
-            // Add face cards
-            for (uint8_t i_face = 0; i_face < TRACK_FACE_MAX; i_face++) {
-                if (i_face < slot.i_faces) {
-                    (*gs)[(*i_gs)++] = rank_to_uint8_t(slot.faces[i_face].rank);
-                } else {
-                    (*gs)[(*i_gs)++] = 0;
-                }
-            }
-        } else {
-            // No populated slot at caravan position, leave blank spaces
-            // for numeral and max face cards
-            for (uint8_t _ = 0; _ < (1 + TRACK_FACE_MAX); _++) {
-                (*gs)[(*i_gs)++] = 0;
-            }
-        }
+    } else {
+        (*gs)[(*i_gs)++] = 0;
     }
 }
 
@@ -126,7 +123,7 @@ void get_game_state(GameState *gs, Game *game, PlayerName pname) {
     // Add state of each caravan, player's caravans first
     for (uint8_t i_cvn = 0; i_cvn < cvn_names_size; i_cvn++) {
         Caravan *caravan = table->get_caravan(cvn_names[i_cvn]);
-        add_caravan_to_game_state(gs, &i_gs, caravan);
+        add_caravan_to_game_state(gs, &i_gs, game, caravan);
     }
 }
 
@@ -349,8 +346,6 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
 
                 // Otherwise, pick the optimal action from the q-table
                 action = action_pool[action_index];
-
-                printf("- %llu\n", q_table[gs].size());
             }
 
             // Generate input from action
@@ -398,12 +393,6 @@ void train_on_game(Game *game, QTable &q_table, ActionSpace &action_space, Train
             }
 
             q_table[last_gs][last_action] = q_table[last_gs][last_action] + tc.learning * (tc.discount * q_table[gs][action] - q_table[last_gs][last_action]);
-            /*
-            if (game->get_winner_name() != NO_PLAYER) {
-                //printf("%f\n", q_table[gs][action]);
-                printf("%f\n", q_table[last_gs][last_action]);
-            }
-            */
         }
 
         // Log last move

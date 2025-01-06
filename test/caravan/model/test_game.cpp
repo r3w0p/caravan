@@ -48,7 +48,7 @@ TEST (TestGame, GetPlayerTurn) {
     };
     Game g{&gc};
 
-    ASSERT_EQ(g.get_player_turn(), PLAYER_ABC);
+    ASSERT_EQ(g.get_player_turn()->get_name(), PLAYER_ABC);
 }
 
 TEST (TestGame, GetWinner_NoMoves) {
@@ -59,7 +59,7 @@ TEST (TestGame, GetWinner_NoMoves) {
     };
     Game g{&gc};
 
-    ASSERT_EQ(g.get_winner(), NO_PLAYER);
+    ASSERT_EQ(g.get_winner_name(), NO_PLAYER);
 }
 
 TEST (TestGame, PlayOption_Error_StartRound_Remove) {

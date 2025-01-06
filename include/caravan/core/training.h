@@ -16,7 +16,7 @@
 
 const uint16_t SIZE_ACTION = 5;
 const uint16_t SIZE_ACTION_SPACE = 920;
-const uint16_t SIZE_GAME_STATE = 200;
+const uint16_t SIZE_GAME_STATE = 38;
 
 const uint8_t NUM_PLAYER_ABC = 1;
 const uint8_t NUM_PLAYER_DEF = 2;
