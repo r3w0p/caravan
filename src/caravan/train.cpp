@@ -27,20 +27,21 @@ int main(int argc, char *argv[]) {
     std::uniform_int_distribution<uint8_t> dist_first_player(
         NUM_PLAYER_ABC, NUM_PLAYER_DEF);
 
-    uint16_t checkpoint = 1;
+    uint16_t checkpoint = 1000;
     uint16_t num_wins = 0;
+
+    // Training parameters TODO user-defined arguments
+    float discount = 0.95;
+    float learning = 0.7;
+    uint32_t episode_max = 1000000;
 
     try {
         // Fill action space with all possible actions
         populate_action_space(&action_space);
 
-        // Training parameters TODO user-defined arguments
-        float discount = 0.95;
-        float learning = 0.7;
-        uint32_t episode_max = 2;
-
         // Game config uses largest deck with most samples and balance to
         // maximise chance of encountering every player hand combination.
+        // TODO random card and sample sizes
         gc = {
             .player_abc_cards = DECK_CARAVAN_MAX,
             .player_abc_samples = SAMPLE_DECKS_MAX,

@@ -36,7 +36,7 @@ const uint8_t ACTION_PLAY_NUMERAL_1 = 30;
 const uint8_t ACTION_PLAY_NUMERAL_2 = 31;
 const uint8_t ACTION_PLAY_NUMERAL_3 = 32;
 
-const uint8_t ACTION_PLAY_JACK_SELF = 40;  // on lowest bust
+const uint8_t ACTION_PLAY_JACK_SELF = 40;
 const uint8_t ACTION_PLAY_JACK_OPP = 41;  // on highest non-bust
 
 const uint8_t ACTION_PLAY_QUEEN_SELF = 50;  // on LOW+DES, HIGH+ASC, light

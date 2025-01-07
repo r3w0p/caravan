@@ -274,7 +274,7 @@ std::string caravan_letter(CaravanName caravan_name) {
     }
 }
 
-uint8_t numeral_rank_value(Card c) {
+uint8_t numeral_rank_value(const Card &c) {
     switch (c.rank) {
         case ACE:
             return 1;
@@ -299,4 +299,17 @@ uint8_t numeral_rank_value(Card c) {
         default:
             throw CaravanFatalException("Card is not a numeral.");
     }
+}
+
+uint8_t slot_value(const Slot &s) {
+    uint8_t value = numeral_rank_value(s.card);
+    uint8_t value_final = value;
+
+    for (int f = 0; f < s.i_faces; ++f) {
+        if (s.faces[f].rank == KING) {
+            value_final <<= 1;
+        }
+    }
+
+    return value_final;
 }

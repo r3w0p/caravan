@@ -137,7 +137,9 @@ bool is_face_card(Card c);
 
 std::string caravan_letter(CaravanName caravan_name);
 
-uint8_t numeral_rank_value(Card c);
+uint8_t numeral_rank_value(const Card &c);
+
+uint8_t slot_value(const Slot &s);
 
 GameCommand generate_command(std::string input, bool confirmed);
 

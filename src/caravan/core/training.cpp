@@ -316,6 +316,74 @@ bool generate_play_numeral(std::string *input, Game *game, Player *player, uint8
     return true;
 }
 
+bool generate_play_jack_self(std::string *input, Game *game, Player *player) {
+    // On lowest bust, whichever card lowers the value closest to sell max
+    Hand hand = player->get_hand();
+    uint8_t hand_size = player->get_size_hand();
+
+    uint8_t pos_jack = 0;
+
+    for (uint8_t i = 0; i < hand_size; i++) {
+        Card hcard = hand[i];
+
+        if (hcard.rank == JACK) {
+            pos_jack = i + 1;
+        }
+    }
+
+    // Hand does not have any JACK cards
+    if (pos_jack == 0) return false;
+
+    PlayerCaravanNames cvn_names = game->get_player_caravan_names(
+        player->get_name());
+
+    uint8_t pos_bust = 0;
+    uint8_t pos_slot = 0;
+    uint16_t value_bust = 0;
+    uint8_t value_after = 0;
+
+    for (uint8_t cvn_num = 1; cvn_num <= cvn_names.size(); cvn_num++) {
+        Caravan *cvn = game->get_table()->get_caravan(cvn_names[cvn_num-1]);
+        uint16_t cvn_bid = cvn->get_bid();
+
+        // Only use JACK on a bust caravan
+        if (cvn_bid <= CARAVAN_SOLD_MAX) continue;
+
+        // Get least bust caravan
+        if (pos_bust == 0 or cvn_bid < value_bust) {
+            // Determine optimal card to remove from bust caravan
+            for (uint8_t pos = 1; pos <= cvn->get_size(); pos++) {
+                Slot slot = cvn->get_slot(pos);
+
+                // Slot is full, so cannot play a JACK
+                if (slot.i_faces == TRACK_FACE_MAX) continue;
+
+                // Caravan bid if card at slot were removed
+                uint16_t bid_after = cvn->get_bid() - slot_value(slot);
+
+                // Remove card that leaves the largest bid
+                if (bid_after > value_after) {
+                    pos_bust = cvn_num - 1;
+                    pos_slot = pos;
+                    value_bust = cvn_bid;
+                    value_after = bid_after;
+                }
+            }
+        }
+    }
+
+    // No bust caravans with free slots, do not play JACK on self
+    if (pos_bust == 0) return false;
+
+    *input =
+        "P" +
+        std::to_string(pos_jack) +
+        caravan_letter(cvn_names[pos_bust - 1]) +
+        std::to_string(pos_slot);
+
+    return true;
+}
+
 bool generate_input(std::string *input, Action action, Game *game) {
     Player *player = game->get_player_turn();
 
@@ -350,7 +418,10 @@ bool generate_input(std::string *input, Action action, Game *game) {
             default:
                 return false;
         }
-    }  // TODO face cards
+
+    } else if (action == ACTION_PLAY_JACK_SELF) {
+        return generate_play_jack_self(input, game, player);
+    }
 
     return false;
 }
@@ -405,7 +476,7 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
 
         // Find a valid action
         while (true) {
-            if (!learning or explore or (!q_table.contains(gs))) {
+            if (!learning or explore or !q_table.contains(gs)) {
                 // If exploring, fetch a random action from the action pool
                 std::uniform_int_distribution<uint16_t> dist_pool(
                     0, action_pool.size() - 1);
@@ -418,25 +489,24 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
                 action_value = 0;
 
                 // Try all known actions first to see if any are above 0
-                for (auto it_q = q_table[gs].begin(); it_q != q_table[gs].end();
-                     it_q++) {
+                for (auto it_q = q_table[gs].begin(); it_q != q_table[gs].end(); it_q++) {
                     Action a = it_q->first;
 
-                    // Found an action explored in the past with a better-than-default value
                     if (q_table[gs][a] > action_value) {
                         // Find its index in action pool
-                        auto it_ap = std::find(action_pool.begin(),
-                                               action_pool.end(), a);
+                        auto it_ap = std::find(
+                            action_pool.begin(), action_pool.end(), a);
 
                         // Ignore if already removed from pool
                         if (it_ap == action_pool.end()) continue;
 
                         action_index = std::distance(action_pool.begin(), it_ap);
+
+                        // Found an action explored in the past with a better-than-default value
                         action_value = q_table[gs][action_pool[action_index]];
                     }
                 }
 
-                // If not, try the rest via explore
                 if (action_index == -1) {
                     explore = true;
                     continue;
@@ -466,21 +536,21 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
         // Clear pool for next time around
         action_pool.clear();
 
-
+        /*
         //if (action_value > 0)
             printf("[%s] %s (i=%hu, v=%.2f)\n",
                    pturn == PLAYER_ABC ? "ABC" : "DEF",
                    action_input.c_str(),
                    action_index,
                    action_value);
-
+        */
 
         // Perform action
         // (Exceptions intentionally not handled)
         game->play_option(&command);
 
         // Update q-table
-        if (learning and num_moves >= 2) {
+        if (num_moves >= 2) {
             PlayerName winner_name = game->get_winner_name();
 
             if (winner_name != NO_PLAYER) {
@@ -492,10 +562,11 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
                 }
             }
 
-            q_table[last_gs][last_action] =
-                q_table[last_gs][last_action] + tc.learning * (
-                    tc.discount * q_table[gs][action] -
-                    q_table[last_gs][last_action]);
+            if (learning)
+                q_table[last_gs][last_action] =
+                    q_table[last_gs][last_action] + tc.learning * (
+                        tc.discount * q_table[gs][action] -
+                        q_table[last_gs][last_action]);
         }
 
         if (learning) {
