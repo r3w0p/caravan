@@ -452,19 +452,10 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
 
         // Only first player is learning
         // Opp always makes random moves and does not influence learning
-        bool learning = pturn == gc.player_first;
+        bool learning = pturn == tc.focus;
 
         // Get game state in relation to current player
         get_game_state(&gs, game, pturn);
-
-        // Maybe add game state and actions if new state discovered
-        /*
-        if (!q_table.contains(gs)) {
-            for (uint16_t i = 0; i < SIZE_ACTION_SPACE; i++) {
-                q_table[gs][action_space[i]] = 0;
-            }
-        }
-        */
 
         // Use action pool that depletes as actions are found to be invalid
         for (int i = 0; i < SIZE_ACTION_SPACE; i++) {
@@ -476,6 +467,12 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
 
         // Find a valid action
         while (true) {
+            if (action_pool.empty()) {
+                // Move that is guaranteed to be valid
+                command = {.option = OPTION_DISCARD, .pos_hand = 1};
+                break;
+            }
+
             if (!learning or explore or !q_table.contains(gs)) {
                 // If exploring, fetch a random action from the action pool
                 std::uniform_int_distribution<uint16_t> dist_pool(
@@ -491,8 +488,7 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
                 // Try all known actions first to see if any are above 0
                 for (auto it_q = q_table[gs].begin(); it_q != q_table[gs].end(); it_q++) {
                     Action a = it_q->first;
-
-                    if (q_table[gs][a] > action_value) {
+                    if (action_index == -1 or q_table[gs][a] > action_value) {
                         // Find its index in action pool
                         auto it_ap = std::find(
                             action_pool.begin(), action_pool.end(), a);
@@ -501,9 +497,8 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
                         if (it_ap == action_pool.end()) continue;
 
                         action_index = std::distance(action_pool.begin(), it_ap);
-
-                        // Found an action explored in the past with a better-than-default value
-                        action_value = q_table[gs][action_pool[action_index]];
+                        action = action_pool[action_index];
+                        action_value = q_table[gs][action];
                     }
                 }
 
@@ -511,9 +506,6 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
                     explore = true;
                     continue;
                 }
-
-                // Otherwise, pick the optimal action from the q-table
-                action = action_pool[action_index];
             }
 
             // Generate input from action
@@ -554,7 +546,7 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
             PlayerName winner_name = game->get_winner_name();
 
             if (winner_name != NO_PLAYER) {
-                if (winner_name == pturn) {
+                if (winner_name == tc.focus) {
                     q_table[gs][action] = 1;
                     winner = true;
                 } else {
@@ -562,7 +554,7 @@ bool train_on_game(Game *game, QTable &q_table, ActionSpace &action_space,
                 }
             }
 
-            if (learning)
+            if (learning or winner_name != NO_PLAYER)
                 q_table[last_gs][last_action] =
                     q_table[last_gs][last_action] + tc.learning * (
                         tc.discount * q_table[gs][action] -

@@ -61,6 +61,7 @@ typedef struct TrainConfig {
     float learning{0.0};
     uint32_t episode_max{0};
     uint32_t episode{0};
+    PlayerName focus{NO_PLAYER};
 } TrainConfig;
 
 

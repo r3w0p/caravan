@@ -15,65 +15,69 @@ int main(int argc, char *argv[]) {
     std::unique_ptr<Game> game = nullptr;
     GameConfig gc;
     TrainConfig tc;
-    uint8_t rand_first;
 
     // Training
     QTable q_table;
     ActionSpace action_space;
 
-    // Random number generator
+    // Random number generators
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<uint8_t> dist_first_player(
         NUM_PLAYER_ABC, NUM_PLAYER_DEF);
+    std::uniform_int_distribution<uint8_t> dist_num_cards(
+        DECK_CARAVAN_MIN, DECK_CARAVAN_MAX);
+    std::uniform_int_distribution<uint8_t> dist_num_samples(
+        SAMPLE_DECKS_MIN, SAMPLE_DECKS_MAX);
+    std::uniform_int_distribution<uint8_t> dist_balanced(0, 1);
 
-    uint16_t checkpoint = 1000;
+    uint16_t checkpoint = 10000;
     uint16_t num_wins = 0;
 
     // Training parameters TODO user-defined arguments
     float discount = 0.95;
     float learning = 0.7;
-    uint32_t episode_max = 1000000;
+    uint32_t episode_max = 100000;
+    uint32_t episode_half = episode_max / 2;
 
     try {
         // Fill action space with all possible actions
         populate_action_space(&action_space);
 
-        // Game config uses largest deck with most samples and balance to
-        // maximise chance of encountering every player hand combination.
-        // TODO random card and sample sizes
-        gc = {
-            .player_abc_cards = DECK_CARAVAN_MAX,
-            .player_abc_samples = SAMPLE_DECKS_MAX,
-            .player_abc_balanced = true,
-            .player_def_cards = DECK_CARAVAN_MAX,
-            .player_def_samples = SAMPLE_DECKS_MAX,
-            .player_def_balanced = true
-        };
-
         // Train config is passed to bots to manage their training.
         tc = {
             .episode_max = episode_max,
-            .episode = 1
+            .episode = 1,
+            .focus = PLAYER_ABC
         };
 
         for(; tc.episode <= tc.episode_max; tc.episode++) {
-            // Random first player
-            rand_first = dist_first_player(gen);
-            gc.player_first = rand_first == NUM_PLAYER_ABC ?
-                PLAYER_ABC : PLAYER_DEF;
+            // Game config uses largest deck with most samples and balance to
+            // maximise chance of encountering every player hand combination.
+            uint8_t rand_first = dist_first_player(gen);
+
+            gc = {
+                .player_abc_cards = DECK_CARAVAN_MAX,
+                .player_abc_samples = SAMPLE_DECKS_MAX,
+                .player_abc_balanced = true,
+                .player_def_cards = DECK_CARAVAN_MAX,
+                .player_def_samples = SAMPLE_DECKS_MAX,
+                .player_def_balanced = true,
+                .player_first = rand_first == NUM_PLAYER_ABC ? PLAYER_ABC : PLAYER_DEF
+            };
 
             // Set training parameters
             tc.discount = discount;
-
-            if (tc.episode > (tc.episode_max / 2))
-                tc.explore =
-                    static_cast<float>((tc.episode_max/2) - (tc.episode - (tc.episode_max/2) - 1)) /
-                    static_cast<float>(tc.episode_max/2);
-            else
-                tc.explore = 1.0;
-
             tc.learning = learning;
+
+
+            if (tc.episode > episode_half) {
+                tc.explore =
+                    static_cast<float>(episode_half - (tc.episode - episode_half - 1)) /
+                    static_cast<float>(episode_half);
+            } else {
+                tc.explore = 1.0;
+            }
 
             if (tc.episode % checkpoint == 0) {
                 float per_wins = static_cast<float>(num_wins) / static_cast<float>(checkpoint);
