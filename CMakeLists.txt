@@ -8,7 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(PROJECT_VERSION 2.0.0)
 set(PROJECT_DESCRIPTION "A command-line version of the Caravan card game from Fallout: New Vegas.")
-set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
+set(PROJECT_COPYRIGHT "Copyright (c) 2022-2025 r3w0p")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
 IF (WIN32 OR WIN64)
@@ -80,12 +80,10 @@ target_link_libraries(model core)
 
 add_library(user
         "include/caravan/user/user.h"
-        "include/caravan/user/bot/ai.h"
         "include/caravan/user/bot/factory.h"
         "include/caravan/user/bot/friendly.h"
         "include/caravan/user/bot/normal.h"
 
-        "src/caravan/user/bot/ai.cpp"
         "src/caravan/user/bot/factory.cpp"
         "src/caravan/user/bot/friendly.cpp"
         "src/caravan/user/bot/normal.cpp"
@@ -120,29 +118,6 @@ target_compile_definitions(caravan
 )
 
 target_link_libraries(caravan
-        PRIVATE core
-        PRIVATE model
-        PRIVATE user
-        PRIVATE view
-        PRIVATE cxxopts
-)
-# ---
-
-
-# --- train.exe
-add_executable(train
-        "src/caravan/train.cpp"
-)
-
-target_compile_definitions(train
-        PRIVATE CARAVAN_NAME="${PROJECT_NAME}"
-        PRIVATE CARAVAN_VERSION="${PROJECT_VERSION}"
-        PRIVATE CARAVAN_DESCRIPTION="${PROJECT_DESCRIPTION}"
-        PRIVATE CARAVAN_COPYRIGHT="${PROJECT_COPYRIGHT}"
-        PRIVATE CARAVAN_URL="${PROJECT_URL}"
-)
-
-target_link_libraries(train
         PRIVATE core
         PRIVATE model
         PRIVATE user

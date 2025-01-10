@@ -1,8 +1,9 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
 #include <iostream>
+#include <memory>
 #include "cxxopts.hpp"
 #include "caravan/view/view_tui.h"
 #include "caravan/user/bot/factory.h"
@@ -35,10 +36,10 @@ const uint8_t FIRST_DEF = 2;
 // TODO docstrings in .h for all files
 
 int main(int argc, char *argv[]) {
-    User *user_abc;
-    User *user_def;
-    Game *game;
-    ViewTUI *view;
+    std::unique_ptr<User> user_abc = nullptr;
+    std::unique_ptr<User> user_def = nullptr;
+    std::unique_ptr<Game> game;
+    std::unique_ptr<ViewTUI> view;
 
     try {
         cxxopts::Options options(CARAVAN_NAME);
@@ -61,7 +62,7 @@ int main(int argc, char *argv[]) {
 
         auto result = options.parse(argc, argv);
 
-        // Print help instructions.
+        // Print help instructions
         if (result.count(KEY_HELP)) {
             printf("%s v%s\n\n", CARAVAN_NAME, CARAVAN_VERSION);
             printf("%s\n", CARAVAN_DESCRIPTION);
@@ -111,32 +112,40 @@ int main(int argc, char *argv[]) {
         }
 
         if(pvp) {  // human vs human
-            user_abc = new UserHuman(PLAYER_ABC);
-            user_def = new UserHuman(PLAYER_DEF);
+            user_abc = std::make_unique<UserHuman>(PLAYER_ABC);
+            user_def = std::make_unique<UserHuman>(PLAYER_DEF);
 
         } else if (bvb) {  // bot vs bot
-            user_abc = BotFactory::get(bot, PLAYER_ABC);
-            user_def = BotFactory::get(bot, PLAYER_DEF);
+            user_abc.reset(BotFactory::get(bot, PLAYER_ABC));
+            user_def.reset(BotFactory::get(bot, PLAYER_DEF));
 
         } else {  // humans vs bot
-            user_abc = new UserHuman(PLAYER_ABC);
-            user_def = BotFactory::get(bot, PLAYER_DEF);
+            user_abc = std::make_unique<UserHuman>(PLAYER_ABC);
+            user_def.reset(BotFactory::get(bot, PLAYER_DEF));
         }
 
         GameConfig gc = {
-            cards, samples, !imbalanced,
-            cards, samples, !imbalanced,
-            first == FIRST_ABC ? PLAYER_ABC : PLAYER_DEF
+            .player_abc_cards = cards,
+            .player_abc_samples = samples,
+            .player_abc_balanced = !imbalanced,
+
+            .player_def_cards = cards,
+            .player_def_samples = samples,
+            .player_def_balanced = !imbalanced,
+
+            .player_first = first == FIRST_ABC ? PLAYER_ABC : PLAYER_DEF
         };
 
         ViewConfig vc = {
-            .user_abc=user_abc,
-            .user_def=user_def,
+            .user_abc=user_abc.get(),
+            .user_def=user_def.get(),
             .bot_delay_sec=delay
         };
 
-        game = new Game(&gc);
-        view = new ViewTUI(&vc, game);
+        game = std::make_unique<Game>(&gc);
+        view = std::make_unique<ViewTUI>(&vc, game.get());
+
+        view->run();
 
     } catch (CaravanException &e) {
         printf("%s\n", e.what().c_str());
@@ -146,12 +155,4 @@ int main(int argc, char *argv[]) {
         printf("%s\n", e.what());
         exit(EXIT_FAILURE);
     }
-
-    view->run();
-
-    // TODO smart pointers
-    delete view;
-    delete user_abc;
-    delete user_def;
-    delete game;
 }
