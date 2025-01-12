@@ -13,6 +13,7 @@ const std::string OPTS_VERSION = "v,version";
 const std::string OPTS_PVP = "pvp";
 const std::string OPTS_BVB = "bvb";
 const std::string OPTS_BOT = "b,bot";
+const std::string OPTS_BOT2 = "bot2";
 const std::string OPTS_DELAY = "d,delay";
 const std::string OPTS_FIRST = "f,first";
 const std::string OPTS_CARDS = "c,cards";
@@ -24,6 +25,7 @@ const std::string KEY_VERSION = "version";
 const std::string KEY_PVP = "pvp";
 const std::string KEY_BVB = "bvb";
 const std::string KEY_BOT = "bot";
+const std::string KEY_BOT2 = "bot2";
 const std::string KEY_DELAY = "delay";
 const std::string KEY_FIRST = "first";
 const std::string KEY_CARDS = "cards";
@@ -50,6 +52,7 @@ int main(int argc, char *argv[]) {
             (OPTS_PVP, "A Player vs Player game.")
             (OPTS_BVB, "A Bot vs Bot game.")
             (OPTS_BOT, "Which bot to play with (normal, friendly).", cxxopts::value<std::string>()->default_value("normal"))
+            (OPTS_BOT2, "Which bot should be the second bot in a Bot vs Bot game (normal, friendly).", cxxopts::value<std::string>()->default_value("normal"))
             (OPTS_DELAY, "Delay before bot makes its move (in seconds).", cxxopts::value<float>()->default_value("1.0"))
             (OPTS_FIRST, "Which player goes first (1 or 2).", cxxopts::value<uint8_t>()->default_value("1"))
             (OPTS_CARDS, "Number of cards for each caravan deck (30-162, inclusive).", cxxopts::value<uint8_t>()->default_value("54"))
@@ -80,6 +83,7 @@ int main(int argc, char *argv[]) {
         bool pvp = result[KEY_PVP].as<bool>();
         bool bvb = result[KEY_BVB].as<bool>();
         std::string bot = result[KEY_BOT].as<std::string>();
+        std::string bot2 = result[KEY_BOT2].as<std::string>();
         float delay = result[KEY_DELAY].as<float>();
         uint8_t first = result[KEY_FIRST].as<uint8_t>();
         uint8_t cards = result[KEY_CARDS].as<uint8_t>();
@@ -117,7 +121,7 @@ int main(int argc, char *argv[]) {
 
         } else if (bvb) {  // bot vs bot
             user_abc.reset(BotFactory::get(bot, PLAYER_ABC));
-            user_def.reset(BotFactory::get(bot, PLAYER_DEF));
+            user_def.reset(BotFactory::get(bot2, PLAYER_DEF));
 
         } else {  // humans vs bot
             user_abc = std::make_unique<UserHuman>(PLAYER_ABC);

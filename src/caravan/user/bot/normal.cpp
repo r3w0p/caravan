@@ -5,25 +5,128 @@
 #include <random>
 #include "caravan/user/bot/normal.h"
 
-/*
- * PRIVATE
- */
 
 const std::string PLAY = "P";
 const std::string CLEAR = "C";
 
-uint8_t pos_card_numeral(Player *p) {
-    uint8_t size_hand = p->get_size_hand();
-    Hand h = p->get_hand();
+const uint8_t MIDDLE_RANK = 5;
 
-    for (int i = 0; i < size_hand; ++i) {
-        if (is_numeral_card(h[i])) {
-            return i + 1;
+
+/*
+ * PUBLIC
+ */
+
+std::string UserBotNormal::request_move(Game *game) {
+    std::string move = generate_move(game, true, true, true);
+
+    // Return move if able to generate one
+    if(!move.empty()) return move;
+
+    // If no other move could be made, discard first card in hand
+    return "D1";
+}
+
+
+/*
+ * PRIVATE
+ */
+
+std::string generate_play_numeral(
+    Game *game,
+    PlayerName pname,
+    bool empty_only) {
+
+    Player *player = game->get_player(pname);
+    Hand hand = player->get_hand();
+    uint8_t hand_size = player->get_size_hand();
+    PlayerCaravanNames cvn_names = game->get_player_caravan_names(pname);
+
+    bool found = false;
+    uint8_t best_card_pos = 0;
+    uint8_t best_cvn_index = 0;
+    uint16_t best_card_value = 0;
+
+    // Find a caravan that is worth playing on
+    // Policy: caravan and card that gets caravan closest to max sold
+    for (uint8_t i_cvn = 0; i_cvn < cvn_names.size(); i_cvn++) {
+        Caravan *cvn = game->get_table()->get_caravan(cvn_names[i_cvn]);
+        uint16_t cvn_size = cvn->get_size();
+
+        // Caravan is not empty when exclusively looking for an empty one
+        if (empty_only and cvn_size > 0) continue;
+
+        // Caravan is full
+        if (cvn_size == TRACK_NUMERIC_MAX) continue;
+
+        uint16_t cvn_bid = cvn->get_bid();
+
+        // Caravan has the maximum sold bid or is bust
+        if (cvn_bid >= CARAVAN_SOLD_MAX) continue;
+
+        // Check bot's hand
+        for (uint8_t i_hand = 0; i_hand < hand_size; i_hand++) {
+            Card hcard = hand[i_hand];
+            Direction cvn_dir = cvn->get_direction();
+            Suit cvn_suit = cvn->get_suit();
+
+            // Numerals only
+            if (!is_numeral_card(hcard)) continue;
+
+            uint8_t hcard_value = numeral_rank_value(hcard);
+            bool accept = false;
+            int diff;
+
+            // Caravan track not empty
+            if (cvn_size > 0) {
+                Card top = cvn->get_slot(cvn_size).card;
+
+                // Skip if ranks match
+                if (hcard.rank == top.rank)
+                    continue;
+
+                // Skip if direction does not match and card has different suit to caravan
+                if (hcard.suit != cvn_suit and
+                    cvn_dir == ASCENDING and hcard.rank < top.rank)
+                    continue;
+
+                if (hcard.suit != cvn_suit and
+                    cvn_dir == DESCENDING && hcard.rank > top.rank)
+                    continue;
+
+                // Skip if using card would bust the caravan
+                if (cvn_bid + hcard_value > CARAVAN_SOLD_MAX)
+                    continue;
+
+                // Use numeral if it is closest to top card's rank
+                diff = std::abs(numeral_rank_value(top) - hcard_value);
+                if (!found or diff < best_card_value)
+                    accept = true;
+
+            } else {
+                // Use card with the largest distance from middle rank
+                diff = std::abs(MIDDLE_RANK - hcard_value);
+                if (!found or diff > best_card_value)
+                    accept = true;
+            }
+
+            if (accept) {
+                found = true;
+                best_card_pos = i_hand + 1;
+                best_cvn_index = i_cvn;
+                best_card_value = diff;
+            }
         }
     }
 
-    return 0;
+    if (!found)
+        throw CaravanFatalException(
+            "Bot could not play a numeral card.");
+
+    return PLAY +
+           std::to_string(best_card_pos) +
+           caravan_letter(cvn_names[best_cvn_index]);
 }
+
 
 /*
  * PROTECTED
@@ -34,6 +137,7 @@ std::string UserBotNormal::generate_move(
     bool allow_numeral,
     bool allow_face,
     bool allow_clear) {
+
     Player *me = game->get_player(name);
     uint8_t my_hand_size = me->get_size_hand();
 
@@ -47,160 +151,148 @@ std::string UserBotNormal::generate_move(
 
     uint16_t my_move_count = me->get_moves_count();
 
+    // Start round
     if (my_move_count < MOVES_START_ROUND) {
-        // Add numeral cards for start round
-        uint8_t pos_hand = pos_card_numeral(me);
-        if (pos_hand == 0) {
-            throw CaravanFatalException(
-                "Bot does not have enough numeral cards "
-                "to finish the start phase.");
-        }
+        return generate_play_numeral(game, this->name, true);
+    }
 
-        return PLAY +
-               std::to_string(pos_hand) +
-               caravan_letter(my_cvns[my_move_count]);
+    // After start round
+    Table *table = game->get_table();
 
-    } else {
-        // After start round
-        Table *table = game->get_table();
+    // ranks in hand
+    // check opponent caravans
+    // if opp is winning, try to bust or remove from top position
 
-        // Clear any caravans that are bust or full of cards
-        if(allow_clear) {
-            for (uint8_t i_cvn = 0; i_cvn < PLAYER_CARAVANS_MAX; i_cvn++) {
-                Caravan *cvn = table->get_caravan(my_cvns[i_cvn]);
+    // TODO determine policy...
+    //  - which ranks do I have in my hand?
+    //  - prioritise building my caravans if opp has low bids
+    //    - play numerals on any of my low bids
+    //    - clear caravans that are bust, if bid is especially high
+    //    - else, use JACK to lower them
+    //    -
 
-                if (cvn->get_bid() > CARAVAN_SOLD_MAX ||
-                    cvn->get_size() == TRACK_NUMERIC_MAX) {
-                    return CLEAR + caravan_letter(my_cvns[i_cvn]);
-                }
-            }
-        }
+    // Clear any caravans that are bust or full of cards
+    if (allow_clear) {
+        for (uint8_t i_cvn = 0; i_cvn < PLAYER_CARAVANS_MAX; i_cvn++) {
+            Caravan *cvn = table->get_caravan(my_cvns[i_cvn]);
 
-        // Otherwise, cycle through cards in hand
-        for (uint8_t pos_hand = 1; pos_hand <= my_hand_size; pos_hand++) {
-            Card c_hand = me->get_from_hand_at(pos_hand);
-
-            if (is_numeral_card(c_hand) && allow_numeral) {
-                // If numeral, look through caravans
-                for (uint8_t i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
-                    Caravan *my_cvn = table->get_caravan(my_cvns[i]);
-                    Caravan *opp_cvn = table->get_caravan(opp_cvns[i]);
-
-                    std::string move_draft =
-                        PLAY +
-                        std::to_string(pos_hand) +
-                        caravan_letter(my_cvn->get_name());
-
-                    uint16_t my_cvn_bid = my_cvn->get_bid();
-                    uint16_t opp_cvn_bid = opp_cvn->get_bid();
-
-                    // Skip caravan if sold and winning
-                    if (my_cvn_bid >= CARAVAN_SOLD_MIN &&
-                        my_cvn_bid <= CARAVAN_SOLD_MAX &&
-                        (my_cvn_bid > opp_cvn_bid ||
-                         opp_cvn_bid > CARAVAN_SOLD_MAX)) {
-                        continue;
-                    }
-
-                    uint8_t my_cvn_size = my_cvn->get_size();
-
-                    // Skip caravan if full
-                    if (my_cvn_size == TRACK_NUMERIC_MAX) {
-                        continue;
-                    }
-
-                    // Play numeral if caravan is empty
-                    if (my_cvn_size == 0) {
-                        return move_draft;
-                    }
-
-                    // Not empty, so check the top slot in the caravan
-                    Slot slot_top = my_cvn->get_slot(my_cvn_size);
-
-                    // Ignore numeral if cards have same rank
-                    if (slot_top.card.rank == c_hand.rank) {
-                        continue;
-                    }
-
-                    bool not_bust =
-                        (my_cvn_bid +
-                         numeral_rank_value(c_hand)) <= CARAVAN_SOLD_MAX;
-
-                    // Same suit as caravan and numeral would not cause bust
-                    if (my_cvn->get_suit() == c_hand.suit && not_bust) {
-                        return move_draft;
-                    }
-
-                    // Not same suit, check direction
-                    Direction my_cvn_dir = my_cvn->get_direction();
-
-                    // Card ascending with caravan and would not bust
-                    if (my_cvn_dir == ASCENDING &&
-                        c_hand.rank > slot_top.card.rank &&
-                        not_bust) {
-                        return move_draft;
-                    }
-
-                    // Card descending with caravan and would not bust
-                    if (my_cvn_dir == DESCENDING &&
-                        c_hand.rank < slot_top.card.rank &&
-                        not_bust) {
-                        return move_draft;
-                    }
-                }
-
-            } else if(allow_face) {  // is face card
-                uint8_t i_opp_cvn_most_cards = PLAYER_CARAVANS_MAX;
-                uint8_t n_opp_cvn_most_cards = 0;
-
-                // Put face card on opp caravan with the most cards
-                for (uint8_t i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
-                    uint8_t size_cvn =
-                        table->get_caravan(opp_cvns[i])->get_size();
-
-                    if (size_cvn > n_opp_cvn_most_cards) {
-                        i_opp_cvn_most_cards = i;
-                        n_opp_cvn_most_cards = size_cvn;
-                    }
-                }
-
-                // If there exists an opp caravan with at least 1 card on it
-                if (i_opp_cvn_most_cards < PLAYER_CARAVANS_MAX &&
-                    n_opp_cvn_most_cards > 0) {
-
-                    Caravan *opp_cvn = table->get_caravan(
-                        opp_cvns[i_opp_cvn_most_cards]);
-
-                    uint8_t opp_cvn_size = opp_cvn->get_size();
-                    Slot opp_slot_top = opp_cvn->get_slot(opp_cvn_size);
-
-                    std::string move_draft =
-                        PLAY +
-                        std::to_string(pos_hand) +
-                        caravan_letter(opp_cvn->get_name()) +
-                        std::to_string(opp_cvn->get_size());
-
-                    if (opp_slot_top.i_faces < TRACK_FACE_MAX) {
-                        return move_draft;
-                    }
-                }
+            if (cvn->get_bid() > CARAVAN_SOLD_MAX ||
+                cvn->get_size() == TRACK_NUMERIC_MAX) {
+                return CLEAR + caravan_letter(my_cvns[i_cvn]);
             }
         }
     }
 
+    // Otherwise, cycle through cards in hand
+    for (uint8_t pos_hand = 1; pos_hand <= my_hand_size; pos_hand++) {
+        Card c_hand = me->get_from_hand_at(pos_hand);
+
+        if (is_numeral_card(c_hand) && allow_numeral) {
+            // If numeral, look through caravans
+            for (uint8_t i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
+                Caravan *my_cvn = table->get_caravan(my_cvns[i]);
+                Caravan *opp_cvn = table->get_caravan(opp_cvns[i]);
+
+                std::string move_draft =
+                    PLAY +
+                    std::to_string(pos_hand) +
+                    caravan_letter(my_cvn->get_name());
+
+                uint16_t my_cvn_bid = my_cvn->get_bid();
+                uint16_t opp_cvn_bid = opp_cvn->get_bid();
+
+                // Skip caravan if sold and winning
+                if (my_cvn_bid >= CARAVAN_SOLD_MIN &&
+                    my_cvn_bid <= CARAVAN_SOLD_MAX &&
+                    (my_cvn_bid > opp_cvn_bid ||
+                     opp_cvn_bid > CARAVAN_SOLD_MAX)) {
+                    continue;
+                }
+
+                uint8_t my_cvn_size = my_cvn->get_size();
+
+                // Skip caravan if full
+                if (my_cvn_size == TRACK_NUMERIC_MAX) {
+                    continue;
+                }
+
+                // Play numeral if caravan is empty
+                if (my_cvn_size == 0) {
+                    return move_draft;
+                }
+
+                // Not empty, so check the top slot in the caravan
+                Slot slot_top = my_cvn->get_slot(my_cvn_size);
+
+                // Ignore numeral if cards have same rank
+                if (slot_top.card.rank == c_hand.rank) {
+                    continue;
+                }
+
+                bool not_bust =
+                (my_cvn_bid +
+                 numeral_rank_value(c_hand)) <= CARAVAN_SOLD_MAX;
+
+                // Same suit as caravan and numeral would not cause bust
+                if (my_cvn->get_suit() == c_hand.suit && not_bust) {
+                    return move_draft;
+                }
+
+                // Not same suit, check direction
+                Direction my_cvn_dir = my_cvn->get_direction();
+
+                // Card ascending with caravan and would not bust
+                if (my_cvn_dir == ASCENDING &&
+                    c_hand.rank > slot_top.card.rank &&
+                    not_bust) {
+                    return move_draft;
+                }
+
+                // Card descending with caravan and would not bust
+                if (my_cvn_dir == DESCENDING &&
+                    c_hand.rank < slot_top.card.rank &&
+                    not_bust) {
+                    return move_draft;
+                }
+            }
+        } else if (allow_face) {
+            // is face card
+            uint8_t i_opp_cvn_most_cards = PLAYER_CARAVANS_MAX;
+            uint8_t n_opp_cvn_most_cards = 0;
+
+            // Put face card on opp caravan with the most cards
+            for (uint8_t i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
+                uint8_t size_cvn =
+                    table->get_caravan(opp_cvns[i])->get_size();
+
+                if (size_cvn > n_opp_cvn_most_cards) {
+                    i_opp_cvn_most_cards = i;
+                    n_opp_cvn_most_cards = size_cvn;
+                }
+            }
+
+            // If there exists an opp caravan with at least 1 card on it
+            if (i_opp_cvn_most_cards < PLAYER_CARAVANS_MAX &&
+                n_opp_cvn_most_cards > 0) {
+                Caravan *opp_cvn = table->get_caravan(
+                    opp_cvns[i_opp_cvn_most_cards]);
+
+                uint8_t opp_cvn_size = opp_cvn->get_size();
+                Slot opp_slot_top = opp_cvn->get_slot(opp_cvn_size);
+
+                std::string move_draft =
+                    PLAY +
+                    std::to_string(pos_hand) +
+                    caravan_letter(opp_cvn->get_name()) +
+                    std::to_string(opp_cvn->get_size());
+
+                if (opp_slot_top.i_faces < TRACK_FACE_MAX) {
+                    return move_draft;
+                }
+            }
+        }
+
+    }
+
     return "";
-}
-
-/*
- * PUBLIC
- */
-
-std::string UserBotNormal::request_move(Game *game) {
-    std::string move = generate_move(game, true, true, true);
-
-    // Return move if able to generate one
-    if(!move.empty()) { return move; }
-
-    // If no useful move could be made, discard first card in hand
-    return "D1";
 }
