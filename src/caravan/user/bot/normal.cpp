@@ -31,7 +31,8 @@ std::string UserBotNormal::request_move(Game *game) {
  * PRIVATE
  */
 
-std::string generate_play_numeral(
+bool generate_play_numeral(
+    std::string *move,
     Game *game,
     PlayerName pname,
     bool empty_only) {
@@ -118,13 +119,13 @@ std::string generate_play_numeral(
         }
     }
 
-    if (!found)
-        throw CaravanFatalException(
-            "Bot could not play a numeral card.");
+    if (!found) return false;
 
-    return PLAY +
-           std::to_string(best_card_pos) +
-           caravan_letter(cvn_names[best_cvn_index]);
+    *move = PLAY +
+            std::to_string(best_card_pos) +
+            caravan_letter(cvn_names[best_cvn_index]);
+
+    return true;
 }
 
 
@@ -138,26 +139,79 @@ std::string UserBotNormal::generate_move(
     bool allow_face,
     bool allow_clear) {
 
+    std::string move = "";
     Player *me = game->get_player(name);
-    uint8_t my_hand_size = me->get_size_hand();
+    Hand hand = me->get_hand();
+    uint8_t hand_size = me->get_size_hand();
 
-    if (my_hand_size == 0) {
+    if (hand_size == 0) {
         throw CaravanFatalException("Bot has an empty hand.");
     }
 
-    PlayerCaravanNames my_cvns = game->get_player_caravan_names(name);
-    PlayerCaravanNames opp_cvns = game->get_player_caravan_names(
-        name == PLAYER_ABC ? PLAYER_DEF : PLAYER_ABC);
-
-    uint16_t my_move_count = me->get_moves_count();
+    uint16_t move_count = me->get_moves_count();
 
     // Start round
-    if (my_move_count < MOVES_START_ROUND) {
-        return generate_play_numeral(game, this->name, true);
+    if (move_count < MOVES_START_ROUND) {
+        if (generate_play_numeral(&move, game, this->name, true))
+            return move;
+        else
+            throw CaravanFatalException(
+                "Bot failed to play numeral in start round.");
     }
 
     // After start round
     Table *table = game->get_table();
+
+    // Check hand for possible moves
+    bool is_numeral = false;
+    bool is_jack = false;
+    bool is_queen = false;
+    bool is_king = false;
+    bool is_joker = false;
+
+    for (uint8_t i_hand = 0; i_hand < hand_size; i_hand++) {
+        Card card = hand[i_hand];
+
+        if (is_numeral_card(card)) {
+            is_numeral = true;
+        } else if (card.rank == JACK) {
+            is_jack = true;
+        } else if (card.rank == QUEEN) {
+            is_queen = true;
+        } else if (card.rank == KING) {
+            is_king = true;
+        } else if (card.rank == JOKER) {
+            is_joker = true;
+        }
+    }
+
+    // Check game for current state
+    PlayerCaravanNames my_cvns = game->get_player_caravan_names(name);
+    PlayerCaravanNames opp_cvns = game->get_player_caravan_names(
+        name == PLAYER_ABC ? PLAYER_DEF : PLAYER_ABC);
+
+    uint8_t my_wins = 0;
+    uint8_t opp_wins = 0;
+
+    uint8_t my_busts = 0;
+    uint8_t opp_busts = 0;
+
+    for (uint8_t i_cvn = 0; i_cvn < my_cvns.size(); i_cvn++) {
+        if (game->is_caravan_winning(my_cvns[i_cvn]))
+            my_wins++;
+
+        if (game->is_caravan_winning(opp_cvns[i_cvn]))
+            opp_wins++;
+
+        if (game->is_caravan_bust(my_cvns[i_cvn]))
+            my_busts++;
+
+        if (game->is_caravan_bust(opp_cvns[i_cvn]))
+            opp_busts++;
+    }
+
+    // queen + opp has:
+    // low top rank + asc + low bid (keep caravan low)
 
     // ranks in hand
     // check opponent caravans
@@ -184,7 +238,7 @@ std::string UserBotNormal::generate_move(
     }
 
     // Otherwise, cycle through cards in hand
-    for (uint8_t pos_hand = 1; pos_hand <= my_hand_size; pos_hand++) {
+    for (uint8_t pos_hand = 1; pos_hand <= hand_size; pos_hand++) {
         Card c_hand = me->get_from_hand_at(pos_hand);
 
         if (is_numeral_card(c_hand) && allow_numeral) {
