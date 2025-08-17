@@ -35,7 +35,7 @@ bool generate_play_numeral(
     std::string *move,
     Game *game,
     PlayerName pname,
-    bool empty_only) {
+    bool empty_caravan_only) {
 
     Player *player = game->get_player(pname);
     Hand hand = player->get_hand();
@@ -48,13 +48,13 @@ bool generate_play_numeral(
     uint16_t best_card_value = 0;
 
     // Find a caravan that is worth playing on
-    // Policy: caravan and card that gets caravan closest to max sold
+    // Strategy: caravan and card that gets caravan closest to max sold
     for (uint8_t i_cvn = 0; i_cvn < cvn_names.size(); i_cvn++) {
         Caravan *cvn = game->get_table()->get_caravan(cvn_names[i_cvn]);
         uint16_t cvn_size = cvn->get_size();
 
         // Caravan is not empty when exclusively looking for an empty one
-        if (empty_only and cvn_size > 0) continue;
+        if (empty_caravan_only and cvn_size > 0) continue;
 
         // Caravan is full
         if (cvn_size == TRACK_NUMERIC_MAX) continue;
@@ -64,7 +64,7 @@ bool generate_play_numeral(
         // Caravan has the maximum sold bid or is bust
         if (cvn_bid >= CARAVAN_SOLD_MAX) continue;
 
-        // Check bot's hand
+        // Find a numeral card worth playing
         for (uint8_t i_hand = 0; i_hand < hand_size; i_hand++) {
             Card hcard = hand[i_hand];
             Direction cvn_dir = cvn->get_direction();
@@ -136,7 +136,14 @@ bool generate_play_numeral(
 std::string UserBotNormal::generate_move(
     Game *game,
     bool allow_numeral,
-    bool allow_face,
+    bool allow_jack_self,
+    bool allow_jack_opp,
+    bool allow_queen_self,
+    bool allow_queen_opp,
+    bool allow_king_self,
+    bool allow_king_opp,
+    bool allow_joker_self,
+    bool allow_joker_opp,
     bool allow_clear) {
 
     std::string move = "";
@@ -210,20 +217,38 @@ std::string UserBotNormal::generate_move(
             opp_busts++;
     }
 
+    // Prioritise disrupting opp if opp has advantage
+    if (opp_wins == 2) {
+        // TODO if king in hand, attack opp only if it causes a bust
+        // TODO if jack in hand, attack opp only if it causes caravan to become unsold
+        // TODO if joker, attack opp on most common opp card, try to play on self if self has that common card
+        // TODO do NOT play any numerals as this makes things worse! best to discard
+    }
+
+    // Prioritise resolving busts if self has multiple
+    if (my_busts >= 2) {
+        // TODO if jack in hand, use on self only if it can resolve a bust
+        // TODO clear worst bust
+    }
+
+    // Otherwise, play regular strategy
+
+    // Play numeral to increase caravan
+    if (allow_numeral and is_numeral and generate_play_numeral(&move, game, name, false))
+        return move;
+
+    // Or, play KING on self to increase caravan
+
+    // Or, play JACK on self to decrease bust, if any
+    if (my_busts > 0) {}
+
+    // Or, play JOKER on opp, if useful to do so
+
+    // Or, play QUEEN on opp, if useful to do so
+
     // queen + opp has:
     // low top rank + asc + low bid (keep caravan low)
 
-    // ranks in hand
-    // check opponent caravans
-    // if opp is winning, try to bust or remove from top position
-
-    // TODO determine policy...
-    //  - which ranks do I have in my hand?
-    //  - prioritise building my caravans if opp has low bids
-    //    - play numerals on any of my low bids
-    //    - clear caravans that are bust, if bid is especially high
-    //    - else, use JACK to lower them
-    //    -
 
     // Clear any caravans that are bust or full of cards
     if (allow_clear) {
@@ -348,5 +373,5 @@ std::string UserBotNormal::generate_move(
 
     }
 
-    return "";
+    return "D1";
 }

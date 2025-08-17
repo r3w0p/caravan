@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -13,8 +13,8 @@ protected:
     PlayerName name;
 public:
     explicit User(PlayerName pn) : name(pn) {};
-
     virtual ~User() = default;
+
     virtual bool is_human() = 0;
     virtual std::string request_move(Game *game) = 0;
 
@@ -34,6 +34,14 @@ public:
     explicit UserBot(PlayerName pn) : User(pn) {};
 
     bool is_human() override { return false; }
+};
+
+class UserBotStrategy {
+public:
+    explicit UserBotStrategy() = default;
+    virtual ~UserBotStrategy() = default;
+
+    virtual std::string generate_move(Game *game) = 0;
 };
 
 #endif //CARAVAN_USER_H
