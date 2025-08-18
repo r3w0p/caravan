@@ -1,46 +1,13 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#ifndef CARAVAN_CORE_COMMON_H
-#define CARAVAN_CORE_COMMON_H
+#ifndef CARAVAN_MODEL_TYPES_H
+#define CARAVAN_MODEL_TYPES_H
 
-#include <cstdint>
+#include "caravan/model/constants.h"
 #include <array>
 #include <vector>
-#include <string>
-
-/*
- * CONSTANTS
- */
-
-constexpr uint8_t TRACK_NUMERIC_MIN = 1;
-constexpr uint8_t TRACK_NUMERIC_MAX = 8;
-constexpr uint8_t TRACK_FACE_MAX = 3;
-
-constexpr uint8_t CARAVAN_SOLD_MIN = 21;
-constexpr uint8_t CARAVAN_SOLD_MAX = 26;
-
-constexpr uint8_t DECK_TRADITIONAL_MAX = 54;
-constexpr uint8_t DECK_CARAVAN_MIN = 30;
-constexpr uint8_t DECK_CARAVAN_MAX = 162;
-
-constexpr uint8_t SAMPLE_DECKS_MIN = 1;
-constexpr uint8_t SAMPLE_DECKS_MAX = 3;
-
-constexpr uint8_t MOVES_START_ROUND = 3;
-
-constexpr uint8_t HAND_SIZE_MAX_START = 8;
-constexpr uint8_t HAND_SIZE_MAX_POST_START = 5;
-constexpr uint8_t HAND_POS_MIN = 1;
-
-constexpr uint8_t TABLE_CARAVANS_MAX = 6;
-
-constexpr uint8_t PLAYER_CARAVANS_MAX = 3;
-
-/*
- * ENUMS
- */
 
 enum CaravanName {
     NO_CARAVAN,
@@ -53,6 +20,7 @@ enum CaravanName {
 };
 
 enum Direction {
+    NO_DIRECTION,
     ANY,
     ASCENDING,
     DESCENDING
@@ -72,7 +40,7 @@ enum PlayerName {
 };
 
 enum Rank {
-    // TODO NO_RANK ?
+    NO_RANK,
     ACE,
     TWO,
     THREE,
@@ -97,13 +65,17 @@ enum Suit {
     SPADES
 };
 
-/*
- * TYPES
- */
-
 using Card = struct Card {
-    Suit suit{};
-    Rank rank{};
+    Suit suit{NO_SUIT};
+    Rank rank{NO_RANK};
+
+    bool is_face_card() const {
+        return (this->rank >= JACK and this->rank <= JOKER);
+    }
+
+    bool is_numeral_card() const {
+        return (this->rank >= ACE and this->rank <= TEN);
+    }
 };
 
 using Hand = std::array<Card, HAND_SIZE_MAX_START>;
@@ -140,16 +112,4 @@ using GameCommand = struct GameCommand {
     Card board{};
 };
 
-/*
- * FUNCTIONS
- */
-
-bool is_numeral_card(Card c);
-
-bool is_face_card(Card c);
-
-std::string caravan_letter(CaravanName caravan_name);
-
-uint8_t numeral_rank_value(Card c);
-
-#endif //CARAVAN_CORE_COMMON_H
+#endif //CARAVAN_MODEL_TYPES_H

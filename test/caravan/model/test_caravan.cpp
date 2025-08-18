@@ -1,10 +1,11 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
 #include "gtest/gtest.h"
 #include "caravan/model/caravan.h"
-#include "caravan/core/common.h"
+#include "caravan/model/types.h"
+#include "caravan/model/constants.h"
 #include "caravan/core/exceptions.h"
 
 
@@ -32,7 +33,7 @@ TEST (TestCaravan, Clear_Error_EmptyCaravan) {
         cvn.clear();
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -178,7 +179,7 @@ TEST (TestCaravan, GetCardsAt_Error_OneNumeric_OutOfRange) {
         cvn.get_slot(2);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -315,7 +316,7 @@ TEST (TestCaravan, PutNumericCard_Error_NotNumeric) {
         cvn.put_numeral_card(c_face);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -349,7 +350,7 @@ TEST (TestCaravan, PutNumericCard_Error_CaravanFull) {
         cvn.put_numeral_card(c_num_9);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -382,7 +383,7 @@ TEST (TestCaravan, PutFaceCard_Error_EmptyCaravan) {
         cvn.put_face_card(c_face, 1);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -401,7 +402,7 @@ TEST (TestCaravan, PutFaceCard_Error_OutOfRange) {
         cvn.put_face_card(c_face, 2);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -420,7 +421,7 @@ TEST (TestCaravan, PutFaceCard_Error_NotFaceCard) {
         cvn.put_face_card(c_num_2, 1);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -447,7 +448,7 @@ TEST (TestCaravan, PutFaceCard_Error_FullFaceCardCapacity) {
         cvn.put_face_card(c_face_4, 1);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -663,7 +664,7 @@ TEST (TestCaravan, RemoveNumericCard_WithJack_Position8) {
         cvn.get_slot(8);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -699,7 +700,7 @@ TEST (TestCaravan, RemoveNumericCard_WithJack_Position1) {
         cvn.get_slot(8);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -737,7 +738,7 @@ TEST (TestCaravan, RemoveNumericCard_WithJack_Position5) {
         cvn.get_slot(8);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();

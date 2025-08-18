@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -6,7 +6,6 @@
 #define CARAVAN_VIEW_TUI_H
 
 #include "caravan/view/view.h"
-#include "caravan/core/common.h"
 #include <string>
 #include "caravan/user/user.h"
 #include "ftxui/dom/elements.hpp"
@@ -56,8 +55,6 @@ public:
     explicit ViewTUI(Game *game, ViewConfig *vc);
 
     void run() override;
-
-    void close() override;
 };
 
 #endif //CARAVAN_VIEW_TUI_H

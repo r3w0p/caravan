@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(PROJECT_VERSION 1.2.1)
+set(PROJECT_VERSION 2.0.0)
 set(PROJECT_DESCRIPTION "A command-line version of the Caravan card game from Fallout: New Vegas.")
-set(PROJECT_COPYRIGHT "Copyright (c) 2022-2024 r3w0p")
+set(PROJECT_COPYRIGHT "Copyright (c) 2022-2025 r3w0p")
 set(PROJECT_URL "https://github.com/r3w0p/caravan")
 
 IF (WIN32 OR WIN64)
@@ -53,10 +53,8 @@ FetchContent_MakeAvailable(googletest)
 include_directories(include)
 
 add_library(core
-        "include/caravan/core/common.h"
         "include/caravan/core/exceptions.h"
 
-        "src/caravan/core/common.cpp"
         "src/caravan/core/exceptions.cpp"
 )
 
@@ -91,7 +89,6 @@ add_library(view
         "include/caravan/view/view.h"
         "include/caravan/view/view_tui.h"
 
-        "src/caravan/view/view.cpp"
         "src/caravan/view/view_tui.cpp"
 )
 

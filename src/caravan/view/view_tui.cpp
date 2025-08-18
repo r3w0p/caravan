@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -46,11 +46,11 @@ const std::string NAME_BOT1 = "BOT1";
 const std::string NAME_BOT2 = "BOT2";
 
 ViewTUI::ViewTUI(Game *game, ViewConfig *vc): View(game) {
-    this->vc = vc;
-
     if (vc->user_abc == nullptr || vc->user_def == nullptr) {
         throw CaravanFatalException("Users must be provided to view.");
     }
+
+    this->vc = vc;
 }
 
 uint64_t time_milliseconds() {
@@ -95,7 +95,7 @@ std::wstring suit_to_wstr(Suit suit) {
     }
 }
 
-std::wstring direction_to_wstr(Direction direction) {
+std::wstring direction_to_wstr(const Direction direction) {
     switch (direction) {
         case ANY:
             return L"ANY";
@@ -180,7 +180,7 @@ void push_card(ViewConfig *vc, ftxui::Elements *e, Card card, bool lead) {
     }
 }
 
-void process_first(std::string input, GameCommand *command) {
+void process_first(const std::string &input, GameCommand *command) {
     char c = input.at(0);  // minimum input size already checked elsewhere
 
     switch (c) {
@@ -215,16 +215,16 @@ void process_first(std::string input, GameCommand *command) {
             break;
 
         default:
-            throw CaravanInputException(
+            throw CaravanIllegalControllerException(
                 "Invalid option '" + std::string(1, c) + "', must be one of: (P)lay, (D)iscard, (C)lear.");
     }
 }
 
-void process_second(std::string input, GameCommand *command) {
+void process_second(const std::string &input, GameCommand *command) {
     if (command->option == OPTION_PLAY or command->option == OPTION_DISCARD) {
 
         if (input.size() < 2) {
-            throw CaravanInputException("A hand position has not been entered.");
+            throw CaravanIllegalControllerException("A hand position has not been entered.");
         }
 
         char c = input.at(1);
@@ -255,13 +255,13 @@ void process_second(std::string input, GameCommand *command) {
                 command->pos_hand = 8;
                 break;
             default:
-                throw CaravanInputException("Invalid hand position '" + std::string(1, c) + "'.");
+                throw CaravanIllegalControllerException("Invalid hand position '" + std::string(1, c) + "'.");
         }
 
     } else if (command->option == OPTION_CLEAR) {
 
         if (input.size() < 2) {
-            throw CaravanInputException("A caravan name has not been entered.");
+            throw CaravanIllegalControllerException("A caravan name has not been entered.");
         }
 
         char c = input.at(1);
@@ -292,17 +292,17 @@ void process_second(std::string input, GameCommand *command) {
                 command->caravan_name = CARAVAN_F;
                 break;
             default:
-                throw CaravanInputException("Invalid caravan name '" + std::string(1, c) + "', must be between: A-F.");
+                throw CaravanIllegalControllerException("Invalid caravan name '" + std::string(1, c) + "', must be between: A-F.");
         }
 
     } // else invalid command type, handled during parse of first character
 }
 
-void process_third(std::string input, GameCommand *command) {
+void process_third(const std::string &input, GameCommand *command) {
     if (command->option == OPTION_PLAY) {
 
         if (input.size() < 3) {
-            throw CaravanInputException("A caravan name has not been entered.");
+            throw CaravanIllegalControllerException("A caravan name has not been entered.");
         }
 
         char c = input.at(2);
@@ -333,12 +333,12 @@ void process_third(std::string input, GameCommand *command) {
                 command->caravan_name = CARAVAN_F;
                 break;
             default:
-                throw CaravanInputException("Invalid caravan name '" + std::string(1, c) + "', must be between: A-F.");
+                throw CaravanIllegalControllerException("Invalid caravan name '" + std::string(1, c) + "', must be between: A-F.");
         }
     }
 }
 
-void process_fourth(std::string input, GameCommand *command) {
+void process_fourth(const std::string &input, GameCommand *command) {
     if (command->option == OPTION_PLAY) {
 
         if (input.size() < 4) { return; }  // optional, not an error
@@ -371,7 +371,7 @@ void process_fourth(std::string input, GameCommand *command) {
                 command->pos_caravan = 8;
                 break;
             default:
-                throw CaravanInputException("Invalid caravan position '" + std::string(1, c) + "'.");
+                throw CaravanIllegalControllerException("Invalid caravan position '" + std::string(1, c) + "'.");
         }
     }
 }
@@ -379,7 +379,6 @@ void process_fourth(std::string input, GameCommand *command) {
 GameCommand ViewTUI::parse_user_input(const std::string &input, bool confirmed) {
     GameCommand command;
 
-    if (closed) { return command; }
     if (input.empty()) { return command; }
 
     try {
@@ -408,16 +407,16 @@ GameCommand ViewTUI::parse_user_input(const std::string &input, bool confirmed) 
          */
         process_fourth(input, &command);
 
-    } catch(CaravanInputException &e) {
+    } catch(CaravanIllegalControllerException &e) {
         if(confirmed) {
             // For confirmed commands: throw to other handling that prints
             // command errors to the player
             throw;
-        } else {
-            // For unconfirmed commands: accept whatever was able to be parsed
-            // so that it can be used for highlighting the game board
-            return command;
         }
+
+        // For unconfirmed commands: accept whatever was able to be parsed
+        // so that it can be used for highlighting the game board
+        return command;
     }
 
     return command;
@@ -464,7 +463,7 @@ std::shared_ptr<ftxui::Node> gen_card_blank() {
     return gen_card({}, {}, false, false, true);
 }
 
-std::shared_ptr<ftxui::Node> gen_faces(ViewConfig *vc, Slot slot, bool blank = false) {
+std::shared_ptr<ftxui::Node> gen_faces(ViewConfig *vc, const Slot &slot, const bool blank = false) {
     using namespace ftxui;
 
     std::wstring ranks;
@@ -495,7 +494,13 @@ std::shared_ptr<ftxui::Node> gen_faces_blank() {
     return gen_faces({}, {}, true);
 }
 
-std::shared_ptr<ftxui::Node> gen_caravan_slot(ViewConfig *vc, uint8_t position, Slot slot, bool highlight, bool blank = false) {
+std::shared_ptr<ftxui::Node> gen_caravan_slot(
+    ViewConfig *vc,
+    const uint8_t position,
+    const Slot &slot,
+    const bool highlight,
+    const bool blank = false) {
+
     using namespace ftxui;
     std::shared_ptr<Node> ret;
     Elements e;
@@ -650,7 +655,7 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *vc, Game *game, bool top) {
     for (uint8_t i = 0; i < hand_max; i++) {
         if ((top && (hand_max - i) <= hand_size_turn) || (!top && i + 1 <= hand_size_turn)) {
             uint8_t position = top ? hand_max - i : i + 1;
-            Card card = player_this->get_hand()[position - 1];
+            Card card = player_this->get_from_hand_at(position);
 
             // Highlight card if it is this player's turn and unconfirmed
             // command wants to use this hand card
@@ -866,8 +871,6 @@ void set_current_turn(ViewConfig *vc, Game *game) {
 void ViewTUI::run() {
     using namespace ftxui;
 
-    if (closed) { return; }
-
     // Screen config
     Dimensions terminal_size{};
 
@@ -906,12 +909,12 @@ void ViewTUI::run() {
     Component comp_user_input = Input(&user_input, "");
 
     // Ensure input is alphanumeric only
-    comp_user_input |= CatchEvent([&](Event event) {
+    comp_user_input |= CatchEvent([&](const Event& event) {
         return event.is_character() && !std::isalnum(event.character()[0]);
     });
 
     // Ensure maximum input length
-    comp_user_input |= CatchEvent([&](Event event) {
+    comp_user_input |= CatchEvent([&](const Event &event) {
         return event.is_character() && user_input.size() >= INPUT_MAX;
     });
 
@@ -932,8 +935,6 @@ void ViewTUI::run() {
         screen.SetCursor(Screen::Cursor({.shape=Screen::Cursor::Hidden}));
 
         try {
-            if (closed) { return gen_closed(vc); }
-
             // Reset values
             terminal_size = Terminal::Size();
             set_current_turn(vc, game);
@@ -1028,10 +1029,7 @@ void ViewTUI::run() {
                         }
                 }
 
-            } catch (CaravanGameException &e) {
-                vc->msg_important = e.what();
-
-            } catch (CaravanInputException &e) {
+            } catch (CaravanIllegalException &e) {
                 vc->msg_important = e.what();
             }
 
@@ -1039,19 +1037,17 @@ void ViewTUI::run() {
 
         } catch (CaravanException &e) {
             // Close gracefully on any unhandled exceptions
-            closed = true;
             vc->msg_fatal = e.what();
             return gen_closed(vc);
 
         } catch (std::exception &e) {
             // Close gracefully on any unhandled exceptions
-            closed = true;
             vc->msg_fatal = "A fatal error occurred.";
             return gen_closed(vc);
         }
     });
 
-    renderer |= ftxui::CatchEvent([&](ftxui::Event event) {
+    renderer |= ftxui::CatchEvent([&](const ftxui::Event& event) {
         if (event == Event::Escape) {
             screen.Exit();
             return true;
@@ -1061,10 +1057,4 @@ void ViewTUI::run() {
 
     screen.Loop(renderer);
     screen.Clear();
-}
-
-void ViewTUI::close() {
-    if (!closed) {
-        closed = true;
-    }
 }

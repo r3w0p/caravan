@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -187,7 +187,7 @@ TEST (TestTable, PlayFaceCard_Error_Queen_NotPlayedOnTopCard) {
         t.play_face_card(cn, c_face, 2);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -312,7 +312,7 @@ TEST (TestTable, PlayNumericCard_Error_TwoCards_SameRank_InSequence) {
         t.play_numeral_card(cn, c_num_2);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -335,7 +335,7 @@ TEST (TestTable, PlayNumericCard_Error_OppositeDirection_DifferentSuit) {
         t.play_numeral_card(cn, c_num_3);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();

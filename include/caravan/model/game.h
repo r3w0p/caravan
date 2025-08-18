@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -8,15 +8,13 @@
 #include <cstdint>
 #include "caravan/model/table.h"
 #include "caravan/model/player.h"
-#include "caravan/core/exceptions.h"
 
 class Game {
 protected:
-    Table *table_ptr{};
-    Player *pa_ptr{};
-    Player *pb_ptr{};
-    Player *p_turn;
-    bool closed;
+    std::unique_ptr<Table> table;
+    std::unique_ptr<Player> player_abc;
+    std::unique_ptr<Player> player_def;
+    Player* player_turn;
 
     int8_t compare_bids(CaravanName cvname1, CaravanName cvname2);
 
@@ -24,18 +22,16 @@ protected:
 
     bool has_sold(CaravanName cvname);
 
-    void option_clear(Player *pptr, GameCommand *command);
+    void option_clear(const Player *pptr, GameCommand *command);
 
-    void option_discard(Player *pptr, GameCommand *command);
+    static void option_discard(Player *pptr, GameCommand *command);
 
     void option_play(Player *pptr, GameCommand *command);
 
 public:
-    explicit Game(GameConfig *gc);
+    explicit Game(const GameConfig *gc);
 
     static CaravanName get_opposite_caravan_name(CaravanName cvname);
-
-    void close();
 
     Player *get_player(PlayerName pname) const;
 
@@ -50,8 +46,6 @@ public:
     Table *get_table() const;
 
     PlayerName get_winner();
-
-    bool is_closed() const;
 
     void play_option(GameCommand *command);
 };

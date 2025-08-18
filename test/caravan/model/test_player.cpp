@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -41,7 +41,7 @@ TEST (TestPlayer, GetFromHandAt_Error_HandEmpty) {
     for (int i = 0; i < 30; ++i) {
         pl.discard_from_hand_at(1);
         pl.increment_moves();
-        pl.maybe_add_card_to_hand();
+        pl.maybe_add_card_to_hand_from_deck();
     }
 
     ASSERT_EQ(pl.get_size_hand(), 0);
@@ -65,7 +65,7 @@ TEST (TestPlayer, GetFromHandAt_Error_PositionTooLow) {
         pl.get_from_hand_at(0);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -80,7 +80,7 @@ TEST (TestPlayer, GetFromHandAt_Error_PositionTooHigh) {
         pl.get_from_hand_at(9);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -126,7 +126,7 @@ TEST (TestPlayer, RemoveFromHandAt_Position1_StartRound) {
     c_get = pl.get_hand()[0];
     c_take = pl.discard_from_hand_at(1);
     pl.increment_moves();
-    pl.maybe_add_card_to_hand();
+    pl.maybe_add_card_to_hand_from_deck();
 
     ASSERT_EQ(pl.get_size_hand(), 7);
     ASSERT_TRUE(c_get.suit == c_take.suit and
@@ -144,7 +144,7 @@ TEST (TestPlayer, RemoveFromHandAt_Error_HandEmpty) {
     for (int i = 0; i < 30; ++i) {
         pl.discard_from_hand_at(1);
         pl.increment_moves();
-        pl.maybe_add_card_to_hand();
+        pl.maybe_add_card_to_hand_from_deck();
     }
 
     try {
@@ -166,7 +166,7 @@ TEST (TestPlayer, RemoveFromHandAt_Error_PositionTooLow) {
         pl.discard_from_hand_at(0);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();
@@ -181,7 +181,7 @@ TEST (TestPlayer, RemoveFromHandAt_Error_PositionTooHigh) {
         pl.discard_from_hand_at(9);
         FAIL();
 
-    } catch (CaravanGameException &e) {
+    } catch (CaravanIllegalException &e) {
 
     } catch (...) {
         FAIL();

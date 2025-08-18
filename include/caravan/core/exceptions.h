@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -13,19 +13,14 @@
  */
 
 class CaravanException : public std::exception {
-private:
     std::string message;
+
 public:
-    explicit CaravanException(std::string msg) :
-        message(std::move(msg)) {}
+    explicit CaravanException(std::string msg) : message(std::move(msg)) {
+    }
 
     std::string what();
 };
-
-// TODO CORE
-// TODO CONTROLLER
-// TODO MODEL
-// TODO VIEW
 
 // TODO Replace CaravanGameException with GameResponse class?
 
@@ -35,24 +30,73 @@ public:
 
 class CaravanFatalException : public CaravanException {
 public:
-    explicit CaravanFatalException(std::string msg) :
-        CaravanException(std::move(msg)) {}
+    explicit CaravanFatalException(std::string msg) : CaravanException(
+        std::move(msg)) {
+    }
 };
 
-class CaravanGameException : public CaravanException {
+class CaravanIllegalException : public CaravanException {
 public:
-    explicit CaravanGameException(std::string msg) :
-        CaravanException(std::move(msg)) {}
+    explicit CaravanIllegalException(std::string msg) : CaravanException(
+        std::move(msg)) {
+    }
 };
+
+/*
+ * MODEL
+ */
+
+class CaravanFatalModelException : public CaravanFatalException {
+public:
+    explicit CaravanFatalModelException(
+        const std::string &msg) : CaravanFatalException(msg) {
+    }
+};
+
+class CaravanIllegalModelException : public CaravanIllegalException {
+public:
+    explicit CaravanIllegalModelException(
+        const std::string &msg) : CaravanIllegalException(msg) {
+    }
+};
+
+
+/*
+ * VIEW
+ */
+
+class CaravanFatalViewException : public CaravanFatalException {
+public:
+    explicit CaravanFatalViewException(
+        const std::string &msg) : CaravanFatalException(msg) {
+    }
+};
+
+class CaravanIllegalViewException : public CaravanIllegalException {
+public:
+    explicit CaravanIllegalViewException(
+        const std::string &msg) : CaravanIllegalException(msg) {
+    }
+};
+
 
 /*
  * CONTROLLER
  */
 
-class CaravanInputException : public CaravanException {
+class CaravanFatalControllerException : public CaravanFatalException {
 public:
-    explicit CaravanInputException(const std::string &msg) :
-        CaravanException(msg) {}
+    explicit CaravanFatalControllerException(
+        const std::string &msg) : CaravanFatalException(msg) {
+    }
+};
+
+class CaravanIllegalControllerException : public CaravanIllegalException {
+public:
+    explicit
+    CaravanIllegalControllerException(
+        const std::string &msg) : CaravanIllegalException(msg) {
+    }
 };
 
 #endif //CARAVAN_CORE_EXCEPTIONS_H

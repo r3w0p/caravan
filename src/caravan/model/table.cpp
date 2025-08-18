@@ -1,74 +1,58 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
 #include "caravan/model/table.h"
 #include "caravan/core/exceptions.h"
 
-const std::string EXC_CLOSED = "Table is closed.";
-
-/**
- * The table on which caravan tracks are placed, as well as the decks and hands of both players.
- */
 Table::Table() {
-    closed = false;
+    cvn_a = std::make_unique<Caravan>(CARAVAN_A);
+    cvn_b = std::make_unique<Caravan>(CARAVAN_B);
+    cvn_c = std::make_unique<Caravan>(CARAVAN_C);
+    cvn_d = std::make_unique<Caravan>(CARAVAN_D);
+    cvn_e = std::make_unique<Caravan>(CARAVAN_E);
+    cvn_f = std::make_unique<Caravan>(CARAVAN_F);
+
+    caravans = {
+        cvn_a.get(),
+        cvn_b.get(),
+        cvn_c.get(),
+        cvn_d.get(),
+        cvn_e.get(),
+        cvn_f.get()
+    };
 }
 
-void Table::close() {
-    if (!closed) {
-        a->close();
-        b->close();
-        c->close();
-        d->close();
-        e->close();
-        f->close();
-
-        delete a;
-        delete b;
-        delete c;
-        delete d;
-        delete e;
-        delete f;
-
-        closed = true;
-    }
+/**
+ * @param cvname The caravan to clear.
+ */
+void Table::clear_caravan(CaravanName cvname) const {
+    get_caravan(cvname)->clear();
 }
 
 /**
  * @param cvname The caravan to get.
  * @return Pointer to the caravan.
  *
- * @throws CaravanFatalException Invalid caravan name.
- * @throws CaravanFatalException Table is closed.
+ * @throws CaravanFatalModelException Invalid caravan name.
  */
-Caravan *Table::get_caravan(CaravanName cvname) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
+Caravan* Table::get_caravan(CaravanName cvname) const {
     switch (cvname) {
         case CARAVAN_A:
-            return a;
+            return caravans[0];
         case CARAVAN_B:
-            return b;
+            return caravans[1];
         case CARAVAN_C:
-            return c;
+            return caravans[2];
         case CARAVAN_D:
-            return d;
+            return caravans[3];
         case CARAVAN_E:
-            return e;
+            return caravans[4];
         case CARAVAN_F:
-            return f;
+            return caravans[5];
         default:
-            throw CaravanFatalException("Invalid caravan name.");
+            throw CaravanFatalModelException("Invalid caravan name.");
     }
-}
-
-/**
- * @param cvname The caravan to clear.
- *
- * @throws CaravanFatalException Table is closed.
- */
-void Table::clear_caravan(CaravanName cvname) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
-    get_caravan(cvname)->clear();
 }
 
 /**
@@ -76,16 +60,20 @@ void Table::clear_caravan(CaravanName cvname) {
  * @param card A face card.
  * @param pos The position of the numeral card on which to place the face card.
  *
- * @throws CaravanGameException QUEEN not played on latest numeral card in caravan.
- * @throws CaravanFatalException Table is closed.
+ * @throws CaravanFatalModelException Invalid caravan name.
+ * @throws CaravanIllegalModelException QUEEN not played on latest numeral card in caravan.
  */
-void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
+void Table::play_face_card(
+    CaravanName cvname,
+    const Card card,
+    const uint8_t pos) const {
+
     Caravan *cvn_target = get_caravan(cvname);
 
     if (card.rank == QUEEN and pos != cvn_target->get_size()) {
-        throw CaravanGameException(
-            "A QUEEN can only be played on the latest numeral card in a caravan.");
+        throw CaravanIllegalModelException(
+            "A QUEEN can only be played on the "
+            "latest numeral card in a caravan.");
     }
 
     // Play Face card on Caravan.
@@ -102,8 +90,8 @@ void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
         }
 
         // Remove from other caravans, not excluding any cards.
-        for (int k = 0; k < TABLE_CARAVANS_MAX; k++) {
-            Caravan *p_next = caravans[k];
+        for (int i = 0; i < TABLE_CARAVANS_MAX; ++i) {
+            Caravan *p_next = caravans[i];
 
             // Ignore original caravan already handled.
             if (p_next->get_name() == cvn_target->get_name()) {
@@ -123,9 +111,8 @@ void Table::play_face_card(CaravanName cvname, Card card, uint8_t pos) {
  * @param cvname A caravan name.
  * @param card A numeral card to place in the caravan.
  *
- * @throws CaravanFatalException Table is closed.
+ * @throws CaravanFatalModelException Invalid caravan name.
  */
-void Table::play_numeral_card(CaravanName cvname, Card card) {
-    if (closed) { throw CaravanFatalException(EXC_CLOSED); }
+void Table::play_numeral_card(CaravanName cvname, const Card card) const {
     get_caravan(cvname)->put_numeral_card(card);
 }

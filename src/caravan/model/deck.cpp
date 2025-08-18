@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -7,7 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include "caravan/model/deck.h"
-#include "caravan/core/common.h"
+#include "caravan/model/types.h"
 #include "caravan/core/exceptions.h"
 
 /**
@@ -23,9 +23,9 @@
  *
  * @return A caravan deck.
  *
- * @throws CaravanFatalException Requested number of cards outside of acceptable range.
- * @throws CaravanFatalException Requested number of sample decks outside of acceptable range.
- * @throws CaravanFatalException Insufficient cards to sample in order to build deck.
+ * @throws CaravanFatalModelException Requested number of cards outside of acceptable range.
+ * @throws CaravanFatalModelException Requested number of sample decks outside of acceptable range.
+ * @throws CaravanFatalModelException Insufficient cards to sample in order to build deck.
  */
 Deck *DeckBuilder::build_caravan_deck(
     const uint8_t num_cards,
@@ -38,14 +38,14 @@ Deck *DeckBuilder::build_caravan_deck(
 
     if (num_cards < DECK_CARAVAN_MIN or
         num_cards > DECK_CARAVAN_MAX) {
-        throw CaravanFatalException(
+        throw CaravanFatalModelException(
             "A caravan deck must have between "
             "30 and 162 cards (inclusive).");
     }
 
     if (num_sample_decks < SAMPLE_DECKS_MIN or
         num_sample_decks > SAMPLE_DECKS_MAX) {
-        throw CaravanFatalException(
+        throw CaravanFatalModelException(
             "A caravan deck must sample from between "
             "1 and 3 standard card decks (inclusive).");
     }
@@ -53,12 +53,12 @@ Deck *DeckBuilder::build_caravan_deck(
     uint8_t total_sample_cards = num_sample_decks * DECK_TRADITIONAL_MAX;
 
     if (total_sample_cards < num_cards) {
-        throw CaravanFatalException(
+        throw CaravanFatalModelException(
             "There are insufficient cards to sample for the "
             "caravan deck.");
     }
 
-    Deck *d = new Deck();
+    const auto d = new Deck();
 
     do {
         d->clear();
@@ -79,7 +79,7 @@ Deck *DeckBuilder::build_caravan_deck(
                 i_next = (i_next + 1) % num_sample_decks;
 
                 if (num_cards - d->size() < HAND_SIZE_MAX_START and
-                    is_numeral_card(c_next)) {
+                    c_next.is_numeral_card()) {
                     first_hand_num_cards += 1;
                 }
             }
@@ -88,8 +88,7 @@ Deck *DeckBuilder::build_caravan_deck(
             // Sample decks randomly
             std::random_device rd;
             std::mt19937 gen(rd());
-            std::uniform_int_distribution<> distr(
-                0, num_sample_decks - 1);
+            std::uniform_int_distribution<> distr(0, num_sample_decks - 1);
 
             while (d->size() < num_cards) {
                 i_next = distr(gen);
@@ -99,7 +98,7 @@ Deck *DeckBuilder::build_caravan_deck(
                     sample_decks[i_next].pop_back();
 
                     if (num_cards - d->size() < HAND_SIZE_MAX_START and
-                        is_numeral_card(c_next)) {
+                        c_next.is_numeral_card()) {
                         first_hand_num_cards += 1;
                     }
                 }
@@ -119,15 +118,15 @@ Deck *DeckBuilder::build_caravan_deck(
  * @param shuffle If true, deck is shuffled. If false, it is in numeral order.
  * @return A traditional deck: standard 52 cards + 2 JOKERs.
  */
-Deck DeckBuilder::build_traditional_deck(bool shuffle) {
+Deck DeckBuilder::build_traditional_deck(const bool shuffle) {
     Deck d;
 
     for (int i = CLUBS; i <= SPADES; ++i) {
         for (int j = ACE; j <= KING; ++j) {
             d.push_back({
-                            static_cast<Suit>(i),
-                            static_cast<Rank>(j)
-                        });
+                static_cast<Suit>(i),
+                static_cast<Rank>(j)
+            });
         }
     }
 
@@ -146,7 +145,8 @@ Deck DeckBuilder::build_traditional_deck(bool shuffle) {
  * @return A deck with shuffled cards.
  */
 Deck DeckBuilder::shuffle_deck(Deck d) {
-    const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::shuffle(d.begin(), d.end(), std::default_random_engine(seed));
+    const unsigned seed = std::chrono::system_clock::now().time_since_epoch().
+        count();
+    std::ranges::shuffle(d, std::default_random_engine(seed));
     return d;
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -22,7 +22,6 @@ UserBot* BotFactory::get(std::string name, PlayerName player_name) {
     // Return bot that matches name, or fail
     if(name == NAME_NORMAL) { return new UserBotNormal(player_name); }
     if(name == NAME_FRIENDLY) { return new UserBotFriendly(player_name); }
-    else {
-        throw CaravanFatalException("Unknown bot name '" + name + "'.");
-    }
+
+    throw CaravanFatalException("Unknown bot name '" + name + "'.");
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -17,7 +17,7 @@ TEST (TestDeck, CaravanDeck_30Cards_1SampleDeck_Balanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeral_card(c_back)) {
+        if (c_back.is_numeral_card()) {
             sum_num += 1;
         }
 
@@ -37,7 +37,7 @@ TEST (TestDeck, CaravanDeck_30Cards_1SampleDeck_NotBalanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeral_card(c_back)) {
+        if (c_back.is_numeral_card()) {
             sum_num += 1;
         }
 
@@ -57,7 +57,7 @@ TEST (TestDeck, CaravanDeck_90Cards_2SampleDecks_Balanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeral_card(c_back)) {
+        if (c_back.is_numeral_card()) {
             sum_num += 1;
         }
 
@@ -77,7 +77,7 @@ TEST (TestDeck, CaravanDeck_90Cards_2SampleDecks_NotBalanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeral_card(c_back)) {
+        if (c_back.is_numeral_card()) {
             sum_num += 1;
         }
 
@@ -97,7 +97,7 @@ TEST (TestDeck, CaravanDeck_162Cards_3SampleDecks_Balanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeral_card(c_back)) {
+        if (c_back.is_numeral_card()) {
             sum_num += 1;
         }
 
@@ -117,7 +117,7 @@ TEST (TestDeck, CaravanDeck_162Cards_3SampleDecks_NotBalanced) {
     for (int i = 0; i < 8; ++i) {
         c_back = d->back();
 
-        if (is_numeral_card(c_back)) {
+        if (c_back.is_numeral_card()) {
             sum_num += 1;
         }
 

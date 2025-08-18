@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -11,15 +11,14 @@
 class View {
 protected:
     Game *game;
-    bool closed;
+
 public:
-    explicit View(Game *game);
+    explicit View(Game *g) : game(g) {
+    };
 
     virtual ~View() = default;
 
     virtual void run() = 0;
-
-    virtual void close() = 0;
 };
 
 #endif //CARAVAN_VIEW_H

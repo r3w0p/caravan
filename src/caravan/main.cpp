@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 r3w0p
+// Copyright (c) 2022-2025 r3w0p
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
@@ -29,15 +29,15 @@ const std::string KEY_CARDS = "cards";
 const std::string KEY_SAMPLES = "samples";
 const std::string KEY_IMBALANCED = "imbalanced";
 
-const uint8_t FIRST_ABC = 1;
-const uint8_t FIRST_DEF = 2;
+constexpr uint8_t FIRST_ABC = 1;
+constexpr uint8_t FIRST_DEF = 2;
 
 
 int main(int argc, char *argv[]) {
-    User *user_abc;
-    User *user_def;
-    Game *game;
-    ViewTUI *view;
+    std::unique_ptr<User> user_abc;
+    std::unique_ptr<User> user_def;
+    std::unique_ptr<Game> game;
+    std::unique_ptr<View> view;
 
     try {
         cxxopts::Options options(CARAVAN_NAME);
@@ -110,16 +110,16 @@ int main(int argc, char *argv[]) {
         }
 
         if(pvp) {  // human vs human
-            user_abc = new UserHuman(PLAYER_ABC);
-            user_def = new UserHuman(PLAYER_DEF);
+            user_abc = std::make_unique<UserHuman>(PLAYER_ABC);
+            user_def = std::make_unique<UserHuman>(PLAYER_DEF);
 
         } else if (bvb) {  // bot vs bot
-            user_abc = BotFactory::get(bot, PLAYER_ABC);
-            user_def = BotFactory::get(bot, PLAYER_DEF);
+            user_abc = std::unique_ptr<UserBot>(BotFactory::get(bot, PLAYER_ABC));
+            user_def = std::unique_ptr<UserBot>(BotFactory::get(bot, PLAYER_DEF));
 
         } else {  // humans vs bot
-            user_abc = new UserHuman(PLAYER_ABC);
-            user_def = BotFactory::get(bot, PLAYER_DEF);
+            user_abc = std::make_unique<UserHuman>(PLAYER_ABC);
+            user_def = std::unique_ptr<UserBot>(BotFactory::get(bot, PLAYER_DEF));
         }
 
         GameConfig gc = {
@@ -129,13 +129,13 @@ int main(int argc, char *argv[]) {
         };
 
         ViewConfig vc = {
-            .user_abc=user_abc,
-            .user_def=user_def,
+            .user_abc=user_abc.get(),
+            .user_def=user_def.get(),
             .bot_delay_sec=delay
         };
 
-        game = new Game(&gc);
-        view = new ViewTUI(game, &vc);
+        game = std::make_unique<Game>(&gc);
+        view = std::make_unique<ViewTUI>(game.get(), &vc);
 
     } catch (CaravanException &e) {
         printf("%s\n", e.what().c_str());
@@ -146,15 +146,5 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    view->run();
-
-    view->close();
-    user_abc->close();
-    user_def->close();
-    game->close();
-
-    delete view;
-    delete user_abc;
-    delete user_def;
-    delete game;
+    view->run();  // TODO catch fatal exceptions
 }
