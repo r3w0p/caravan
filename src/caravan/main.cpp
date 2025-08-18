@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
         };
 
         game = new Game(&gc);
-        view = new ViewTUI(&vc, game);
+        view = new ViewTUI(game, &vc);
 
     } catch (CaravanException &e) {
         printf("%s\n", e.what().c_str());

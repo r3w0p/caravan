@@ -7,13 +7,53 @@
 
 #include "caravan/view/view.h"
 #include "caravan/core/common.h"
+#include <string>
+#include "caravan/user/user.h"
+#include "ftxui/dom/elements.hpp"
+
+typedef struct ViewConfig {
+    // Pointers to users
+    User *user_abc{nullptr};
+    User *user_def{nullptr};
+    User *user_turn{};
+    User *user_next{};
+
+    // Names of users
+    std::string name_abc;
+    std::string name_def;
+    std::string name_turn;
+    std::string name_next;
+
+    // Messages to users
+    std::string msg_main; // command entered, general messages, winner
+    std::string msg_important; // game errors, next turn
+    std::string msg_fatal; // game closing due to major problem
+
+    // Messages on moves made
+    ftxui::Elements msg_move_abc;
+    ftxui::Elements msg_move_def;
+
+    // Most recent command
+    GameCommand command;
+
+    // Board highlight
+    GameCommand highlight;
+
+    // Colour support
+    bool colour{};
+
+    // Bot config
+    float bot_delay_sec{0.0};
+} ViewConfig;
+
 
 class ViewTUI : public View {
 protected:
-    GameCommand parse_user_input(std::string input, bool confirmed);
+    ViewConfig *vc;
+    GameCommand parse_user_input(const std::string& input, bool confirmed);
 
 public:
-    explicit ViewTUI(ViewConfig *vc, Game *game) : View(vc, game) {};
+    explicit ViewTUI(Game *game, ViewConfig *vc);
 
     void run() override;
 

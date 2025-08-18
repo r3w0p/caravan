@@ -6,6 +6,7 @@
 #define CARAVAN_CORE_EXCEPTIONS_H
 
 #include <string>
+#include <utility>
 
 /*
  * BASE
@@ -15,10 +16,18 @@ class CaravanException : public std::exception {
 private:
     std::string message;
 public:
-    explicit CaravanException(std::string msg) : message(msg) {}
+    explicit CaravanException(std::string msg) :
+        message(std::move(msg)) {}
 
     std::string what();
 };
+
+// TODO CORE
+// TODO CONTROLLER
+// TODO MODEL
+// TODO VIEW
+
+// TODO Replace CaravanGameException with GameResponse class?
 
 /*
  * GENERAL
@@ -26,12 +35,14 @@ public:
 
 class CaravanFatalException : public CaravanException {
 public:
-    explicit CaravanFatalException(std::string msg) : CaravanException(msg) {}
+    explicit CaravanFatalException(std::string msg) :
+        CaravanException(std::move(msg)) {}
 };
 
 class CaravanGameException : public CaravanException {
 public:
-    explicit CaravanGameException(std::string msg) : CaravanException(msg) {}
+    explicit CaravanGameException(std::string msg) :
+        CaravanException(std::move(msg)) {}
 };
 
 /*
@@ -40,7 +51,8 @@ public:
 
 class CaravanInputException : public CaravanException {
 public:
-    explicit CaravanInputException(std::string msg) : CaravanException(msg) {}
+    explicit CaravanInputException(const std::string &msg) :
+        CaravanException(msg) {}
 };
 
 #endif //CARAVAN_CORE_EXCEPTIONS_H

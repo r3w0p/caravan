@@ -28,14 +28,11 @@
  * @throws CaravanFatalException Insufficient cards to sample in order to build deck.
  */
 Deck *DeckBuilder::build_caravan_deck(
-    uint8_t num_cards,
-    uint8_t num_sample_decks,
-    bool balanced_sample) {
+    const uint8_t num_cards,
+    const uint8_t num_sample_decks,
+    const bool balanced_sample) {
 
-    uint8_t total_sample_cards;
     Deck sample_decks[3];
-    Deck *d;
-    uint8_t i_next;
     Card c_next;
     uint8_t first_hand_num_cards;
 
@@ -53,7 +50,7 @@ Deck *DeckBuilder::build_caravan_deck(
             "1 and 3 standard card decks (inclusive).");
     }
 
-    total_sample_cards = num_sample_decks * DECK_TRADITIONAL_MAX;
+    uint8_t total_sample_cards = num_sample_decks * DECK_TRADITIONAL_MAX;
 
     if (total_sample_cards < num_cards) {
         throw CaravanFatalException(
@@ -61,15 +58,15 @@ Deck *DeckBuilder::build_caravan_deck(
             "caravan deck.");
     }
 
-    d = new Deck();
+    Deck *d = new Deck();
 
     do {
         d->clear();
-        i_next = 0;
+        uint8_t i_next = 0;
         first_hand_num_cards = 0;
 
         for (int i = 0; i < num_sample_decks; ++i) {
-            sample_decks[i] = DeckBuilder::build_traditional_deck(true);
+            sample_decks[i] = build_traditional_deck(true);
         }
 
         if (balanced_sample) {
@@ -81,7 +78,7 @@ Deck *DeckBuilder::build_caravan_deck(
 
                 i_next = (i_next + 1) % num_sample_decks;
 
-                if ((num_cards - d->size()) < HAND_SIZE_MAX_START and
+                if (num_cards - d->size() < HAND_SIZE_MAX_START and
                     is_numeral_card(c_next)) {
                     first_hand_num_cards += 1;
                 }
@@ -101,7 +98,7 @@ Deck *DeckBuilder::build_caravan_deck(
                     d->push_back(c_next);
                     sample_decks[i_next].pop_back();
 
-                    if ((num_cards - d->size()) < HAND_SIZE_MAX_START and
+                    if (num_cards - d->size() < HAND_SIZE_MAX_START and
                         is_numeral_card(c_next)) {
                         first_hand_num_cards += 1;
                     }
@@ -139,9 +136,9 @@ Deck DeckBuilder::build_traditional_deck(bool shuffle) {
 
     if (shuffle) {
         return shuffle_deck(d);
-    } else {
-        return d;
     }
+
+    return d;
 }
 
 /**
@@ -149,7 +146,7 @@ Deck DeckBuilder::build_traditional_deck(bool shuffle) {
  * @return A deck with shuffled cards.
  */
 Deck DeckBuilder::shuffle_deck(Deck d) {
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(d.begin(), d.end(), std::default_random_engine(seed));
     return d;
 }

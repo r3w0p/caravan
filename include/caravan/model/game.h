@@ -37,21 +37,21 @@ public:
 
     void close();
 
-    Player *get_player(PlayerName pname);
+    Player *get_player(PlayerName pname) const;
 
-    PlayerCaravanNames get_player_caravan_names(PlayerName pname);
+    PlayerCaravanNames get_player_caravan_names(PlayerName pname) const;
 
     bool is_caravan_winning(CaravanName cvname);
 
     bool is_caravan_bust(CaravanName cvname);
 
-    PlayerName get_player_turn();
+    PlayerName get_player_turn() const;
 
-    Table *get_table();
+    Table *get_table() const;
 
     PlayerName get_winner();
 
-    bool is_closed();
+    bool is_closed() const;
 
     void play_option(GameCommand *command);
 };

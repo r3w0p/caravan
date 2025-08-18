@@ -36,17 +36,17 @@ public:
 
     void clear();
 
-    uint16_t get_bid();
+    uint16_t get_bid() const;
 
-    Slot get_slot(uint8_t pos);
+    Slot get_slot(uint8_t pos) const;
 
-    Direction get_direction();
+    Direction get_direction() const;
 
-    CaravanName get_name();
+    CaravanName get_name() const;
 
-    uint8_t get_size();
+    uint8_t get_size() const;
 
-    Suit get_suit();
+    Suit get_suit() const;
 
     void put_numeral_card(Card card);
 

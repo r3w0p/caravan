@@ -28,7 +28,7 @@ std::string caravan_letter(CaravanName caravan_name) {
         case CARAVAN_F:
             return "F";
         default:
-            return "";
+            return "";  // TODO default / exception / option?
     }
 }
 
@@ -55,6 +55,6 @@ uint8_t numeral_rank_value(Card c) {
         case TEN:
             return 10;
         default:
-            throw CaravanFatalException("Card is not a numeral.");
+            throw CaravanFatalException("Card is not a numeral.");  // TODO default / exception / option?
     }
 }

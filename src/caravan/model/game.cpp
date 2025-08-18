@@ -8,7 +8,7 @@
 const std::string EXC_CLOSED = "Game is closed.";
 
 /**
- * @param config Game configuration.
+ * @param gc Game configuration.
  * 
  * @throws CaravanFatalException Invalid player names.
  */
@@ -49,7 +49,7 @@ void Game::close() {
     }
 }
 
-Player *Game::get_player(PlayerName pname) {
+Player *Game::get_player(PlayerName pname) const {
     if (closed) { throw CaravanFatalException(EXC_CLOSED); }
 
     if (pa_ptr->get_name() == pname) {
@@ -63,7 +63,7 @@ Player *Game::get_player(PlayerName pname) {
     throw CaravanFatalException("Invalid player name.");
 }
 
-PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) {
+PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) const {
     if (closed) { throw CaravanFatalException(EXC_CLOSED); }
 
     if (pa_ptr->get_name() == pname) {
@@ -77,13 +77,13 @@ PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) {
     throw CaravanFatalException("Invalid player name.");
 }
 
-PlayerName Game::get_player_turn() {
+PlayerName Game::get_player_turn() const {
     if (closed) { throw CaravanFatalException(EXC_CLOSED); }
 
     return p_turn->get_name();
 }
 
-Table *Game::get_table() {
+Table *Game::get_table() const {
     if (closed) { throw CaravanFatalException(EXC_CLOSED); }
 
     return table_ptr;
@@ -117,8 +117,9 @@ PlayerName Game::get_winner() {
     if(won_pa + won_pb == 3) {
         if (won_pa >= 2) {
             return pa_ptr->get_name();
+        }
 
-        } else if (won_pb >= 2) {
+        if (won_pb >= 2) {
             return pb_ptr->get_name();
         }
     }
@@ -141,7 +142,7 @@ PlayerName Game::get_winner() {
     return NO_PLAYER;
 }
 
-bool Game::is_closed() {
+bool Game::is_closed() const {
     return closed;
 }
 
@@ -269,13 +270,9 @@ CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
 
     int8_t bidcomp = compare_bids(cvname1, cvname2);
 
-    if (bidcomp < 0) {
-        return cvname1;
-    } else if (bidcomp > 0) {
-        return cvname2;
-    } else {
-        return NO_CARAVAN;
-    }
+    if (bidcomp < 0) return cvname1;
+    if (bidcomp > 0) return cvname2;
+    return NO_CARAVAN;
 }
 
 bool Game::has_sold(CaravanName cvname) {

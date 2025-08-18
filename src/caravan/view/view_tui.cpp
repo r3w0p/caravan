@@ -14,27 +14,27 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
-const uint16_t MIN_X = 150;
-const uint16_t MIN_Y = 68;
+constexpr uint16_t MIN_X = 150;
+constexpr uint16_t MIN_Y = 68;
 
-const uint16_t WIDTH_CARAVAN = 20;
-const uint16_t HEIGHT_CARAVAN = 34;
+constexpr uint16_t WIDTH_CARAVAN = 20;
+constexpr uint16_t HEIGHT_CARAVAN = 34;
 
-const uint16_t WIDTH_DECK = 15;
+constexpr uint16_t WIDTH_DECK = 15;
 
-const uint16_t WIDTH_CARAVAN_SLOT = WIDTH_CARAVAN;
-const uint16_t HEIGHT_CARAVAN_SLOT = 4;
+constexpr uint16_t WIDTH_CARAVAN_SLOT = WIDTH_CARAVAN;
+constexpr uint16_t HEIGHT_CARAVAN_SLOT = 4;
 
-const uint16_t WIDTH_POSITION = 4;
-const uint16_t HEIGHT_POSITION = 2;
+constexpr uint16_t WIDTH_POSITION = 4;
+constexpr uint16_t HEIGHT_POSITION = 2;
 
-const uint16_t WIDTH_CARD = 5;
-const uint16_t HEIGHT_CARD = 2;
+constexpr uint16_t WIDTH_CARD = 5;
+constexpr uint16_t HEIGHT_CARD = 2;
 
-const uint16_t WIDTH_FACES = 5;
-const uint16_t HEIGHT_FACES = 2;
+constexpr uint16_t WIDTH_FACES = 5;
+constexpr uint16_t HEIGHT_FACES = 2;
 
-const uint8_t INPUT_MAX = 4;
+constexpr uint8_t INPUT_MAX = 4;
 
 const std::string NAME_YOU = "YOU";
 const std::string NAME_BOT = "BOT";
@@ -44,6 +44,14 @@ const std::string NAME_PL2 = "PL2";
 
 const std::string NAME_BOT1 = "BOT1";
 const std::string NAME_BOT2 = "BOT2";
+
+ViewTUI::ViewTUI(Game *game, ViewConfig *vc): View(game) {
+    this->vc = vc;
+
+    if (vc->user_abc == nullptr || vc->user_def == nullptr) {
+        throw CaravanFatalException("Users must be provided to view.");
+    }
+}
 
 uint64_t time_milliseconds() {
     using namespace std::chrono;
@@ -368,7 +376,7 @@ void process_fourth(std::string input, GameCommand *command) {
     }
 }
 
-GameCommand ViewTUI::parse_user_input(std::string input, bool confirmed) {
+GameCommand ViewTUI::parse_user_input(const std::string &input, bool confirmed) {
     GameCommand command;
 
     if (closed) { return command; }

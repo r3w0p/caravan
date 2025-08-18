@@ -5,12 +5,7 @@
 #include "caravan/user/user.h"
 #include "caravan/view/view.h"
 
-View::View(ViewConfig *vc, Game *game) {
-    this->vc = vc;
+View::View(Game *game) {
     this->game = game;
     this->closed = false;
-
-    if(vc->user_abc == nullptr || vc->user_def == nullptr) {
-        throw CaravanFatalException("Users must be provided to view.");
-    }
 }
