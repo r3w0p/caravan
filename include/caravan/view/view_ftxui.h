@@ -2,8 +2,8 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
-#ifndef CARAVAN_VIEW_TUI_H
-#define CARAVAN_VIEW_TUI_H
+#ifndef CARAVAN_VIEW_FTXUI_H
+#define CARAVAN_VIEW_FTXUI_H
 
 #include "caravan/view/view.h"
 #include <string>
@@ -46,15 +46,15 @@ typedef struct ViewConfig {
 } ViewConfig;
 
 
-class ViewTUI : public View {
+class ViewFTXUI : public View {
 protected:
     ViewConfig *vc;
-    GameCommand parse_user_input(const std::string& input, bool confirmed);
+    GameCommand parse_user_input(const std::string& input, bool confirmed);  // TODO move to controller
 
 public:
-    explicit ViewTUI(Game *game, ViewConfig *vc);
+    explicit ViewFTXUI(Game *game, ViewConfig &vc);
 
     void run() override;
 };
 
-#endif //CARAVAN_VIEW_TUI_H
+#endif //CARAVAN_VIEW_FTXUI_H

@@ -20,7 +20,6 @@ enum CaravanName {
 };
 
 enum Direction {
-    NO_DIRECTION,
     ANY,
     ASCENDING,
     DESCENDING

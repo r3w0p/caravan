@@ -16,13 +16,10 @@ class CaravanException : public std::exception {
     std::string message;
 
 public:
-    explicit CaravanException(std::string msg) : message(std::move(msg)) {
-    }
+    explicit CaravanException(std::string msg) : message(std::move(msg)) {}
 
     std::string what();
 };
-
-// TODO Replace CaravanGameException with GameResponse class?
 
 /*
  * GENERAL
@@ -60,7 +57,6 @@ public:
     }
 };
 
-
 /*
  * VIEW
  */
@@ -79,7 +75,6 @@ public:
     }
 };
 
-
 /*
  * CONTROLLER
  */
@@ -93,8 +88,7 @@ public:
 
 class CaravanIllegalControllerException : public CaravanIllegalException {
 public:
-    explicit
-    CaravanIllegalControllerException(
+    explicit CaravanIllegalControllerException(
         const std::string &msg) : CaravanIllegalException(msg) {
     }
 };

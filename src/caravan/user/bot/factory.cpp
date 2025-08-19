@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include "caravan/core/exceptions.h"
 #include "caravan/user/user.h"
 #include "caravan/user/bot/factory.h"
 #include "caravan/user/bot/normal.h"

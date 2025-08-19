@@ -6,15 +6,21 @@
 #define CARAVAN_MODEL_GAME_H
 
 #include <cstdint>
+#include <list>
 #include "caravan/model/table.h"
 #include "caravan/model/player.h"
+#include "caravan/core/pubsub.h"
 
-class Game {
+class GameSubscriber;
+
+class Game : public CaravanPublisher<GameSubscriber> {
 protected:
     std::unique_ptr<Table> table;
     std::unique_ptr<Player> player_abc;
     std::unique_ptr<Player> player_def;
     Player* player_turn;
+
+    std::list<GameSubscriber *> subscribers;
 
     int8_t compare_bids(CaravanName cvname1, CaravanName cvname2);
 
@@ -29,7 +35,9 @@ protected:
     void option_play(Player *pptr, GameCommand *command);
 
 public:
-    explicit Game(const GameConfig *gc);
+    explicit Game(const GameConfig &gc);
+
+    ~Game() = default;
 
     static CaravanName get_opposite_caravan_name(CaravanName cvname);
 
@@ -48,6 +56,16 @@ public:
     PlayerName get_winner();
 
     void play_option(GameCommand *command);
+
+    void subscribe(GameSubscriber &subscriber) override;
+
+    void unsubscribe(GameSubscriber &subscriber) override;
+};
+
+class GameSubscriber : public CaravanSubscriber {
+public:
+    virtual void on_game_update_success(Game &game, GameCommand gc) = 0;
+    virtual void on_game_update_failure(Game &game, GameCommand gc) = 0;
 };
 
 #endif //CARAVAN_MODEL_GAME_H

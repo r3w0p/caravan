@@ -28,9 +28,8 @@ public:
      *
      * @param cvname The caravan name.
      */
-    explicit Caravan(const CaravanName cvname) : name(cvname), track({}),
-                                                 i_track(0) {
-    };
+    explicit Caravan(const CaravanName cvname) :
+        name(cvname), track({}), i_track(0) {};
 
     ~Caravan() = default;
 

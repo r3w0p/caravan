@@ -3,14 +3,15 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "caravan/model/game.h"
+#include "caravan/core/exceptions.h"
 
 /**
  * @param gc Game configuration.
  * 
  * @throws CaravanFatalModelException Invalid name for first player.
  */
-Game::Game(const GameConfig *gc) {
-    if (gc->player_first == NO_PLAYER) {
+Game::Game(const GameConfig &gc) {
+    if (gc.player_first == NO_PLAYER) {
         throw CaravanFatalModelException(
             "Invalid player name for first player "
             "in game configuration.");
@@ -19,15 +20,15 @@ Game::Game(const GameConfig *gc) {
     // Generate decks for each player
     std::unique_ptr<Deck> deck_abc(
         DeckBuilder::build_caravan_deck(
-            gc->player_abc_cards,
-            gc->player_abc_samples,
-            gc->player_abc_balanced));
+            gc.player_abc_cards,
+            gc.player_abc_samples,
+            gc.player_abc_balanced));
 
     std::unique_ptr<Deck> deck_def(
         DeckBuilder::build_caravan_deck(
-        gc->player_def_cards,
-        gc->player_def_samples,
-        gc->player_def_balanced));
+        gc.player_def_cards,
+        gc.player_def_samples,
+        gc.player_def_balanced));
 
     // Create game table
     table = std::make_unique<Table>();
@@ -37,7 +38,7 @@ Game::Game(const GameConfig *gc) {
     player_def = std::make_unique<Player>(PLAYER_DEF, std::move(deck_def));
 
     // Determine which player moves first
-    player_turn = gc->player_first == player_abc->get_name() ?
+    player_turn = gc.player_first == player_abc->get_name() ?
         player_abc.get() : player_def.get();
 }
 
@@ -323,4 +324,12 @@ void Game::option_play(Player *pptr, GameCommand *command) {
     }
 
     pptr->discard_from_hand_at(command->pos_hand);
+}
+
+void Game::subscribe(GameSubscriber &subscriber) {
+    subscribers.push_back(&subscriber);
+}
+
+void Game::unsubscribe(GameSubscriber &subscriber) {
+    subscribers.remove(&subscriber);
 }

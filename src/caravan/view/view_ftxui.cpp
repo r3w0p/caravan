@@ -2,8 +2,9 @@
 // The following code can be redistributed and/or
 // modified under the terms of the GPL-3.0 License.
 
+#include "caravan/core/exceptions.h"
 #include "caravan/user/user.h"
-#include "caravan/view/view_tui.h"
+#include "caravan/view/view_ftxui.h"
 
 #include <memory>
 #include <string>
@@ -45,13 +46,9 @@ const std::string NAME_PL2 = "PL2";
 const std::string NAME_BOT1 = "BOT1";
 const std::string NAME_BOT2 = "BOT2";
 
-ViewTUI::ViewTUI(Game *game, ViewConfig *vc): View(game) {
-    if (vc->user_abc == nullptr || vc->user_def == nullptr) {
-        throw CaravanFatalException("Users must be provided to view.");
-    }
-
-    this->vc = vc;
-}
+/*
+ * PRIVATE
+ */
 
 uint64_t time_milliseconds() {
     using namespace std::chrono;
@@ -376,7 +373,7 @@ void process_fourth(const std::string &input, GameCommand *command) {
     }
 }
 
-GameCommand ViewTUI::parse_user_input(const std::string &input, bool confirmed) {
+GameCommand ViewFTXUI::parse_user_input(const std::string &input, bool confirmed) {
     GameCommand command;
 
     if (input.empty()) { return command; }
@@ -868,7 +865,15 @@ void set_current_turn(ViewConfig *vc, Game *game) {
  * PUBLIC
  */
 
-void ViewTUI::run() {
+ViewFTXUI::ViewFTXUI(Game *game, ViewConfig &vc) : View(game) {
+    if (vc.user_abc == nullptr || vc.user_def == nullptr) {
+        throw CaravanFatalException("Users must be provided to view.");
+    }
+
+    this->vc = &vc;
+}
+
+void ViewFTXUI::run() {
     using namespace ftxui;
 
     // Screen config

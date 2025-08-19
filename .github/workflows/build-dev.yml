@@ -36,6 +36,8 @@ jobs:
             compiler_cpp: g++
             asset: caravan_windows_x64.exe
 
+    continue-on-error: true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4

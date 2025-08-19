@@ -4,8 +4,9 @@
 
 #include <iostream>
 #include "cxxopts.hpp"
-#include "caravan/view/view_tui.h"
+#include "caravan/view/view_ftxui.h"
 #include "caravan/user/bot/factory.h"
+#include "caravan/core/exceptions.h"
 
 const std::string OPTS_HELP = "h,help";
 const std::string OPTS_VERSION = "v,version";
@@ -104,7 +105,7 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
 
-        if(delay < 0) {
+        if (delay < 0) {
             printf("Bot delay cannot be a negative number.\n");
             exit(EXIT_FAILURE);
         }
@@ -134,8 +135,10 @@ int main(int argc, char *argv[]) {
             .bot_delay_sec=delay
         };
 
-        game = std::make_unique<Game>(&gc);
-        view = std::make_unique<ViewTUI>(game.get(), &vc);
+        game = std::make_unique<Game>(gc);
+        view = std::make_unique<ViewFTXUI>(game.get(), vc);
+
+        view->run();
 
     } catch (CaravanException &e) {
         printf("%s\n", e.what().c_str());
@@ -145,6 +148,4 @@ int main(int argc, char *argv[]) {
         printf("%s\n", e.what());
         exit(EXIT_FAILURE);
     }
-
-    view->run();  // TODO catch fatal exceptions
 }

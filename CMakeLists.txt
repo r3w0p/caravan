@@ -54,6 +54,7 @@ include_directories(include)
 
 add_library(core
         "include/caravan/core/exceptions.h"
+        "include/caravan/core/pubsub.h"
 
         "src/caravan/core/exceptions.cpp"
 )
@@ -87,9 +88,9 @@ add_library(user
 
 add_library(view
         "include/caravan/view/view.h"
-        "include/caravan/view/view_tui.h"
+        "include/caravan/view/view_ftxui.h"
 
-        "src/caravan/view/view_tui.cpp"
+        "src/caravan/view/view_ftxui.cpp"
 )
 
 target_link_libraries(view
