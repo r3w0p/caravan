@@ -102,7 +102,7 @@ using GameConfig = struct GameConfig {
     PlayerName player_first{NO_PLAYER};
 };
 
-using GameCommand = struct GameCommand {
+using GameMove = struct GameMove {
     OptionType option{NO_OPTION};
     uint8_t pos_hand{0};
     CaravanName caravan_name{NO_CARAVAN};

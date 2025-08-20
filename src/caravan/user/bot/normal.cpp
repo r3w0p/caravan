@@ -18,7 +18,7 @@ uint8_t pos_card_numeral(Player *p) {
 
     for (int pos = 1; pos <= size_hand; ++pos) {
         if (p->get_from_hand_at(pos).is_numeral_card()) {
-            return pos + 1;
+            return pos;
         }
     }
 
@@ -81,6 +81,7 @@ std::string UserBotNormal::generate_move(
     bool allow_numeral,
     bool allow_face,
     bool allow_clear) {
+
     Player *me = game->get_player(name);
     uint8_t my_hand_size = me->get_size_hand();
 
@@ -242,15 +243,7 @@ std::string UserBotNormal::generate_move(
  * PUBLIC
  */
 
-void UserBotNormal::close() {
-    if (!closed) {
-        closed = true;
-    }
-}
-
 std::string UserBotNormal::request_move(Game *game) {
-    if (closed) { throw CaravanFatalException("Bot is closed."); }
-
     std::string move = generate_move(game, true, true, true);
 
     // Return move if able to generate one

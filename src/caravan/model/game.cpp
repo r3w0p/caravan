@@ -5,13 +5,17 @@
 #include "caravan/model/game.h"
 #include "caravan/core/exceptions.h"
 
+/*
+ * PUBLIC
+ */
+
 /**
  * @param gc Game configuration.
- * 
+ *
  * @throws CaravanFatalModelException Invalid name for first player.
  */
-Game::Game(const GameConfig &gc) {
-    if (gc.player_first == NO_PLAYER) {
+Game::Game(const GameConfig &config) {
+    if (config.player_first == NO_PLAYER) {
         throw CaravanFatalModelException(
             "Invalid player name for first player "
             "in game configuration.");
@@ -20,15 +24,15 @@ Game::Game(const GameConfig &gc) {
     // Generate decks for each player
     std::unique_ptr<Deck> deck_abc(
         DeckBuilder::build_caravan_deck(
-            gc.player_abc_cards,
-            gc.player_abc_samples,
-            gc.player_abc_balanced));
+            config.player_abc_cards,
+            config.player_abc_samples,
+            config.player_abc_balanced));
 
     std::unique_ptr<Deck> deck_def(
         DeckBuilder::build_caravan_deck(
-        gc.player_def_cards,
-        gc.player_def_samples,
-        gc.player_def_balanced));
+            config.player_def_cards,
+            config.player_def_samples,
+            config.player_def_balanced));
 
     // Create game table
     table = std::make_unique<Table>();
@@ -38,8 +42,27 @@ Game::Game(const GameConfig &gc) {
     player_def = std::make_unique<Player>(PLAYER_DEF, std::move(deck_def));
 
     // Determine which player moves first
-    player_turn = gc.player_first == player_abc->get_name() ?
+    player_turn = config.player_first == player_abc->get_name() ?
         player_abc.get() : player_def.get();
+}
+
+CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
+    switch (cvname) {
+        case CARAVAN_A:
+            return CARAVAN_D;
+        case CARAVAN_B:
+            return CARAVAN_E;
+        case CARAVAN_C:
+            return CARAVAN_F;
+        case CARAVAN_D:
+            return CARAVAN_A;
+        case CARAVAN_E:
+            return CARAVAN_B;
+        case CARAVAN_F:
+            return CARAVAN_C;
+        default:
+            return NO_CARAVAN;
+    }
 }
 
 Player *Game::get_player(PlayerName pname) const {
@@ -126,15 +149,31 @@ PlayerName Game::get_winner() {
     return NO_PLAYER;
 }
 
-void Game::play_option(GameCommand *command) {
+bool Game::is_caravan_bust(CaravanName cvname) {
+    if (cvname == NO_CARAVAN) {
+        return false;
+    }
+
+    return table->get_caravan(cvname)->get_bid() > CARAVAN_SOLD_MAX;
+}
+
+bool Game::is_caravan_winning(CaravanName cvname) {
+    if (cvname == NO_CARAVAN) {
+        return false;
+    }
+
+    return winning_bid(cvname, get_opposite_caravan_name(cvname)) == cvname;
+}
+
+void Game::make_move(GameMove *move) {
     if (get_winner() != NO_PLAYER) {
         throw CaravanFatalModelException(
             "The game has already been won.");
     }
 
-    switch (command->option) {
+    switch (move->option) {
         case OPTION_PLAY:
-            option_play(player_turn, command);
+            option_play(player_turn, move);
             break;
 
         case OPTION_DISCARD:
@@ -144,7 +183,7 @@ void Game::play_option(GameCommand *command) {
                     "the Start round.");
             }
 
-            option_discard(player_turn, command);
+            option_discard(player_turn, move);
             break;
 
         case OPTION_CLEAR:
@@ -154,7 +193,7 @@ void Game::play_option(GameCommand *command) {
                     "the Start round.");
             }
 
-            option_clear(player_turn, command);
+            option_clear(player_turn, move);
             break;
 
         default:
@@ -168,41 +207,6 @@ void Game::play_option(GameCommand *command) {
         player_turn = player_def.get();
     } else {
         player_turn = player_abc.get();
-    }
-}
-
-bool Game::is_caravan_winning(CaravanName cvname) {
-    if(cvname == NO_CARAVAN) {
-        return false;
-    }
-
-    return winning_bid(cvname, get_opposite_caravan_name(cvname)) == cvname;
-}
-
-bool Game::is_caravan_bust(CaravanName cvname) {
-    if (cvname == NO_CARAVAN) {
-        return false;
-    }
-
-    return table->get_caravan(cvname)->get_bid() > CARAVAN_SOLD_MAX;
-}
-
-CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
-    switch (cvname) {
-        case CARAVAN_A:
-            return CARAVAN_D;
-        case CARAVAN_B:
-            return CARAVAN_E;
-        case CARAVAN_C:
-            return CARAVAN_F;
-        case CARAVAN_D:
-            return CARAVAN_A;
-        case CARAVAN_E:
-            return CARAVAN_B;
-        case CARAVAN_F:
-            return CARAVAN_C;
-        default:
-            return NO_CARAVAN;
     }
 }
 
@@ -250,47 +254,47 @@ bool Game::has_sold(CaravanName cvname) {
     return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
-void Game::option_clear(const Player *pptr, GameCommand *command) {
-    PlayerCaravanNames pcns = get_player_caravan_names(pptr->get_name());
+void Game::option_clear(const Player *player, GameMove *move) {
+    PlayerCaravanNames pcns = get_player_caravan_names(player->get_name());
 
-    if (pcns[0] != command->caravan_name and
-        pcns[1] != command->caravan_name and
-        pcns[2] != command->caravan_name) {
+    if (pcns[0] != move->caravan_name and
+        pcns[1] != move->caravan_name and
+        pcns[2] != move->caravan_name) {
         throw CaravanIllegalModelException(
             "A player cannot clear their opponent's caravans.");
     }
 
-    table->clear_caravan(command->caravan_name);
+    table->clear_caravan(move->caravan_name);
 }
 
-void Game::option_discard(Player *pptr, GameCommand *command) {
+void Game::option_discard(Player *player, GameMove *move) {
     Card c_hand;
-    c_hand = pptr->discard_from_hand_at(command->pos_hand);
+    c_hand = player->discard_from_hand_at(move->pos_hand);
 
-    command->hand = c_hand;  // Log to command
+    move->hand = c_hand;  // Log to move
 }
 
-void Game::option_play(Player *pptr, GameCommand *command) {
-    Card c_hand = pptr->get_from_hand_at(command->pos_hand);
+void Game::option_play(Player *player, GameMove *move) {
+    Card c_hand = player->get_from_hand_at(move->pos_hand);
 
-    command->hand = c_hand;  // Log to command
+    move->hand = c_hand;  // Log to move
 
-    bool in_start_stage = pptr->get_moves_count() < MOVES_START_ROUND;
+    bool in_start_stage = player->get_moves_count() < MOVES_START_ROUND;
     bool pa_playing_num_onto_pa_caravans;
     bool pb_playing_num_onto_pb_caravans;
 
     if (c_hand.is_numeral_card()) {
         pa_playing_num_onto_pa_caravans =
-            pptr->get_name() == player_abc->get_name() and
-            (command->caravan_name == CARAVAN_A or
-             command->caravan_name == CARAVAN_B or
-             command->caravan_name == CARAVAN_C);
+            player->get_name() == player_abc->get_name() and
+            (move->caravan_name == CARAVAN_A or
+             move->caravan_name == CARAVAN_B or
+             move->caravan_name == CARAVAN_C);
 
         pb_playing_num_onto_pb_caravans =
-            pptr->get_name() == player_def->get_name() and
-            (command->caravan_name == CARAVAN_D or
-             command->caravan_name == CARAVAN_E or
-             command->caravan_name == CARAVAN_F);
+            player->get_name() == player_def->get_name() and
+            (move->caravan_name == CARAVAN_D or
+             move->caravan_name == CARAVAN_E or
+             move->caravan_name == CARAVAN_F);
 
         if (!(pa_playing_num_onto_pa_caravans or
               pb_playing_num_onto_pb_caravans)) {
@@ -300,13 +304,13 @@ void Game::option_play(Player *pptr, GameCommand *command) {
         }
 
         if (in_start_stage and
-            table->get_caravan(command->caravan_name)->get_size() > 0) {
+            table->get_caravan(move->caravan_name)->get_size() > 0) {
             throw CaravanIllegalModelException(
                 "A numeral card must be played on an empty caravan "
                 "during the Start round.");
         }
 
-        table->play_numeral_card(command->caravan_name, c_hand);
+        table->play_numeral_card(move->caravan_name, c_hand);
 
     } else {  // is a face card
         if (in_start_stage) {
@@ -315,21 +319,13 @@ void Game::option_play(Player *pptr, GameCommand *command) {
                 "Start round.");
         }
 
-        // Log to command
-        command->board = table->get_caravan(command->caravan_name)->get_slot(command->pos_caravan).card;
+        // Log to move
+        move->board = table->get_caravan(move->caravan_name)->get_slot(move->pos_caravan).card;
         table->play_face_card(
-            command->caravan_name,
+            move->caravan_name,
             c_hand,
-            command->pos_caravan);
+            move->pos_caravan);
     }
 
-    pptr->discard_from_hand_at(command->pos_hand);
-}
-
-void Game::subscribe(GameSubscriber &subscriber) {
-    subscribers.push_back(&subscriber);
-}
-
-void Game::unsubscribe(GameSubscriber &subscriber) {
-    subscribers.remove(&subscriber);
+    player->discard_from_hand_at(move->pos_hand);
 }

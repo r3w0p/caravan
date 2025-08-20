@@ -38,16 +38,17 @@ int main(int argc, char *argv[]) {
     std::unique_ptr<User> user_abc;
     std::unique_ptr<User> user_def;
     std::unique_ptr<Game> game;
+    std::unique_ptr<ControllerStrToMove> ctrl;
     std::unique_ptr<View> view;
 
     try {
         cxxopts::Options options(CARAVAN_NAME);
 
-        options.add_options()
+        options.add_options()  // TODO cheat option (shows other player's hand)
             (OPTS_HELP, "Print help instructions.")
             (OPTS_VERSION, "Print Caravan version.")
             (OPTS_PVP, "A Player vs Player game.")
-            (OPTS_BVB, "A Bot vs Bot game.")
+            (OPTS_BVB, "A Bot vs Bot game.")  // TODO bot1 bot2 instead
             (OPTS_BOT, "Which bot to play with (normal, friendly).", cxxopts::value<std::string>()->default_value("normal"))
             (OPTS_DELAY, "Delay before bot makes its move (in seconds).", cxxopts::value<float>()->default_value("1.0"))
             (OPTS_FIRST, "Which player goes first (1 or 2).", cxxopts::value<uint8_t>()->default_value("1"))
@@ -111,15 +112,15 @@ int main(int argc, char *argv[]) {
         }
 
         if(pvp) {  // human vs human
-            user_abc = std::make_unique<UserHuman>(PLAYER_ABC);
-            user_def = std::make_unique<UserHuman>(PLAYER_DEF);
+            user_abc = std::make_unique<UserFTXUI>(PLAYER_ABC);
+            user_def = std::make_unique<UserFTXUI>(PLAYER_DEF);
 
         } else if (bvb) {  // bot vs bot
             user_abc = std::unique_ptr<UserBot>(BotFactory::get(bot, PLAYER_ABC));
             user_def = std::unique_ptr<UserBot>(BotFactory::get(bot, PLAYER_DEF));
 
         } else {  // humans vs bot
-            user_abc = std::make_unique<UserHuman>(PLAYER_ABC);
+            user_abc = std::make_unique<UserFTXUI>(PLAYER_ABC);
             user_def = std::unique_ptr<UserBot>(BotFactory::get(bot, PLAYER_DEF));
         }
 
@@ -136,7 +137,8 @@ int main(int argc, char *argv[]) {
         };
 
         game = std::make_unique<Game>(gc);
-        view = std::make_unique<ViewFTXUI>(game.get(), vc);
+        ctrl = std::make_unique<ControllerStrToMove>();
+        view = std::make_unique<ViewFTXUI>(game.get(), ctrl.get(), vc);
 
         view->run();
 

@@ -5,14 +5,12 @@
 #ifndef CARAVAN_CONTROLLER_CONTROLLER_H
 #define CARAVAN_CONTROLLER_CONTROLLER_H
 
-#include "caravan/core/pubsub.h"
 #include "caravan/model/types.h"
 
-class Controller {};
-
-class ControllerSubscriber : public CaravanSubscriber {
+template <typename T, typename U>
+class Controller {
 public:
-    virtual void on_controller_game_command(GameCommand gc) = 0;
+    virtual U convert(const T &input, bool confirmed) = 0;
 };
 
 #endif //CARAVAN_CONTROLLER_CONTROLLER_H

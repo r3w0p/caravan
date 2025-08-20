@@ -8,6 +8,7 @@
 #include "caravan/view/view.h"
 #include <string>
 #include "caravan/user/user.h"
+#include "caravan/controller/controller_str_to_move.h"
 #include "ftxui/dom/elements.hpp"
 
 typedef struct ViewConfig {
@@ -33,10 +34,10 @@ typedef struct ViewConfig {
     ftxui::Elements msg_move_def;
 
     // Most recent command
-    GameCommand command;
+    GameMove command;
 
     // Board highlight
-    GameCommand highlight;
+    GameMove highlight;
 
     // Colour support
     bool colour{};
@@ -48,11 +49,11 @@ typedef struct ViewConfig {
 
 class ViewFTXUI : public View {
 protected:
+    ControllerStrToMove *ctrl;
     ViewConfig *vc;
-    GameCommand parse_user_input(const std::string& input, bool confirmed);  // TODO move to controller
 
 public:
-    explicit ViewFTXUI(Game *game, ViewConfig &vc);
+    explicit ViewFTXUI(Game *game, ControllerStrToMove *ctrl, ViewConfig &vc);
 
     void run() override;
 };

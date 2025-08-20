@@ -52,9 +52,15 @@ FetchContent_MakeAvailable(googletest)
 # --- caravan libraries
 include_directories(include)
 
+add_library(controller
+        "include/caravan/controller/controller.h"
+        "include/caravan/controller/controller_str_to_move.h"
+
+        "src/caravan/controller/controller_str_to_move.cpp"
+)
+
 add_library(core
         "include/caravan/core/exceptions.h"
-        "include/caravan/core/pubsub.h"
 
         "src/caravan/core/exceptions.cpp"
 )
@@ -73,7 +79,7 @@ add_library(model
         "src/caravan/model/table.cpp"
 )
 
-target_link_libraries(model core)
+target_link_libraries(model core controller)
 
 add_library(user
         "include/caravan/user/user.h"

@@ -22,21 +22,22 @@ jobs:
             os: ubuntu-latest
             compiler_cc: gcc
             compiler_cpp: g++
-            asset: caravan_linux_x64
+            asset_before: caravan
+            asset_after: caravan_linux_x64
 
           - name: MacOS Clang x64
             os: macos-latest
             compiler_cc: clang
             compiler_cpp: clang++
-            asset: caravan_macos_x64
+            asset_before: caravan
+            asset_after: caravan_macos_x64
 
           - name: Windows GCC x64
             os: windows-latest
             compiler_cc: gcc
             compiler_cpp: g++
-            asset: caravan_windows_x64.exe
-
-    continue-on-error: true
+            asset_before: caravan.exe
+            asset_after: caravan_windows_x64.exe
 
     steps:
       - name: Checkout
@@ -56,4 +57,4 @@ jobs:
 
       - name: Rename Executable
         working-directory: ./build
-        run: mv caravan.exe ${{matrix.asset}}
+        run: mv ${{matrix.asset_before}} ${{matrix.asset_after}}

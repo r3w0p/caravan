@@ -9,11 +9,10 @@
 #include <list>
 #include "caravan/model/table.h"
 #include "caravan/model/player.h"
-#include "caravan/core/pubsub.h"
 
 class GameSubscriber;
 
-class Game : public CaravanPublisher<GameSubscriber> {
+class Game {
 protected:
     std::unique_ptr<Table> table;
     std::unique_ptr<Player> player_abc;
@@ -28,14 +27,14 @@ protected:
 
     bool has_sold(CaravanName cvname);
 
-    void option_clear(const Player *pptr, GameCommand *command);
+    void option_clear(const Player *player, GameMove *move);
 
-    static void option_discard(Player *pptr, GameCommand *command);
+    static void option_discard(Player *player, GameMove *move);
 
-    void option_play(Player *pptr, GameCommand *command);
+    void option_play(Player *player, GameMove *move);
 
 public:
-    explicit Game(const GameConfig &gc);
+    explicit Game(const GameConfig &config);
 
     ~Game() = default;
 
@@ -45,27 +44,17 @@ public:
 
     PlayerCaravanNames get_player_caravan_names(PlayerName pname) const;
 
-    bool is_caravan_winning(CaravanName cvname);
-
-    bool is_caravan_bust(CaravanName cvname);
-
     PlayerName get_player_turn() const;
 
     Table *get_table() const;
 
     PlayerName get_winner();
 
-    void play_option(GameCommand *command);
+    bool is_caravan_bust(CaravanName cvname);
 
-    void subscribe(GameSubscriber &subscriber) override;
+    bool is_caravan_winning(CaravanName cvname);
 
-    void unsubscribe(GameSubscriber &subscriber) override;
-};
-
-class GameSubscriber : public CaravanSubscriber {
-public:
-    virtual void on_game_update_success(Game &game, GameCommand gc) = 0;
-    virtual void on_game_update_failure(Game &game, GameCommand gc) = 0;
+    void make_move(GameMove *move);
 };
 
 #endif //CARAVAN_MODEL_GAME_H
