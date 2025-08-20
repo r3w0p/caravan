@@ -8,13 +8,13 @@
 #include <string>
 #include <chrono>
 
-void process_first(const std::string &input, GameMove *command) {
+void process_first(const std::string &input, GameMove *move) {
     char c = input.at(0);  // minimum input size already checked elsewhere
 
     switch (c) {
         case 'P':
         case 'p':
-            command->option = OPTION_PLAY;
+            move->option = OPTION_PLAY;
             /*
              * P2F
              * "Play numeral card at hand pos 2 onto caravan F"
@@ -26,7 +26,7 @@ void process_first(const std::string &input, GameMove *command) {
 
         case 'D':
         case 'd':
-            command->option = OPTION_DISCARD;
+            move->option = OPTION_DISCARD;
             /*
              * D3
              * "Discard card at hand pos 3"
@@ -39,7 +39,7 @@ void process_first(const std::string &input, GameMove *command) {
              * CE
              * "Clear caravan E"
              */
-            command->option = OPTION_CLEAR;
+            move->option = OPTION_CLEAR;
             break;
 
         default:
@@ -49,8 +49,8 @@ void process_first(const std::string &input, GameMove *command) {
     }
 }
 
-void process_second(const std::string &input, GameMove *command) {
-    if (command->option == OPTION_PLAY or command->option == OPTION_DISCARD) {
+void process_second(const std::string &input, GameMove *move) {
+    if (move->option == OPTION_PLAY or move->option == OPTION_DISCARD) {
 
         if (input.size() < 2) {
             throw CaravanIllegalControllerException("A hand position has not been entered.");
@@ -60,35 +60,35 @@ void process_second(const std::string &input, GameMove *command) {
 
         switch (c) {
             case '1':
-                command->pos_hand = 1;
+                move->pos_hand = 1;
                 break;
             case '2':
-                command->pos_hand = 2;
+                move->pos_hand = 2;
                 break;
             case '3':
-                command->pos_hand = 3;
+                move->pos_hand = 3;
                 break;
             case '4':
-                command->pos_hand = 4;
+                move->pos_hand = 4;
                 break;
             case '5':
-                command->pos_hand = 5;
+                move->pos_hand = 5;
                 break;
             case '6':
-                command->pos_hand = 6;
+                move->pos_hand = 6;
                 break;
             case '7':
-                command->pos_hand = 7;
+                move->pos_hand = 7;
                 break;
             case '8':
-                command->pos_hand = 8;
+                move->pos_hand = 8;
                 break;
             default:
                 throw CaravanIllegalControllerException(
                     "Invalid hand position '" + std::string(1, c) + "'.");
         }
 
-    } else if (command->option == OPTION_CLEAR) {
+    } else if (move->option == OPTION_CLEAR) {
 
         if (input.size() < 2) {
             throw CaravanIllegalControllerException("A caravan name has not been entered.");
@@ -99,27 +99,27 @@ void process_second(const std::string &input, GameMove *command) {
         switch (c) {
             case 'A':
             case 'a':
-                command->caravan_name = CARAVAN_A;
+                move->caravan_name = CARAVAN_A;
                 break;
             case 'B':
             case 'b':
-                command->caravan_name = CARAVAN_B;
+                move->caravan_name = CARAVAN_B;
                 break;
             case 'C':
             case 'c':
-                command->caravan_name = CARAVAN_C;
+                move->caravan_name = CARAVAN_C;
                 break;
             case 'D':
             case 'd':
-                command->caravan_name = CARAVAN_D;
+                move->caravan_name = CARAVAN_D;
                 break;
             case 'E':
             case 'e':
-                command->caravan_name = CARAVAN_E;
+                move->caravan_name = CARAVAN_E;
                 break;
             case 'F':
             case 'f':
-                command->caravan_name = CARAVAN_F;
+                move->caravan_name = CARAVAN_F;
                 break;
             default:
                 throw CaravanIllegalControllerException(
@@ -127,11 +127,11 @@ void process_second(const std::string &input, GameMove *command) {
                     "', must be between: A-F.");
         }
 
-    } // else invalid command type, handled during parse of first character
+    } // else invalid move type, handled during parse of first character
 }
 
-void process_third(const std::string &input, GameMove *command) {
-    if (command->option == OPTION_PLAY) {
+void process_third(const std::string &input, GameMove *move) {
+    if (move->option == OPTION_PLAY) {
 
         if (input.size() < 3) {
             throw CaravanIllegalControllerException("A caravan name has not been entered.");
@@ -142,27 +142,27 @@ void process_third(const std::string &input, GameMove *command) {
         switch (c) {
             case 'A':
             case 'a':
-                command->caravan_name = CARAVAN_A;
+                move->caravan_name = CARAVAN_A;
                 break;
             case 'B':
             case 'b':
-                command->caravan_name = CARAVAN_B;
+                move->caravan_name = CARAVAN_B;
                 break;
             case 'C':
             case 'c':
-                command->caravan_name = CARAVAN_C;
+                move->caravan_name = CARAVAN_C;
                 break;
             case 'D':
             case 'd':
-                command->caravan_name = CARAVAN_D;
+                move->caravan_name = CARAVAN_D;
                 break;
             case 'E':
             case 'e':
-                command->caravan_name = CARAVAN_E;
+                move->caravan_name = CARAVAN_E;
                 break;
             case 'F':
             case 'f':
-                command->caravan_name = CARAVAN_F;
+                move->caravan_name = CARAVAN_F;
                 break;
             default:
                 throw CaravanIllegalControllerException(
@@ -172,8 +172,8 @@ void process_third(const std::string &input, GameMove *command) {
     }
 }
 
-void process_fourth(const std::string &input, GameMove *command) {
-    if (command->option == OPTION_PLAY) {
+void process_fourth(const std::string &input, GameMove *move) {
+    if (move->option == OPTION_PLAY) {
 
         if (input.size() < 4) { return; }  // optional, not an error
 
@@ -181,28 +181,28 @@ void process_fourth(const std::string &input, GameMove *command) {
 
         switch (c) {
             case '1':
-                command->pos_caravan = 1;
+                move->pos_caravan = 1;
                 break;
             case '2':
-                command->pos_caravan = 2;
+                move->pos_caravan = 2;
                 break;
             case '3':
-                command->pos_caravan = 3;
+                move->pos_caravan = 3;
                 break;
             case '4':
-                command->pos_caravan = 4;
+                move->pos_caravan = 4;
                 break;
             case '5':
-                command->pos_caravan = 5;
+                move->pos_caravan = 5;
                 break;
             case '6':
-                command->pos_caravan = 6;
+                move->pos_caravan = 6;
                 break;
             case '7':
-                command->pos_caravan = 7;
+                move->pos_caravan = 7;
                 break;
             case '8':
-                command->pos_caravan = 8;
+                move->pos_caravan = 8;
                 break;
             default:
                 throw CaravanIllegalControllerException(
@@ -212,47 +212,47 @@ void process_fourth(const std::string &input, GameMove *command) {
 }
 
 GameMove ControllerStrToMove::convert(const std::string &input, bool confirmed) {
-    GameMove command;
+    GameMove move;
 
-    if (input.empty()) return command;
+    if (input.empty()) return move;
 
     try {
         /*
          * FIRST
-         * - COMMAND TYPE
+         * - MOVE TYPE
          */
-        process_first(input, &command);
+        process_first(input, &move);
 
         /*
          * SECOND
          * - HAND POSITION or
          * - CARAVAN NAME
          */
-        process_second(input, &command);
+        process_second(input, &move);
 
         /*
          * THIRD
          * - CARAVAN NAME
          */
-        process_third(input, &command);
+        process_third(input, &move);
 
         /*
          * FOURTH
          * - CARAVAN POSITION (used when selecting Face card only)
          */
-        process_fourth(input, &command);
+        process_fourth(input, &move);
 
     } catch (CaravanIllegalControllerException &e) {
         if (confirmed) {
-            // For confirmed commands: throw to other handling that prints
-            // command errors to the player
+            // For confirmed moves: throw to other handling that prints
+            // move errors to the player
             throw;
         }
 
-        // For unconfirmed commands: accept whatever was able to be parsed
+        // For unconfirmed moves: accept whatever was able to be parsed
         // so that it can be used for highlighting the game board
-        return command;
+        return move;
     }
 
-    return command;
+    return move;
 }

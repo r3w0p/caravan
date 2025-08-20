@@ -10,7 +10,7 @@
 class BotFactory {
 public:
     BotFactory() = delete;
-    static UserBot *get(std::string name, PlayerName player_name);
+    static UserBot *get(std::string name, PlayerName pname);
 };
 
 #endif //CARAVAN_USER_BOT_FACTORY_H

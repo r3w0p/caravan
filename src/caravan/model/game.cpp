@@ -10,7 +10,7 @@
  */
 
 /**
- * @param gc Game configuration.
+ * @param config Game configuration.
  *
  * @throws CaravanFatalModelException Invalid name for first player.
  */

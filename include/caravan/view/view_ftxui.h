@@ -25,7 +25,7 @@ typedef struct ViewConfig {
     std::string name_next;
 
     // Messages to users
-    std::string msg_main; // command entered, general messages, winner
+    std::string msg_main; // move chosen, general messages, winner
     std::string msg_important; // game errors, next turn
     std::string msg_fatal; // game closing due to major problem
 
@@ -33,8 +33,8 @@ typedef struct ViewConfig {
     ftxui::Elements msg_move_abc;
     ftxui::Elements msg_move_def;
 
-    // Most recent command
-    GameMove command;
+    // Most recent move
+    GameMove move;
 
     // Board highlight
     GameMove highlight;
@@ -50,10 +50,10 @@ typedef struct ViewConfig {
 class ViewFTXUI : public View {
 protected:
     ControllerStrToMove *ctrl;
-    ViewConfig *vc;
+    ViewConfig *config;
 
 public:
-    explicit ViewFTXUI(Game *game, ControllerStrToMove *ctrl, ViewConfig &vc);
+    explicit ViewFTXUI(Game *game, ControllerStrToMove *ctrl, ViewConfig &config);
 
     void run() override;
 };

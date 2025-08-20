@@ -14,7 +14,7 @@ protected:
 public:
     virtual ~User() = default;
 
-    explicit User(PlayerName pn) : name(pn) {};
+    explicit User(PlayerName pname) : name(pname) {};
 
     PlayerName get_name() { return name; }
 
@@ -24,7 +24,7 @@ public:
 
 class UserFTXUI : public User {
 public:
-    explicit UserFTXUI(PlayerName pn) : User(pn) {};
+    explicit UserFTXUI(PlayerName pname) : User(pname) {};
 
     bool is_human() override { return true; }
     std::string request_move(Game *game) override { return {}; }
@@ -32,7 +32,7 @@ public:
 
 class UserBot : public User {
 public:
-    explicit UserBot(PlayerName pn) : User(pn) {};
+    explicit UserBot(PlayerName pname) : User(pname) {}
 
     bool is_human() override { return false; }
 };

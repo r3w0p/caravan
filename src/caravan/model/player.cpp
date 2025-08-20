@@ -5,8 +5,8 @@
 #include "caravan/model/player.h"
 #include "caravan/core/exceptions.h"
 
-Player::Player(const PlayerName pn, std::unique_ptr<Deck> d) {
-    name = pn;
+Player::Player(const PlayerName pname, std::unique_ptr<Deck> d) {
+    name = pname;
     deck = std::move(d);
     hand = {};
     i_hand = 0;

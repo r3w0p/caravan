@@ -9,7 +9,7 @@
 
 class UserBotFriendly : public UserBotNormal {
 public:
-    explicit UserBotFriendly(const PlayerName pn) : UserBotNormal(pn){};
+    explicit UserBotFriendly(const PlayerName pname) : UserBotNormal(pname){};
 
     std::string request_move(Game *game) override;
 };

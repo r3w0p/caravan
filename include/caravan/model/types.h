@@ -80,7 +80,7 @@ using Card = struct Card {
 using Hand = std::array<Card, HAND_SIZE_MAX_START>;
 using Deck = std::vector<Card>;
 using Faces = std::array<Card, TRACK_FACE_MAX>;
-using PlayerCaravanNames = std::array<CaravanName, 3>;
+using PlayerCaravanNames = std::array<CaravanName, PLAYER_CARAVANS_MAX>;
 
 using Slot = struct Slot {
     Card card{};

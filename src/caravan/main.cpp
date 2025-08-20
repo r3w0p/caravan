@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
             (OPTS_HELP, "Print help instructions.")
             (OPTS_VERSION, "Print Caravan version.")
             (OPTS_PVP, "A Player vs Player game.")
-            (OPTS_BVB, "A Bot vs Bot game.")  // TODO bot1 bot2 instead
+            (OPTS_BVB, "A Bot vs Bot game.")
             (OPTS_BOT, "Which bot to play with (normal, friendly).", cxxopts::value<std::string>()->default_value("normal"))
             (OPTS_DELAY, "Delay before bot makes its move (in seconds).", cxxopts::value<float>()->default_value("1.0"))
             (OPTS_FIRST, "Which player goes first (1 or 2).", cxxopts::value<uint8_t>()->default_value("1"))

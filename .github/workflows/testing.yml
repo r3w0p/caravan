@@ -19,6 +19,16 @@ jobs:
             compiler_cc: gcc
             compiler_cpp: g++
 
+          - name: MacOS Clang x64
+            os: macos-latest
+            compiler_cc: clang
+            compiler_cpp: clang++
+
+          - name: Windows GCC x64
+            os: windows-latest
+            compiler_cc: gcc
+            compiler_cpp: g++
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4

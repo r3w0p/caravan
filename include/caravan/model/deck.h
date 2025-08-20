@@ -11,7 +11,7 @@ class DeckBuilder {
 protected:
     static Deck build_traditional_deck(bool shuffle);
 
-    static Deck shuffle_deck(Deck d);
+    static Deck shuffle_deck(Deck deck);
 
 public:
     DeckBuilder() = delete;

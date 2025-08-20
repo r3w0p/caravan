@@ -141,12 +141,12 @@ Deck DeckBuilder::build_traditional_deck(const bool shuffle) {
 }
 
 /**
- * @param d The deck to shuffle.
+ * @param deck The deck to shuffle.
  * @return A deck with shuffled cards.
  */
-Deck DeckBuilder::shuffle_deck(Deck d) {
+Deck DeckBuilder::shuffle_deck(Deck deck) {
     const unsigned seed = std::chrono::system_clock::now().time_since_epoch().
         count();
-    std::ranges::shuffle(d, std::default_random_engine(seed));
-    return d;
+    std::ranges::shuffle(deck, std::default_random_engine(seed));
+    return deck;
 }

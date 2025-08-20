@@ -66,11 +66,11 @@ TEST (TestGame, PlayOption_Error_StartRound_Remove) {
         30, 1, true,
         PLAYER_ABC
     };
-    GameMove command = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
+    GameMove move = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
     Game g{gc};
 
     try {
-        g.make_move(&command);
+        g.make_move(&move);
         FAIL();
 
     } catch (CaravanIllegalException &e) {
@@ -86,11 +86,11 @@ TEST (TestGame, PlayOption_Error_StartRound_Clear) {
         30, 1, true,
         PLAYER_ABC
     };
-    GameMove command = {OPTION_CLEAR, 0, CARAVAN_A, 0};
+    GameMove move = {OPTION_CLEAR, 0, CARAVAN_A, 0};
     Game g{gc};
 
     try {
-        g.make_move(&command);
+        g.make_move(&move);
         FAIL();
 
     } catch (CaravanIllegalException &e) {

@@ -13,7 +13,7 @@ protected:
     Game *game;
 
 public:
-    explicit View(Game *g) : game(g) {};
+    explicit View(Game *game) : game(game) {};
 
     virtual ~View() = default;
 

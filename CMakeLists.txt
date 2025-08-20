@@ -83,13 +83,18 @@ target_link_libraries(model core controller)
 
 add_library(user
         "include/caravan/user/user.h"
+        "include/caravan/user/functions.h"
         "include/caravan/user/bot/factory.h"
-        "include/caravan/user/bot/normal.h"
         "include/caravan/user/bot/friendly.h"
+        "include/caravan/user/bot/normal.h"
+        "include/caravan/user/bot/random.h"
 
+
+        "src/caravan/user/functions.cpp"
         "src/caravan/user/bot/factory.cpp"
-        "src/caravan/user/bot/normal.cpp"
         "src/caravan/user/bot/friendly.cpp"
+        "src/caravan/user/bot/normal.cpp"
+        "src/caravan/user/bot/random.cpp"
 )
 
 add_library(view

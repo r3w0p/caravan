@@ -5,6 +5,7 @@
 #include <random>
 #include "caravan/core/exceptions.h"
 #include "caravan/user/bot/normal.h"
+#include "caravan/user/functions.h"
 
 /*
  * PRIVATE
@@ -13,11 +14,11 @@
 const std::string PLAY = "P";
 const std::string CLEAR = "C";
 
-uint8_t pos_card_numeral(Player *p) {
-    uint8_t size_hand = p->get_size_hand();
+uint8_t pos_card_numeral(Player *player) {
+    uint8_t size_hand = player->get_size_hand();
 
     for (int pos = 1; pos <= size_hand; ++pos) {
-        if (p->get_from_hand_at(pos).is_numeral_card()) {
+        if (player->get_from_hand_at(pos).is_numeral_card()) {
             return pos;
         }
     }
@@ -25,27 +26,8 @@ uint8_t pos_card_numeral(Player *p) {
     return 0;
 }
 
-std::string caravan_letter(CaravanName caravan_name) {
-    switch (caravan_name) {
-        case CARAVAN_A:
-            return "A";
-        case CARAVAN_B:
-            return "B";
-        case CARAVAN_C:
-            return "C";
-        case CARAVAN_D:
-            return "D";
-        case CARAVAN_E:
-            return "E";
-        case CARAVAN_F:
-            return "F";
-        default:
-            return ""; // TODO default / exception / option?
-    }
-}
-
-uint8_t numeral_rank_value(Card c) {
-    switch (c.rank) {
+uint8_t numeral_rank_value(Card card) {
+    switch (card.rank) {
         case ACE:
             return 1;
         case TWO:

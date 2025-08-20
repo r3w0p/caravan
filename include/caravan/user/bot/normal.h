@@ -11,7 +11,7 @@ class UserBotNormal : public UserBot {
 protected:
     std::string generate_move(Game *game, bool allow_numeral, bool allow_face, bool allow_clear);
 public:
-    explicit UserBotNormal(PlayerName pn) : UserBot(pn){};
+    explicit UserBotNormal(PlayerName pname) : UserBot(pname){};
 
     std::string request_move(Game *game) override;
 };

@@ -39,6 +39,8 @@ jobs:
             asset_before: caravan.exe
             asset_after: caravan_windows_x64.exe
 
+    continue-on-error: true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4

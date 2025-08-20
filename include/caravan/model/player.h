@@ -20,7 +20,7 @@ protected:
     uint16_t moves;
 
 public:
-    explicit Player(PlayerName pn, std::unique_ptr<Deck> d);
+    explicit Player(PlayerName pname, std::unique_ptr<Deck> d);
 
     ~Player() = default;
 
