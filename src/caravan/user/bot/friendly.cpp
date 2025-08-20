@@ -14,7 +14,7 @@ std::string UserBotFriendly::request_move(Game *game) {
     std::string move = generate_move(game, true, false, true);
 
     // Return move if able to generate one
-    if (!move.empty()) { return move; }
+    if (!move.empty()) return move;
 
     // If no useful move could be made, discard first card in hand
     return "D1";

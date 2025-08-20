@@ -741,7 +741,6 @@ void ViewFTXUI::run() {
                 user_input = "";
                 time_bot_end = time_milliseconds();
 
-                // TODO make move, then delay (for bot random which could make many incorrect moves before success)
                 if((float) (time_bot_end-time_bot_start) >= (config->bot_delay_sec * 1000)) {
                     // Bot delay has elapsed, make move
                     raw_command = config->user_turn->request_move(game);
@@ -798,7 +797,9 @@ void ViewFTXUI::run() {
                 }
 
             } catch (CaravanIllegalException &e) {
-                config->msg_important = e.what();
+                if(config->user_turn->is_human()) {
+                    config->msg_important = e.what();
+                }
             }
 
             return gen_game(config, game, &comp_user_input);
