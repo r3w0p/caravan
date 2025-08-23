@@ -18,6 +18,7 @@ const std::string OPTS_FIRST = "f,first";
 const std::string OPTS_CARDS = "c,cards";
 const std::string OPTS_SAMPLES = "s,samples";
 const std::string OPTS_IMBALANCED = "i,imbalanced";
+const std::string OPTS_CHEAT = "cheat";
 
 const std::string KEY_HELP = "help";
 const std::string KEY_VERSION = "version";
@@ -29,6 +30,7 @@ const std::string KEY_FIRST = "first";
 const std::string KEY_CARDS = "cards";
 const std::string KEY_SAMPLES = "samples";
 const std::string KEY_IMBALANCED = "imbalanced";
+const std::string KEY_CHEAT = "cheat";
 
 constexpr uint8_t FIRST_ABC = 1;
 constexpr uint8_t FIRST_DEF = 2;
@@ -44,7 +46,7 @@ int main(int argc, char *argv[]) {
     try {
         cxxopts::Options options(CARAVAN_NAME);
 
-        options.add_options()  // TODO cheat option (shows other player's hand)
+        options.add_options()
             (OPTS_HELP, "Print help instructions.")
             (OPTS_VERSION, "Print Caravan version.")
             (OPTS_PVP, "A Player vs Player game.")
@@ -58,6 +60,7 @@ int main(int argc, char *argv[]) {
              "An imbalanced caravan deck is built by taking as many "
              "cards from one shuffled sample deck before moving to the next. "
              "A balanced deck randomly samples cards across all sample decks.")
+            (OPTS_CHEAT, "Always show both player's hands.")
         ;
 
         auto result = options.parse(argc, argv);
@@ -85,6 +88,7 @@ int main(int argc, char *argv[]) {
         uint8_t cards = result[KEY_CARDS].as<uint8_t>();
         uint8_t samples = result[KEY_SAMPLES].as<uint8_t>();
         bool imbalanced = result[KEY_IMBALANCED].as<bool>();
+        bool cheat = result[KEY_CHEAT].as<bool>();
 
         if (pvp && bvb) {
             printf("Game cannot be both Player vs Player and Bot vs Bot.\n");
@@ -133,7 +137,8 @@ int main(int argc, char *argv[]) {
         ViewConfig vc = {
             .user_abc=user_abc.get(),
             .user_def=user_def.get(),
-            .bot_delay_sec=delay
+            .bot_delay_sec=delay,
+            .cheat=cheat
         };
 
         game = std::make_unique<Game>(gc);

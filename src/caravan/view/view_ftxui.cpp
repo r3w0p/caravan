@@ -388,10 +388,12 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *config, Game *game, bool top) 
     uint8_t hand_max = std::max(std::max(hand_size_abc, hand_size_def), HAND_SIZE_MAX_POST_START);
     bool equalise = hand_size_abc != hand_size_def;
 
+    // if not cheating; or
     // if not this user's turn and both players are human; or
     // if this user is a bot playing against a human; or
     // if there is a winner and this user is a bot playing against a human
     bool hide =
+        !config->cheat && (
         (
             game->get_winner() == NO_PLAYER &&
             config->user_turn->get_name() != player_this->get_name() &&
@@ -405,7 +407,7 @@ std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *config, Game *game, bool top) 
         (
             game->get_winner() != NO_PLAYER &&
             (!user_this->is_human() && user_other->is_human())
-        );
+        ));
 
     for (uint8_t i = 0; i < hand_max; i++) {
         if ((top && (hand_max - i) <= hand_size_turn) || (!top && i + 1 <= hand_size_turn)) {
@@ -741,6 +743,9 @@ void ViewFTXUI::run() {
                 user_input = "";
                 time_bot_end = time_milliseconds();
 
+                // TODO sort flicker issue with bot random by determining
+                //  acceptable move during delay period
+                //  (split human and bot into separate functions)
                 if((float) (time_bot_end-time_bot_start) >= (config->bot_delay_sec * 1000)) {
                     // Bot delay has elapsed, make move
                     raw_command = config->user_turn->request_move(game);

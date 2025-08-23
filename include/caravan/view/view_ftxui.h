@@ -40,10 +40,13 @@ typedef struct ViewConfig {
     GameMove highlight;
 
     // Colour support
-    bool colour{};
+    bool colour{true};
 
     // Bot config
     float bot_delay_sec{0.0};
+
+    // Cheat
+    bool cheat{false};
 } ViewConfig;
 
 
