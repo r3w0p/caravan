@@ -20,6 +20,6 @@ std::string caravan_letter(CaravanName cvname) {
         case CARAVAN_F:
             return "F";
         default:
-            return ""; // TODO default / exception / option?
+            return "";
     }
 }

@@ -5,11 +5,8 @@
 #include <random>
 #include "caravan/core/exceptions.h"
 #include "caravan/user/bot/random.h"
+#include "caravan/user/constants.h"
 #include "caravan/user/functions.h"
-
-constexpr std::string LETTER_CLEAR = "C";
-constexpr std::string LETTER_DISCARD = "D";
-constexpr std::string LETTER_PLAY = "P";
 
 
 void UserBotRandom::populate_moves(PlayerCaravanNames pcvnames) {

@@ -5,8 +5,6 @@
 #ifndef CARAVAN_CONTROLLER_CONTROLLER_H
 #define CARAVAN_CONTROLLER_CONTROLLER_H
 
-#include "caravan/model/types.h"
-
 template <typename T, typename U>
 class Controller {
 public:

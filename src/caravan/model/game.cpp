@@ -46,6 +46,11 @@ Game::Game(const GameConfig &config) {
         player_abc.get() : player_def.get();
 }
 
+/**
+ *
+ * @param cvname Caravan name.
+ * @return The caravan that is opposite to the provided caravan.
+ */
 CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
     switch (cvname) {
         case CARAVAN_A:
@@ -65,6 +70,10 @@ CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
     }
 }
 
+/**
+ * @param pname Player name.
+ * @return The player.
+ */
 Player *Game::get_player(PlayerName pname) const {
     if (player_abc->get_name() == pname) {
         return player_abc.get();
@@ -77,6 +86,10 @@ Player *Game::get_player(PlayerName pname) const {
     throw CaravanFatalModelException("Invalid player name.");
 }
 
+/**
+ * @param pname Player name.
+ * @return The names of the caravans associated with the player.
+ */
 PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) const {
     if (player_abc->get_name() == pname) {
         return PlayerCaravanNames{CARAVAN_A, CARAVAN_B, CARAVAN_C};
@@ -89,14 +102,23 @@ PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) const {
     throw CaravanFatalModelException("Invalid player name.");
 }
 
+/**
+ * @return The name of the player whose turn it is.
+ */
 PlayerName Game::get_player_turn() const {
     return player_turn->get_name();
 }
 
+/**
+ * @return The table.
+ */
 Table *Game::get_table() const {
     return table.get();
 }
 
+/**
+ * @return The name of the winning player, if there is one.
+ */
 PlayerName Game::get_winner() {
     uint8_t won_pa = 0;
     uint8_t won_pb = 0;
@@ -149,6 +171,10 @@ PlayerName Game::get_winner() {
     return NO_PLAYER;
 }
 
+/**
+ * @param cvname Caravan name.
+ * @return True if the caravan is bust; False otherwise.
+ */
 bool Game::is_caravan_bust(CaravanName cvname) {
     if (cvname == NO_CARAVAN) {
         return false;
@@ -157,6 +183,10 @@ bool Game::is_caravan_bust(CaravanName cvname) {
     return table->get_caravan(cvname)->get_bid() > CARAVAN_SOLD_MAX;
 }
 
+/**
+ * @param cvname Caravan name.
+ * @return True if the caravan is currently winning; False otherwise.
+ */
 bool Game::is_caravan_winning(CaravanName cvname) {
     if (cvname == NO_CARAVAN) {
         return false;
@@ -165,6 +195,10 @@ bool Game::is_caravan_winning(CaravanName cvname) {
     return winning_bid(cvname, get_opposite_caravan_name(cvname)) == cvname;
 }
 
+/**
+ * Make a move that advances the game.
+ * @param move The move to make.
+ */
 void Game::make_move(GameMove *move) {
     if (get_winner() != NO_PLAYER) {
         throw CaravanFatalModelException(
@@ -214,6 +248,13 @@ void Game::make_move(GameMove *move) {
  * PROTECTED
  */
 
+/**
+ * @param cvname1 A caravan (CN1).
+ * @param cvname2 Another caravan (CN2).
+ * @return 1 if (CN1 sold; CN2 sold; CN2 highest bid) or (CN1 unsold; CN2 sold)
+ *         0 if (CN1 sold; CN2 sold; matching bids) or (CN1 unsold; CN2 unsold)
+ *         -1 if (CN1 sold; CN2 sold; CN1 highest bid) or (CN1 sold; CN2 unsold)
+ */
 int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
     if (has_sold(cvname1)) {
         if (has_sold(cvname2)) {
@@ -241,6 +282,13 @@ int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
     return 0;  // CN1 unsold; CN2 unsold
 }
 
+/**
+ * @param cvname1 A caravan (CN1).
+ * @param cvname2 Another caravan (CN2).
+ * @return CN1 if it has the winning bid;
+ *         CN2 if it has the winning bid;
+ *         No caravan if neither have the winning bid
+ */
 CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
     int8_t bidcomp = compare_bids(cvname1, cvname2);
 
@@ -249,11 +297,19 @@ CaravanName Game::winning_bid(CaravanName cvname1, CaravanName cvname2) {
     return NO_CARAVAN;
 }
 
+/**
+ * @param cvname Caravan name.
+ * @return True if it has sold; False otherwise.
+ */
 bool Game::has_sold(CaravanName cvname) {
     uint8_t bid = table->get_caravan(cvname)->get_bid();
     return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
 }
 
+/**
+ * @param player A player.
+ * @param move A clear move for the player.
+ */
 void Game::option_clear(const Player *player, GameMove *move) {
     PlayerCaravanNames pcns = get_player_caravan_names(player->get_name());
 
@@ -267,6 +323,10 @@ void Game::option_clear(const Player *player, GameMove *move) {
     table->clear_caravan(move->caravan_name);
 }
 
+/**
+ * @param player A player.
+ * @param move A discard move for the player.
+ */
 void Game::option_discard(Player *player, GameMove *move) {
     Card c_hand;
     c_hand = player->discard_from_hand_at(move->pos_hand);
@@ -274,6 +334,10 @@ void Game::option_discard(Player *player, GameMove *move) {
     move->hand = c_hand;  // Log to move
 }
 
+/**
+ * @param player A player.
+ * @param move A play move for the player.
+ */
 void Game::option_play(Player *player, GameMove *move) {
     Card c_hand = player->get_from_hand_at(move->pos_hand);
 

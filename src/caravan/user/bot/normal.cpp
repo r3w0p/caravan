@@ -5,14 +5,13 @@
 #include <random>
 #include "caravan/core/exceptions.h"
 #include "caravan/user/bot/normal.h"
+#include "caravan/user/constants.h"
 #include "caravan/user/functions.h"
 
 /*
  * PRIVATE
  */
 
-const std::string PLAY = "P";
-const std::string CLEAR = "C";
 
 uint8_t pos_card_numeral(Player *player) {
     uint8_t size_hand = player->get_size_hand();
@@ -50,7 +49,6 @@ uint8_t numeral_rank_value(Card card) {
             return 10;
         default:
             throw CaravanFatalException("Card is not a numeral.");
-        // TODO default / exception / option?
     }
 }
 
@@ -87,7 +85,7 @@ std::string UserBotNormal::generate_move(
                 "to finish the start phase.");
         }
 
-        return PLAY +
+        return LETTER_PLAY +
                std::to_string(pos_hand) +
                caravan_letter(my_cvns[my_move_count]);
     }
@@ -102,7 +100,7 @@ std::string UserBotNormal::generate_move(
 
             if (cvn->get_bid() > CARAVAN_SOLD_MAX ||
                 cvn->get_size() == TRACK_NUMERIC_MAX) {
-                return CLEAR + caravan_letter(my_cvns[i_cvn]);
+                return LETTER_CLEAR + caravan_letter(my_cvns[i_cvn]);
             }
         }
     }
@@ -118,7 +116,7 @@ std::string UserBotNormal::generate_move(
                 Caravan *opp_cvn = table->get_caravan(opp_cvns[i]);
 
                 std::string move_draft =
-                    PLAY +
+                    LETTER_PLAY +
                     std::to_string(pos_hand) +
                     caravan_letter(my_cvn->get_name());
 
@@ -206,7 +204,7 @@ std::string UserBotNormal::generate_move(
                 Slot opp_slot_top = opp_cvn->get_slot(opp_cvn_size);
 
                 std::string move_draft =
-                    PLAY +
+                    LETTER_PLAY +
                     std::to_string(pos_hand) +
                     caravan_letter(opp_cvn->get_name()) +
                     std::to_string(opp_cvn->get_size());

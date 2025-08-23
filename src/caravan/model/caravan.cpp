@@ -237,7 +237,7 @@ void Caravan::put_numeral_card(Card card) {
  *
  * @param rank The rank to remove.
  * @param pos_exclude The numeral card at the position will be excluded from
- *                    removal. If 0, no card is excluded.
+ *        removal. If 0, no card is excluded.
  * 
  * @throws CaravanFatalModelException Exclude position is out of range.
  */
@@ -269,7 +269,7 @@ void Caravan::remove_rank(Rank rank, uint8_t pos_exclude) {
  *
  * @param suit The suit to remove.
  * @param pos_exclude The numeral card at the position will be excluded from
- *                    removal. If 0, no card is excluded.
+ *        removal. If 0, no card is excluded.
  *
  * @throws CaravanFatalModelException Exclude position is out of range.
  */

@@ -79,11 +79,11 @@ add_library(model
         "src/caravan/model/table.cpp"
 )
 
-target_link_libraries(model core controller)
-
 add_library(user
-        "include/caravan/user/user.h"
+        "include/caravan/user/constants.h"
         "include/caravan/user/functions.h"
+        "include/caravan/user/user.h"
+
         "include/caravan/user/bot/factory.h"
         "include/caravan/user/bot/friendly.h"
         "include/caravan/user/bot/normal.h"
@@ -91,6 +91,7 @@ add_library(user
 
 
         "src/caravan/user/functions.cpp"
+
         "src/caravan/user/bot/factory.cpp"
         "src/caravan/user/bot/friendly.cpp"
         "src/caravan/user/bot/normal.cpp"
@@ -105,8 +106,8 @@ add_library(view
 )
 
 target_link_libraries(view
-    ftxui::dom
-    ftxui::component
+        ftxui::dom
+        ftxui::component
 )
 # ---
 
@@ -125,6 +126,7 @@ target_compile_definitions(caravan
 )
 
 target_link_libraries(caravan
+        PRIVATE controller
         PRIVATE core
         PRIVATE model
         PRIVATE user
@@ -153,4 +155,26 @@ target_link_libraries(tests
 
 include(GoogleTest)
 gtest_discover_tests(tests)
+# ---
+
+
+# --- cvnmodel.dll
+add_library(cvnmodel SHARED
+        "include/caravan/core/exceptions.h"
+
+        "include/caravan/model/caravan.h"
+        "include/caravan/model/deck.h"
+        "include/caravan/model/game.h"
+        "include/caravan/model/player.h"
+        "include/caravan/model/table.h"
+
+
+        "src/caravan/core/exceptions.cpp"
+
+        "src/caravan/model/caravan.cpp"
+        "src/caravan/model/deck.cpp"
+        "src/caravan/model/game.cpp"
+        "src/caravan/model/player.cpp"
+        "src/caravan/model/table.cpp"
+)
 # ---

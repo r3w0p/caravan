@@ -7,6 +7,8 @@
 
 #include <string>
 #include "caravan/controller/controller.h"
+#include "caravan/model/types.h"
+
 
 class ControllerStrToMove : public Controller<std::string, GameMove> {
 public:
