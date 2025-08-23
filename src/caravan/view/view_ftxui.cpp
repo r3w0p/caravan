@@ -71,7 +71,7 @@ std::wstring caravan_to_wstr(CaravanName caravan_name, bool letter_only) {
         case CARAVAN_F:
             return letter_only ? L"F" : L"Caravan F";
         default:
-            throw CaravanFatalException("Invalid caravan name.");
+            throw CaravanFatalViewException("Invalid caravan name.");
     }
 }
 
@@ -88,7 +88,7 @@ std::wstring suit_to_wstr(Suit suit) {
         case DIAMONDS:
             return L"♦";
         default:
-            throw CaravanFatalException("Invalid suit.");
+            throw CaravanFatalViewException("Invalid suit.");
     }
 }
 
@@ -101,7 +101,7 @@ std::wstring direction_to_wstr(const Direction direction) {
         case DESCENDING:
             return L"DES";
         default:
-            throw CaravanFatalException("Invalid direction.");
+            throw CaravanFatalViewException("Invalid direction.");
     }
 }
 
@@ -136,7 +136,7 @@ std::wstring rank_to_wstr(Rank rank, bool lead) {
         case JOKER:
             return L"JO";
         default:
-            throw CaravanFatalException("Invalid rank.");
+            return L"";
     }
 }
 
@@ -155,7 +155,7 @@ std::shared_ptr<ftxui::Node> suit_to_text(ViewConfig *config, Suit suit) {
             case DIAMONDS:
                 return node_suit | color(Color::Palette16::RedLight);
             default:
-                throw CaravanFatalException("Invalid suit.");
+                throw CaravanFatalViewException("Invalid suit.");
         }
     }
 
@@ -585,7 +585,7 @@ ftxui::Elements get_move_description(ViewConfig *config) {
         e.push_back(text(L" played "));
         push_card(config, &e, config->move.hand, false);
 
-        if (config->move.pos_caravan > 0) {
+        if(config->move.hand.is_face_card() && config->move.pos_caravan > 0) {
             e.push_back(text(L" on "));
             push_card(config, &e, config->move.board, false);
         }
@@ -627,7 +627,7 @@ void set_current_turn(ViewConfig *config, Game *game) {
 
 ViewFTXUI::ViewFTXUI(Game *game, ControllerStrToMove *ctrl, ViewConfig &config) : View(game) {
     if (config.user_abc == nullptr || config.user_def == nullptr) {
-        throw CaravanFatalException("Users must be provided to view.");
+        throw CaravanFatalViewException("Users must be provided to view.");
     }
 
     this->ctrl = ctrl;
@@ -636,6 +636,8 @@ ViewFTXUI::ViewFTXUI(Game *game, ControllerStrToMove *ctrl, ViewConfig &config) 
 
 void ViewFTXUI::run() {
     using namespace ftxui;
+
+    bool closed = false;
 
     // Screen config
     Dimensions terminal_size{};
@@ -700,6 +702,10 @@ void ViewFTXUI::run() {
     auto renderer = Renderer(component, [&] {
         screen.SetCursor(Screen::Cursor({.shape=Screen::Cursor::Hidden}));
 
+        if(closed) {
+            return gen_closed(config);
+        }
+
         try {
             // Reset values
             terminal_size = Terminal::Size();
@@ -743,9 +749,6 @@ void ViewFTXUI::run() {
                 user_input = "";
                 time_bot_end = time_milliseconds();
 
-                // TODO sort flicker issue with bot random by determining
-                //  acceptable move during delay period
-                //  (split human and bot into separate functions)
                 if((float) (time_bot_end-time_bot_start) >= (config->bot_delay_sec * 1000)) {
                     // Bot delay has elapsed, make move
                     raw_command = config->user_turn->request_move(game);
@@ -796,7 +799,7 @@ void ViewFTXUI::run() {
                         }
 
                         // If next user is bot, start logging bot delay
-                        if(!config->user_next->is_human()) {
+                        if (!config->user_next->is_human()) {
                             time_bot_start = time_milliseconds();
                         }
                 }
@@ -809,14 +812,16 @@ void ViewFTXUI::run() {
 
             return gen_game(config, game, &comp_user_input);
 
-        } catch (CaravanException &e) {
+        } catch (CaravanFatalException &e) {
             // Close gracefully on any unhandled exceptions
             config->msg_fatal = e.what();
+            closed = true;
             return gen_closed(config);
 
         } catch (std::exception &e) {
             // Close gracefully on any unhandled exceptions
             config->msg_fatal = "A fatal error occurred.";
+            closed = true;
             return gen_closed(config);
         }
     });
