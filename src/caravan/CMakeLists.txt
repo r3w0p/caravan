@@ -1,0 +1,24 @@
+add_subdirectory("controller")
+add_subdirectory("core")
+add_subdirectory("model")
+add_subdirectory("user")
+add_subdirectory("view")
+
+add_executable(caravan "main.cpp")
+
+target_compile_definitions(caravan
+        PRIVATE CARAVAN_NAME="${PROJECT_NAME}"
+        PRIVATE CARAVAN_VERSION="${PROJECT_VERSION}"
+        PRIVATE CARAVAN_DESCRIPTION="${PROJECT_DESCRIPTION}"
+        PRIVATE CARAVAN_COPYRIGHT="${PROJECT_COPYRIGHT}"
+        PRIVATE CARAVAN_URL="${PROJECT_HOMEPAGE_URL}"
+)
+
+target_link_libraries(caravan
+        PRIVATE controller
+        PRIVATE core
+        PRIVATE model
+        PRIVATE user
+        PRIVATE view
+        PRIVATE cxxopts
+)
