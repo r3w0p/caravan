@@ -7,19 +7,22 @@
 
 #include "caravan/model/types.h"
 
-class DeckBuilder {
-protected:
-    static Deck build_traditional_deck(bool shuffle);
+namespace Caravan::Model {
 
-    static Deck shuffle_deck(Deck deck);
+    class DeckBuilder {
+    protected:
+        static Deck build_traditional_deck(bool shuffle);
+        static Deck shuffle_deck(Deck deck);
 
-public:
-    DeckBuilder() = delete;
+    public:
+        DeckBuilder() = delete;
 
-    static Deck *build_caravan_deck(
-        uint8_t num_cards,
-        uint8_t num_sample_decks,
-        bool balanced_sample);
-};
+        static Deck *build_caravan_deck(
+            uint8_t num_cards,
+            uint8_t num_sample_decks,
+            bool balanced_sample);
+    };
+
+}
 
 #endif //CARAVAN_MODEL_DECK_H

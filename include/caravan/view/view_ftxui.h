@@ -11,54 +11,61 @@
 #include "caravan/controller/controller_str_to_move.h"
 #include "ftxui/dom/elements.hpp"
 
-typedef struct ViewConfig {
-    // Pointers to users
-    User *user_abc{nullptr};
-    User *user_def{nullptr};
-    User *user_turn{};
-    User *user_next{};
+namespace Caravan::View {
 
-    // Names of users
-    std::string name_abc;
-    std::string name_def;
-    std::string name_turn;
-    std::string name_next;
+    typedef struct ViewConfig {
+        // Pointers to users
+        User::User *user_abc{nullptr};
+        User::User *user_def{nullptr};
+        User::User *user_turn{};
+        User::User *user_next{};
 
-    // Messages to users
-    std::string msg_main; // move chosen, general messages, winner
-    std::string msg_important; // game errors, next turn
-    std::string msg_fatal; // game closing due to major problem
+        // Names of users
+        std::string name_abc;
+        std::string name_def;
+        std::string name_turn;
+        std::string name_next;
 
-    // Messages on moves made
-    ftxui::Elements msg_move_abc;
-    ftxui::Elements msg_move_def;
+        // Messages to users
+        std::string msg_main; // move chosen, general messages, winner
+        std::string msg_important; // game errors, next turn
+        std::string msg_fatal; // game closing due to major problem
 
-    // Most recent move
-    GameMove move;
+        // Messages on moves made
+        ftxui::Elements msg_move_abc;
+        ftxui::Elements msg_move_def;
 
-    // Board highlight
-    GameMove highlight;
+        // Most recent move
+        Model::GameMove move;
 
-    // Colour support
-    bool colour{true};
+        // Board highlight
+        Model::GameMove highlight;
 
-    // Bot config
-    float bot_delay_sec{0.0};
+        // Colour support
+        bool colour{true};
 
-    // Cheat
-    bool cheat{false};
-} ViewConfig;
+        // Bot config
+        float bot_delay_sec{0.0};
+
+        // Cheat
+        bool cheat{false};
+    } ViewConfig;
 
 
-class ViewFTXUI : public View {
-protected:
-    ControllerStrToMove *ctrl;
-    ViewConfig *config;
+    class ViewFTXUI : public View {
+    protected:
+        Controller::ControllerStrToMove *ctrl;
+        ViewConfig *config;
 
-public:
-    explicit ViewFTXUI(Game *game, ControllerStrToMove *ctrl, ViewConfig &config);
+    public:
+        explicit ViewFTXUI(
+            Model::Game *game,
+            Controller::ControllerStrToMove *ctrl,
+            ViewConfig &config);
 
-    void run() override;
-};
+        void run() override;
+    };
+
+}
 
 #endif //CARAVAN_VIEW_FTXUI_H

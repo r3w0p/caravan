@@ -12,20 +12,24 @@
 #include "caravan/user/bot/friendly.h"
 #include "caravan/user/bot/random.h"
 
-const std::string NAME_NORMAL = "normal";
-const std::string NAME_FRIENDLY = "friendly";
-const std::string NAME_RANDOM = "random";
+namespace Caravan::User {
 
-UserBot* BotFactory::get(std::string name, PlayerName pname) {
-    // Set name to lowercase
-    std::transform(
-        name.begin(), name.end(), name.begin(),
-        [](unsigned char c) { return std::tolower(c); });
+    const std::string NAME_NORMAL = "normal";
+    const std::string NAME_FRIENDLY = "friendly";
+    const std::string NAME_RANDOM = "random";
 
-    // Return bot that matches name, or fail
-    if(name == NAME_NORMAL) { return new UserBotNormal(pname); }
-    if(name == NAME_FRIENDLY) { return new UserBotFriendly(pname); }
-    if(name == NAME_RANDOM) { return new UserBotRandom(pname); }
+    UserBot* BotFactory::get(std::string name, Model::PlayerName pname) {
+        // Set name to lowercase
+        std::transform(
+            name.begin(), name.end(), name.begin(),
+            [](unsigned char c) { return std::tolower(c); });
 
-    throw CaravanFatalException("Unknown bot name '" + name + "'.");
+        // Return bot that matches name, or fail
+        if(name == NAME_NORMAL) { return new UserBotNormal(pname); }
+        if(name == NAME_FRIENDLY) { return new UserBotFriendly(pname); }
+        if(name == NAME_RANDOM) { return new UserBotRandom(pname); }
+
+        throw CaravanFatalException("Unknown bot name '" + name + "'.");
+    }
+
 }

@@ -5,130 +5,134 @@
 #include "caravan/model/player.h"
 #include "caravan/core/exceptions.h"
 
-/**
- * @param pname Player name.
- * @param deck Player deck.
- */
-Player::Player(const PlayerName pname, std::unique_ptr<Deck> deck) {
-    name = pname;
-    hand = {};
-    i_hand = 0;
-    moves = 0;
+namespace Caravan::Model {
 
-    // Populate hand for game start
-    for (; i_hand < HAND_SIZE_MAX_START; i_hand++) {
-        hand[i_hand] = deck->back();
-        deck->pop_back();
-    }
+    /**
+     * @param pname Player name.
+     * @param deck Player deck.
+     */
+    Player::Player(const PlayerName pname, std::unique_ptr<Deck> deck) {
+        name = pname;
+        hand = {};
+        i_hand = 0;
+        moves = 0;
 
-    this->deck = std::move(deck);
-}
-
-/**
- * @param pos Hand position.
- * @return The card discarded from the hand.
- *
- * @throws CaravanFatalModelException Player's hand is empty.
- * @throws CaravanIllegalModelException Chosen hand position is out of range.
- */
-Card Player::discard_from_hand_at(const uint8_t pos) {
-    // Player hand should never be empty unless game has already ended
-    if (i_hand == 0) {
-        throw CaravanFatalModelException(
-            "Player's hand is empty.");
-    }
-
-    // Illegal request to discard card outside of hand range
-    if (pos < HAND_POS_MIN or pos > i_hand) {
-        throw CaravanIllegalModelException(
-            "The chosen hand position is out of range.");
-    }
-
-    // Get card to discard
-    uint8_t i = pos - 1;
-    const Card c_ret = hand[i];
-
-    // Cards up the hand are moved downwards
-    for (; i + 1 < i_hand; ++i) {
-        hand[i] = hand[i + 1];
-    }
-
-    // Hand size is decreased
-    i_hand -= 1;
-
-    return c_ret;
-}
-
-/**
- * @param pos Hand position.
- * @return The card at the hand position.
- *
- * @throws CaravanFatalModelException Player's hand is empty.
- * @throws CaravanIllegalModelException Chosen hand position is out of range.
- */
-Card Player::get_from_hand_at(const uint8_t pos) const {
-    // Player hand should never be empty unless game has already ended
-    if (i_hand == 0) {
-        throw CaravanFatalModelException(
-            "Player's hand is empty.");
-    }
-
-    // Illegal request to discard card outside of hand range
-    if (pos < HAND_POS_MIN or pos > i_hand) {
-        throw CaravanIllegalModelException(
-            "The chosen hand position is out of range.");
-    }
-
-    return hand[pos - 1];
-}
-
-/**
- * @return Current deck size.
- */
-uint8_t Player::get_size_deck() const {
-    return deck->size();
-}
-
-/**
- * @return Current hand size.
- */
-uint8_t Player::get_size_hand() const {
-    return i_hand;
-}
-
-/**
- * @return Number of moves the player has made since the start of the game.
- */
-uint16_t Player::get_moves_count() const {
-    return moves;
-}
-
-/**
- * @return Player name.
- */
-PlayerName Player::get_name() const {
-    return name;
-}
-
-/**
- * Increments the number of moves the player has made by 1.
- */
-void Player::increment_moves() {
-    moves += 1;
-}
-
-/**
- * Moves a card from the player's deck to their hand, if possible.
- */
-void Player::maybe_add_card_to_hand_from_deck() {
-    // If more cards in the deck
-    if (!deck->empty()) {
-        // If post-Start and hand not at post-Start max (5 cards)
-        if (moves > MOVES_START_ROUND and i_hand < HAND_SIZE_MAX_POST_START) {
-            // Add new card from deck to top of hand
+        // Populate hand for game start
+        for (; i_hand < HAND_SIZE_MAX_START; i_hand++) {
             hand[i_hand] = deck->back();
             deck->pop_back();
-            i_hand += 1;
+        }
+
+        this->deck = std::move(deck);
+    }
+
+    /**
+     * @param pos Hand position.
+     * @return The card discarded from the hand.
+     *
+     * @throws CaravanFatalModelException Player's hand is empty.
+     * @throws CaravanIllegalModelException Chosen hand position is out of range.
+     */
+    Card Player::discard_from_hand_at(const uint8_t pos) {
+        // Player hand should never be empty unless game has already ended
+        if (i_hand == 0) {
+            throw CaravanFatalModelException(
+                "Player's hand is empty.");
+        }
+
+        // Illegal request to discard card outside of hand range
+        if (pos < HAND_POS_MIN or pos > i_hand) {
+            throw CaravanIllegalModelException(
+                "The chosen hand position is out of range.");
+        }
+
+        // Get card to discard
+        uint8_t i = pos - 1;
+        const Card c_ret = hand[i];
+
+        // Cards up the hand are moved downwards
+        for (; i + 1 < i_hand; ++i) {
+            hand[i] = hand[i + 1];
+        }
+
+        // Hand size is decreased
+        i_hand -= 1;
+
+        return c_ret;
+    }
+
+    /**
+     * @param pos Hand position.
+     * @return The card at the hand position.
+     *
+     * @throws CaravanFatalModelException Player's hand is empty.
+     * @throws CaravanIllegalModelException Chosen hand position is out of range.
+     */
+    Card Player::get_from_hand_at(const uint8_t pos) const {
+        // Player hand should never be empty unless game has already ended
+        if (i_hand == 0) {
+            throw CaravanFatalModelException(
+                "Player's hand is empty.");
+        }
+
+        // Illegal request to discard card outside of hand range
+        if (pos < HAND_POS_MIN or pos > i_hand) {
+            throw CaravanIllegalModelException(
+                "The chosen hand position is out of range.");
+        }
+
+        return hand[pos - 1];
+    }
+
+    /**
+     * @return Current deck size.
+     */
+    uint8_t Player::get_size_deck() const {
+        return deck->size();
+    }
+
+    /**
+     * @return Current hand size.
+     */
+    uint8_t Player::get_size_hand() const {
+        return i_hand;
+    }
+
+    /**
+     * @return Number of moves the player has made since the start of the game.
+     */
+    uint16_t Player::get_moves_count() const {
+        return moves;
+    }
+
+    /**
+     * @return Player name.
+     */
+    PlayerName Player::get_name() const {
+        return name;
+    }
+
+    /**
+     * Increments the number of moves the player has made by 1.
+     */
+    void Player::increment_moves() {
+        moves += 1;
+    }
+
+    /**
+     * Moves a card from the player's deck to their hand, if possible.
+     */
+    void Player::maybe_add_card_to_hand_from_deck() {
+        // If more cards in the deck
+        if (!deck->empty()) {
+            // If post-Start and hand not at post-Start max (5 cards)
+            if (moves > MOVES_START_ROUND and i_hand < HAND_SIZE_MAX_POST_START) {
+                // Add new card from deck to top of hand
+                hand[i_hand] = deck->back();
+                deck->pop_back();
+                i_hand += 1;
+            }
         }
     }
+
 }

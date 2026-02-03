@@ -8,16 +8,20 @@
 #include "caravan/model/game.h"
 #include "caravan/user/user.h"
 
-class View {
-protected:
-    Game *game;
+namespace Caravan::View {
 
-public:
-    explicit View(Game *game) : game(game) {};
+    class View {
+    protected:
+        Model::Game *game;
 
-    virtual ~View() = default;
+    public:
+        explicit View(Model::Game *game) : game(game) {};
 
-    virtual void run() = 0;
-};
+        virtual ~View() = default;
+
+        virtual void run() = 0;
+    };
+
+}
 
 #endif //CARAVAN_VIEW_H

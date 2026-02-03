@@ -8,33 +8,37 @@
 #include "caravan/model/types.h"
 #include "caravan/model/game.h"
 
-class User {
-protected:
-    PlayerName name;
-public:
-    virtual ~User() = default;
+namespace Caravan::User {
 
-    explicit User(PlayerName pname) : name(pname) {};
+    class User {
+    protected:
+        Model::PlayerName name;
+    public:
+        virtual ~User() = default;
 
-    PlayerName get_name() { return name; }
+        explicit User(Model::PlayerName pname) : name(pname) {};
 
-    virtual bool is_human() = 0;
-    virtual std::string request_move(Game *game) = 0;
-};
+        Model::PlayerName get_name() { return name; }
 
-class UserFTXUI : public User {
-public:
-    explicit UserFTXUI(PlayerName pname) : User(pname) {};
+        virtual bool is_human() = 0;
+        virtual std::string request_move(Model::Game *game) = 0;
+    };
 
-    bool is_human() override { return true; }
-    std::string request_move(Game *game) override { return {}; }
-};
+    class UserFTXUI : public User {
+    public:
+        explicit UserFTXUI(Model::PlayerName pname) : User(pname) {};
 
-class UserBot : public User {
-public:
-    explicit UserBot(PlayerName pname) : User(pname) {}
+        bool is_human() override { return true; }
+        std::string request_move(Model::Game *game) override { return {}; }
+    };
 
-    bool is_human() override { return false; }
-};
+    class UserBot : public User {
+    public:
+        explicit UserBot(Model::PlayerName pname) : User(pname) {}
+
+        bool is_human() override { return false; }
+    };
+
+}
 
 #endif //CARAVAN_USER_H

@@ -8,28 +8,32 @@
 #include <random>
 #include "caravan/user/user.h"
 
-constexpr uint16_t ALL_MOVES_MAX = 272;
+namespace Caravan::User {
 
-using AllMoves = std::array<std::string, ALL_MOVES_MAX>;
-using CacheMoves = std::array<uint16_t, ALL_MOVES_MAX>;
+    constexpr uint16_t ALL_MOVES_MAX = 272;
+
+    using AllMoves = std::array<std::string, ALL_MOVES_MAX>;
+    using CacheMoves = std::array<uint16_t, ALL_MOVES_MAX>;
 
 
-class UserBotRandom : public UserBot {
-protected:
-    AllMoves all_moves{};
-    CacheMoves cache_moves{};
-    uint16_t i_cache{0};
-    uint16_t last_move_count{0};
-    std::mt19937 gen;
-    std::uniform_int_distribution<> distr;
+    class UserBotRandom : public UserBot {
+    protected:
+        AllMoves all_moves{};
+        CacheMoves cache_moves{};
+        uint16_t i_cache{0};
+        uint16_t last_move_count{0};
+        std::mt19937 gen;
+        std::uniform_int_distribution<> distr;
 
-    uint16_t check_index(uint16_t &index);
-public:
-    explicit UserBotRandom(PlayerName pname);
+        uint16_t check_index(uint16_t &index);
+    public:
+        explicit UserBotRandom(Model::PlayerName pname);
 
-    std::string request_move(Game *game) override;
+        std::string request_move(Model::Game *game) override;
 
-    void populate_moves(PlayerCaravanNames pcvnames);
-};
+        void populate_moves(Model::PlayerCaravanNames pcvnames);
+    };
+
+}
 
 #endif //CARAVAN_USER_BOT_RANDOM_H

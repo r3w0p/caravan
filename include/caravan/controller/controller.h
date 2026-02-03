@@ -5,10 +5,16 @@
 #ifndef CARAVAN_CONTROLLER_CONTROLLER_H
 #define CARAVAN_CONTROLLER_CONTROLLER_H
 
-template <typename T, typename U>
-class Controller {
-public:
-    virtual U convert(const T &input, bool confirmed) = 0;
-};
+namespace Caravan::Controller {
+
+    template <typename T, typename U>
+    class Controller {
+    public:
+        virtual ~Controller() = default;
+
+        virtual U convert(const T &input, bool confirmed) = 0;
+    };
+
+}
 
 #endif //CARAVAN_CONTROLLER_CONTROLLER_H

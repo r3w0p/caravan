@@ -6,16 +6,20 @@
 #include "caravan/core/exceptions.h"
 #include "caravan/user/bot/friendly.h"
 
-/*
- * PUBLIC
- */
+namespace Caravan::User {
 
-std::string UserBotFriendly::request_move(Game *game) {
-    std::string move = generate_move(game, true, false, true);
+    /*
+     * PUBLIC
+     */
 
-    // Return move if able to generate one
-    if (!move.empty()) return move;
+    std::string UserBotFriendly::request_move(Model::Game *game) {
+        std::string move = generate_move(game, true, false, true);
 
-    // If no useful move could be made, discard first card in hand
-    return "D1";
+        // Return move if able to generate one
+        if (!move.empty()) return move;
+
+        // If no useful move could be made, discard first card in hand
+        return "D1";
+    }
+
 }

@@ -8,84 +8,87 @@
 #include "caravan/user/constants.h"
 #include "caravan/user/functions.h"
 
+namespace Caravan::User {
 
-void UserBotRandom::populate_moves(PlayerCaravanNames pcvnames) {
-    // Generate all moves
-    uint16_t i_move = 0;
+    void UserBotRandom::populate_moves(Model::PlayerCaravanNames pcvnames) {
+        // Generate all moves
+        uint16_t i_move = 0;
 
-    // Clear moves (3)
-    for (int i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
-        all_moves[i_move++] = LETTER_CLEAR + caravan_letter(pcvnames[i]);
-    }
+        // Clear moves (3)
+        for (int i = 0; i < Model::PLAYER_CARAVANS_MAX; ++i) {
+            all_moves[i_move++] = LETTER_CLEAR + caravan_letter(pcvnames[i]);
+        }
 
-    // Discard moves (5)
-    for(int pos = HAND_POS_MIN; pos <= HAND_SIZE_MAX_POST_START; ++pos) {
-        all_moves[i_move++] = LETTER_DISCARD + std::to_string(pos);
-    }
+        // Discard moves (5)
+        for(int pos = Model::HAND_POS_MIN; pos <= Model::HAND_SIZE_MAX_POST_START; ++pos) {
+            all_moves[i_move++] = LETTER_DISCARD + std::to_string(pos);
+        }
 
-    // Play (Face) moves (5 x 6 x 8 = 240)
-    for (int pos1 = HAND_POS_MIN; pos1 <= HAND_SIZE_MAX_POST_START; ++pos1) {
-        for (int cvn = CARAVAN_A; cvn <= CARAVAN_F; ++cvn) {
-            for (int pos2 = TRACK_NUMERIC_MIN; pos2 <= TRACK_NUMERIC_MAX; ++pos2) {
+        // Play (Face) moves (5 x 6 x 8 = 240)
+        for (int pos1 = Model::HAND_POS_MIN; pos1 <= Model::HAND_SIZE_MAX_POST_START; ++pos1) {
+            for (int cvn = Model::CARAVAN_A; cvn <= Model::CARAVAN_F; ++cvn) {
+                for (int pos2 = Model::TRACK_NUMERIC_MIN; pos2 <= Model::TRACK_NUMERIC_MAX; ++pos2) {
+                    all_moves[i_move++] =
+                        LETTER_PLAY +
+                        std::to_string(pos1) +
+                        caravan_letter(static_cast<Model::CaravanName>(cvn)) +
+                        std::to_string(pos2);
+                }
+            }
+        }
+
+        // Play (Numeral) moves (8 x 3 = 24)
+        for (int pos1 = Model::HAND_POS_MIN; pos1 <= Model::HAND_SIZE_MAX_START; ++pos1) {
+            for (int i = 0; i < Model::PLAYER_CARAVANS_MAX; ++i) {
                 all_moves[i_move++] =
                     LETTER_PLAY +
                     std::to_string(pos1) +
-                    caravan_letter(static_cast<CaravanName>(cvn)) +
-                    std::to_string(pos2);
+                    caravan_letter(pcvnames[i]);
             }
         }
     }
 
-    // Play (Numeral) moves (8 x 3 = 24)
-    for (int pos1 = HAND_POS_MIN; pos1 <= HAND_SIZE_MAX_START; ++pos1) {
-        for (int i = 0; i < PLAYER_CARAVANS_MAX; ++i) {
-            all_moves[i_move++] =
-                LETTER_PLAY +
-                std::to_string(pos1) +
-                caravan_letter(pcvnames[i]);
+    uint16_t UserBotRandom::check_index(uint16_t &index) {
+        for (uint16_t i = 0; i < i_cache; ++i) {
+            if (cache_moves[i] == index) {
+                return false;
+            }
         }
-    }
-}
 
-uint16_t UserBotRandom::check_index(uint16_t &index) {
-    for (uint16_t i = 0; i < i_cache; ++i) {
-        if (cache_moves[i] == index) {
-            return false;
+        return true;
+    }
+
+    std::string UserBotRandom::request_move(Model::Game *game) {
+        Model::Player *player = game->get_player(name);
+        uint16_t current_move_count = player->get_moves_count();
+
+        // Not moved before, find all possible moves relative to player
+        if (current_move_count == 0) {
+            populate_moves(game->get_player_caravan_names(name));
         }
+
+        if (current_move_count > last_move_count) {
+            i_cache = 0;
+        }
+
+        bool index_ok = false;
+        uint16_t index;
+
+        while (!index_ok) {
+            index = distr(gen);
+            index_ok = check_index(index);
+        }
+
+        cache_moves[i_cache++] = index;
+        last_move_count = current_move_count;
+
+        return all_moves[index];
     }
 
-    return true;
-}
-
-std::string UserBotRandom::request_move(Game *game) {
-    Player *player = game->get_player(name);
-    uint16_t current_move_count = player->get_moves_count();
-
-    // Not moved before, find all possible moves relative to player
-    if (current_move_count == 0) {
-        populate_moves(game->get_player_caravan_names(name));
+    UserBotRandom::UserBotRandom(Model::PlayerName pname) : UserBot(pname) {
+        std::random_device rd;
+        gen = std::mt19937(rd());
+        distr = std::uniform_int_distribution<>(0, ALL_MOVES_MAX-1);
     }
 
-    if (current_move_count > last_move_count) {
-        i_cache = 0;
-    }
-
-    bool index_ok = false;
-    uint16_t index;
-
-    while (!index_ok) {
-        index = distr(gen);
-        index_ok = check_index(index);
-    }
-
-    cache_moves[i_cache++] = index;
-    last_move_count = current_move_count;
-
-    return all_moves[index];
-}
-
-UserBotRandom::UserBotRandom(PlayerName pname) : UserBot(pname) {
-    std::random_device rd;
-    gen = std::mt19937(rd());
-    distr = std::uniform_int_distribution<>(0, ALL_MOVES_MAX-1);
 }

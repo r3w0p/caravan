@@ -5,6 +5,10 @@
 #include <string>
 #include "caravan/core/exceptions.h"
 
-std::string CaravanException::what() {
-    return message;
+namespace Caravan {
+
+    std::string CaravanException::what() {
+        return message;
+    }
+
 }

@@ -9,10 +9,12 @@
 #include "caravan/controller/controller.h"
 #include "caravan/model/types.h"
 
+namespace Caravan::Controller {
 
-class ControllerStrToMove : public Controller<std::string, GameMove> {
-public:
-    GameMove convert(const std::string &input, bool confirmed) override;
-};
+    class ControllerStrToMove : public Controller<std::string, Caravan::Model::GameMove> {
+    public:
+        Caravan::Model::GameMove convert(const std::string &input, bool confirmed) override;
+    };
 
+}
 #endif //CARAVAN_CONTROLLER_CONTROLLER_STR_TO_MOVE_H

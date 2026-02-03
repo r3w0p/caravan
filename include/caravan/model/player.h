@@ -10,35 +10,38 @@
 
 #include "caravan/model/deck.h"
 
+namespace Caravan::Model {
 
-class Player {
-protected:
-    PlayerName name;
-    std::unique_ptr<Deck> deck;
-    Hand hand;
-    uint8_t i_hand;
-    uint16_t moves;
+    class Player {
+    protected:
+        PlayerName name;
+        std::unique_ptr<Deck> deck;
+        Hand hand;
+        uint8_t i_hand;
+        uint16_t moves;
 
-public:
-    explicit Player(PlayerName pname, std::unique_ptr<Deck> deck);
+    public:
+        explicit Player(PlayerName pname, std::unique_ptr<Deck> deck);
 
-    ~Player() = default;
+        ~Player() = default;
 
-    Card discard_from_hand_at(uint8_t pos);
+        Card discard_from_hand_at(uint8_t pos);
 
-    Card get_from_hand_at(uint8_t pos) const;
+        [[nodiscard]] Card get_from_hand_at(uint8_t pos) const;
 
-    uint8_t get_size_deck() const;
+        [[nodiscard]] uint8_t get_size_deck() const;
 
-    uint8_t get_size_hand() const;
+        [[nodiscard]] uint8_t get_size_hand() const;
 
-    uint16_t get_moves_count() const;
+        [[nodiscard]] uint16_t get_moves_count() const;
 
-    PlayerName get_name() const;
+        [[nodiscard]] PlayerName get_name() const;
 
-    void increment_moves();
+        void increment_moves();
 
-    void maybe_add_card_to_hand_from_deck();
-};
+        void maybe_add_card_to_hand_from_deck();
+    };
+
+}
 
 #endif //CARAVAN_MODEL_PLAYER_H

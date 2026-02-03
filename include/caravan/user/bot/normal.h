@@ -7,13 +7,17 @@
 
 #include "caravan/user/user.h"
 
-class UserBotNormal : public UserBot {
-protected:
-    std::string generate_move(Game *game, bool allow_numeral, bool allow_face, bool allow_clear);
-public:
-    explicit UserBotNormal(PlayerName pname) : UserBot(pname){};
+namespace Caravan::User {
 
-    std::string request_move(Game *game) override;
-};
+    class UserBotNormal : public UserBot {
+    protected:
+        std::string generate_move(Model::Game *game, bool allow_numeral, bool allow_face, bool allow_clear);
+    public:
+        explicit UserBotNormal(Model::PlayerName pname) : UserBot(pname){};
+
+        std::string request_move(Model::Game *game) override;
+    };
+
+}
 
 #endif //CARAVAN_USER_BOT_NORMAL_H

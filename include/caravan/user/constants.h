@@ -7,8 +7,12 @@
 
 #include <string>
 
-const std::string LETTER_CLEAR = "C";
-const std::string LETTER_DISCARD = "D";
-const std::string LETTER_PLAY = "P";
+namespace Caravan::User {
+
+    const std::string LETTER_CLEAR = "C";
+    const std::string LETTER_DISCARD = "D";
+    const std::string LETTER_PLAY = "P";
+
+}
 
 #endif //CARAVAN_USER_CONSTANTS_H

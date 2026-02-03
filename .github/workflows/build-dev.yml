@@ -48,8 +48,8 @@ jobs:
       - name: Install CMake and Ninja
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: "~3.27.0"  # use most recent 3.27.x version
-          ninjaVersion: "^1.0"     # use most recent 1.x version
+          cmakeVersion: "~3.20"  # use most recent 3.20.x version
+          ninjaVersion: "^1"     # use most recent 1.x version
 
       - name: CMake Setup
         run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D CMAKE_C_COMPILER=${{matrix.compiler_cc}} CMAKE_CXX_COMPILER=${{matrix.compiler_cpp}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
@@ -58,5 +58,5 @@ jobs:
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target caravan
 
       - name: Rename Executable
-        working-directory: ./build
+        working-directory: ./build/src/caravan
         run: mv ${{matrix.asset_before}} ${{matrix.asset_after}}

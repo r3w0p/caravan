@@ -7,11 +7,15 @@
 
 #include "caravan/user/bot/normal.h"
 
-class UserBotFriendly : public UserBotNormal {
-public:
-    explicit UserBotFriendly(const PlayerName pname) : UserBotNormal(pname){};
+namespace Caravan::User {
 
-    std::string request_move(Game *game) override;
-};
+    class UserBotFriendly : public UserBotNormal {
+    public:
+        explicit UserBotFriendly(const Model::PlayerName pname) : UserBotNormal(pname){};
+
+        std::string request_move(Model::Game *game) override;
+    };
+
+}
 
 #endif //CARAVAN_USER_BOT_FRIENDLY_H

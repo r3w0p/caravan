@@ -9,106 +9,110 @@
 #include <array>
 #include <vector>
 
-enum CaravanName {
-    NO_CARAVAN,
-    CARAVAN_A,
-    CARAVAN_B,
-    CARAVAN_C,
-    CARAVAN_D,
-    CARAVAN_E,
-    CARAVAN_F
-};
+namespace Caravan::Model {
 
-enum Direction {
-    ANY,
-    ASCENDING,
-    DESCENDING
-};
+    enum CaravanName {
+        NO_CARAVAN,
+        CARAVAN_A,
+        CARAVAN_B,
+        CARAVAN_C,
+        CARAVAN_D,
+        CARAVAN_E,
+        CARAVAN_F
+    };
 
-enum OptionType {
-    NO_OPTION,
-    OPTION_PLAY,
-    OPTION_DISCARD,
-    OPTION_CLEAR
-};
+    enum Direction {
+        ANY,
+        ASCENDING,
+        DESCENDING
+    };
 
-enum PlayerName {
-    NO_PLAYER,
-    PLAYER_ABC,
-    PLAYER_DEF
-};
+    enum OptionType {
+        NO_OPTION,
+        OPTION_PLAY,
+        OPTION_DISCARD,
+        OPTION_CLEAR
+    };
 
-enum Rank {
-    NO_RANK,
-    ACE,
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
-    NINE,
-    TEN,
-    JACK,
-    QUEEN,
-    KING,
-    JOKER
-};
+    enum PlayerName {
+        NO_PLAYER,
+        PLAYER_ABC,
+        PLAYER_DEF
+    };
 
-enum Suit {
-    NO_SUIT,
-    CLUBS,
-    DIAMONDS,
-    HEARTS,
-    SPADES
-};
+    enum Rank {
+        NO_RANK,
+        ACE,
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX,
+        SEVEN,
+        EIGHT,
+        NINE,
+        TEN,
+        JACK,
+        QUEEN,
+        KING,
+        JOKER
+    };
 
-using Card = struct Card {
-    Suit suit{NO_SUIT};
-    Rank rank{NO_RANK};
+    enum Suit {
+        NO_SUIT,
+        CLUBS,
+        DIAMONDS,
+        HEARTS,
+        SPADES
+    };
 
-    bool is_face_card() const {
-        return (this->rank >= JACK and this->rank <= JOKER);
-    }
+    using Card = struct Card {
+        Suit suit{NO_SUIT};
+        Rank rank{NO_RANK};
 
-    bool is_numeral_card() const {
-        return (this->rank >= ACE and this->rank <= TEN);
-    }
-};
+        [[nodiscard]] bool is_face_card() const {
+            return (this->rank >= JACK and this->rank <= JOKER);
+        }
 
-using Hand = std::array<Card, HAND_SIZE_MAX_START>;
-using Deck = std::vector<Card>;
-using Faces = std::array<Card, TRACK_FACE_MAX>;
-using PlayerCaravanNames = std::array<CaravanName, PLAYER_CARAVANS_MAX>;
+        [[nodiscard]] bool is_numeral_card() const {
+            return (this->rank >= ACE and this->rank <= TEN);
+        }
+    };
 
-using Slot = struct Slot {
-    Card card{};
-    Faces faces{};
-    uint8_t i_faces = 0;
-};
+    using Hand = std::array<Card, HAND_SIZE_MAX_START>;
+    using Deck = std::vector<Card>;
+    using Faces = std::array<Card, TRACK_FACE_MAX>;
+    using PlayerCaravanNames = std::array<CaravanName, PLAYER_CARAVANS_MAX>;
 
-using Track = std::array<Slot, TRACK_NUMERIC_MAX>;
+    using Slot = struct Slot {
+        Card card{};
+        Faces faces{};
+        uint8_t i_faces = 0;
+    };
 
-using GameConfig = struct GameConfig {
-    uint8_t player_abc_cards{0};
-    uint8_t player_abc_samples{0};
-    bool player_abc_balanced{false};
+    using Track = std::array<Slot, TRACK_NUMERIC_MAX>;
 
-    uint8_t player_def_cards{0};
-    uint8_t player_def_samples{0};
-    bool player_def_balanced{false};
+    using GameConfig = struct GameConfig {
+        uint8_t player_abc_cards{0};
+        uint8_t player_abc_samples{0};
+        bool player_abc_balanced{false};
 
-    PlayerName player_first{NO_PLAYER};
-};
+        uint8_t player_def_cards{0};
+        uint8_t player_def_samples{0};
+        bool player_def_balanced{false};
 
-using GameMove = struct GameMove {
-    OptionType option{NO_OPTION};
-    uint8_t pos_hand{0};
-    CaravanName caravan_name{NO_CARAVAN};
-    uint8_t pos_caravan{0};
-    Card hand{};
-    Card board{};
-};
+        PlayerName player_first{NO_PLAYER};
+    };
+
+    using GameMove = struct GameMove {
+        OptionType option{NO_OPTION};
+        uint8_t pos_hand{0};
+        CaravanName caravan_name{NO_CARAVAN};
+        uint8_t pos_caravan{0};
+        Card hand{};
+        Card board{};
+    };
+
+}
 
 #endif //CARAVAN_MODEL_TYPES_H

@@ -8,6 +8,10 @@
 #include <string>
 #include "caravan/model/types.h"
 
-std::string caravan_letter(CaravanName cvname);
+namespace Caravan::User {
+
+    std::string caravan_letter(Model::CaravanName cvname);
+
+}
 
 #endif //CARAVAN_USER_FUNCTIONS_H

@@ -8,89 +8,93 @@
 #include <string>
 #include <utility>
 
-/*
- * BASE
- */
+namespace Caravan {
 
-class CaravanException : public std::exception {
-    std::string message;
+    /*
+     * BASE
+     */
 
-public:
-    explicit CaravanException(std::string msg) : message(std::move(msg)) {}
+    class CaravanException : public std::exception {
+        std::string message;
 
-    std::string what();
-};
+    public:
+        explicit CaravanException(std::string msg) : message(std::move(msg)) {}
 
-/*
- * GENERAL
- */
+        std::string what();
+    };
 
-class CaravanFatalException : public CaravanException {
-public:
-    explicit CaravanFatalException(std::string msg) : CaravanException(
-        std::move(msg)) {
-    }
-};
+    /*
+     * GENERAL
+     */
 
-class CaravanIllegalException : public CaravanException {
-public:
-    explicit CaravanIllegalException(std::string msg) : CaravanException(
-        std::move(msg)) {
-    }
-};
+    class CaravanFatalException : public CaravanException {
+    public:
+        explicit CaravanFatalException(std::string msg) : CaravanException(
+            std::move(msg)) {
+        }
+    };
 
-/*
- * MODEL
- */
+    class CaravanIllegalException : public CaravanException {
+    public:
+        explicit CaravanIllegalException(std::string msg) : CaravanException(
+            std::move(msg)) {
+        }
+    };
 
-class CaravanFatalModelException : public CaravanFatalException {
-public:
-    explicit CaravanFatalModelException(
-        const std::string &msg) : CaravanFatalException(msg) {
-    }
-};
+    /*
+     * MODEL
+     */
 
-class CaravanIllegalModelException : public CaravanIllegalException {
-public:
-    explicit CaravanIllegalModelException(
-        const std::string &msg) : CaravanIllegalException(msg) {
-    }
-};
+    class CaravanFatalModelException : public CaravanFatalException {
+    public:
+        explicit CaravanFatalModelException(
+            const std::string &msg) : CaravanFatalException(msg) {
+        }
+    };
 
-/*
- * VIEW
- */
+    class CaravanIllegalModelException : public CaravanIllegalException {
+    public:
+        explicit CaravanIllegalModelException(
+            const std::string &msg) : CaravanIllegalException(msg) {
+        }
+    };
 
-class CaravanFatalViewException : public CaravanFatalException {
-public:
-    explicit CaravanFatalViewException(
-        const std::string &msg) : CaravanFatalException(msg) {
-    }
-};
+    /*
+     * VIEW
+     */
 
-class CaravanIllegalViewException : public CaravanIllegalException {
-public:
-    explicit CaravanIllegalViewException(
-        const std::string &msg) : CaravanIllegalException(msg) {
-    }
-};
+    class CaravanFatalViewException : public CaravanFatalException {
+    public:
+        explicit CaravanFatalViewException(
+            const std::string &msg) : CaravanFatalException(msg) {
+        }
+    };
 
-/*
- * CONTROLLER
- */
+    class CaravanIllegalViewException : public CaravanIllegalException {
+    public:
+        explicit CaravanIllegalViewException(
+            const std::string &msg) : CaravanIllegalException(msg) {
+        }
+    };
 
-class CaravanFatalControllerException : public CaravanFatalException {
-public:
-    explicit CaravanFatalControllerException(
-        const std::string &msg) : CaravanFatalException(msg) {
-    }
-};
+    /*
+     * CONTROLLER
+     */
 
-class CaravanIllegalControllerException : public CaravanIllegalException {
-public:
-    explicit CaravanIllegalControllerException(
-        const std::string &msg) : CaravanIllegalException(msg) {
-    }
-};
+    class CaravanFatalControllerException : public CaravanFatalException {
+    public:
+        explicit CaravanFatalControllerException(
+            const std::string &msg) : CaravanFatalException(msg) {
+        }
+    };
+
+    class CaravanIllegalControllerException : public CaravanIllegalException {
+    public:
+        explicit CaravanIllegalControllerException(
+            const std::string &msg) : CaravanIllegalException(msg) {
+        }
+    };
+
+}
 
 #endif //CARAVAN_CORE_EXCEPTIONS_H
