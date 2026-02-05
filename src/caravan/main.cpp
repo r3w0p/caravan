@@ -42,8 +42,8 @@ namespace Caravan {
         std::unique_ptr<User::User> user_abc;
         std::unique_ptr<User::User> user_def;
         std::unique_ptr<Model::Game> game;
-        std::unique_ptr<Controller::ControllerStrToMove> ctrl;
-        std::unique_ptr<View::View> view;
+        std::unique_ptr<Controller::BaseController> ctrl;
+        std::unique_ptr<View::BaseView> view;
 
         try {
             cxxopts::Options options(CARAVAN_NAME);
@@ -145,7 +145,7 @@ namespace Caravan {
 
             game = std::make_unique<Model::Game>(gc);
             ctrl = std::make_unique<Controller::ControllerStrToMove>();
-            view = std::make_unique<View::ViewFTXUI>(game.get(), ctrl.get(), vc);
+            view = std::make_unique<View::ViewFTXUI>(*game, *ctrl, vc);
 
             view->run();
 

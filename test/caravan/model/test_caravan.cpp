@@ -9,7 +9,7 @@
 #include "caravan/core/exceptions.h"
 
 
-TEST (TestCaravan, Clear_ThreeNumeric) {
+TEST(TestCaravan, Clear_ThreeNumeric) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
@@ -26,21 +26,18 @@ TEST (TestCaravan, Clear_ThreeNumeric) {
     ASSERT_EQ(cvn.get_size(), 0);
 }
 
-TEST (TestCaravan, Clear_Error_EmptyCaravan) {
+TEST(TestCaravan, Clear_Error_EmptyCaravan) {
     auto cvn = Caravan(CARAVAN_D);
 
     try {
         cvn.clear();
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, GetBid_ThreeNumeric) {
+TEST(TestCaravan, GetBid_ThreeNumeric) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
@@ -55,7 +52,7 @@ TEST (TestCaravan, GetBid_ThreeNumeric) {
     ASSERT_EQ(cvn.get_bid(), 6);
 }
 
-TEST (TestCaravan, GetBid_Value_RankAce) {
+TEST(TestCaravan, GetBid_Value_RankAce) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
 
@@ -64,7 +61,7 @@ TEST (TestCaravan, GetBid_Value_RankAce) {
     ASSERT_EQ(cvn.get_bid(), 1);
 }
 
-TEST (TestCaravan, GetBid_Value_RankTwo) {
+TEST(TestCaravan, GetBid_Value_RankTwo) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, TWO};
 
@@ -73,7 +70,7 @@ TEST (TestCaravan, GetBid_Value_RankTwo) {
     ASSERT_EQ(cvn.get_bid(), 2);
 }
 
-TEST (TestCaravan, GetBid_Value_RankThree) {
+TEST(TestCaravan, GetBid_Value_RankThree) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, THREE};
 
@@ -82,7 +79,7 @@ TEST (TestCaravan, GetBid_Value_RankThree) {
     ASSERT_EQ(cvn.get_bid(), 3);
 }
 
-TEST (TestCaravan, GetBid_Value_RankFour) {
+TEST(TestCaravan, GetBid_Value_RankFour) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, FOUR};
 
@@ -91,7 +88,7 @@ TEST (TestCaravan, GetBid_Value_RankFour) {
     ASSERT_EQ(cvn.get_bid(), 4);
 }
 
-TEST (TestCaravan, GetBid_Value_RankFive) {
+TEST(TestCaravan, GetBid_Value_RankFive) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, FIVE};
 
@@ -100,7 +97,7 @@ TEST (TestCaravan, GetBid_Value_RankFive) {
     ASSERT_EQ(cvn.get_bid(), 5);
 }
 
-TEST (TestCaravan, GetBid_Value_RankSix) {
+TEST(TestCaravan, GetBid_Value_RankSix) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, SIX};
 
@@ -109,7 +106,7 @@ TEST (TestCaravan, GetBid_Value_RankSix) {
     ASSERT_EQ(cvn.get_bid(), 6);
 }
 
-TEST (TestCaravan, GetBid_Value_RankSeven) {
+TEST(TestCaravan, GetBid_Value_RankSeven) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, SEVEN};
 
@@ -118,7 +115,7 @@ TEST (TestCaravan, GetBid_Value_RankSeven) {
     ASSERT_EQ(cvn.get_bid(), 7);
 }
 
-TEST (TestCaravan, GetBid_Value_RankEight) {
+TEST(TestCaravan, GetBid_Value_RankEight) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, EIGHT};
 
@@ -127,7 +124,7 @@ TEST (TestCaravan, GetBid_Value_RankEight) {
     ASSERT_EQ(cvn.get_bid(), 8);
 }
 
-TEST (TestCaravan, GetBid_Value_RankNine) {
+TEST(TestCaravan, GetBid_Value_RankNine) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, NINE};
 
@@ -136,7 +133,7 @@ TEST (TestCaravan, GetBid_Value_RankNine) {
     ASSERT_EQ(cvn.get_bid(), 9);
 }
 
-TEST (TestCaravan, GetBid_Value_RankTen) {
+TEST(TestCaravan, GetBid_Value_RankTen) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, TEN};
 
@@ -145,7 +142,7 @@ TEST (TestCaravan, GetBid_Value_RankTen) {
     ASSERT_EQ(cvn.get_bid(), 10);
 }
 
-TEST (TestCaravan, GetCardsAt_TwoNumeric_OneFace) {
+TEST(TestCaravan, GetCardsAt_TwoNumeric_OneFace) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, TWO};
@@ -169,7 +166,7 @@ TEST (TestCaravan, GetCardsAt_TwoNumeric_OneFace) {
     ASSERT_EQ(ts.faces[0].rank, c_face_1.rank);
 }
 
-TEST (TestCaravan, GetCardsAt_Error_OneNumeric_OutOfRange) {
+TEST(TestCaravan, GetCardsAt_Error_OneNumeric_OutOfRange) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
 
@@ -178,15 +175,12 @@ TEST (TestCaravan, GetCardsAt_Error_OneNumeric_OutOfRange) {
     try {
         cvn.get_slot(2);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, GetDirection_Ascending) {
+TEST(TestCaravan, GetDirection_Ascending) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
@@ -198,7 +192,7 @@ TEST (TestCaravan, GetDirection_Ascending) {
     ASSERT_EQ(cvn.get_direction(), ASCENDING);
 }
 
-TEST (TestCaravan, GetDirection_Descending) {
+TEST(TestCaravan, GetDirection_Descending) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, TWO};
     Card c_num_2 = {SPADES, ACE};
@@ -210,7 +204,7 @@ TEST (TestCaravan, GetDirection_Descending) {
     ASSERT_EQ(cvn.get_direction(), DESCENDING);
 }
 
-TEST (TestCaravan, GetDirection_Ascending_ThreeQueens) {
+TEST(TestCaravan, GetDirection_Ascending_ThreeQueens) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, TWO};
@@ -232,7 +226,7 @@ TEST (TestCaravan, GetDirection_Ascending_ThreeQueens) {
     ASSERT_EQ(cvn.get_direction(), DESCENDING);
 }
 
-TEST (TestCaravan, GetDirection_Descending_ThreeQueens) {
+TEST(TestCaravan, GetDirection_Descending_ThreeQueens) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, TEN};
     Card c_num_2 = {HEARTS, NINE};
@@ -254,12 +248,12 @@ TEST (TestCaravan, GetDirection_Descending_ThreeQueens) {
     ASSERT_EQ(cvn.get_direction(), ASCENDING);
 }
 
-TEST (TestCaravan, GetName) {
+TEST(TestCaravan, GetName) {
     auto cvn = Caravan(CARAVAN_D);
     ASSERT_EQ(cvn.get_name(), CARAVAN_D);
 }
 
-TEST (TestCaravan, GetSize_BeforeAfterNumeric) {
+TEST(TestCaravan, GetSize_BeforeAfterNumeric) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
 
@@ -268,7 +262,7 @@ TEST (TestCaravan, GetSize_BeforeAfterNumeric) {
     ASSERT_EQ(cvn.get_size(), 1);
 }
 
-TEST (TestCaravan, GetSuit) {
+TEST(TestCaravan, GetSuit) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
 
@@ -277,7 +271,7 @@ TEST (TestCaravan, GetSuit) {
     ASSERT_EQ(cvn.get_suit(), c_num.suit);
 }
 
-TEST (TestCaravan, PutNumericCard_PutFaceNotJack) {
+TEST(TestCaravan, PutNumericCard_PutFaceNotJack) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
     Card c_face = {HEARTS, KING};
@@ -296,7 +290,7 @@ TEST (TestCaravan, PutNumericCard_PutFaceNotJack) {
     ASSERT_EQ(ts.faces[0].rank, c_face.rank);
 }
 
-TEST (TestCaravan, PutNumericCard_PutFaceJack) {
+TEST(TestCaravan, PutNumericCard_PutFaceJack) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
     Card c_face = {HEARTS, JACK};
@@ -308,22 +302,19 @@ TEST (TestCaravan, PutNumericCard_PutFaceJack) {
     ASSERT_EQ(cvn.get_size(), 0);
 }
 
-TEST (TestCaravan, PutNumericCard_Error_NotNumeric) {
+TEST(TestCaravan, PutNumericCard_Error_NotNumeric) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_face = {HEARTS, KING};
 
     try {
         cvn.put_numeral_card(c_face);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, PutNumericCard_Error_CaravanFull) {
+TEST(TestCaravan, PutNumericCard_Error_CaravanFull) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, THREE};
@@ -349,15 +340,12 @@ TEST (TestCaravan, PutNumericCard_Error_CaravanFull) {
     try {
         cvn.put_numeral_card(c_num_9);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, PutFaceCard) {
+TEST(TestCaravan, PutFaceCard) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
     Card c_face = {HEARTS, KING};
@@ -374,7 +362,7 @@ TEST (TestCaravan, PutFaceCard) {
     ASSERT_EQ(ts.faces[0].rank, c_face.rank);
 }
 
-TEST (TestCaravan, PutFaceCard_Error_EmptyCaravan) {
+TEST(TestCaravan, PutFaceCard_Error_EmptyCaravan) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_face = {HEARTS, KING};
     Slot ts;
@@ -382,15 +370,12 @@ TEST (TestCaravan, PutFaceCard_Error_EmptyCaravan) {
     try {
         cvn.put_face_card(c_face, 1);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, PutFaceCard_Error_OutOfRange) {
+TEST(TestCaravan, PutFaceCard_Error_OutOfRange) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
     Card c_face = {HEARTS, KING};
@@ -401,15 +386,12 @@ TEST (TestCaravan, PutFaceCard_Error_OutOfRange) {
     try {
         cvn.put_face_card(c_face, 2);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, PutFaceCard_Error_NotFaceCard) {
+TEST(TestCaravan, PutFaceCard_Error_NotFaceCard) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
@@ -420,15 +402,12 @@ TEST (TestCaravan, PutFaceCard_Error_NotFaceCard) {
     try {
         cvn.put_face_card(c_num_2, 1);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, PutFaceCard_Error_FullFaceCardCapacity) {
+TEST(TestCaravan, PutFaceCard_Error_FullFaceCardCapacity) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num = {SPADES, ACE};
     Card c_face_1 = {HEARTS, KING};
@@ -447,15 +426,12 @@ TEST (TestCaravan, PutFaceCard_Error_FullFaceCardCapacity) {
     try {
         cvn.put_face_card(c_face_4, 1);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, RemoveRank_FiveNumeric_OneFace) {
+TEST(TestCaravan, RemoveRank_FiveNumeric_OneFace) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, TWO};
@@ -485,7 +461,7 @@ TEST (TestCaravan, RemoveRank_FiveNumeric_OneFace) {
     ASSERT_EQ(cvn.get_slot(3).card.rank, c_num_4.rank);
 }
 
-TEST (TestCaravan, RemoveRank_FiveNumeric_OneFace_ExcludeOne) {
+TEST(TestCaravan, RemoveRank_FiveNumeric_OneFace_ExcludeOne) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, TWO};
@@ -518,7 +494,7 @@ TEST (TestCaravan, RemoveRank_FiveNumeric_OneFace_ExcludeOne) {
     ASSERT_EQ(cvn.get_slot(4).card.rank, ACE);
 }
 
-TEST (TestCaravan, RemoveRank_Error_ExcludeOutOfRange) {
+TEST(TestCaravan, RemoveRank_Error_ExcludeOutOfRange) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, TWO};
@@ -537,15 +513,12 @@ TEST (TestCaravan, RemoveRank_Error_ExcludeOutOfRange) {
     try {
         cvn.remove_rank(ACE, 7);
         FAIL();
-
-    } catch (CaravanFatalException &e) {
-
-    } catch (...) {
+    } catch (CaravanFatalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, RemoveSuit_FiveNumeric_OneFace) {
+TEST(TestCaravan, RemoveSuit_FiveNumeric_OneFace) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, TWO};
@@ -576,7 +549,7 @@ TEST (TestCaravan, RemoveSuit_FiveNumeric_OneFace) {
 }
 
 
-TEST (TestCaravan, RemoveSuit_FiveNumeric_OneFace_ExcludeOne) {
+TEST(TestCaravan, RemoveSuit_FiveNumeric_OneFace_ExcludeOne) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, TWO};
@@ -609,7 +582,7 @@ TEST (TestCaravan, RemoveSuit_FiveNumeric_OneFace_ExcludeOne) {
     ASSERT_EQ(cvn.get_slot(4).card.rank, ACE);
 }
 
-TEST (TestCaravan, RemoveSuit_Error_ExcludeOutOfRange) {
+TEST(TestCaravan, RemoveSuit_Error_ExcludeOutOfRange) {
     auto cvn = Caravan(CARAVAN_D);
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, TWO};
@@ -628,15 +601,12 @@ TEST (TestCaravan, RemoveSuit_Error_ExcludeOutOfRange) {
     try {
         cvn.remove_suit(CLUBS, 7);
         FAIL();
-
-    } catch (CaravanFatalException &e) {
-
-    } catch (...) {
+    } catch (CaravanFatalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, RemoveNumericCard_WithJack_Position8) {
+TEST(TestCaravan, RemoveNumericCard_WithJack_Position8) {
     auto cvn = Caravan(CARAVAN_D);
 
     cvn.put_numeral_card({SPADES, ACE});
@@ -663,16 +633,13 @@ TEST (TestCaravan, RemoveNumericCard_WithJack_Position8) {
     try {
         cvn.get_slot(8);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
 
-TEST (TestCaravan, RemoveNumericCard_WithJack_Position1) {
+TEST(TestCaravan, RemoveNumericCard_WithJack_Position1) {
     auto cvn = Caravan(CARAVAN_D);
 
     cvn.put_numeral_card({SPADES, ACE});
@@ -699,15 +666,12 @@ TEST (TestCaravan, RemoveNumericCard_WithJack_Position1) {
     try {
         cvn.get_slot(8);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestCaravan, RemoveNumericCard_WithJack_Position5) {
+TEST(TestCaravan, RemoveNumericCard_WithJack_Position5) {
     auto cvn = Caravan(CARAVAN_D);
 
     cvn.put_numeral_card({SPADES, ACE});
@@ -737,10 +701,7 @@ TEST (TestCaravan, RemoveNumericCard_WithJack_Position5) {
     try {
         cvn.get_slot(8);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }

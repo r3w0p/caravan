@@ -42,7 +42,7 @@ jobs:
       - name: Install CMake and Ninja
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: "~3.20"  # use most recent 3.20.x version
+          cmakeVersion: "~3.27"  # use most recent 3.27.x version
           ninjaVersion: "^1"     # use most recent 1.x version
 
       - name: CMake Setup

@@ -9,7 +9,6 @@
 #include <utility>
 
 namespace Caravan {
-
     /*
      * BASE
      */
@@ -17,10 +16,11 @@ namespace Caravan {
     class CaravanException : public std::exception {
         std::string message;
 
-    public:
-        explicit CaravanException(std::string msg) : message(std::move(msg)) {}
+        public:
+            explicit
+            CaravanException(std::string msg) : message(std::move(msg)) {}
 
-        std::string what();
+            std::string what();
     };
 
     /*
@@ -28,17 +28,18 @@ namespace Caravan {
      */
 
     class CaravanFatalException : public CaravanException {
-    public:
-        explicit CaravanFatalException(std::string msg) : CaravanException(
-            std::move(msg)) {
-        }
+        public:
+            explicit CaravanFatalException(std::string msg) : CaravanException(
+                std::move(msg)
+            ) {}
     };
 
     class CaravanIllegalException : public CaravanException {
-    public:
-        explicit CaravanIllegalException(std::string msg) : CaravanException(
-            std::move(msg)) {
-        }
+        public:
+            explicit
+            CaravanIllegalException(std::string msg) : CaravanException(
+                std::move(msg)
+            ) {}
     };
 
     /*
@@ -46,17 +47,17 @@ namespace Caravan {
      */
 
     class CaravanFatalModelException : public CaravanFatalException {
-    public:
-        explicit CaravanFatalModelException(
-            const std::string &msg) : CaravanFatalException(msg) {
-        }
+        public:
+            explicit CaravanFatalModelException(
+                const std::string &msg
+            ) : CaravanFatalException(msg) {}
     };
 
     class CaravanIllegalModelException : public CaravanIllegalException {
-    public:
-        explicit CaravanIllegalModelException(
-            const std::string &msg) : CaravanIllegalException(msg) {
-        }
+        public:
+            explicit CaravanIllegalModelException(
+                const std::string &msg
+            ) : CaravanIllegalException(msg) {}
     };
 
     /*
@@ -64,17 +65,17 @@ namespace Caravan {
      */
 
     class CaravanFatalViewException : public CaravanFatalException {
-    public:
-        explicit CaravanFatalViewException(
-            const std::string &msg) : CaravanFatalException(msg) {
-        }
+        public:
+            explicit CaravanFatalViewException(
+                const std::string &msg
+            ) : CaravanFatalException(msg) {}
     };
 
     class CaravanIllegalViewException : public CaravanIllegalException {
-    public:
-        explicit CaravanIllegalViewException(
-            const std::string &msg) : CaravanIllegalException(msg) {
-        }
+        public:
+            explicit CaravanIllegalViewException(
+                const std::string &msg
+            ) : CaravanIllegalException(msg) {}
     };
 
     /*
@@ -82,19 +83,18 @@ namespace Caravan {
      */
 
     class CaravanFatalControllerException : public CaravanFatalException {
-    public:
-        explicit CaravanFatalControllerException(
-            const std::string &msg) : CaravanFatalException(msg) {
-        }
+        public:
+            explicit CaravanFatalControllerException(
+                const std::string &msg
+            ) : CaravanFatalException(msg) {}
     };
 
     class CaravanIllegalControllerException : public CaravanIllegalException {
-    public:
-        explicit CaravanIllegalControllerException(
-            const std::string &msg) : CaravanIllegalException(msg) {
-        }
+        public:
+            explicit CaravanIllegalControllerException(
+                const std::string &msg
+            ) : CaravanIllegalException(msg) {}
     };
-
 }
 
 #endif //CARAVAN_CORE_EXCEPTIONS_H

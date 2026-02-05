@@ -6,9 +6,7 @@
 #include "caravan/core/exceptions.h"
 
 namespace Caravan {
-
     std::string CaravanException::what() {
         return message;
     }
-
 }

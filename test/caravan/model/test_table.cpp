@@ -7,7 +7,7 @@
 #include "caravan/core/exceptions.h"
 
 
-TEST (TestTable, ClearCaravan_TwoNumeric_OneFace) {
+TEST(TestTable, ClearCaravan_TwoNumeric_OneFace) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
@@ -24,7 +24,7 @@ TEST (TestTable, ClearCaravan_TwoNumeric_OneFace) {
 }
 
 
-TEST (TestTable, GetCaravanBid_ThreeNumeric) {
+TEST(TestTable, GetCaravanBid_ThreeNumeric) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
@@ -40,7 +40,7 @@ TEST (TestTable, GetCaravanBid_ThreeNumeric) {
     ASSERT_EQ(t.get_caravan(pn)->get_bid(), 6);
 }
 
-TEST (TestTable, GetCaravanCardsAt_ThreeNumeric) {
+TEST(TestTable, GetCaravanCardsAt_ThreeNumeric) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
@@ -65,7 +65,7 @@ TEST (TestTable, GetCaravanCardsAt_ThreeNumeric) {
     ASSERT_EQ(ts.card.rank, THREE);
 }
 
-TEST (TestTable, GetCaravanDirection_Ascending) {
+TEST(TestTable, GetCaravanDirection_Ascending) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {SPADES, TWO};
@@ -78,7 +78,7 @@ TEST (TestTable, GetCaravanDirection_Ascending) {
     ASSERT_EQ(t.get_caravan(pn)->get_direction(), ASCENDING);
 }
 
-TEST (TestTable, GetCaravanDirection_Descending) {
+TEST(TestTable, GetCaravanDirection_Descending) {
     Table t;
     Card c_num_1 = {SPADES, TWO};
     Card c_num_2 = {SPADES, ACE};
@@ -91,7 +91,7 @@ TEST (TestTable, GetCaravanDirection_Descending) {
     ASSERT_EQ(t.get_caravan(pn)->get_direction(), DESCENDING);
 }
 
-TEST (TestTable, GetCaravanSize_ThreeNumeric) {
+TEST(TestTable, GetCaravanSize_ThreeNumeric) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
@@ -107,7 +107,7 @@ TEST (TestTable, GetCaravanSize_ThreeNumeric) {
     ASSERT_EQ(t.get_caravan(cn)->get_size(), 3);
 }
 
-TEST (TestTable, GetCaravanSuit_BeforeAfter) {
+TEST(TestTable, GetCaravanSuit_BeforeAfter) {
     Table t;
     Card c_num = {SPADES, ACE};
     CaravanName pn = CARAVAN_D;
@@ -117,7 +117,7 @@ TEST (TestTable, GetCaravanSuit_BeforeAfter) {
     ASSERT_EQ(t.get_caravan(pn)->get_suit(), SPADES);
 }
 
-TEST (TestTable, PlayFaceCard_Jack) {
+TEST(TestTable, PlayFaceCard_Jack) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
@@ -148,7 +148,7 @@ TEST (TestTable, PlayFaceCard_Jack) {
     ASSERT_EQ(ts.card.rank, THREE);
 }
 
-TEST (TestTable, PlayFaceCard_Queen) {
+TEST(TestTable, PlayFaceCard_Queen) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
@@ -171,7 +171,7 @@ TEST (TestTable, PlayFaceCard_Queen) {
     ASSERT_EQ(t.get_caravan(cn)->get_direction(), DESCENDING);
 }
 
-TEST (TestTable, PlayFaceCard_Error_Queen_NotPlayedOnTopCard) {
+TEST(TestTable, PlayFaceCard_Error_Queen_NotPlayedOnTopCard) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {CLUBS, TWO};
@@ -186,15 +186,12 @@ TEST (TestTable, PlayFaceCard_Error_Queen_NotPlayedOnTopCard) {
     try {
         t.play_face_card(cn, c_face, 2);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestTable, PlayFaceCard_King_OneNumeric_ThreeKings) {
+TEST(TestTable, PlayFaceCard_King_OneNumeric_ThreeKings) {
     Table t;
     Card c_num = {SPADES, FIVE};
     Card c_face_1 = {DIAMONDS, KING};
@@ -215,7 +212,7 @@ TEST (TestTable, PlayFaceCard_King_OneNumeric_ThreeKings) {
     ASSERT_EQ(t.get_caravan(cn)->get_bid(), 40);
 }
 
-TEST (TestTable, PlayFaceCard_Joker_Ace) {
+TEST(TestTable, PlayFaceCard_Joker_Ace) {
     Table t;
     Card c_num_a1 = {SPADES, ACE};
     Card c_num_a2 = {HEARTS, THREE};
@@ -246,7 +243,7 @@ TEST (TestTable, PlayFaceCard_Joker_Ace) {
     ASSERT_EQ(ts.card.rank, ACE);
 }
 
-TEST (TestTable, PlayFaceCard_Joker_2To10) {
+TEST(TestTable, PlayFaceCard_Joker_2To10) {
     Table t;
     Card c_num_a1 = {SPADES, TWO};
     Card c_num_a2 = {HEARTS, THREE};
@@ -277,7 +274,7 @@ TEST (TestTable, PlayFaceCard_Joker_2To10) {
     ASSERT_EQ(ts.card.rank, TWO);
 }
 
-TEST (TestTable, PlayNumericCard) {
+TEST(TestTable, PlayNumericCard) {
     Table t;
     Card c_num_1 = {SPADES, ACE};
     Card c_num_2 = {HEARTS, THREE};
@@ -300,7 +297,7 @@ TEST (TestTable, PlayNumericCard) {
     ASSERT_EQ(t.get_caravan(cn)->get_direction(), ASCENDING);
 }
 
-TEST (TestTable, PlayNumericCard_Error_TwoCards_SameRank_InSequence) {
+TEST(TestTable, PlayNumericCard_Error_TwoCards_SameRank_InSequence) {
     Table t;
     Card c_num_1 = {SPADES, THREE};
     Card c_num_2 = {DIAMONDS, THREE};
@@ -311,15 +308,12 @@ TEST (TestTable, PlayNumericCard_Error_TwoCards_SameRank_InSequence) {
     try {
         t.play_numeral_card(cn, c_num_2);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestTable, PlayNumericCard_Error_OppositeDirection_DifferentSuit) {
+TEST(TestTable, PlayNumericCard_Error_OppositeDirection_DifferentSuit) {
     Table t;
     Card c_num_1 = {SPADES, FIVE};
     Card c_num_2 = {DIAMONDS, SEVEN};
@@ -334,15 +328,12 @@ TEST (TestTable, PlayNumericCard_Error_OppositeDirection_DifferentSuit) {
     try {
         t.play_numeral_card(cn, c_num_3);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestTable, PlayNumericCard_OppositeDirection_SameSuit) {
+TEST(TestTable, PlayNumericCard_OppositeDirection_SameSuit) {
     Table t;
     Card c_num_1 = {SPADES, FIVE};
     Card c_num_2 = {DIAMONDS, SEVEN};

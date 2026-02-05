@@ -3,16 +3,15 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "caravan/core/exceptions.h"
-#include "caravan/controller/controller_str_to_move.h"
+#include "caravan/controller/controller_ftxui.h"
 
 #include <string>
 #include <chrono>
 
 
 namespace Caravan::Controller {
-
     void process_first(const std::string &input, Model::GameMove *move) {
-        char c = input.at(0);  // minimum input size already checked elsewhere
+        char c = input.at(0); // minimum input size already checked elsewhere
 
         switch (c) {
             case 'P':
@@ -48,15 +47,20 @@ namespace Caravan::Controller {
             default:
                 throw CaravanIllegalControllerException(
                     "Invalid option '" + std::string(1, c) +
-                    "', must be one of: (P)lay, (D)iscard, (C)lear.");
+                    "', must be one of: (P)lay, (D)iscard, (C)lear."
+                );
         }
     }
 
     void process_second(const std::string &input, Model::GameMove *move) {
-        if (move->option == Model::OPTION_PLAY or move->option == Model::OPTION_DISCARD) {
-
+        if (move->option == Model::OPTION_PLAY
+            or
+        move->option == Model::OPTION_DISCARD
+        ) {
             if (input.size() < 2) {
-                throw CaravanIllegalControllerException("A hand position has not been entered.");
+                throw CaravanIllegalControllerException(
+                    "A hand position has not been entered."
+                );
             }
 
             char c = input.at(1);
@@ -88,13 +92,16 @@ namespace Caravan::Controller {
                     break;
                 default:
                     throw CaravanIllegalControllerException(
-                        "Invalid hand position '" + std::string(1, c) + "'.");
+                        "Invalid hand position '" + std::string(1, c) + "'."
+                    );
             }
-
-        } else if (move->option == Model::OPTION_CLEAR) {
-
+        }
+        else
+        if (move->option == Model::OPTION_CLEAR) {
             if (input.size() < 2) {
-                throw CaravanIllegalControllerException("A caravan name has not been entered.");
+                throw CaravanIllegalControllerException(
+                    "A caravan name has not been entered."
+                );
             }
 
             char c = input.at(1);
@@ -127,17 +134,18 @@ namespace Caravan::Controller {
                 default:
                     throw CaravanIllegalControllerException(
                         "Invalid caravan name '" + std::string(1, c) +
-                        "', must be between: A-F.");
+                        "', must be between: A-F."
+                    );
             }
-
         } // else invalid move type, handled during parse of first character
     }
 
     void process_third(const std::string &input, Model::GameMove *move) {
         if (move->option == Model::OPTION_PLAY) {
-
             if (input.size() < 3) {
-                throw CaravanIllegalControllerException("A caravan name has not been entered.");
+                throw CaravanIllegalControllerException(
+                    "A caravan name has not been entered."
+                );
             }
 
             char c = input.at(2);
@@ -170,15 +178,17 @@ namespace Caravan::Controller {
                 default:
                     throw CaravanIllegalControllerException(
                         "Invalid caravan name '" + std::string(1, c) +
-                        "', must be between: A-F.");
+                        "', must be between: A-F."
+                    );
             }
         }
     }
 
     void process_fourth(const std::string &input, Model::GameMove *move) {
         if (move->option == Model::OPTION_PLAY) {
-
-            if (input.size() < 4) { return; }  // optional, not an error
+            if (input.size() < 4) {
+                return;
+            } // optional, not an error
 
             char c = input.at(3);
 
@@ -209,15 +219,23 @@ namespace Caravan::Controller {
                     break;
                 default:
                     throw CaravanIllegalControllerException(
-                        "Invalid caravan position '" + std::string(1, c) + "'.");
+                        "Invalid caravan position '" + std::string(
+                            1,
+                            c
+                        ) + "'."
+                    );
             }
         }
     }
 
-    Model::GameMove ControllerStrToMove::convert(const std::string &input, bool confirmed) {
+    Model::GameMove ControllerStrToMove::convert(
+        const std::string &input,
+        bool confirmed
+    ) {
         Model::GameMove move;
 
-        if (input.empty()) return move;
+        if (input.empty())
+            return move;
 
         try {
             /*
@@ -244,7 +262,6 @@ namespace Caravan::Controller {
              * - CARAVAN POSITION (used when selecting Face card only)
              */
             process_fourth(input, &move);
-
         } catch (CaravanIllegalControllerException &e) {
             if (confirmed) {
                 // For confirmed moves: throw to other handling that prints
@@ -259,5 +276,4 @@ namespace Caravan::Controller {
 
         return move;
     }
-
 }

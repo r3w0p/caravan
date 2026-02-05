@@ -7,10 +7,14 @@
 #include "caravan/model/game.h"
 
 
-TEST (TestGame, GetPlayer_Both) {
+TEST(TestGame, GetPlayer_Both) {
     GameConfig gc = {
-        30, 1, true,
-        30, 1, true,
+        30,
+        1,
+        true,
+        30,
+        1,
+        true,
         PLAYER_ABC
     };
     Game g{gc};
@@ -19,10 +23,14 @@ TEST (TestGame, GetPlayer_Both) {
     ASSERT_EQ(g.get_player(PLAYER_DEF)->get_name(), PLAYER_DEF);
 }
 
-TEST (TestGame, GetPlayer_Error_InvalidName) {
+TEST(TestGame, GetPlayer_Error_InvalidName) {
     GameConfig gc = {
-        30, 1, true,
-        30, 1, true,
+        30,
+        1,
+        true,
+        30,
+        1,
+        true,
         PLAYER_ABC
     };
     Game g{gc};
@@ -30,18 +38,19 @@ TEST (TestGame, GetPlayer_Error_InvalidName) {
     try {
         g.get_player(NO_PLAYER);
         FAIL();
-
-    } catch (CaravanFatalException &e) {
-
-    } catch (...) {
+    } catch (CaravanFatalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestGame, GetPlayerTurn) {
+TEST(TestGame, GetPlayerTurn) {
     GameConfig gc = {
-        30, 1, true,
-        30, 1, true,
+        30,
+        1,
+        true,
+        30,
+        1,
+        true,
         PLAYER_ABC
     };
     Game g{gc};
@@ -49,10 +58,14 @@ TEST (TestGame, GetPlayerTurn) {
     ASSERT_EQ(g.get_player_turn(), PLAYER_ABC);
 }
 
-TEST (TestGame, GetWinner_NoMoves) {
+TEST(TestGame, GetWinner_NoMoves) {
     GameConfig gc = {
-        30, 1, true,
-        30, 1, true,
+        30,
+        1,
+        true,
+        30,
+        1,
+        true,
         PLAYER_ABC
     };
     Game g{gc};
@@ -60,10 +73,14 @@ TEST (TestGame, GetWinner_NoMoves) {
     ASSERT_EQ(g.get_winner(), NO_PLAYER);
 }
 
-TEST (TestGame, PlayOption_Error_StartRound_Remove) {
+TEST(TestGame, PlayOption_Error_StartRound_Remove) {
     GameConfig gc = {
-        30, 1, true,
-        30, 1, true,
+        30,
+        1,
+        true,
+        30,
+        1,
+        true,
         PLAYER_ABC
     };
     GameMove move = {OPTION_DISCARD, 1, NO_CARAVAN, 0};
@@ -72,18 +89,19 @@ TEST (TestGame, PlayOption_Error_StartRound_Remove) {
     try {
         g.make_move(&move);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }
 
-TEST (TestGame, PlayOption_Error_StartRound_Clear) {
+TEST(TestGame, PlayOption_Error_StartRound_Clear) {
     GameConfig gc = {
-        30, 1, true,
-        30, 1, true,
+        30,
+        1,
+        true,
+        30,
+        1,
+        true,
         PLAYER_ABC
     };
     GameMove move = {OPTION_CLEAR, 0, CARAVAN_A, 0};
@@ -92,10 +110,7 @@ TEST (TestGame, PlayOption_Error_StartRound_Clear) {
     try {
         g.make_move(&move);
         FAIL();
-
-    } catch (CaravanIllegalException &e) {
-
-    } catch (...) {
+    } catch (CaravanIllegalException &e) {} catch (...) {
         FAIL();
     }
 }

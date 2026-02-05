@@ -6,7 +6,6 @@
 #include "caravan/core/exceptions.h"
 
 namespace Caravan::Model {
-
     /**
      * Remove all cards from the caravan.
      *
@@ -15,7 +14,8 @@ namespace Caravan::Model {
     void Caravan::clear() {
         if (i_track == 0) {
             throw CaravanIllegalModelException(
-                "Cannot clear an empty caravan.");
+                "Cannot clear an empty caravan."
+            );
         }
 
         i_track = 0;
@@ -75,7 +75,9 @@ namespace Caravan::Model {
                 }
 
                 // An odd number of Queens on a card means the direction is flipped.
-                if (num_queens > 0 and (num_queens % 2) != 0) {
+                if (num_queens > 0
+                    and(num_queens % 2) != 0
+                ) {
                     if (dir == ASCENDING) {
                         dir = DESCENDING;
                     } else {
@@ -109,9 +111,14 @@ namespace Caravan::Model {
      * @throws CaravanIllegalModelException Chosen card position is out of range.
      */
     Slot Caravan::get_slot(uint8_t pos) const {
-        if (pos < TRACK_NUMERIC_MIN or pos > i_track) {
+        if (pos < TRACK_NUMERIC_MIN
+            or pos
+        >
+        i_track
+        ) {
             throw CaravanIllegalModelException(
-                "The chosen card position is out of range.");
+                "The chosen card position is out of range."
+            );
         }
 
         return track[pos - 1];
@@ -156,17 +163,21 @@ namespace Caravan::Model {
     Card Caravan::put_face_card(Card card, uint8_t pos) {
         if (pos < TRACK_NUMERIC_MIN) {
             throw CaravanIllegalModelException(
-                "A caravan position has not been entered.");
+                "A caravan position has not been entered."
+            );
         }
 
         if (pos > i_track) {
             throw CaravanIllegalModelException(
                 "There is not a numeral card at caravan position " +
-                std::to_string(pos) + ".");
+                std::to_string(pos) + "."
+            );
         }
 
         if (!card.is_face_card()) {
-            throw CaravanIllegalModelException("The chosen card must be a face card.");
+            throw CaravanIllegalModelException(
+                "The chosen card must be a face card."
+            );
         }
 
         const uint8_t i = pos - 1;
@@ -174,10 +185,11 @@ namespace Caravan::Model {
 
         if (card.rank == JACK) {
             remove_numeral_card(i);
-
         } else {
             if (track[i].i_faces == TRACK_FACE_MAX) {
-                throw CaravanIllegalModelException("The caravan is at its maximum face card capacity.");
+                throw CaravanIllegalModelException(
+                    "The caravan is at its maximum face card capacity."
+                );
             }
 
             track[i].faces[track[i].i_faces] = card;
@@ -198,19 +210,22 @@ namespace Caravan::Model {
     void Caravan::put_numeral_card(Card card) {
         if (!card.is_numeral_card()) {
             throw CaravanIllegalModelException(
-                "The card must be a numeral card.");
+                "The card must be a numeral card."
+            );
         }
 
         if (i_track == TRACK_NUMERIC_MAX) {
             throw CaravanIllegalModelException(
-                "The caravan is at its maximum numeral card capacity.");
+                "The caravan is at its maximum numeral card capacity."
+            );
         }
 
         if (i_track > 0) {
             if (card.rank == track[i_track - 1].card.rank) {
                 throw CaravanIllegalModelException(
                     "A numeral card must not have same rank as "
-                    "the most recent card in the caravan.");
+                    "the most recent card in the caravan."
+                );
             }
 
             if (i_track > 1) {
@@ -219,13 +234,17 @@ namespace Caravan::Model {
                 const bool ascends = card.rank > track[i_track - 1].card.rank;
 
                 const bool not_same_suit = card.suit != suit;
-                const bool not_same_dir = (dir == ASCENDING and !ascends) or
-                                          (dir == DESCENDING and ascends);
+                const bool not_same_dir = (dir == ASCENDING
+                and
+                !ascends
+                )
+                or(dir == DESCENDING and ascends);
 
                 if (not_same_suit and not_same_dir) {
                     throw CaravanIllegalModelException(
                         "The numeral card must follow the caravan's "
-                        "direction or match the caravan's suit.");
+                        "direction or match the caravan's suit."
+                    );
                 }
             }
         }
@@ -250,13 +269,18 @@ namespace Caravan::Model {
 
         if (pos_exclude > i_track) {
             throw CaravanFatalModelException(
-                "The exclude position is out of range.");
+                "The exclude position is out of range."
+            );
         }
 
         uint8_t i_track_original = i_track;
 
         for (int t = i_track_original - 1; t >= 0; --t) {
-            if (pos_exclude > 0 and t == (pos_exclude - 1)) {
+            if (pos_exclude > 0
+                and t
+            ==
+            (pos_exclude - 1)
+            ) {
                 continue;
             }
 
@@ -282,13 +306,18 @@ namespace Caravan::Model {
 
         if (pos_exclude > i_track) {
             throw CaravanFatalModelException(
-                "The exclude position is out of range.");
+                "The exclude position is out of range."
+            );
         }
 
         const uint8_t i_track_original = i_track;
 
         for (int t = i_track_original - 1; t >= 0; --t) {
-            if (pos_exclude > 0 and t == (pos_exclude - 1)) {
+            if (pos_exclude > 0
+                and t
+            ==
+            (pos_exclude - 1)
+            ) {
                 continue;
             }
 
@@ -345,5 +374,4 @@ namespace Caravan::Model {
 
         i_track -= 1;
     }
-
 }

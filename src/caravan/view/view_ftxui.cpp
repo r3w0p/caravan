@@ -10,13 +10,13 @@
 #include <string>
 #include <chrono>
 
+#include "caravan/core/functions.h"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_options.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
 namespace Caravan::View {
-
     constexpr uint16_t MIN_X = 150;
     constexpr uint16_t MIN_Y = 68;
 
@@ -55,98 +55,18 @@ namespace Caravan::View {
     uint64_t time_milliseconds() {
         using namespace std::chrono;
         return duration_cast<milliseconds>(
-            system_clock::now().time_since_epoch()).count();
+            system_clock::now().time_since_epoch()
+        ).count();
     }
 
-    std::wstring caravan_to_wstr(Model::CaravanName caravan_name, bool letter_only) {
-        switch (caravan_name) {
-            case Model::CARAVAN_A:
-                return letter_only ? L"A" : L"Caravan A";
-            case Model::CARAVAN_B:
-                return letter_only ? L"B" : L"Caravan B";
-            case Model::CARAVAN_C:
-                return letter_only ? L"C" : L"Caravan C";
-            case Model::CARAVAN_D:
-                return letter_only ? L"D" : L"Caravan D";
-            case Model::CARAVAN_E:
-                return letter_only ? L"E" : L"Caravan E";
-            case Model::CARAVAN_F:
-                return letter_only ? L"F" : L"Caravan F";
-            default:
-                throw CaravanFatalViewException("Invalid caravan name.");
-        }
-    }
-
-    std::wstring suit_to_wstr(Model::Suit suit) {
-        switch (suit) {
-            case Model::NO_SUIT:
-                return L" ";
-            case Model::SPADES:
-                return L"♠";
-            case Model::CLUBS:
-                return L"♣";
-            case Model::HEARTS:
-                return L"♥";
-            case Model::DIAMONDS:
-                return L"♦";
-            default:
-                throw CaravanFatalViewException("Invalid suit.");
-        }
-    }
-
-    std::wstring direction_to_wstr(const Model::Direction direction) {
-        switch (direction) {
-            case Model::ANY:
-                return L"ANY";
-            case Model::ASCENDING:
-                return L"ASC";
-            case Model::DESCENDING:
-                return L"DES";
-            default:
-                throw CaravanFatalViewException("Invalid direction.");
-        }
-    }
-
-    std::wstring rank_to_wstr(Model::Rank rank, bool lead) {
-        switch (rank) {
-            case Model::ACE:
-                return lead ? L" A" : L"A";
-            case Model::TWO:
-                return lead ? L" 2" : L"2";
-            case Model::THREE:
-                return lead ? L" 3" : L"3";
-            case Model::FOUR:
-                return lead ? L" 4" : L"4";
-            case Model::FIVE:
-                return lead ? L" 5" : L"5";
-            case Model::SIX:
-                return lead ? L" 6" : L"6";
-            case Model::SEVEN:
-                return lead ? L" 7" : L"7";
-            case Model::EIGHT:
-                return lead ? L" 8" : L"8";
-            case Model::NINE:
-                return lead ? L" 9" : L"9";
-            case Model::TEN:
-                return L"10";
-            case Model::JACK:
-                return lead ? L" J" : L"J";
-            case Model::QUEEN:
-                return lead ? L" Q" : L"Q";
-            case Model::KING:
-                return lead ? L" K" : L"K";
-            case Model::JOKER:
-                return L"JO";
-            default:
-                return L"";
-        }
-    }
-
-    std::shared_ptr<ftxui::Node> suit_to_text(ViewConfig *config, Model::Suit suit) {
+    std::shared_ptr<ftxui::Node> suit_to_text(
+        Model::Suit suit,
+        bool colour
+    ) {
         using namespace ftxui;
-        std::shared_ptr<ftxui::Node> node_suit = text(suit_to_wstr(suit));
+        std::shared_ptr<Node> node_suit = text(suit_to_wstr(suit));
 
-        if (config->colour) {
+        if (colour) {
             switch (suit) {
                 case Model::NO_SUIT:
                     return node_suit;
@@ -164,31 +84,52 @@ namespace Caravan::View {
         return node_suit;
     }
 
-    void push_card(ViewConfig *config, ftxui::Elements *e, Model::Card card, bool lead) {
+    void push_card(
+        ftxui::Elements *e,
+        Model::Card card,
+        bool lead,
+        bool colour
+    ) {
         using namespace ftxui;
 
         if (card.rank == Model::JOKER) {
             // Push lead then "JO" to compensate for lack of suit
-            if(lead) { e->push_back(text(L" ")); }
-            e->push_back(text(rank_to_wstr(card.rank, lead)) | color(Color::Default));
-
+            if (lead) {
+                e->push_back(text(L" "));
+            }
+            e->push_back(
+                text(rank_to_wstr(card.rank, lead)) | color(Color::Default)
+            );
         } else {
             // Push rank then suit
-            e->push_back(text(rank_to_wstr(card.rank, lead)) | color(Color::Default));
-            e->push_back(suit_to_text(config, card.suit));
+            e->push_back(
+                text(rank_to_wstr(card.rank, lead)) | color(Color::Default)
+            );
+            e->push_back(suit_to_text(card.suit, colour));
         }
     }
 
-    std::shared_ptr<ftxui::Node> gen_position(uint8_t position, bool blank = false) {
+    std::shared_ptr<ftxui::Node> gen_position(
+        uint8_t position,
+        bool blank = false
+    ) {
         using namespace ftxui;
-        return text(blank ? "" : std::to_string(position)) | borderEmpty | color(Color::Default) | size(WIDTH, EQUAL, WIDTH_POSITION) | size(HEIGHT, EQUAL, HEIGHT_POSITION);
+        return text(blank ? "" : std::to_string(position)) | borderEmpty |
+               color(Color::Default) | size(WIDTH, EQUAL, WIDTH_POSITION) |
+               size(HEIGHT, EQUAL, HEIGHT_POSITION);
     }
 
     std::shared_ptr<ftxui::Node> gen_position_blank() {
         return gen_position(0, true);
     }
 
-    std::shared_ptr<ftxui::Node> gen_card(ViewConfig *config, Model::Card card, bool hide, bool highlight, bool blank = false) {
+    std::shared_ptr<ftxui::Node> gen_card(
+        Model::Card card,
+        bool hide,
+        bool highlight,
+        bool colour,
+        bool blank = false
+    ) {
         using namespace ftxui;
         std::shared_ptr<Node> ret;
         Elements value;
@@ -197,21 +138,28 @@ namespace Caravan::View {
             if (hide) {
                 value.push_back(text(L"###"));
             } else {
-                push_card(config, &value, card, true);
+                push_card(&value, card, true, colour);
             }
         }
 
         ret = hbox(value);
 
-        if(blank) {
+        if (blank) {
             ret = ret | borderEmpty;
-        } else if(highlight) {
-            ret = ret | borderHeavy | (config->colour ? color(Color::Palette16::MagentaLight) : color(Color::Default));
+        } else if (highlight) {
+            ret = ret | borderHeavy | (
+                colour ? color(Color::Palette16::MagentaLight)
+                       : color(Color::Default))
+            ;
         } else {
             ret = ret | borderDouble;
         }
 
-        ret = ret | size(WIDTH, EQUAL, WIDTH_CARD) | size(HEIGHT, EQUAL, HEIGHT_CARD);
+        ret = ret | size(WIDTH, EQUAL, WIDTH_CARD) | size(
+                  HEIGHT,
+                  EQUAL,
+                  HEIGHT_CARD
+              );
 
         return ret;
     }
@@ -220,7 +168,11 @@ namespace Caravan::View {
         return gen_card({}, {}, false, false, true);
     }
 
-    std::shared_ptr<ftxui::Node> gen_faces(ViewConfig *config, const Model::Slot &slot, const bool blank = false) {
+    std::shared_ptr<ftxui::Node> gen_faces(
+        const Model::Slot &slot,
+        bool colour,
+        const bool blank = false
+    ) {
         using namespace ftxui;
 
         std::wstring ranks;
@@ -231,20 +183,26 @@ namespace Caravan::View {
                 Model::Rank r = slot.faces[i].rank;
                 Model::Suit s = slot.faces[i].suit;
 
-                if(r == Model::JOKER) {
+                if (r == Model::JOKER) {
                     ranks += L"J";
                     suits.push_back(text(L"O") | color(Color::Default));
                 } else {
                     ranks += rank_to_wstr(r, false);
-                    suits.push_back(suit_to_text(config, s));
+                    suits.push_back(suit_to_text(s, colour));
                 }
             }
         }
 
-        return vbox({
-            text(ranks) | color(Color::Default),
-            hbox(suits)
-        }) | borderEmpty | size(WIDTH, EQUAL, WIDTH_FACES) | size(HEIGHT, EQUAL, HEIGHT_FACES);
+        return vbox(
+                   {
+                       text(ranks) | color(Color::Default),
+                       hbox(suits)
+                   }
+               ) | borderEmpty | size(WIDTH, EQUAL, WIDTH_FACES) | size(
+                   HEIGHT,
+                   EQUAL,
+                   HEIGHT_FACES
+               );
     }
 
     std::shared_ptr<ftxui::Node> gen_faces_blank() {
@@ -252,58 +210,75 @@ namespace Caravan::View {
     }
 
     std::shared_ptr<ftxui::Node> gen_caravan_slot(
-        ViewConfig *config,
         const uint8_t position,
         const Model::Slot &slot,
         const bool highlight,
-        const bool blank = false) {
-
+        const bool colour,
+        const bool blank = false
+    ) {
         using namespace ftxui;
         std::shared_ptr<Node> ret;
         Elements e;
         e.push_back(blank ? gen_position_blank() : gen_position(position));
 
-        if(blank) {
+        if (blank) {
             e.push_back(gen_card_blank());
-        } else if(highlight) {
-            e.push_back(gen_card(config, slot.card, false, highlight));
+        } else if (highlight) {
+            e.push_back(gen_card(slot.card, false, highlight, colour));
         } else {
-            e.push_back(gen_card(config, slot.card, false, highlight) | color(Color::Default));
+            e.push_back(gen_card(slot.card, false, highlight, colour) | color(Color::Default));
         }
 
-        e.push_back(blank ? gen_faces_blank() : gen_faces(config, slot));
+        e.push_back(blank ? gen_faces_blank() : gen_faces(slot, colour));
 
-        ret = hbox(e) | hcenter | size(WIDTH, EQUAL, WIDTH_CARAVAN_SLOT) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN_SLOT);
+        ret = hbox(e) | hcenter | size(WIDTH, EQUAL, WIDTH_CARAVAN_SLOT) | size(
+                  HEIGHT,
+                  EQUAL,
+                  HEIGHT_CARAVAN_SLOT
+              );
 
         return ret;
     }
 
     std::shared_ptr<ftxui::Node> gen_caravan_slot_blank() {
-        return gen_caravan_slot({}, 0, {}, false, true);
+        return gen_caravan_slot({}, {}, {}, false, true);
     }
 
-    std::shared_ptr<ftxui::Node> gen_caravan(ViewConfig *config, Model::Game *game, Model::CaravanName cn, bool top) {
+    std::shared_ptr<ftxui::Node> gen_caravan(
+        Model::Game &game,
+        Model::CaravanName cn,
+        Model::GameMove highlight,
+        bool top,
+        bool colour
+    ) {
         using namespace ftxui;
         std::shared_ptr<Node> ret;
         std::shared_ptr<Node> content;
         Elements e;
         Elements title;
 
-        Model::Caravan *caravan = game->get_table()->get_caravan(cn);
+        Model::Caravan *caravan = game.get_table()->get_caravan(cn);
         uint8_t caravan_size = caravan->get_size();
 
         for (uint8_t i = 0; i < Model::TRACK_NUMERIC_MAX; i++) {
-            if ((top && (Model::TRACK_NUMERIC_MAX - i) <= caravan_size) || (!top && i + 1 <= caravan_size)) {
+            if ((top && (Model::TRACK_NUMERIC_MAX - i) <= caravan_size) || (
+                    !top && i + 1 <= caravan_size)) {
                 uint8_t position = top ? Model::TRACK_NUMERIC_MAX - i : i + 1;
 
                 // Highlight caravan slot if selected for placement of face card
-                bool highlight =
-                    config->highlight.option != Model::NO_OPTION &&
-                    config->highlight.caravan_name == cn &&
-                    config->highlight.pos_caravan == position;
+                bool highlight_slot =
+                    highlight.option != Model::NO_OPTION &&
+                    highlight.caravan_name == cn &&
+                    highlight.pos_caravan == position;
 
-                e.push_back(gen_caravan_slot(config, position, caravan->get_slot(position), highlight));
-
+                e.push_back(
+                    gen_caravan_slot(
+                        position,
+                        caravan->get_slot(position),
+                        highlight_slot,
+                        colour
+                    )
+                );
             } else {
                 e.push_back(gen_caravan_slot_blank());
             }
@@ -311,83 +286,135 @@ namespace Caravan::View {
 
         content = vbox(e);
 
-        bool winning = game->is_caravan_winning(caravan->get_name());
-        bool bust = game->is_caravan_bust(caravan->get_name());
+        bool winning = game.is_caravan_winning(caravan->get_name());
+        bool bust = game.is_caravan_bust(caravan->get_name());
 
         std::function<Element(Element)> maybe_colour = color(Color::Default);
-        std::function<Element(Element)> maybe_colour_underlined = color(Color::Default);
+        std::function<Element(Element)> maybe_colour_underlined = color(
+            Color::Default
+        );
 
-        if(config->colour) {
-            if(winning) {
+        if (colour) {
+            if (winning) {
                 maybe_colour = color(Color::Palette16::YellowLight);
-                maybe_colour_underlined = color(Color::Palette16::YellowLight) | underlined;
-
-            } else if(bust) {
+                maybe_colour_underlined =
+                    color(Color::Palette16::YellowLight) | underlined;
+            } else if (bust) {
                 maybe_colour = color(Color::Palette16::RedLight);
-                maybe_colour_underlined = color(Color::Palette16::RedLight) | underlined;
+                maybe_colour_underlined =
+                    color(Color::Palette16::RedLight) | underlined;
             }
         }
 
         title.push_back(text(L" "));
-        title.push_back(text(caravan_to_wstr(cn, true) + L" ") | maybe_colour);
-        if (game->get_table()->get_caravan(cn)->get_size() > 0) {
+        title.push_back(text(caravan_name_to_wstr(cn, true) + L" ") | maybe_colour);
+        if (game.get_table()->get_caravan(cn)->get_size() > 0) {
             title.push_back(text(L"(") | maybe_colour);
-            title.push_back(text(std::to_wstring(caravan->get_bid())) | maybe_colour_underlined);
-            title.push_back(text(L", " + direction_to_wstr(caravan->get_direction()) + L", ") | maybe_colour);
-            title.push_back(suit_to_text(config, caravan->get_suit()));
+            title.push_back(
+                text(std::to_wstring(caravan->get_bid())) |
+                maybe_colour_underlined
+            );
+            title.push_back(
+                text(
+                    L", " + direction_to_wstr(caravan->get_direction()) +
+                    L", "
+                ) | maybe_colour
+            );
+            title.push_back(suit_to_text(caravan->get_suit(), colour));
             title.push_back(text(L")") | maybe_colour);
             title.push_back(text(L" "));
         }
 
         ret = window(
-            hbox({title}) | hcenter | bold,
-            content
-        ) | center | size(WIDTH, EQUAL, WIDTH_CARAVAN) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN);
+                  hbox({title}) | hcenter | bold,
+                  content
+              ) | center | size(WIDTH, EQUAL, WIDTH_CARAVAN) | size(
+                  HEIGHT,
+                  EQUAL,
+                  HEIGHT_CARAVAN
+              );
 
         // Highlight card if caravan selected in unconfirmed move
-        bool highlight =
-            config->highlight.option != Model::NO_OPTION &&
-            config->highlight.caravan_name == cn;
+        bool highlight_card =
+            highlight.option != Model::NO_OPTION &&
+            highlight.caravan_name == cn;
 
-        if(highlight) {
-            ret = ret | (config->colour ? color(Color::Palette16::MagentaLight) : color(Color::Default));
+        if (highlight_card) {
+            ret = ret | (colour ?
+                         color(Color::Palette16::MagentaLight) :
+                         color(Color::Default));
         }
 
         return ret;
     }
 
-    std::shared_ptr<ftxui::Node> gen_deck_card(ViewConfig *config, Model::Game *game, uint8_t position, Model::Card card, bool hide, bool highlight, bool blank = false) {
+    std::shared_ptr<ftxui::Node> gen_deck_card(
+        Model::Game *game,
+        uint8_t position,
+        Model::Card card,
+        bool hide,
+        bool highlight,
+        bool colour,
+        bool blank = false
+    ) {
         using namespace ftxui;
-        return hbox({
-                        blank || game->get_winner() != Model::NO_PLAYER ? gen_position_blank() : gen_position(position),
-                        blank ? gen_card_blank() : gen_card(config, card, hide, highlight),
-                    }) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN_SLOT);
+        return hbox(
+                   {
+                       blank || game->get_winner() != Model::NO_PLAYER ?
+                       gen_position_blank() :
+                       gen_position(position),
+                       blank ?
+                       gen_card_blank() :
+                       gen_card(card, hide, highlight, colour),
+                   }
+               ) | size(HEIGHT, EQUAL, HEIGHT_CARAVAN_SLOT);
     }
 
     std::shared_ptr<ftxui::Node> gen_deck_card_blank() {
-        return gen_deck_card({}, {}, 0, {}, false, false, true);
+        return gen_deck_card({}, {}, {}, {}, false, false, true);
     }
 
-    std::shared_ptr<ftxui::Node> gen_deck(ViewConfig *config, Model::Game *game, bool top) {
+    std::shared_ptr<ftxui::Node> gen_deck(
+        Model::Game &game,
+        User::User &user_abc,
+        User::User &user_def,
+        User::User *user_turn,
+        std::string name_abc,
+        std::string name_def,
+        Model::GameMove highlight,
+        bool top,
+        bool colour,
+        bool cheat
+    ) {
         using namespace ftxui;
+        // TODO colour deck (yellow?) depending on whose turn it is
 
         std::shared_ptr<Node> content;
         std::string title;
         Elements e;
 
-        Model::Player *player_abc = game->get_player(Model::PLAYER_ABC);
-        Model::Player *player_def = game->get_player(Model::PLAYER_DEF);
+        Model::Player *player_abc = game.get_player(Model::PLAYER_ABC);
+        Model::Player *player_def = game.get_player(Model::PLAYER_DEF);
 
-        Model::Player *player_this = game->get_player(top ? Model::PLAYER_DEF : Model::PLAYER_ABC);
-        User::User *user_this = player_this->get_name() == config->user_abc->get_name() ? config->user_abc : config->user_def;
-        User::User *user_other = player_this->get_name() == config->user_abc->get_name() ? config->user_def : config->user_abc;
+        Model::Player *player_this = game.get_player(
+            top ? Model::PLAYER_DEF : Model::PLAYER_ABC
+        );
+        User::User &user_this =
+            player_this->get_name() == user_abc.get_name() ?
+                user_abc : user_def;
+        User::User &user_other =
+            player_this->get_name() == user_abc.get_name() ?
+                user_def : user_abc;
 
         uint8_t hand_size_abc = player_abc->get_size_hand();
         uint8_t hand_size_def = player_def->get_size_hand();
         uint8_t hand_size_turn = player_this->get_size_hand();
 
         uint8_t total_cards = player_this->get_size_deck() + hand_size_turn;
-        uint8_t hand_max = std::max(std::max(hand_size_abc, hand_size_def), Model::HAND_SIZE_MAX_POST_START);
+        uint8_t hand_max = std::max(
+            std::max(hand_size_abc, hand_size_def),
+            Model::HAND_SIZE_MAX_POST_START
+        );
         bool equalise = hand_size_abc != hand_size_def;
 
         // if not cheating; or
@@ -395,96 +422,144 @@ namespace Caravan::View {
         // if this user is a bot playing against a human; or
         // if there is a winner and this user is a bot playing against a human
         bool hide =
-            !config->cheat && (
-            (
-                game->get_winner() == Model::NO_PLAYER &&
-                config->user_turn->get_name() != player_this->get_name() &&
-                (config->user_abc->is_human() && config->user_def->is_human())
-            ) ||
-            (
-                game->get_winner() == Model::NO_PLAYER &&
-                !user_this->is_human() &&
-                (config->user_abc->is_human() || config->user_def->is_human())
-            ) ||
-            (
-                game->get_winner() != Model::NO_PLAYER &&
-                (!user_this->is_human() && user_other->is_human())
-            ));
+            !cheat && (
+                (
+                    game.get_winner() == Model::NO_PLAYER &&
+                    user_turn->get_name() != player_this->get_name() &&
+                    (user_abc.is_human() && user_def.is_human())
+                ) ||
+                (
+                    game.get_winner() == Model::NO_PLAYER &&
+                    !user_this.is_human() &&
+                    (user_abc.is_human() || user_def.is_human())
+                ) ||
+                (
+                    game.get_winner() != Model::NO_PLAYER &&
+                    (!user_this.is_human() && user_other.is_human())
+                ));
 
         for (uint8_t i = 0; i < hand_max; i++) {
-            if ((top && (hand_max - i) <= hand_size_turn) || (!top && i + 1 <= hand_size_turn)) {
+            if ((top && (hand_max - i) <= hand_size_turn) || (
+                    !top && i + 1 <= hand_size_turn)) {
                 uint8_t position = top ? hand_max - i : i + 1;
                 Model::Card card = player_this->get_from_hand_at(position);
 
                 // Highlight card if it is this player's turn and unconfirmed
                 // move wants to use this hand card
-                bool highlight =
-                    config->user_turn->get_name() == player_this->get_name() &&
-                    config->highlight.option != Model::NO_OPTION &&
-                    config->highlight.pos_hand == position;
+                bool highlight_card =
+                    user_turn->get_name() == player_this->get_name() &&
+                    highlight.option != Model::NO_OPTION &&
+                    highlight.pos_hand == position;
 
-                e.push_back(gen_deck_card(config, game, position, card, hide, highlight));
-
+                e.push_back(
+                    gen_deck_card(
+                        &game,
+                        position,
+                        card,
+                        hide,
+                        highlight_card,
+                        colour
+                    )
+                );
             } else if (i < Model::HAND_SIZE_MAX_POST_START || equalise) {
                 e.push_back(gen_deck_card_blank());
             }
         }
 
         content = vbox(e);
-        title = " " + (top ? config->name_def : config->name_abc) + " (" + std::to_string(total_cards) + ") ";
+        title = " " + (top ? name_def : name_abc) + " (" + std::to_string(total_cards) + ") ";
 
         return window(
-            text(title) | hcenter | bold,
-            content
-        ) | size(WIDTH, EQUAL, WIDTH_DECK);
+                   text(title) | hcenter | bold,
+                   content
+               ) | size(WIDTH, EQUAL, WIDTH_DECK);
     }
 
     std::shared_ptr<ftxui::Node> gen_input(
-        ViewConfig *config,
-        Model::Game *game,
-        std::shared_ptr<ftxui::ComponentBase> *comp_user_input) {
+        Model::Game &game,
+        std::shared_ptr<ftxui::ComponentBase> *comp_user_input,
+        std::string name_turn,
+        std::string msg_main,
+        std::string msg_important,
+        ftxui::Elements msg_move_abc,
+        ftxui::Elements msg_move_def
+    ) {
         using namespace ftxui;
         Elements e;
 
-        bool is_top = game->get_winner() == Model::NO_PLAYER;
-        bool is_mid = !config->msg_main.empty() || !config->msg_important.empty();
-        bool is_low = !config->msg_move_abc.empty() || !config->msg_move_def.empty();
+        bool is_top = game.get_winner() == Model::NO_PLAYER;
+        bool is_mid = !msg_main.empty() || !msg_important.empty();
+        bool is_low = !msg_move_abc.empty() || !msg_move_def.empty();
 
         if (is_top) {
             e.push_back(separatorEmpty());
             e.push_back(
-                hbox(separatorEmpty(), text(config->name_turn + " > "), (*comp_user_input)->Render(), separatorEmpty()));
+                hbox(
+                    separatorEmpty(),
+                    text(name_turn + " > "),
+                    (*comp_user_input)->Render(),
+                    separatorEmpty()
+                )
+            );
             e.push_back(separatorEmpty());
 
-            if(is_mid) { e.push_back(separator()); }
+            if (is_mid) {
+                e.push_back(separator());
+            }
         }
 
         if (is_mid) {
             e.push_back(separatorEmpty());
 
-            if (!config->msg_main.empty()) {
-                e.push_back(hbox(separatorEmpty(), paragraph(config->msg_main), separatorEmpty()));
+            if (!msg_main.empty()) {
+                e.push_back(
+                    hbox(
+                        separatorEmpty(),
+                        paragraph(msg_main),
+                        separatorEmpty()
+                    )
+                );
                 e.push_back(separatorEmpty());
             }
 
-            if (!config->msg_important.empty()) {
-                e.push_back(hbox(separatorEmpty(), paragraph(config->msg_important), separatorEmpty()));
+            if (!msg_important.empty()) {
+                e.push_back(
+                    hbox(
+                        separatorEmpty(),
+                        paragraph(msg_important),
+                        separatorEmpty()
+                    )
+                );
                 e.push_back(separatorEmpty());
             }
 
-            if(is_low) { e.push_back(separator()); }
+            if (is_low) {
+                e.push_back(separator());
+            }
         }
 
         if (is_low) {
             e.push_back(separatorEmpty());
 
-            if (!config->msg_move_abc.empty()) {
-                e.push_back(hbox(separatorEmpty(), hbox(config->msg_move_abc), separatorEmpty()));
+            if (!msg_move_abc.empty()) {
+                e.push_back(
+                    hbox(
+                        separatorEmpty(),
+                        hbox(msg_move_abc),
+                        separatorEmpty()
+                    )
+                );
                 e.push_back(separatorEmpty());
             }
 
-            if (!config->msg_move_def.empty()) {
-                e.push_back(hbox(separatorEmpty(), hbox(config->msg_move_def), separatorEmpty()));
+            if (!msg_move_def.empty()) {
+                e.push_back(
+                    hbox(
+                        separatorEmpty(),
+                        hbox(msg_move_def),
+                        separatorEmpty()
+                    )
+                );
                 e.push_back(separatorEmpty());
             }
         }
@@ -493,83 +568,153 @@ namespace Caravan::View {
     }
 
     std::shared_ptr<ftxui::Node> gen_game(
-        ViewConfig *config,
-        Model::Game *game,
-        std::shared_ptr<ftxui::ComponentBase> *comp_user_input) {
+        ViewConfig &config,
+        Model::Game &game,
+        std::shared_ptr<ftxui::ComponentBase> *comp_user_input
+    ) {
         using namespace ftxui;
-        return hbox({
-                        vbox({  // GAME AREA
+        return hbox(
+                   {
+                       vbox(
+                           {
+                               // GAME AREA
 
-                                 hbox({  // TOP GAME AREA
-                                          gen_caravan(config, game, Model::CARAVAN_D, true),
-                                          separatorEmpty(),
-                                          separatorEmpty(),
-                                          gen_caravan(config, game, Model::CARAVAN_E, true),
-                                          separatorEmpty(),
-                                          separatorEmpty(),
-                                          gen_caravan(config, game, Model::CARAVAN_F, true),
-                                      }),  // top game area
+                               hbox(
+                                   {
+                                       // TOP GAME AREA
+                                       gen_caravan(
+                                           config,
+                                           game,
+                                           Model::CARAVAN_D,
+                                           true
+                                       ),
+                                       separatorEmpty(),
+                                       separatorEmpty(),
+                                       gen_caravan(
+                                           config,
+                                           game,
+                                           Model::CARAVAN_E,
+                                           true
+                                       ),
+                                       separatorEmpty(),
+                                       separatorEmpty(),
+                                       gen_caravan(
+                                           config,
+                                           game,
+                                           Model::CARAVAN_F,
+                                           true
+                                       ),
+                                   }
+                               ),
+                               // top game area
 
-                                 separatorEmpty(),
+                               separatorEmpty(),
 
-                                 hbox({  // BOTTOM GAME AREA
-                                          gen_caravan(config, game, Model::CARAVAN_A, false),
-                                          separatorEmpty(),
-                                          separatorEmpty(),
-                                          gen_caravan(config, game, Model::CARAVAN_B, false),
-                                          separatorEmpty(),
-                                          separatorEmpty(),
-                                          gen_caravan(config, game, Model::CARAVAN_C, false),
-                                      }),  // bottom game area
+                               hbox(
+                                   {
+                                       // BOTTOM GAME AREA
+                                       gen_caravan(
+                                           config,
+                                           game,
+                                           Model::CARAVAN_A,
+                                           false
+                                       ),
+                                       separatorEmpty(),
+                                       separatorEmpty(),
+                                       gen_caravan(
+                                           config,
+                                           game,
+                                           Model::CARAVAN_B,
+                                           false
+                                       ),
+                                       separatorEmpty(),
+                                       separatorEmpty(),
+                                       gen_caravan(
+                                           config,
+                                           game,
+                                           Model::CARAVAN_C,
+                                           false
+                                       ),
+                                   }
+                               ),
+                               // bottom game area
 
-                             }),  // game area
+                           }
+                       ),
+                       // game area
 
-                        separatorEmpty(),
-                        separatorEmpty(),
-                        separatorEmpty(),
-                        separatorEmpty(),
-                        separatorEmpty(),
+                       separatorEmpty(),
+                       separatorEmpty(),
+                       separatorEmpty(),
+                       separatorEmpty(),
+                       separatorEmpty(),
 
-                        vbox({  // DECK AREA
-                                 gen_deck(config, game, true),
-                                 separatorEmpty(),
-                                 gen_deck(config, game, false),
-                             }) | vcenter,  // deck area
+                       vbox(
+                           {
+                               // DECK AREA
+                               gen_deck(config, game, true),
+                               separatorEmpty(),
+                               gen_deck(config, game, false),
+                           }
+                       ) | vcenter,
+                       // deck area
 
-                        separatorEmpty(),
-                        separatorEmpty(),
-                        separatorEmpty(),
-                        separatorEmpty(),
-                        separatorEmpty(),
+                       separatorEmpty(),
+                       separatorEmpty(),
+                       separatorEmpty(),
+                       separatorEmpty(),
+                       separatorEmpty(),
 
-                        vbox({  // INPUT AREA
-                                 hbox({}) | borderEmpty | size(HEIGHT, EQUAL, HEIGHT_CARAVAN),
-                                 separatorEmpty(),
-                                 gen_input(config, game, comp_user_input)
-                             }),  // input area
+                       vbox(
+                           {
+                               // INPUT AREA
+                               hbox({}) | borderEmpty | size(
+                                   HEIGHT,
+                                   EQUAL,
+                                   HEIGHT_CARAVAN
+                               ),
+                               separatorEmpty(),
+                               gen_input(config, game, comp_user_input)
+                           }
+                       ),
+                       // input area
 
-                    }) | center;  // outermost area
+                   }
+               ) | center; // outermost area
     }
 
     std::shared_ptr<ftxui::Node> gen_terminal_too_small(
-        ftxui::Dimensions terminal_size) {
+        ftxui::Dimensions terminal_size
+    ) {
         using namespace ftxui;
-        return vbox({
-                        text("Terminal too small"),
-                        separatorEmpty(),
-                        text("Width:  " + std::to_string(terminal_size.dimx) + " / " + std::to_string(MIN_X)),
-                        text("Height: " + std::to_string(terminal_size.dimy) + " / " + std::to_string(MIN_Y)),
-                        separatorEmpty(),
-                        text("Resize terminal or press Esc"),
-                    }) | center;
+        return vbox(
+                   {
+                       text("Terminal too small"),
+                       separatorEmpty(),
+                       text(
+                           "Width:  " + std::to_string(
+                               terminal_size.dimx
+                           ) + " / "
+                           + std::to_string(MIN_X)
+                       ),
+                       text(
+                           "Height: " + std::to_string(
+                               terminal_size.dimy
+                           ) + " / "
+                           + std::to_string(MIN_Y)
+                       ),
+                       separatorEmpty(),
+                       text("Resize terminal or press Esc"),
+                   }
+               ) | center;
     }
 
-    std::shared_ptr<ftxui::Node> gen_closed(ViewConfig *config) {
+    std::shared_ptr<ftxui::Node> gen_closed(ViewConfig &config) {
         using namespace ftxui;
         Elements e;
 
-        if(!config->msg_fatal.empty()) {
-            e.push_back(text(config->msg_fatal));
+        if (!config.msg_fatal.empty()) {
+            e.push_back(text(config.msg_fatal));
             e.push_back(separatorEmpty());
         }
         e.push_back(text("Press Esc to exit."));
@@ -577,64 +722,67 @@ namespace Caravan::View {
         return vbox(e) | center;
     }
 
-    ftxui::Elements get_move_description(ViewConfig *config) {
+    ftxui::Elements get_move_description(ViewConfig &config) {
         using namespace ftxui;
         Elements e;
 
-        e.push_back(text(config->name_turn));
+        e.push_back(text(config.name_turn));
 
-        if (config->move.option == Model::OPTION_PLAY) {
+        if (config.move.option == Model::OPTION_PLAY) {
             e.push_back(text(L" played "));
-            push_card(config, &e, config->move.hand, false);
+            push_card(&config, &e, config.move.hand, false);
 
-            if(config->move.hand.is_face_card() && config->move.pos_caravan > 0) {
+            if (config.move.hand.is_face_card() && config.move.pos_caravan >
+                0) {
                 e.push_back(text(L" on "));
-                push_card(config, &e, config->move.board, false);
+                push_card(&config, &e, config.move.board, false);
             }
 
-            e.push_back(text(L" on " + caravan_to_wstr(config->move.caravan_name, false) + L"."));
-
-        } else if (config->move.option == Model::OPTION_DISCARD) {
+            e.push_back(
+                text(
+                    L" on " + caravan_name_to_wstr(config.move.caravan_name, false) +
+                    L"."
+                )
+            );
+        } else if (config.move.option == Model::OPTION_DISCARD) {
             e.push_back(text(L" discarded "));
-            push_card(config, &e, config->move.hand, false);
+            push_card(&config, &e, config.move.hand, false);
             e.push_back(text(L" from their hand."));
-
-        } else {  // OPTION_CLEAR
-            e.push_back(text(L" cleared " + caravan_to_wstr(config->move.caravan_name, false) + L"."));
+        } else {
+            // OPTION_CLEAR
+            e.push_back(
+                text(
+                    L" cleared " + caravan_name_to_wstr(
+                        config.move.caravan_name,
+                        false
+                    )
+                    + L"."
+                )
+            );
         }
 
         return e;
     }
 
-    void set_current_turn(ViewConfig *config, Model::Game *game) {
-        if (game->get_player_turn() == Model::PLAYER_ABC) {
-            config->user_turn = config->user_abc;
-            config->user_next = config->user_def;
+    void set_current_turn(ViewConfig &config, Model::Game &game) {
+        if (game.get_player_turn() == Model::PLAYER_ABC) {
+            config.user_turn = config.user_abc;
+            config.user_next = config.user_def;
 
-            config->name_turn = config->name_abc;
-            config->name_next = config->name_def;
-
+            config.name_turn = config.name_abc;
+            config.name_next = config.name_def;
         } else {
-            config->user_turn = config->user_def;
-            config->user_next = config->user_abc;
+            config.user_turn = config.user_def;
+            config.user_next = config.user_abc;
 
-            config->name_turn = config->name_def;
-            config->name_next = config->name_abc;
+            config.name_turn = config.name_def;
+            config.name_next = config.name_abc;
         }
     }
 
     /*
      * PUBLIC
      */
-
-    ViewFTXUI::ViewFTXUI(Model::Game *game, Controller::ControllerStrToMove *ctrl, ViewConfig &config) : View(game) {
-        if (config.user_abc == nullptr || config.user_def == nullptr) {
-            throw CaravanFatalViewException("Users must be provided to view.");
-        }
-
-        this->ctrl = ctrl;
-        this->config = &config;
-    }
 
     void ViewFTXUI::run() {
         using namespace ftxui;
@@ -650,25 +798,24 @@ namespace Caravan::View {
         bool confirmed;
         std::wstring move_description;
 
-        // Config for rendering game
-        config->colour = Terminal::ColorSupport() != ftxui::Terminal::Palette1;
+        // If colour is requested, check that the terminal supports it
+        if (colour) {
+            colour = Terminal::ColorSupport() != Terminal::Palette1;
+        }
 
-        // Set names of users based on who is human or not
-        if (config->user_abc->is_human() and config->user_def->is_human()) {
-            config->name_abc = NAME_PL1;
-            config->name_def = NAME_PL2;
-
-        } else if (config->user_abc->is_human() and !config->user_def->is_human()) {
-            config->name_abc = NAME_YOU;
-            config->name_def = NAME_BOT;
-
-        } else if (!config->user_abc->is_human() and config->user_def->is_human()) {
-            config->name_abc = NAME_BOT;
-            config->name_def = NAME_YOU;
-
-        } else {  // both are bots
-            config->name_abc = NAME_BOT1;
-            config->name_def = NAME_BOT2;
+        // Set names of users based on who is a human or a bot
+        if (user_abc.is_human() and user_def.is_human()) {
+            name_abc = NAME_PL1;
+            name_def = NAME_PL2;
+        } else if (user_abc.is_human() and !user_def.is_human()) {
+            name_abc = NAME_YOU;
+            name_def = NAME_BOT;
+        } else if (!user_abc.is_human() and user_def.is_human()) {
+            name_abc = NAME_BOT;
+            name_def = NAME_YOU;
+        } else { // both are bots
+            name_abc = NAME_BOT1;
+            name_def = NAME_BOT2;
         }
 
         // Create screen
@@ -679,165 +826,187 @@ namespace Caravan::View {
         Component comp_user_input = Input(&user_input, "");
 
         // Ensure input is alphanumeric only
-        comp_user_input |= CatchEvent([&](const Event& event) {
-            return event.is_character() && !std::isalnum(event.character()[0]);
-        });
+        comp_user_input |= CatchEvent(
+            [&](const Event &event) {
+                return event.is_character() && !std::isalnum(
+                           event.character()[0]
+                       );
+            }
+        );
 
         // Ensure maximum input length
-        comp_user_input |= CatchEvent([&](const Event &event) {
-            return event.is_character() && user_input.size() >= INPUT_MAX;
-        });
+        comp_user_input |= CatchEvent(
+            [&](const Event &event) {
+                return event.is_character() && user_input.size() >= INPUT_MAX;
+            }
+        );
 
         // Component tree
         auto component = Container::Vertical({comp_user_input});
 
         // Initial notifications
         set_current_turn(config, game);
-        config->msg_main = "Welcome to Caravan";
-        config->msg_important = config->name_turn + " to move first.";
+        config.msg_main = "Welcome to Caravan";
+        config.msg_important = config.name_turn + " to move first.";
 
         // Monitor bot delay
         uint64_t time_bot_start = time_milliseconds();
         uint64_t time_bot_end;
 
         // Tweak how the component tree is rendered:
-        auto renderer = Renderer(component, [&] {
-            screen.SetCursor(Screen::Cursor({.shape=Screen::Cursor::Hidden}));
+        auto renderer = Renderer(
+            component,
+            [&] {
+                screen.SetCursor(
+                    Screen::Cursor({.shape = Screen::Cursor::Hidden})
+                );
 
-            if(closed) {
-                return gen_closed(config);
-            }
-
-            try {
-                // Reset values
-                terminal_size = Terminal::Size();
-                set_current_turn(config, game);
-                confirmed = false;
-                config->move = {};
-                config->highlight = {};
-
-                // Error screen if less than minimum terminal dimensions
-                if (terminal_size.dimx < MIN_X || terminal_size.dimy < MIN_Y) {
-                    user_input = "";  // Prevent user input change during error
-                    return gen_terminal_too_small(terminal_size);
-                }
-
-                // If winner, display results
-                if(game->get_winner() != Model::NO_PLAYER) {
-                    std::string name_winner =
-                        game->get_winner() == config->user_abc->get_name() ?
-                        config->name_abc : config->name_def;
-
-                    user_input = "";
-
-                    config->msg_main = "WINNER: " + name_winner;
-                    config->msg_important = "Press Esc to exit.";
-
-                    return gen_game(config, game, &comp_user_input);
-                }
-
-                if(config->user_turn->is_human()) {
-                    // Create new move if ENTER key pressed (i.e., if newline)
-                    raw_command = user_input;
-
-                    if (raw_command.ends_with('\n')) {
-                        // A confirmed move ready to send to the game model
-                        raw_command.pop_back();  // remove newline
-                        confirmed = true;
-                        user_input = "";
-                    }
-
-                } else {  // user with current turn is a bot
-                    user_input = "";
-                    time_bot_end = time_milliseconds();
-
-                    if((float) (time_bot_end-time_bot_start) >= (config->bot_delay_sec * 1000)) {
-                        // Bot delay has elapsed, make move
-                        raw_command = config->user_turn->request_move(game);
-                        confirmed = true;
-
-                    } else {
-                        // Bot is still thinking of its next move
-                        config->msg_important = config->name_turn + " is thinking...";
-                        // Event needed so that delay checks occur
-                        screen.PostEvent(Event::Custom);
-                    }
-                }
-
-                if (confirmed && !raw_command.empty()) {
-                    config->msg_main = config->name_turn + " entered: " + raw_command;
+                if (closed) {
+                    return gen_closed(config);
                 }
 
                 try {
-                    if(confirmed) {
-                        // Parse raw move to get usable move
-                        config->move = ctrl->convert(raw_command, confirmed);
+                    // Reset values
+                    terminal_size = Terminal::Size();
+                    set_current_turn(config, game);
+                    confirmed = false;
+                    config.move = {};
+                    config.highlight = {};
+
+                    // Error screen if less than minimum terminal dimensions
+                    if (terminal_size.dimx < MIN_X || terminal_size.dimy <
+                        MIN_Y) {
+                        user_input = "";
+                        // Prevent user input change during error
+                        return gen_terminal_too_small(terminal_size);
+                    }
+
+                    // If winner, display results
+                    if (game.get_winner() != Model::NO_PLAYER) {
+                        std::string name_winner =
+                            game.get_winner() == config.user_abc.get_name() ?
+                            config.name_abc :
+                            config.name_def;
+
+                        user_input = "";
+
+                        config.msg_main = "WINNER: " + name_winner;
+                        config.msg_important = "Press Esc to exit.";
+
+                        return gen_game(config, game, &comp_user_input);
+                    }
+
+                    if (config.user_turn->is_human()) {
+                        // Create new move if ENTER key pressed (i.e., if newline)
+                        raw_command = user_input;
+
+                        if (raw_command.ends_with('\n')) {
+                            // A confirmed move ready to send to the game model
+                            raw_command.pop_back(); // remove newline
+                            confirmed = true;
+                            user_input = "";
+                        }
                     } else {
-                        // An incomplete move that can be used to highlight
-                        // areas of the board as a hint to the player
-                        config->highlight = ctrl->convert(raw_command, confirmed);
-                    }
+                        // user with current turn is a bot
+                        user_input = "";
+                        time_bot_end = time_milliseconds();
 
-                    raw_command = "";
-
-                    switch (config->move.option) {
-                        case Model::NO_OPTION:
-                            break;
-                        default:
-                            // Screen refresh on game change
+                        if (static_cast<float>(time_bot_end - time_bot_start) >=
+                            (
+                                config.bot_delay_sec * 1000)) {
+                            // Bot delay has elapsed, make move
+                            raw_command = config.user_turn->request_move(&game);
+                            confirmed = true;
+                        } else {
+                            // Bot is still thinking of its next move
+                            config.msg_important =
+                                config.name_turn + " is thinking...";
+                            // Event needed so that delay checks occur
                             screen.PostEvent(Event::Custom);
-
-                            // Send move to update game state
-                            // Will throw exception if problem with move
-                            game->make_move(&config->move);
-
-                            // Set message to log next player's turn
-                            config->msg_important = config->name_next + " to move next.";
-
-                            if (config->user_turn->get_name() == Model::PLAYER_ABC) {
-                                config->msg_move_abc = get_move_description(config);
-                            } else {
-                                config->msg_move_def = get_move_description(config);
-                            }
-
-                            // If next user is bot, start logging bot delay
-                            if (!config->user_next->is_human()) {
-                                time_bot_start = time_milliseconds();
-                            }
+                        }
                     }
 
-                } catch (CaravanIllegalException &e) {
-                    if(config->user_turn->is_human()) {
-                        config->msg_important = e.what();
+                    if (confirmed && !raw_command.empty()) {
+                        config.msg_main =
+                            config.name_turn + " entered: " + raw_command;
                     }
+
+                    try {
+                        if (confirmed) {
+                            // Parse raw move to get usable move
+                            config.move = ctrl->convert(raw_command, confirmed);
+                        } else {
+                            // An incomplete move that can be used to highlight
+                            // areas of the board as a hint to the player
+                            config.highlight = ctrl->
+                                convert(raw_command, confirmed);
+                        }
+
+                        raw_command = "";
+
+                        switch (config.move.option) {
+                            case Model::NO_OPTION:
+                                break;
+                            default:
+                                // Screen refresh on game change
+                                screen.PostEvent(Event::Custom);
+
+                                // Send move to update game state
+                                // Will throw exception if problem with move
+                                game.make_move(&config.move);
+
+                                // Set message to log next player's turn
+                                config.msg_important =
+                                    config.name_next + " to move next.";
+
+                                if (config.user_turn->get_name() ==
+                                    Model::PLAYER_ABC) {
+                                    config.msg_move_abc = get_move_description(
+                                        config
+                                    );
+                                } else {
+                                    config.msg_move_def = get_move_description(
+                                        config
+                                    );
+                                }
+
+                                // If next user is bot, start logging bot delay
+                                if (!config.user_next->is_human()) {
+                                    time_bot_start = time_milliseconds();
+                                }
+                        }
+                    } catch (CaravanIllegalException &e) {
+                        if (config.user_turn->is_human()) {
+                            config.msg_important = e.what();
+                        }
+                    }
+
+                    return gen_game(config, game, &comp_user_input);
+                } catch (CaravanFatalException &e) {
+                    // Close gracefully on any unhandled exceptions
+                    config.msg_fatal = e.what();
+                    closed = true;
+                    return gen_closed(config);
+                } catch (std::exception &e) {
+                    // Close gracefully on any unhandled exceptions
+                    config.msg_fatal = "A fatal error occurred.";
+                    closed = true;
+                    return gen_closed(config);
                 }
-
-                return gen_game(config, game, &comp_user_input);
-
-            } catch (CaravanFatalException &e) {
-                // Close gracefully on any unhandled exceptions
-                config->msg_fatal = e.what();
-                closed = true;
-                return gen_closed(config);
-
-            } catch (std::exception &e) {
-                // Close gracefully on any unhandled exceptions
-                config->msg_fatal = "A fatal error occurred.";
-                closed = true;
-                return gen_closed(config);
             }
-        });
+        );
 
-        renderer |= ftxui::CatchEvent([&](const ftxui::Event& event) {
-            if (event == Event::Escape) {
-                screen.Exit();
-                return true;
+        renderer |= CatchEvent(
+            [&](const Event &event) {
+                if (event == Event::Escape) {
+                    screen.Exit();
+                    return true;
+                }
+                return false;
             }
-            return false;
-        });
+        );
 
         screen.Loop(renderer);
         screen.Clear();
     }
-
 }

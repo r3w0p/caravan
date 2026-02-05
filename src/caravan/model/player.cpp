@@ -6,7 +6,6 @@
 #include "caravan/core/exceptions.h"
 
 namespace Caravan::Model {
-
     /**
      * @param pname Player name.
      * @param deck Player deck.
@@ -37,13 +36,19 @@ namespace Caravan::Model {
         // Player hand should never be empty unless game has already ended
         if (i_hand == 0) {
             throw CaravanFatalModelException(
-                "Player's hand is empty.");
+                "Player's hand is empty."
+            );
         }
 
         // Illegal request to discard card outside of hand range
-        if (pos < HAND_POS_MIN or pos > i_hand) {
+        if (pos < HAND_POS_MIN
+            or pos
+        >
+        i_hand
+        ) {
             throw CaravanIllegalModelException(
-                "The chosen hand position is out of range.");
+                "The chosen hand position is out of range."
+            );
         }
 
         // Get card to discard
@@ -72,13 +77,19 @@ namespace Caravan::Model {
         // Player hand should never be empty unless game has already ended
         if (i_hand == 0) {
             throw CaravanFatalModelException(
-                "Player's hand is empty.");
+                "Player's hand is empty."
+            );
         }
 
         // Illegal request to discard card outside of hand range
-        if (pos < HAND_POS_MIN or pos > i_hand) {
+        if (pos < HAND_POS_MIN
+            or pos
+        >
+        i_hand
+        ) {
             throw CaravanIllegalModelException(
-                "The chosen hand position is out of range.");
+                "The chosen hand position is out of range."
+            );
         }
 
         return hand[pos - 1];
@@ -126,7 +137,9 @@ namespace Caravan::Model {
         // If more cards in the deck
         if (!deck->empty()) {
             // If post-Start and hand not at post-Start max (5 cards)
-            if (moves > MOVES_START_ROUND and i_hand < HAND_SIZE_MAX_POST_START) {
+            if (moves > MOVES_START_ROUND
+                and i_hand<HAND_SIZE_MAX_POST_START
+            ) {
                 // Add new card from deck to top of hand
                 hand[i_hand] = deck->back();
                 deck->pop_back();
@@ -134,5 +147,4 @@ namespace Caravan::Model {
             }
         }
     }
-
 }

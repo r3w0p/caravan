@@ -10,7 +10,6 @@
 #include <vector>
 
 namespace Caravan::Model {
-
     enum CaravanName {
         NO_CARAVAN,
         CARAVAN_A,
@@ -22,9 +21,7 @@ namespace Caravan::Model {
     };
 
     enum Direction {
-        ANY,
-        ASCENDING,
-        DESCENDING
+        ANY, ASCENDING, DESCENDING
     };
 
     enum OptionType {
@@ -35,9 +32,7 @@ namespace Caravan::Model {
     };
 
     enum PlayerName {
-        NO_PLAYER,
-        PLAYER_ABC,
-        PLAYER_DEF
+        NO_PLAYER, PLAYER_ABC, PLAYER_DEF
     };
 
     enum Rank {
@@ -71,11 +66,19 @@ namespace Caravan::Model {
         Rank rank{NO_RANK};
 
         [[nodiscard]] bool is_face_card() const {
-            return (this->rank >= JACK and this->rank <= JOKER);
+            return (this->rank >= JACK
+            and
+            this->rank <= JOKER
+            )
+            ;
         }
 
         [[nodiscard]] bool is_numeral_card() const {
-            return (this->rank >= ACE and this->rank <= TEN);
+            return (this->rank >= ACE
+            and
+            this->rank <= TEN
+            )
+            ;
         }
     };
 
@@ -112,7 +115,6 @@ namespace Caravan::Model {
         Card hand{};
         Card board{};
     };
-
 }
 
 #endif //CARAVAN_MODEL_TYPES_H

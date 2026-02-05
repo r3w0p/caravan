@@ -8,7 +8,6 @@
 #include <cstdint>
 
 namespace Caravan::Model {
-
     constexpr uint8_t TRACK_NUMERIC_MIN = 1;
     constexpr uint8_t TRACK_NUMERIC_MAX = 8;
     constexpr uint8_t TRACK_FACE_MAX = 3;
@@ -32,7 +31,6 @@ namespace Caravan::Model {
     constexpr uint8_t TABLE_CARAVANS_MAX = 6;
 
     constexpr uint8_t PLAYER_CARAVANS_MAX = 3;
-
 }
 
 #endif //CARAVAN_MODEL_CONSTANTS_H

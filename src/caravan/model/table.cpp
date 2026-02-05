@@ -6,14 +6,13 @@
 #include "caravan/core/exceptions.h"
 
 namespace Caravan::Model {
-
     Table::Table() {
-        cvn_a = std::make_unique<Caravan>(CARAVAN_A);
-        cvn_b = std::make_unique<Caravan>(CARAVAN_B);
-        cvn_c = std::make_unique<Caravan>(CARAVAN_C);
-        cvn_d = std::make_unique<Caravan>(CARAVAN_D);
-        cvn_e = std::make_unique<Caravan>(CARAVAN_E);
-        cvn_f = std::make_unique<Caravan>(CARAVAN_F);
+        cvn_a = std::make_unique < Caravan > (CARAVAN_A);
+        cvn_b = std::make_unique < Caravan > (CARAVAN_B);
+        cvn_c = std::make_unique < Caravan > (CARAVAN_C);
+        cvn_d = std::make_unique < Caravan > (CARAVAN_D);
+        cvn_e = std::make_unique < Caravan > (CARAVAN_E);
+        cvn_f = std::make_unique < Caravan > (CARAVAN_F);
 
         caravans = {
             cvn_a.get(),
@@ -38,7 +37,7 @@ namespace Caravan::Model {
      *
      * @throws CaravanFatalModelException Invalid caravan name.
      */
-    Caravan* Table::get_caravan(CaravanName cvname) const {
+    Caravan *Table::get_caravan(CaravanName cvname) const {
         switch (cvname) {
             case CARAVAN_A:
                 return caravans[0];
@@ -68,14 +67,19 @@ namespace Caravan::Model {
     void Table::play_face_card(
         CaravanName cvname,
         const Card card,
-        const uint8_t pos) const {
+        const uint8_t pos
+    ) const {
+        Caravan * cvn_target = get_caravan(cvname);
 
-        Caravan *cvn_target = get_caravan(cvname);
-
-        if (card.rank == QUEEN and pos != cvn_target->get_size()) {
+        if (card.rank == QUEEN
+            and pos
+        !=
+        cvn_target->get_size()
+        ) {
             throw CaravanIllegalModelException(
                 "A QUEEN can only be played on the "
-                "latest numeral card in a caravan.");
+                "latest numeral card in a caravan."
+            );
         }
 
         // Play Face card on Caravan.
@@ -93,7 +97,7 @@ namespace Caravan::Model {
 
             // Remove from other caravans, not excluding any cards.
             for (int i = 0; i < TABLE_CARAVANS_MAX; ++i) {
-                Caravan *p_next = caravans[i];
+                Caravan * p_next = caravans[i];
 
                 // Ignore original caravan already handled.
                 if (p_next->get_name() == cvn_target->get_name()) {
@@ -118,5 +122,4 @@ namespace Caravan::Model {
     void Table::play_numeral_card(CaravanName cvname, const Card card) const {
         get_caravan(cvname)->put_numeral_card(card);
     }
-
 }

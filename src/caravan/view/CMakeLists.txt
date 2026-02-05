@@ -1,5 +1,5 @@
 add_library(view
-        "${CMAKE_SOURCE_DIR}/include/caravan/view/view.h"
+        "${CMAKE_SOURCE_DIR}/include/caravan/view/base_view.h"
         "${CMAKE_SOURCE_DIR}/include/caravan/view/view_ftxui.h"
 
         "view_ftxui.cpp"

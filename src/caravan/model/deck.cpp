@@ -9,9 +9,9 @@
 #include "caravan/model/deck.h"
 #include "caravan/model/types.h"
 #include "caravan/core/exceptions.h"
+#include "caravan/core/functions.h"
 
 namespace Caravan::Model {
-
     /**
      * @param num_cards The number of cards to have in the caravan deck,
      *        must be between 30 and 162 cards (inclusive).
@@ -32,32 +32,43 @@ namespace Caravan::Model {
     Deck *DeckBuilder::build_caravan_deck(
         const uint8_t num_cards,
         const uint8_t num_sample_decks,
-        const bool balanced_sample) {
-
+        const bool balanced_sample
+    ) {
         Deck sample_decks[3];
         Card c_next;
         uint8_t first_hand_num_cards;
 
-        if (num_cards < DECK_CARAVAN_MIN or
-            num_cards > DECK_CARAVAN_MAX) {
+        if (num_cards < DECK_CARAVAN_MIN
+            or
+                num_cards
+        >
+        DECK_CARAVAN_MAX
+        ) {
             throw CaravanFatalModelException(
                 "A caravan deck must have between "
-                "30 and 162 cards (inclusive).");
-            }
+                "30 and 162 cards (inclusive)."
+            );
+        }
 
-        if (num_sample_decks < SAMPLE_DECKS_MIN or
-            num_sample_decks > SAMPLE_DECKS_MAX) {
+        if (num_sample_decks < SAMPLE_DECKS_MIN
+            or
+                num_sample_decks
+        >
+        SAMPLE_DECKS_MAX
+        ) {
             throw CaravanFatalModelException(
                 "A caravan deck must sample from between "
-                "1 and 3 standard card decks (inclusive).");
-            }
+                "1 and 3 standard card decks (inclusive)."
+            );
+        }
 
         uint8_t total_sample_cards = num_sample_decks * DECK_TRADITIONAL_MAX;
 
         if (total_sample_cards < num_cards) {
             throw CaravanFatalModelException(
                 "There are insufficient cards to sample for the "
-                "caravan deck.");
+                "caravan deck."
+            );
         }
 
         const auto d = new Deck();
@@ -80,16 +91,16 @@ namespace Caravan::Model {
 
                     i_next = (i_next + 1) % num_sample_decks;
 
-                    if (num_cards - d->size() < HAND_SIZE_MAX_START and
-                        c_next.is_numeral_card()) {
+                    if (num_cards - d->size() < HAND_SIZE_MAX_START
+                        and
+                    c_next.is_numeral_card()
+                    ) {
                         first_hand_num_cards += 1;
-                        }
+                    }
                 }
-
             } else {
                 // Sample decks randomly
-                std::random_device rd;
-                std::mt19937 gen(rd());
+                std::mt19937 gen(generate_seed());
                 std::uniform_int_distribution<> distr(0, num_sample_decks - 1);
 
                 while (d->size() < num_cards) {
@@ -99,14 +110,15 @@ namespace Caravan::Model {
                         d->push_back(c_next);
                         sample_decks[i_next].pop_back();
 
-                        if (num_cards - d->size() < HAND_SIZE_MAX_START and
-                            c_next.is_numeral_card()) {
+                        if (num_cards - d->size() < HAND_SIZE_MAX_START
+                            and
+                        c_next.is_numeral_card()
+                        ) {
                             first_hand_num_cards += 1;
-                            }
+                        }
                     }
                 }
             }
-
         } while (first_hand_num_cards < MOVES_START_ROUND);
 
         return d;
@@ -125,10 +137,12 @@ namespace Caravan::Model {
 
         for (int i = CLUBS; i <= SPADES; ++i) {
             for (int j = ACE; j <= KING; ++j) {
-                d.push_back({
-                    static_cast<Suit>(i),
-                    static_cast<Rank>(j)
-                });
+                d.push_back(
+                    {
+                        static_cast<Suit>(i),
+                        static_cast<Rank>(j)
+                    }
+                );
             }
         }
 
@@ -147,10 +161,10 @@ namespace Caravan::Model {
      * @return A deck with shuffled cards.
      */
     Deck DeckBuilder::shuffle_deck(Deck deck) {
-        const unsigned seed = std::chrono::system_clock::now().time_since_epoch().
-            count();
+        const unsigned seed = std::chrono::system_clock::now().
+                              time_since_epoch().
+                              count();
         std::ranges::shuffle(deck, std::default_random_engine(seed));
         return deck;
     }
-
 }
