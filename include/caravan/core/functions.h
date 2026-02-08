@@ -25,6 +25,8 @@ namespace Caravan {
     std::wstring rank_to_wstr(Model::Rank rank, bool lead);
 
     std::wstring suit_to_wstr(Model::Suit suit);
+
+    uint64_t time_milliseconds();
 }
 
 #endif //CARAVAN_CORE_FUNCTIONS_H

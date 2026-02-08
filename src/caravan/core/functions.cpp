@@ -5,6 +5,8 @@
 #include <random>
 #include "caravan/user/functions.h"
 
+#include <chrono>
+
 #include "caravan/core/exceptions.h"
 
 namespace Caravan {
@@ -123,5 +125,11 @@ namespace Caravan {
             default:
                 throw CaravanFatalViewException("Invalid suit.");
         }
+    }
+
+    uint64_t time_milliseconds() {
+        using namespace std::chrono;
+        return duration_cast<milliseconds>(
+            system_clock::now().time_since_epoch()).count();
     }
 }

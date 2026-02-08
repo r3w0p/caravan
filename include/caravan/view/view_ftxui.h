@@ -15,53 +15,14 @@
 namespace Caravan::View {
     // TODO rename to ViewFTXUIConfig?
     //  or perhaps remove this altogether as this is changed within View
-    typedef struct ViewConfig {
-        // Pointers to users
-        User::User *user_abc{nullptr};
-        User::User *user_def{nullptr};
-        User::User *user_turn{};
-        User::User *user_next{};
 
-        // Names of users
-        std::string name_abc;
-        std::string name_def;
-        std::string name_turn;
-        std::string name_next;
-
-        // Messages to users
-        std::string msg_main; // move chosen, general messages, winner
-        std::string msg_important; // game errors, next turn
-        std::string msg_fatal; // game closing due to major problem
-
-        // Messages on moves made
-        ftxui::Elements msg_move_abc;
-        ftxui::Elements msg_move_def;
-
-        // Most recent move
-        Model::GameMove move;
-
-        // Board highlight
-        Model::GameMove highlight;
-
-        // Colour support
-        bool colour{true};
-
-        // Bot config
-        float bot_delay_sec{0.0};
-
-        // Cheat
-        bool cheat{false};
-    } ViewConfig;
 
 
     class ViewFTXUI : public BaseView<std::string, std::string> {
         protected:
-            std::uint16_t bot_delay_millis;
-            bool cheat;
-            bool colour;
-
-            // Board highlight
-            Model::GameMove highlight;
+            // Pointers to users
+            User::User *user_turn{};
+            User::User *user_next{};
 
             // Names of users
             std::string name_abc;
@@ -72,11 +33,23 @@ namespace Caravan::View {
             // Messages to users
             std::string msg_main; // move chosen, general messages, winner
             std::string msg_important; // game errors, next turn
-            std::string msg_fatal; // game closing due to major problem
+            std::string msg_fatal; // program errors
 
             // Messages on moves made
             ftxui::Elements msg_move_abc;
             ftxui::Elements msg_move_def;
+
+            // Most recent move
+            Model::GameMove move;  // TODO rename to last_move?
+
+            // Board highlight
+            Model::GameMove highlight;
+
+            std::uint16_t bot_delay_millis;
+            bool cheat;
+            bool colour;
+
+            void update_current_turn();
 
         public:
             explicit ViewFTXUI(
@@ -91,6 +64,28 @@ namespace Caravan::View {
                 bot_delay_millis(bot_delay_millis),
                 cheat(cheat),
                 colour(colour) {}
+
+            [[nodiscard]] std::uint16_t get_bot_delay_millis() const { return bot_delay_millis; }
+            [[nodiscard]] bool is_cheating() const { return cheat; }
+            [[nodiscard]] bool wants_colour() const { return colour; }
+            [[nodiscard]] Model::GameMove get_highlight() const { return highlight; }
+            [[nodiscard]] Model::GameMove get_move() const { return move; }
+
+            [[nodiscard]] User::User &get_user_abc() const { return user_abc; }
+            [[nodiscard]] User::User &get_user_def() const { return user_def; }
+            [[nodiscard]] User::User *get_user_turn() const { return user_turn; }
+            [[nodiscard]] User::User *get_user_next() const { return user_next; }
+
+            [[nodiscard]] std::string get_name_abc() const { return name_abc; }
+            [[nodiscard]] std::string get_name_def() const { return name_def; }
+            [[nodiscard]] std::string get_name_turn() const { return name_turn; }
+            [[nodiscard]] std::string get_name_next() const { return name_next; }
+
+            [[nodiscard]] std::string get_msg_main() const { return msg_main; }
+            [[nodiscard]] std::string get_msg_important() const { return msg_important; }
+            [[nodiscard]] std::string get_msg_fatal() const { return msg_fatal; }
+            [[nodiscard]] ftxui::Elements get_msg_move_abc() const { return msg_move_abc; }
+            [[nodiscard]] ftxui::Elements get_msg_move_def() const { return msg_move_def; }
 
             void run() override;
     };
