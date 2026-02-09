@@ -4,9 +4,9 @@
 
 #include <random>
 #include "caravan/core/exceptions.h"
+#include "caravan/core/functions.h"
 #include "caravan/user/bot/random.h"
 #include "caravan/user/constants.h"
-#include "caravan/user/functions.h"
 
 namespace Caravan::User {
     uint16_t UserBotRandom::check_index(const uint16_t &index) const {
@@ -25,7 +25,7 @@ namespace Caravan::User {
 
         // Clear moves (3)
         for (int i = 0; i < Model::PLAYER_CARAVANS_MAX; ++i) {
-            all_moves[i_move++] = LETTER_CLEAR + caravan_letter(pcvnames[i]);
+            all_moves[i_move++] = LETTER_CLEAR + caravan_name_to_str(pcvnames[i], true);
         }
 
         // Discard moves (5)
@@ -43,7 +43,7 @@ namespace Caravan::User {
                     all_moves[i_move++] =
                         LETTER_PLAY +
                         std::to_string(pos1) +
-                        caravan_letter(static_cast<Model::CaravanName>(cvn)) +
+                        caravan_name_to_str(static_cast<Model::CaravanName>(cvn), true) +
                         std::to_string(pos2);
                 }
             }
@@ -56,7 +56,7 @@ namespace Caravan::User {
                 all_moves[i_move++] =
                     LETTER_PLAY +
                     std::to_string(pos1) +
-                    caravan_letter(pcvnames[i]);
+                    caravan_name_to_str(pcvnames[i], true);
             }
         }
     }

@@ -13,12 +13,8 @@
 #include "ftxui/dom/elements.hpp"
 
 namespace Caravan::View {
-    // TODO rename to ViewFTXUIConfig?
-    //  or perhaps remove this altogether as this is changed within View
 
-
-
-    class ViewFTXUI : public BaseView<std::string, std::string> {
+    class ViewFTXUI : public BaseView<std::string, std::tuple<Model::GameMove, std::string>> {
         protected:
             // Pointers to users
             User::User *user_turn{};
@@ -54,7 +50,7 @@ namespace Caravan::View {
         public:
             explicit ViewFTXUI(
                 Model::Game &game,
-                Controller::BaseController<std::string, std::string> &ctrl,
+                Controller::BaseController<std::string, std::tuple<Model::GameMove, std::string>> &ctrl,
                 User::User &user_abc,
                 User::User &user_def,
                 std::uint16_t bot_delay_millis,

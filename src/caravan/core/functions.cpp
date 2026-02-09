@@ -3,11 +3,11 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include <random>
-#include "caravan/user/functions.h"
 
 #include <chrono>
 
 #include "caravan/core/exceptions.h"
+#include "caravan/model/types.h"
 
 namespace Caravan {
 
@@ -29,7 +29,7 @@ namespace Caravan {
             case Model::CARAVAN_F:
                 return letter_only ? "F" : "Caravan F";
             default:
-                throw CaravanFatalViewException("Invalid caravan name.");
+                throw CaravanFatalException("Invalid caravan name.");
         }
     }
 
@@ -51,7 +51,7 @@ namespace Caravan {
             case Model::CARAVAN_F:
                 return letter_only ? L"F" : L"Caravan F";
             default:
-                throw CaravanFatalViewException("Invalid caravan name.");
+                throw CaravanFatalException("Invalid caravan name.");
         }
     }
 
@@ -64,7 +64,7 @@ namespace Caravan {
             case Model::DESCENDING:
                 return L"DES";
             default:
-                throw CaravanFatalViewException("Invalid direction.");
+                throw CaravanFatalException("Invalid direction.");
         }
     }
 
@@ -123,7 +123,7 @@ namespace Caravan {
             case Model::DIAMONDS:
                 return L"♦";
             default:
-                throw CaravanFatalViewException("Invalid suit.");
+                throw CaravanFatalException("Invalid suit.");
         }
     }
 

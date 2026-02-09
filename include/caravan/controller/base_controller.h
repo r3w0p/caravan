@@ -16,7 +16,7 @@ namespace Caravan::Controller {
             explicit BaseController(Model::Game &game) : game(game) {}
             virtual ~BaseController() = default;
 
-            virtual O on_user_input(I &input) = 0;
+            virtual O on_user_input(I &input, bool confirmed) = 0;
     };
 }
 

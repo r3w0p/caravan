@@ -7,6 +7,8 @@
 
 #include <random>
 
+#include "caravan/model/types.h"
+
 namespace Caravan {
     std::string caravan_name_to_str(
         Model::CaravanName caravan_name,

@@ -7,6 +7,7 @@
 
 #include <string>
 #include <chrono>
+#include <tuple>
 
 
 namespace Caravan::Controller {
@@ -228,52 +229,54 @@ namespace Caravan::Controller {
         }
     }
 
-    Model::GameMove ControllerStrToMove::convert(
-        const std::string &input,
-        bool confirmed
-    ) {
+    std::tuple<Model::GameMove, std::string> ControllerFTXUI::on_user_input(
+        std::string &input,
+        bool confirmed) {
+
         Model::GameMove move;
+        std::string err{};
 
-        if (input.empty())
-            return move;
+        if (!input.empty()) {
 
-        try {
-            /*
-             * FIRST
-             * - MOVE TYPE
-             */
-            process_first(input, &move);
+            try {
+                /*
+                 * FIRST
+                 * - MOVE TYPE
+                 */
+                process_first(input, &move);
 
-            /*
-             * SECOND
-             * - HAND POSITION or
-             * - CARAVAN NAME
-             */
-            process_second(input, &move);
+                /*
+                 * SECOND
+                 * - HAND POSITION or
+                 * - CARAVAN NAME
+                 */
+                process_second(input, &move);
 
-            /*
-             * THIRD
-             * - CARAVAN NAME
-             */
-            process_third(input, &move);
+                /*
+                 * THIRD
+                 * - CARAVAN NAME
+                 */
+                process_third(input, &move);
 
-            /*
-             * FOURTH
-             * - CARAVAN POSITION (used when selecting Face card only)
-             */
-            process_fourth(input, &move);
-        } catch (CaravanIllegalControllerException &e) {
-            if (confirmed) {
-                // For confirmed moves: throw to other handling that prints
-                // move errors to the player
-                throw;
+                /*
+                 * FOURTH
+                 * - CARAVAN POSITION (used when selecting Face card only)
+                 */
+                process_fourth(input, &move);
+
+                // Send move to update game state
+                // Will throw exception if problem with move
+                if (confirmed) {
+                    game.make_move(&move);
+                }
+
+            } catch (CaravanIllegalException &e) {
+                // If input parsing or move making fails
+                err = e.what();
             }
 
-            // For unconfirmed moves: accept whatever was able to be parsed
-            // so that it can be used for highlighting the game board
-            return move;
         }
 
-        return move;
+        return {move, err};
     }
 }

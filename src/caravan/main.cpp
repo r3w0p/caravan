@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "cxxopts.hpp"
+#include "caravan/controller/controller_ftxui.h"
 #include "caravan/view/view_ftxui.h"
 #include "caravan/user/bot/factory.h"
 #include "caravan/core/exceptions.h"
@@ -42,8 +43,8 @@ namespace Caravan {
         std::unique_ptr<User::User> user_abc;
         std::unique_ptr<User::User> user_def;
         std::unique_ptr<Model::Game> game;
-        std::unique_ptr<Controller::BaseController> ctrl;
-        std::unique_ptr<View::BaseView> view;
+        std::unique_ptr<Controller::ControllerFTXUI> ctrl;
+        std::unique_ptr<View::ViewFTXUI> view;
 
         try {
             cxxopts::Options options(CARAVAN_NAME);
@@ -53,8 +54,8 @@ namespace Caravan {
                 (OPTS_VERSION, "Print Caravan version.")
                 (OPTS_PVP, "A Player vs Player game.")
                 (OPTS_BVB, "A Bot vs Bot game.")
-                (OPTS_BOT, "Which bot to play with (normal, friendly).", cxxopts::value<std::string>()->default_value("normal"))
-                (OPTS_DELAY, "Delay before bot makes its move (in seconds).", cxxopts::value<float>()->default_value("1.0"))
+                (OPTS_BOT, "Which bot to play with (normal, friendly).", cxxopts::value<std::string>()->default_value("random"))  // TODO not random as default
+                (OPTS_DELAY, "Delay before bot makes its move (in milliseconds).", cxxopts::value<uint16_t>()->default_value("1000"))
                 (OPTS_FIRST, "Which player goes first (1 or 2).", cxxopts::value<uint8_t>()->default_value("1"))
                 (OPTS_CARDS, "Number of cards for each caravan deck (30-162, inclusive).", cxxopts::value<uint8_t>()->default_value("54"))
                 (OPTS_SAMPLES, "Number of traditional decks to sample when building caravan decks (1-3, inclusive).", cxxopts::value<uint8_t>()->default_value("1"))
@@ -85,12 +86,13 @@ namespace Caravan {
             bool pvp = result[KEY_PVP].as<bool>();
             bool bvb = result[KEY_BVB].as<bool>();
             std::string bot = result[KEY_BOT].as<std::string>();
-            float delay = result[KEY_DELAY].as<float>();
+            uint16_t delay = result[KEY_DELAY].as<uint16_t>();
             uint8_t first = result[KEY_FIRST].as<uint8_t>();
             uint8_t cards = result[KEY_CARDS].as<uint8_t>();
             uint8_t samples = result[KEY_SAMPLES].as<uint8_t>();
             bool imbalanced = result[KEY_IMBALANCED].as<bool>();
             bool cheat = result[KEY_CHEAT].as<bool>();
+            // TODO colour
 
             if (pvp && bvb) {
                 printf("Game cannot be both Player vs Player and Bot vs Bot.\n");
@@ -136,16 +138,16 @@ namespace Caravan {
                 first == FIRST_ABC ? Model::PLAYER_ABC : Model::PLAYER_DEF
             };
 
-            View::ViewConfig vc = {
-                .user_abc=user_abc.get(),
-                .user_def=user_def.get(),
-                .bot_delay_sec=delay,
-                .cheat=cheat
-            };
-
             game = std::make_unique<Model::Game>(gc);
-            ctrl = std::make_unique<Controller::ControllerStrToMove>();
-            view = std::make_unique<View::ViewFTXUI>(*game, *ctrl, vc);
+            ctrl = std::make_unique<Controller::ControllerFTXUI>(*game);
+            view = std::make_unique<View::ViewFTXUI>(
+                *game,
+                *ctrl,
+                *user_abc,
+                *user_def,
+                delay,
+                cheat,
+                true);
 
             view->run();
 

@@ -6,16 +6,17 @@
 #define CARAVAN_CONTROLLER_CONTROLLER_FTXUI_H
 
 #include <string>
+#include <tuple>
 #include "caravan/controller/base_controller.h"
 #include "caravan/model/game.h"
 
 namespace Caravan::Controller {
-    class ControllerFTXUI : public BaseController<std::string, std::string> {
+    class ControllerFTXUI : public BaseController<std::string, std::tuple<Model::GameMove, std::string>> {
         public:
             explicit ControllerFTXUI(Model::Game& game) : BaseController(game) {}
             ~ControllerFTXUI() override = default;
 
-            std::string on_user_input(std::string &input) override = 0;
+            std::tuple<Model::GameMove, std::string> on_user_input(std::string &input, bool confirmed) override;
     };
 }
 #endif //CARAVAN_CONTROLLER_CONTROLLER_FTXUI_H
