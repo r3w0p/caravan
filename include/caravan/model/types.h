@@ -95,7 +95,7 @@ namespace Caravan::Model {
 
     using Track = std::array<Slot, TRACK_NUMERIC_MAX>;
 
-    using GameConfig = struct GameConfig {
+    using GameConfig = struct GameConfig { // TODO replace with game args
         uint8_t player_abc_cards{0};
         uint8_t player_abc_samples{0};
         bool player_abc_balanced{false};

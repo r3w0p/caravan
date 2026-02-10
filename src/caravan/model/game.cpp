@@ -165,14 +165,14 @@ namespace Caravan::Model {
 
         if (player_abc->get_size_hand() > 0
             and
-        player_def->get_size_hand() == 0
+            player_def->get_size_hand() == 0
         ) {
             return player_abc->get_name();
         }
 
         if (player_abc->get_size_hand() == 0
             and
-        player_def->get_size_hand() > 0
+            player_def->get_size_hand() > 0
         ) {
             return player_def->get_name();
         }
@@ -227,8 +227,8 @@ namespace Caravan::Model {
             case OPTION_DISCARD:
                 if (player_turn->get_moves_count() < MOVES_START_ROUND) {
                     throw CaravanIllegalModelException(
-                        "A player cannot discard a card during "
-                        "the Start round."
+                        "A player cannot discard a card "
+                        "during the start round."
                     );
                 }
 
@@ -238,8 +238,8 @@ namespace Caravan::Model {
             case OPTION_CLEAR:
                 if (player_turn->get_moves_count() < MOVES_START_ROUND) {
                     throw CaravanIllegalModelException(
-                        "A player cannot clear a caravan during "
-                        "the Start round."
+                        "A player cannot clear a caravan "
+                        "during the start round."
                     );
                 }
 
@@ -322,9 +322,9 @@ namespace Caravan::Model {
     bool Game::has_sold(CaravanName cvname) {
         uint8_t bid = table->get_caravan(cvname)->get_bid();
         return bid >= CARAVAN_SOLD_MIN
-        and bid
-        <=
-        CARAVAN_SOLD_MAX;
+               and bid
+               <=
+               CARAVAN_SOLD_MAX;
     }
 
     /**
@@ -332,17 +332,18 @@ namespace Caravan::Model {
      * @param move A clear move for the player.
      */
     void Game::option_clear(const Player *player, GameMove *move) {
-        PlayerCaravanNames pcns = get_player_caravan_names(player->get_name());
+        PlayerCaravanNames pcns = get_player_caravan_names(
+            player->get_name());
 
         if (pcns[0] != move->caravan_name
             and
-                pcns[1]
-        !=
-        move->caravan_name
-        and
+            pcns[1]
+            !=
+            move->caravan_name
+            and
             pcns[2]
-        !=
-        move->caravan_name
+            !=
+            move->caravan_name
         ) {
             throw CaravanIllegalModelException(
                 "A player cannot clear their opponent's caravans."
@@ -379,24 +380,24 @@ namespace Caravan::Model {
         if (c_hand.is_numeral_card()) {
             pa_playing_num_onto_pa_caravans =
                 player->get_name() == player_abc->get_name()
-            and(
-                move->caravan_name == CARAVAN_A or
-                move->caravan_name == CARAVAN_B or
-                move->caravan_name == CARAVAN_C
-            );
+                and (
+                    move->caravan_name == CARAVAN_A or
+                    move->caravan_name == CARAVAN_B or
+                    move->caravan_name == CARAVAN_C
+                );
 
             pb_playing_num_onto_pb_caravans =
                 player->get_name() == player_def->get_name()
-            and(
-                move->caravan_name == CARAVAN_D or
-                move->caravan_name == CARAVAN_E or
-                move->caravan_name == CARAVAN_F
-            );
+                and (
+                    move->caravan_name == CARAVAN_D or
+                    move->caravan_name == CARAVAN_E or
+                    move->caravan_name == CARAVAN_F
+                );
 
             if (!(pa_playing_num_onto_pa_caravans
-                or
-                    pb_playing_num_onto_pb_caravans
-            )
+                  or
+                  pb_playing_num_onto_pb_caravans
+                )
             ) {
                 throw CaravanIllegalModelException(
                     "A numeral card can only be played on "
@@ -408,8 +409,8 @@ namespace Caravan::Model {
                 table->get_caravan(move->caravan_name)->get_size() > 0
             ) {
                 throw CaravanIllegalModelException(
-                    "A numeral card must be played on an empty caravan "
-                    "during the Start round."
+                    "A numeral card must be played "
+                    "on an empty caravan during the start round."
                 );
             }
 
@@ -418,15 +419,16 @@ namespace Caravan::Model {
             // is a face card
             if (in_start_stage) {
                 throw CaravanIllegalModelException(
-                    "A face card cannot be played during the "
-                    "Start round."
+                    "A face card cannot be played "
+                    "during the start round."
                 );
             }
 
             // Log to move
-            move->board = table->get_caravan(move->caravan_name)->get_slot(
-                move->pos_caravan
-            ).card;
+            move->board = table->get_caravan(
+                move->caravan_name
+            )->get_slot(move->pos_caravan).card;
+
             table->play_face_card(
                 move->caravan_name,
                 c_hand,
