@@ -10,7 +10,6 @@
 #include "caravan/model/types.h"
 
 namespace Caravan {
-
     std::string caravan_name_to_str(
         const Model::CaravanName caravan_name,
         const bool letter_only
@@ -130,6 +129,7 @@ namespace Caravan {
     uint64_t time_milliseconds() {
         using namespace std::chrono;
         return duration_cast<milliseconds>(
-            system_clock::now().time_since_epoch()).count();
+            system_clock::now().time_since_epoch()
+        ).count();
     }
 }

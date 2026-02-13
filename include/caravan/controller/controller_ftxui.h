@@ -11,12 +11,28 @@
 #include "caravan/model/game.h"
 
 namespace Caravan::Controller {
-    class ControllerFTXUI : public BaseController<std::string, std::tuple<Model::GameMove, std::string>> {
+    class ControllerFTXUI : public BaseController<std::string, std::tuple<
+            Model::GameMove, std::string>> {
         public:
-            explicit ControllerFTXUI(Model::Game& game) : BaseController(game) {}
+            explicit ControllerFTXUI(Model::Game &game) : BaseController(game) {
+            }
+
             ~ControllerFTXUI() override = default;
 
-            std::tuple<Model::GameMove, std::string> on_user_input(std::string &input, bool confirmed) override;
+            /**
+             * @param input User input.
+             * @param confirmed If `true`, input represents a confirmed command;
+             *        if `false`, input represents a partially completed command.
+             *
+             * @return The game move that could be parsed from the input
+             *         (whether confirmed input or not), as well as any error
+             *         messages that may have occurred (an empty string if
+             *         no error).
+             */
+            std::tuple<Model::GameMove, std::string> on_user_input(
+                std::string &input,
+                bool confirmed
+            ) override; // TODO pass user as well?
     };
 }
 #endif //CARAVAN_CONTROLLER_CONTROLLER_FTXUI_H

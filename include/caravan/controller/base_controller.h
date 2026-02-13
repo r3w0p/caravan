@@ -8,12 +8,15 @@
 #include "caravan/model/game.h"
 
 namespace Caravan::Controller {
-    template <typename I, typename O>
+    template<typename I, typename O>
     class BaseController {
         protected:
             Model::Game &game;
+
+            explicit BaseController(Model::Game &game) : game(game) {
+            }
+
         public:
-            explicit BaseController(Model::Game &game) : game(game) {}
             virtual ~BaseController() = default;
 
             virtual O on_user_input(I &input, bool confirmed) = 0;

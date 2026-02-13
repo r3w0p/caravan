@@ -11,32 +11,48 @@ namespace Caravan::Model {
      */
 
     /**
-     * @param config Game configuration.
      *
-     * @throws CaravanFatalModelException Invalid name for first player.
+     * @param player_abc_cards
+     * @param player_abc_samples
+     * @param player_abc_balanced
+     * @param player_def_cards
+     * @param player_def_samples
+     * @param player_def_balanced
+     * @param player_first
+     *
+     * @throws CaravanFatalModelException Invalid player name for the first player.
      */
-    Game::Game(const GameConfig &config) {
-        if (config.player_first == NO_PLAYER) {
+    Game::Game(
+        uint8_t player_abc_cards,
+        uint8_t player_abc_samples,
+        bool player_abc_balanced,
+
+        uint8_t player_def_cards,
+        uint8_t player_def_samples,
+        bool player_def_balanced,
+
+        PlayerName player_first
+    ) {
+        if (player_first == NO_PLAYER) {
             throw CaravanFatalModelException(
-                "Invalid player name for first player "
-                "in game configuration."
+                "Invalid player name for the first player."
             );
         }
 
         // Generate decks for each player
         std::unique_ptr<Deck> deck_abc(
             DeckBuilder::build_caravan_deck(
-                config.player_abc_cards,
-                config.player_abc_samples,
-                config.player_abc_balanced
+                player_abc_cards,
+                player_abc_samples,
+                player_abc_balanced
             )
         );
 
         std::unique_ptr<Deck> deck_def(
             DeckBuilder::build_caravan_deck(
-                config.player_def_cards,
-                config.player_def_samples,
-                config.player_def_balanced
+                player_def_cards,
+                player_def_samples,
+                player_def_balanced
             )
         );
 
@@ -48,9 +64,9 @@ namespace Caravan::Model {
         player_def = std::make_unique<Player>(PLAYER_DEF, std::move(deck_def));
 
         // Determine which player moves first
-        player_turn = config.player_first == player_abc->get_name() ?
-                      player_abc.get() :
-                      player_def.get();
+        player_turn = player_first == player_abc->get_name()
+                      ? player_abc.get()
+                      : player_def.get();
     }
 
     /**
@@ -333,7 +349,8 @@ namespace Caravan::Model {
      */
     void Game::option_clear(const Player *player, GameMove *move) {
         PlayerCaravanNames pcns = get_player_caravan_names(
-            player->get_name());
+            player->get_name()
+        );
 
         if (pcns[0] != move->caravan_name
             and

@@ -3,7 +3,7 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "caravan/core/exceptions.h"
-#include "caravan/user/user.h"
+#include "caravan/user/base_user.h"
 #include "caravan/view/view_ftxui.h"
 
 #include <memory>
@@ -391,14 +391,16 @@ namespace Caravan::View {
         Model::Player *player_this = game->get_player(
             top ? Model::PLAYER_DEF : Model::PLAYER_ABC
         );
-        User::User &user_this = player_this->get_name() == config->
-                                get_user_abc().get_name()
-                                ? config->get_user_abc()
-                                : config->get_user_def();
-        User::User &user_other = player_this->get_name() == config->
-                                 get_user_abc().get_name()
-                                 ? config->get_user_def()
-                                 : config->get_user_abc();
+
+        User::BaseUser<std::string> &user_this =
+            player_this->get_name() == config->get_user_abc().get_name()
+            ? config->get_user_abc()
+            : config->get_user_def();
+
+        User::BaseUser<std::string> &user_other =
+            player_this->get_name() == config->get_user_abc().get_name()
+            ? config->get_user_def()
+            : config->get_user_abc();
 
         uint8_t hand_size_abc = player_abc->get_size_hand();
         uint8_t hand_size_def = player_def->get_size_hand();
@@ -862,7 +864,7 @@ namespace Caravan::View {
                     terminal_size = Terminal::Size();
                     update_current_turn();
                     confirmed = false;
-                    move = {};
+                    last_move = {};
                     highlight = {};
 
                     // Error screen if less than minimum terminal dimensions
@@ -890,11 +892,12 @@ namespace Caravan::View {
 
                     // Get input from human or bot
                     if (user_turn->is_human()) {
+                        // TODO move user_input component into UserHumanFTXUI?
                         raw_command = user_input;
 
                         // Create new move if ENTER key pressed (i.e., if newline)
                         if (raw_command.ends_with('\n')) {
-                            // A confirmed move ready to send to the game model
+                            // A confirmed move ready to send to the controller
                             raw_command.pop_back(); // remove newline
                             user_input = "";
                             confirmed = true;
@@ -907,7 +910,7 @@ namespace Caravan::View {
                         if ((time_bot_end - time_bot_start) >=
                             bot_delay_millis) {
                             // Bot delay has elapsed, make move
-                            raw_command = user_turn->request_move(&game);
+                            raw_command = user_turn->request_input(&game);
                             confirmed = true;
                         } else {
                             // Bot is still thinking of its next move
@@ -923,23 +926,19 @@ namespace Caravan::View {
                     }
 
                     // Send input to controller
-                    // TODO value then error or vice versa?
                     auto [gm, err] = ctrl.on_user_input(raw_command, confirmed);
                     raw_command = "";
 
-                    if (confirmed && gm.option != Model::NO_OPTION) {  // TODO is NO_OPTION check needed?
-
+                    if (confirmed) {
                         // Confirmed move was erroneous
                         if (!err.empty()) {
-                            // TODO what happens when bot messes up? test this
+                            // Only update illegal move message on human error
                             if (user_turn->is_human()) {
-                                // Notify human user of illegal move
                                 msg_important = err;
                             }
-
                         } else {
                             // Log successful move
-                            move = gm;
+                            last_move = gm;
 
                             // Set message to log next player's turn
                             msg_important = name_next + " to move next.";
@@ -958,7 +957,6 @@ namespace Caravan::View {
 
                         // Screen refresh on game change
                         screen.PostEvent(Event::Custom);
-
                     } else {
                         // An incomplete move that can be used to highlight
                         // areas of the board as a hint to the player

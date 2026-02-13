@@ -113,27 +113,19 @@ namespace Caravan::Model {
      */
     Slot Caravan::get_slot(uint8_t pos) const {
         if (pos < TRACK_NUMERIC_MIN or pos > i_track) {
-            std::string err;
+            std::string err =
+                "Must provide a valid slot number "
+                "to play a face card on Caravan " +
+                caravan_name_to_str(name, true);
 
             if (i_track == TRACK_NUMERIC_MIN) {
-                err = "Must provide a valid slot number "
-                      "(currently " + std::to_string(i_track) + " only) "
-                      "to a play face card on Caravan " +
-                      caravan_name_to_str(name, true) + ".";
-
+                err += " (currently " + std::to_string(i_track) + " only).";
             } else if (i_track == TRACK_NUMERIC_MIN + 1) {
-                err = "Must provide a valid slot number "
-                      "(currently " + std::to_string(TRACK_NUMERIC_MIN) +
-                      " or " + std::to_string(i_track) + ") "
-                      "to a play face card on Caravan " +
-                      caravan_name_to_str(name, true) + ".";
-
+                err += " (currently " + std::to_string(TRACK_NUMERIC_MIN) +
+                    " or " + std::to_string(i_track) + ").";
             } else {
-                err = "Must provide a valid slot number "
-                      "(currently " + std::to_string(TRACK_NUMERIC_MIN) +
-                      "-" + std::to_string(i_track) + ", inclusive) "
-                      "to a play face card on Caravan " +
-                      caravan_name_to_str(name, true) + ".";
+                err += " (currently " + std::to_string(TRACK_NUMERIC_MIN) +
+                    "-" + std::to_string(i_track) + ", inclusive).";
             }
 
             throw CaravanIllegalModelException(err);

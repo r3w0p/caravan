@@ -30,7 +30,8 @@ namespace Caravan::Model {
          */
             explicit Caravan(const CaravanName cvname) : name(cvname),
                 track({}),
-                i_track(0) {}
+                i_track(0) {
+            }
 
             ~Caravan() = default;
 

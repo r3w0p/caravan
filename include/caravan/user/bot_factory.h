@@ -5,14 +5,17 @@
 #ifndef CARAVAN_USER_BOT_FACTORY_H
 #define CARAVAN_USER_BOT_FACTORY_H
 
-#include "caravan/user/user.h"
+#include "caravan/user/base_user_bot.h"
 
 namespace Caravan::User {
     class BotFactory {
         public:
             BotFactory() = delete;
 
-            static UserBot *get(std::string name, Model::PlayerName pname);
+            static BaseUserBot<std::string> *get(
+                std::string name,
+                Model::PlayerName pname
+            );
     };
 }
 

@@ -6,7 +6,7 @@
 #include "caravan/core/exceptions.h"
 
 namespace Caravan {
-    std::string CaravanException::what() {
-        return message;
+    const char *CaravanException::what() const noexcept {
+        return message.c_str();
     }
 }

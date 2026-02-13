@@ -56,7 +56,7 @@ namespace Caravan::Controller {
     void process_second(const std::string &input, Model::GameMove *move) {
         if (move->option == Model::OPTION_PLAY
             or
-        move->option == Model::OPTION_DISCARD
+            move->option == Model::OPTION_DISCARD
         ) {
             if (input.size() < 2) {
                 throw CaravanIllegalControllerException(
@@ -96,9 +96,7 @@ namespace Caravan::Controller {
                         "Invalid hand position '" + std::string(1, c) + "'."
                     );
             }
-        }
-        else
-        if (move->option == Model::OPTION_CLEAR) {
+        } else if (move->option == Model::OPTION_CLEAR) {
             if (input.size() < 2) {
                 throw CaravanIllegalControllerException(
                     "A caravan name has not been entered."
@@ -231,13 +229,12 @@ namespace Caravan::Controller {
 
     std::tuple<Model::GameMove, std::string> ControllerFTXUI::on_user_input(
         std::string &input,
-        bool confirmed) {
-
+        bool confirmed
+    ) {
         Model::GameMove move;
         std::string err{};
 
         if (!input.empty()) {
-
             try {
                 /*
                  * FIRST
@@ -269,12 +266,10 @@ namespace Caravan::Controller {
                 if (confirmed) {
                     game.make_move(&move);
                 }
-
             } catch (CaravanIllegalException &e) {
                 // If input parsing or move making fails
                 err = e.what();
             }
-
         }
 
         return {move, err};

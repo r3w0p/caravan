@@ -1,12 +1,13 @@
 add_library(user
-        "${CMAKE_SOURCE_DIR}/include/caravan/user/constants.h"
-        "${CMAKE_SOURCE_DIR}/include/caravan/user/user.h"
+        "${CMAKE_SOURCE_DIR}/include/caravan/user/base_user.h"
+        "${CMAKE_SOURCE_DIR}/include/caravan/user/base_user_bot.h"
+        "${CMAKE_SOURCE_DIR}/include/caravan/user/base_user_human.h"
+        "${CMAKE_SOURCE_DIR}/include/caravan/user/bot_factory.h"
+        "${CMAKE_SOURCE_DIR}/include/caravan/user/user_bot_random.h"
+        "${CMAKE_SOURCE_DIR}/include/caravan/user/user_human_ftxui.h"
 
-        "${CMAKE_SOURCE_DIR}/include/caravan/user/bot/factory.h"
-        "${CMAKE_SOURCE_DIR}/include/caravan/user/bot/random.h"
-
-        "bot/factory.cpp"
-        "bot/random.cpp"
+        "bot_factory.cpp"
+        "user_bot_random.cpp"
 )
 
 target_include_directories(user PUBLIC

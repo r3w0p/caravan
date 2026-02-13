@@ -43,8 +43,8 @@ namespace Caravan::Model {
         // Illegal request to discard card outside of hand range
         if (pos < HAND_POS_MIN
             or pos
-        >
-        i_hand
+            >
+            i_hand
         ) {
             throw CaravanIllegalModelException(
                 "The chosen hand position is out of range."
@@ -84,8 +84,8 @@ namespace Caravan::Model {
         // Illegal request to discard card outside of hand range
         if (pos < HAND_POS_MIN
             or pos
-        >
-        i_hand
+            >
+            i_hand
         ) {
             throw CaravanIllegalModelException(
                 "The chosen hand position is out of range."
@@ -138,7 +138,7 @@ namespace Caravan::Model {
         if (!deck->empty()) {
             // If post-Start and hand not at post-Start max (5 cards)
             if (moves > MOVES_START_ROUND
-                and i_hand<HAND_SIZE_MAX_POST_START
+                and i_hand < HAND_SIZE_MAX_POST_START
             ) {
                 // Add new card from deck to top of hand
                 hand[i_hand] = deck->back();

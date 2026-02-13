@@ -40,9 +40,9 @@ namespace Caravan::Model {
 
         if (num_cards < DECK_CARAVAN_MIN
             or
-                num_cards
-        >
-        DECK_CARAVAN_MAX
+            num_cards
+            >
+            DECK_CARAVAN_MAX
         ) {
             throw CaravanFatalModelException(
                 "A caravan deck must have between "
@@ -52,9 +52,9 @@ namespace Caravan::Model {
 
         if (num_sample_decks < SAMPLE_DECKS_MIN
             or
-                num_sample_decks
-        >
-        SAMPLE_DECKS_MAX
+            num_sample_decks
+            >
+            SAMPLE_DECKS_MAX
         ) {
             throw CaravanFatalModelException(
                 "A caravan deck must sample from between "
@@ -93,7 +93,7 @@ namespace Caravan::Model {
 
                     if (num_cards - d->size() < HAND_SIZE_MAX_START
                         and
-                    c_next.is_numeral_card()
+                        c_next.is_numeral_card()
                     ) {
                         first_hand_num_cards += 1;
                     }
@@ -112,7 +112,7 @@ namespace Caravan::Model {
 
                         if (num_cards - d->size() < HAND_SIZE_MAX_START
                             and
-                        c_next.is_numeral_card()
+                            c_next.is_numeral_card()
                         ) {
                             first_hand_num_cards += 1;
                         }

@@ -6,18 +6,19 @@
 #include <cctype>
 #include <string>
 #include "caravan/core/exceptions.h"
-#include "caravan/user/user.h"
-#include "caravan/user/bot/factory.h"
-#include "caravan/user/bot/random.h"
+#include "caravan/user/bot_factory.h"
+#include "caravan/user/user_bot_random.h"
 
 namespace Caravan::User {
     const std::string NAME_RANDOM = "random";
 
-    UserBot *BotFactory::get(std::string name, Model::PlayerName pname) {
+    BaseUserBot<std::string> *BotFactory::get(
+        std::string name,
+        Model::PlayerName pname
+    ) {
         // Set name to lowercase
-        std::transform(
-            name.begin(),
-            name.end(),
+        std::ranges::transform(
+            name,
             name.begin(),
             [](unsigned char c) {
                 return std::tolower(c);

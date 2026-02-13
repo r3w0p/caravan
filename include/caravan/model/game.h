@@ -34,7 +34,17 @@ namespace Caravan::Model {
             void option_play(Player *player, GameMove *move);
 
         public:
-            explicit Game(const GameConfig &config);
+            explicit Game(
+                uint8_t player_abc_cards,
+                uint8_t player_abc_samples,
+                bool player_abc_balanced,
+
+                uint8_t player_def_cards,
+                uint8_t player_def_samples,
+                bool player_def_balanced,
+
+                PlayerName player_first
+            );
 
             ~Game() = default;
 

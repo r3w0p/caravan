@@ -6,42 +6,53 @@
 #include "cxxopts.hpp"
 #include "caravan/controller/controller_ftxui.h"
 #include "caravan/view/view_ftxui.h"
-#include "caravan/user/bot/factory.h"
+#include "../../include/caravan/user/bot_factory.h"
 #include "caravan/core/exceptions.h"
+#include "caravan/user/user_human_ftxui.h"
 
 namespace Caravan {
-
     const std::string OPTS_HELP = "h,help";
     const std::string OPTS_VERSION = "v,version";
     const std::string OPTS_PVP = "pvp";
     const std::string OPTS_BVB = "bvb";
     const std::string OPTS_BOT = "b,bot";
+    const std::string OPTS_BOT2 = "bot2";
     const std::string OPTS_DELAY = "d,delay";
     const std::string OPTS_FIRST = "f,first";
     const std::string OPTS_CARDS = "c,cards";
     const std::string OPTS_SAMPLES = "s,samples";
     const std::string OPTS_IMBALANCED = "i,imbalanced";
     const std::string OPTS_CHEAT = "cheat";
+    const std::string OPTS_NOCOL = "nocol";
 
     const std::string KEY_HELP = "help";
     const std::string KEY_VERSION = "version";
     const std::string KEY_PVP = "pvp";
     const std::string KEY_BVB = "bvb";
     const std::string KEY_BOT = "bot";
+    const std::string KEY_BOT2 = "bot2";
     const std::string KEY_DELAY = "delay";
     const std::string KEY_FIRST = "first";
     const std::string KEY_CARDS = "cards";
     const std::string KEY_SAMPLES = "samples";
     const std::string KEY_IMBALANCED = "imbalanced";
     const std::string KEY_CHEAT = "cheat";
+    const std::string KEY_NOCOL = "nocol";
+
+    const std::string DEFAULT_BOT = "random";
+    const std::string DEFAULT_BOT2 = "random";
+    const std::string DEFAULT_DELAY = "1000";
+    const std::string DEFAULT_FIRST = "1";
+    const std::string DEFAULT_CARDS = "54";
+    const std::string DEFAULT_SAMPLES = "1";
 
     constexpr uint8_t FIRST_ABC = 1;
     constexpr uint8_t FIRST_DEF = 2;
 
 
     int run(int argc, char **argv) {
-        std::unique_ptr<User::User> user_abc;
-        std::unique_ptr<User::User> user_def;
+        std::unique_ptr<User::BaseUser<std::string>> user_abc;
+        std::unique_ptr<User::BaseUser<std::string>> user_def;
         std::unique_ptr<Model::Game> game;
         std::unique_ptr<Controller::ControllerFTXUI> ctrl;
         std::unique_ptr<View::ViewFTXUI> view;
@@ -49,26 +60,64 @@ namespace Caravan {
         try {
             cxxopts::Options options(CARAVAN_NAME);
 
-            options.add_options()
-                (OPTS_HELP, "Print help instructions.")
-                (OPTS_VERSION, "Print Caravan version.")
-                (OPTS_PVP, "A Player vs Player game.")
-                (OPTS_BVB, "A Bot vs Bot game.")
-                (OPTS_BOT, "Which bot to play with (normal, friendly).", cxxopts::value<std::string>()->default_value("random"))  // TODO not random as default
-                (OPTS_DELAY, "Delay before bot makes its move (in milliseconds).", cxxopts::value<uint16_t>()->default_value("1000"))
-                (OPTS_FIRST, "Which player goes first (1 or 2).", cxxopts::value<uint8_t>()->default_value("1"))
-                (OPTS_CARDS, "Number of cards for each caravan deck (30-162, inclusive).", cxxopts::value<uint8_t>()->default_value("54"))
-                (OPTS_SAMPLES, "Number of traditional decks to sample when building caravan decks (1-3, inclusive).", cxxopts::value<uint8_t>()->default_value("1"))
-                (OPTS_IMBALANCED,
-                 "An imbalanced caravan deck is built by taking as many "
-                 "cards from one shuffled sample deck before moving to the next. "
-                 "A balanced deck randomly samples cards across all sample decks.")
-                (OPTS_CHEAT, "Always show both player's hands.")
-            ;
+            auto get_option = options.add_options();
+
+            get_option(OPTS_HELP, "Print help instructions.");
+            get_option(OPTS_VERSION, "Print Caravan version.");
+            get_option(OPTS_PVP, "A Player vs Player game.");
+            get_option(OPTS_BVB, "A Bot vs Bot game.");
+            get_option(
+                OPTS_BOT,
+                "Which bot to play with in a PvB game (normal, friendly).",
+                cxxopts::value<std::string>()->default_value(DEFAULT_BOT)
+            );
+
+            get_option(
+                OPTS_BOT2,
+                "Which bot for the bot to play with in a BvB game (normal, friendly).",
+                cxxopts::value<std::string>()->default_value(DEFAULT_BOT2)
+            );
+
+            get_option(
+                OPTS_DELAY,
+                "Delay before bot makes its move (in milliseconds).",
+                cxxopts::value<uint16_t>()->default_value(DEFAULT_DELAY)
+            );
+
+            get_option(
+                OPTS_FIRST,
+                "Which player goes first (1 or 2).",
+                cxxopts::value<uint8_t>()->default_value(DEFAULT_FIRST)
+            );
+
+            get_option(
+                OPTS_CARDS,
+                "Number of cards for each caravan deck (30-162, inclusive).",
+                cxxopts::value<uint8_t>()->default_value(DEFAULT_CARDS)
+            );
+
+            get_option(
+                OPTS_SAMPLES,
+                "Number of traditional decks to sample when building caravan decks (1-3, inclusive).",
+                cxxopts::value<uint8_t>()->default_value(DEFAULT_SAMPLES)
+            );
+
+            get_option(
+                OPTS_IMBALANCED,
+                "An imbalanced caravan deck is built by taking as many "
+                "cards from one shuffled sample deck before moving to the next. "
+                "A balanced deck randomly samples cards across all sample decks."
+            );
+
+            get_option(OPTS_CHEAT, "Always show both players' hands.");
+            get_option(
+                OPTS_NOCOL,
+                "Remove colour from the game interface, if it is available."
+            );
 
             auto result = options.parse(argc, argv);
 
-            // Print help instructions.
+            // Print help instructions
             if (result.count(KEY_HELP)) {
                 printf("%s v%s\n\n", CARAVAN_NAME, CARAVAN_VERSION);
                 printf("%s\n", CARAVAN_DESCRIPTION);
@@ -92,25 +141,41 @@ namespace Caravan {
             uint8_t samples = result[KEY_SAMPLES].as<uint8_t>();
             bool imbalanced = result[KEY_IMBALANCED].as<bool>();
             bool cheat = result[KEY_CHEAT].as<bool>();
-            // TODO colour
+            bool nocol = result[KEY_NOCOL].as<bool>();
 
             if (pvp && bvb) {
-                printf("Game cannot be both Player vs Player and Bot vs Bot.\n");
+                printf(
+                    "Game cannot be both Player vs Player and Bot vs Bot.\n"
+                );
                 exit(EXIT_FAILURE);
             }
 
-            if(first < FIRST_ABC || first > FIRST_DEF) {
-                printf("First player must be either %d or %d.\n", FIRST_ABC, FIRST_DEF);
+            if (first < FIRST_ABC || first > FIRST_DEF) {
+                printf(
+                    "First player must be either %d or %d.\n",
+                    FIRST_ABC,
+                    FIRST_DEF
+                );
                 exit(EXIT_FAILURE);
             }
 
-            if (cards < Model::DECK_CARAVAN_MIN || cards > Model::DECK_CARAVAN_MAX) {
-                printf("Caravan decks must have between %d and %d cards (inclusive).\n", Model::DECK_CARAVAN_MIN, Model::DECK_CARAVAN_MAX);
+            if (cards < Model::DECK_CARAVAN_MIN || cards >
+                Model::DECK_CARAVAN_MAX) {
+                printf(
+                    "Caravan decks must have between %d and %d cards (inclusive).\n",
+                    Model::DECK_CARAVAN_MIN,
+                    Model::DECK_CARAVAN_MAX
+                );
                 exit(EXIT_FAILURE);
             }
 
-            if (samples < Model::SAMPLE_DECKS_MIN || samples > Model::SAMPLE_DECKS_MAX) {
-                printf("Number of caravan deck samples must be between %d and %d (inclusive).\n", Model::SAMPLE_DECKS_MIN, Model::SAMPLE_DECKS_MIN);
+            if (samples < Model::SAMPLE_DECKS_MIN || samples >
+                Model::SAMPLE_DECKS_MAX) {
+                printf(
+                    "Number of caravan deck samples must be between %d and %d (inclusive).\n",
+                    Model::SAMPLE_DECKS_MIN,
+                    Model::SAMPLE_DECKS_MIN
+                );
                 exit(EXIT_FAILURE);
             }
 
@@ -119,26 +184,41 @@ namespace Caravan {
                 exit(EXIT_FAILURE);
             }
 
-            if(pvp) {  // human vs human
-                user_abc = std::make_unique<User::UserFTXUI>(Model::PLAYER_ABC);
-                user_def = std::make_unique<User::UserFTXUI>(Model::PLAYER_DEF);
-
-            } else if (bvb) {  // bot vs bot
-                user_abc = std::unique_ptr<User::UserBot>(User::BotFactory::get(bot, Model::PLAYER_ABC));
-                user_def = std::unique_ptr<User::UserBot>(User::BotFactory::get(bot, Model::PLAYER_DEF));
-
-            } else {  // humans vs bot
-                user_abc = std::make_unique<User::UserFTXUI>(Model::PLAYER_ABC);
-                user_def = std::unique_ptr<User::UserBot>(User::BotFactory::get(bot, Model::PLAYER_DEF));
+            if (pvp) {
+                // human vs human
+                user_abc = std::make_unique<User::UserHumanFTXUI>(
+                    Model::PLAYER_ABC
+                );
+                user_def = std::make_unique<User::UserHumanFTXUI>(
+                    Model::PLAYER_DEF
+                );
+            } else if (bvb) {
+                // bot vs bot
+                user_abc = std::unique_ptr<User::BaseUserBot<std::string>>(
+                    User::BotFactory::get(bot, Model::PLAYER_ABC)
+                );
+                user_def = std::unique_ptr<User::BaseUserBot<std::string>>(
+                    User::BotFactory::get(bot, Model::PLAYER_DEF)
+                );
+            } else {
+                // humans vs bot
+                user_abc = std::make_unique<User::UserHumanFTXUI>(
+                    Model::PLAYER_ABC
+                );
+                user_def = std::unique_ptr<User::BaseUserBot<std::string>>(
+                    User::BotFactory::get(bot, Model::PLAYER_DEF)
+                );
             }
 
-            Model::GameConfig gc = {
-                cards, samples, !imbalanced,
-                cards, samples, !imbalanced,
+            game = std::make_unique<Model::Game>(
+                cards,
+                samples,
+                !imbalanced,
+                cards,
+                samples,
+                !imbalanced,
                 first == FIRST_ABC ? Model::PLAYER_ABC : Model::PLAYER_DEF
-            };
-
-            game = std::make_unique<Model::Game>(gc);
+            );
             ctrl = std::make_unique<Controller::ControllerFTXUI>(*game);
             view = std::make_unique<View::ViewFTXUI>(
                 *game,
@@ -147,14 +227,10 @@ namespace Caravan {
                 *user_def,
                 delay,
                 cheat,
-                true);
+                !nocol
+            );
 
             view->run();
-
-        } catch (CaravanException &e) {
-            printf("%s\n", e.what().c_str());
-            exit(EXIT_FAILURE);
-
         } catch (std::exception &e) {
             printf("%s\n", e.what());
             exit(EXIT_FAILURE);
@@ -162,7 +238,6 @@ namespace Caravan {
 
         return EXIT_SUCCESS;
     }
-
 }
 
 int main(int argc, char **argv) {

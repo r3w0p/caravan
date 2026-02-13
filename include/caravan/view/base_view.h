@@ -7,27 +7,28 @@
 
 #include "caravan/controller/base_controller.h"
 #include "caravan/model/game.h"
-#include "caravan/user/user.h"
+#include "caravan/user/base_user.h"
 
 namespace Caravan::View {
-    template <typename I, typename O>
+    template<typename I, typename O>
     class BaseView {
         protected:
             Model::Game &game;
             Controller::BaseController<I, O> &ctrl;
-            User::User &user_abc;
-            User::User &user_def;
+            User::BaseUser<I> &user_abc;
+            User::BaseUser<I> &user_def;
 
         public:
             explicit BaseView(
                 Model::Game &game,
                 Controller::BaseController<I, O> &ctrl,
-                User::User &user_abc,
-                User::User &user_def
+                User::BaseUser<I> &user_abc,
+                User::BaseUser<I> &user_def
             ) : game(game),
                 ctrl(ctrl),
                 user_abc(user_abc),
-                user_def(user_def) {}
+                user_def(user_def) {
+            }
 
             virtual ~BaseView() = default;
 

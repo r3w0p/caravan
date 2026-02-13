@@ -8,17 +8,17 @@
 #include "caravan/view/base_view.h"
 #include <cstdint>
 #include <string>
-#include "caravan/user/user.h"
+#include "caravan/user/base_user.h"
 #include "caravan/controller/base_controller.h"
 #include "ftxui/dom/elements.hpp"
 
 namespace Caravan::View {
-
-    class ViewFTXUI : public BaseView<std::string, std::tuple<Model::GameMove, std::string>> {
+    class ViewFTXUI : public BaseView<std::string, std::tuple<Model::GameMove,
+            std::string>> {
         protected:
             // Pointers to users
-            User::User *user_turn{};
-            User::User *user_next{};
+            User::BaseUser<std::string> *user_turn{};
+            User::BaseUser<std::string> *user_next{};
 
             // Names of users
             std::string name_abc;
@@ -36,7 +36,7 @@ namespace Caravan::View {
             ftxui::Elements msg_move_def;
 
             // Most recent move
-            Model::GameMove move;  // TODO rename to last_move?
+            Model::GameMove last_move;
 
             // Board highlight
             Model::GameMove highlight;
@@ -50,38 +50,91 @@ namespace Caravan::View {
         public:
             explicit ViewFTXUI(
                 Model::Game &game,
-                Controller::BaseController<std::string, std::tuple<Model::GameMove, std::string>> &ctrl,
-                User::User &user_abc,
-                User::User &user_def,
+                Controller::BaseController<std::string, std::tuple<
+                    Model::GameMove, std::string>> &ctrl,
+                User::BaseUser<std::string> &user_abc,
+                User::BaseUser<std::string> &user_def,
                 std::uint16_t bot_delay_millis,
                 bool cheat,
-                bool colour  // TODO mention in docs that it is not a guarantee; setting to true only requests colour
+                bool colour
+                // TODO mention in docs that it is not a guarantee; setting to true only requests colour
             ) : BaseView(game, ctrl, user_abc, user_def),
                 bot_delay_millis(bot_delay_millis),
                 cheat(cheat),
-                colour(colour) {}
+                colour(colour) {
+            }
 
-            [[nodiscard]] std::uint16_t get_bot_delay_millis() const { return bot_delay_millis; }
-            [[nodiscard]] bool is_cheating() const { return cheat; }
-            [[nodiscard]] bool wants_colour() const { return colour; }
-            [[nodiscard]] Model::GameMove get_highlight() const { return highlight; }
-            [[nodiscard]] Model::GameMove get_move() const { return move; }
+            [[nodiscard]] std::uint16_t get_bot_delay_millis() const {
+                return bot_delay_millis;
+            }
 
-            [[nodiscard]] User::User &get_user_abc() const { return user_abc; }
-            [[nodiscard]] User::User &get_user_def() const { return user_def; }
-            [[nodiscard]] User::User *get_user_turn() const { return user_turn; }
-            [[nodiscard]] User::User *get_user_next() const { return user_next; }
+            [[nodiscard]] bool is_cheating() const {
+                return cheat;
+            }
 
-            [[nodiscard]] std::string get_name_abc() const { return name_abc; }
-            [[nodiscard]] std::string get_name_def() const { return name_def; }
-            [[nodiscard]] std::string get_name_turn() const { return name_turn; }
-            [[nodiscard]] std::string get_name_next() const { return name_next; }
+            [[nodiscard]] bool wants_colour() const {
+                return colour;
+            }
 
-            [[nodiscard]] std::string get_msg_main() const { return msg_main; }
-            [[nodiscard]] std::string get_msg_important() const { return msg_important; }
-            [[nodiscard]] std::string get_msg_fatal() const { return msg_fatal; }
-            [[nodiscard]] ftxui::Elements get_msg_move_abc() const { return msg_move_abc; }
-            [[nodiscard]] ftxui::Elements get_msg_move_def() const { return msg_move_def; }
+            [[nodiscard]] Model::GameMove get_highlight() const {
+                return highlight;
+            }
+
+            [[nodiscard]] Model::GameMove get_move() const {
+                return last_move;
+            }
+
+            [[nodiscard]] User::BaseUser<std::string> &get_user_abc() const {
+                return user_abc;
+            }
+
+            [[nodiscard]] User::BaseUser<std::string> &get_user_def() const {
+                return user_def;
+            }
+
+            [[nodiscard]] User::BaseUser<std::string> *get_user_turn() const {
+                return user_turn;
+            }
+
+            [[nodiscard]] User::BaseUser<std::string> *get_user_next() const {
+                return user_next;
+            }
+
+            [[nodiscard]] std::string get_name_abc() const {
+                return name_abc;
+            }
+
+            [[nodiscard]] std::string get_name_def() const {
+                return name_def;
+            }
+
+            [[nodiscard]] std::string get_name_turn() const {
+                return name_turn;
+            }
+
+            [[nodiscard]] std::string get_name_next() const {
+                return name_next;
+            }
+
+            [[nodiscard]] std::string get_msg_main() const {
+                return msg_main;
+            }
+
+            [[nodiscard]] std::string get_msg_important() const {
+                return msg_important;
+            }
+
+            [[nodiscard]] std::string get_msg_fatal() const {
+                return msg_fatal;
+            }
+
+            [[nodiscard]] ftxui::Elements get_msg_move_abc() const {
+                return msg_move_abc;
+            }
+
+            [[nodiscard]] ftxui::Elements get_msg_move_def() const {
+                return msg_move_def;
+            }
 
             void run() override;
     };

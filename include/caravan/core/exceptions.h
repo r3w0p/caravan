@@ -18,9 +18,10 @@ namespace Caravan {
 
         public:
             explicit
-            CaravanException(std::string msg) : message(std::move(msg)) {}
+            CaravanException(std::string msg) : message(std::move(msg)) {
+            }
 
-            std::string what();
+            [[nodiscard]] const char *what() const noexcept override;
     };
 
     /*
@@ -31,7 +32,8 @@ namespace Caravan {
         public:
             explicit CaravanFatalException(std::string msg) : CaravanException(
                 std::move(msg)
-            ) {}
+            ) {
+            }
     };
 
     class CaravanIllegalException : public CaravanException {
@@ -39,7 +41,8 @@ namespace Caravan {
             explicit
             CaravanIllegalException(std::string msg) : CaravanException(
                 std::move(msg)
-            ) {}
+            ) {
+            }
     };
 
     /*
@@ -50,14 +53,16 @@ namespace Caravan {
         public:
             explicit CaravanFatalModelException(
                 const std::string &msg
-            ) : CaravanFatalException(msg) {}
+            ) : CaravanFatalException(msg) {
+            }
     };
 
     class CaravanIllegalModelException : public CaravanIllegalException {
         public:
             explicit CaravanIllegalModelException(
                 const std::string &msg
-            ) : CaravanIllegalException(msg) {}
+            ) : CaravanIllegalException(msg) {
+            }
     };
 
     /*
@@ -68,14 +73,16 @@ namespace Caravan {
         public:
             explicit CaravanFatalViewException(
                 const std::string &msg
-            ) : CaravanFatalException(msg) {}
+            ) : CaravanFatalException(msg) {
+            }
     };
 
     class CaravanIllegalViewException : public CaravanIllegalException {
         public:
             explicit CaravanIllegalViewException(
                 const std::string &msg
-            ) : CaravanIllegalException(msg) {}
+            ) : CaravanIllegalException(msg) {
+            }
     };
 
     /*
@@ -86,14 +93,16 @@ namespace Caravan {
         public:
             explicit CaravanFatalControllerException(
                 const std::string &msg
-            ) : CaravanFatalException(msg) {}
+            ) : CaravanFatalException(msg) {
+            }
     };
 
     class CaravanIllegalControllerException : public CaravanIllegalException {
         public:
             explicit CaravanIllegalControllerException(
                 const std::string &msg
-            ) : CaravanIllegalException(msg) {}
+            ) : CaravanIllegalException(msg) {
+            }
     };
 }
 
