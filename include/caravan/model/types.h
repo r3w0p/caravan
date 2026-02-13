@@ -70,18 +70,16 @@ namespace Caravan::Model {
 
         [[nodiscard]] bool is_face_card() const {
             return (this->rank >= JACK
-            and
-            this->rank <= JOKER
-            )
-            ;
+                    and
+                    this->rank <= JOKER
+            );
         }
 
         [[nodiscard]] bool is_numeral_card() const {
             return (this->rank >= ACE
-            and
-            this->rank <= TEN
-            )
-            ;
+                    and
+                    this->rank <= TEN
+            );
         }
     };
 

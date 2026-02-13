@@ -15,14 +15,13 @@ namespace Caravan::Model {
         hand = {};
         i_hand = 0;
         moves = 0;
+        this->deck = std::move(deck);
 
         // Populate hand for game start
         for (; i_hand < HAND_SIZE_MAX_START; i_hand++) {
-            hand[i_hand] = deck->back();
-            deck->pop_back();
+            hand[i_hand] = this->deck->back();
+            this->deck->pop_back();
         }
-
-        this->deck = std::move(deck);
     }
 
     /**

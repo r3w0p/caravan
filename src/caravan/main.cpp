@@ -6,8 +6,7 @@
 #include "cxxopts.hpp"
 #include "caravan/controller/controller_ftxui.h"
 #include "caravan/view/view_ftxui.h"
-#include "../../include/caravan/user/bot_factory.h"
-#include "caravan/core/exceptions.h"
+#include "caravan/user/bot_factory.h"
 #include "caravan/user/user_human_ftxui.h"
 
 namespace Caravan {
@@ -152,9 +151,10 @@ namespace Caravan {
 
             if (first < FIRST_ABC || first > FIRST_DEF) {
                 printf(
-                    "First player must be either %d or %d.\n",
+                    "First player must be either %d or %d, not %d.\n",
                     FIRST_ABC,
-                    FIRST_DEF
+                    FIRST_DEF,
+                    first
                 );
                 exit(EXIT_FAILURE);
             }
@@ -162,9 +162,10 @@ namespace Caravan {
             if (cards < Model::DECK_CARAVAN_MIN || cards >
                 Model::DECK_CARAVAN_MAX) {
                 printf(
-                    "Caravan decks must have between %d and %d cards (inclusive).\n",
+                    "Caravan decks must have between %d and %d cards (inclusive), not %d.\n",
                     Model::DECK_CARAVAN_MIN,
-                    Model::DECK_CARAVAN_MAX
+                    Model::DECK_CARAVAN_MAX,
+                    cards
                 );
                 exit(EXIT_FAILURE);
             }
@@ -172,9 +173,10 @@ namespace Caravan {
             if (samples < Model::SAMPLE_DECKS_MIN || samples >
                 Model::SAMPLE_DECKS_MAX) {
                 printf(
-                    "Number of caravan deck samples must be between %d and %d (inclusive).\n",
+                    "Number of caravan deck samples must be between %d and %d (inclusive), not %d.\n",
                     Model::SAMPLE_DECKS_MIN,
-                    Model::SAMPLE_DECKS_MIN
+                    Model::SAMPLE_DECKS_MIN,
+                    samples
                 );
                 exit(EXIT_FAILURE);
             }
@@ -210,16 +212,47 @@ namespace Caravan {
                 );
             }
 
+            // Build decks for each player
+            std::unique_ptr<Model::Deck> deck_abc(
+                Model::DeckBuilder::build_caravan_deck(
+                    cards,
+                    samples,
+                    !imbalanced
+                )
+            );
+
+            std::unique_ptr<Model::Deck> deck_def(
+                Model::DeckBuilder::build_caravan_deck(
+                    cards,
+                    samples,
+                    !imbalanced
+                )
+            );
+
+            // Create players and assign their decks to them
+            std::unique_ptr<Model::Player> player_abc = std::make_unique<
+                Model::Player>(
+                Model::PLAYER_ABC,
+                std::move(deck_abc)
+            );
+
+            std::unique_ptr<Model::Player> player_def = std::make_unique<
+                Model::Player>(
+                Model::PLAYER_DEF,
+                std::move(deck_def)
+            );
+
+            // Create new game with players
             game = std::make_unique<Model::Game>(
-                cards,
-                samples,
-                !imbalanced,
-                cards,
-                samples,
-                !imbalanced,
+                std::move(player_abc),
+                std::move(player_def),
                 first == FIRST_ABC ? Model::PLAYER_ABC : Model::PLAYER_DEF
             );
+
+            // Link game to FTXUI controller
             ctrl = std::make_unique<Controller::ControllerFTXUI>(*game);
+
+            // Link game and controller to FTXUI view
             view = std::make_unique<View::ViewFTXUI>(
                 *game,
                 *ctrl,
@@ -230,6 +263,7 @@ namespace Caravan {
                 !nocol
             );
 
+            // Run the FTXUI view
             view->run();
         } catch (std::exception &e) {
             printf("%s\n", e.what());

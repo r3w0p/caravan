@@ -12,90 +12,54 @@ namespace Caravan::Model {
 
     /**
      *
-     * @param player_abc_cards
-     * @param player_abc_samples
-     * @param player_abc_balanced
-     * @param player_def_cards
-     * @param player_def_samples
-     * @param player_def_balanced
-     * @param player_first
+     * @param player_abc Player for caravans A, B, C.
+     * @param player_def Player for caravans D, E, F.
+     * @param player_first The player to go first.
      *
+     * @throws CaravanFatalModelException Invalid name for player of caravans A, B, C.
+     * @throws CaravanFatalModelException Invalid name for player of caravans D, E, F.
      * @throws CaravanFatalModelException Invalid player name for the first player.
      */
     Game::Game(
-        uint8_t player_abc_cards,
-        uint8_t player_abc_samples,
-        bool player_abc_balanced,
-
-        uint8_t player_def_cards,
-        uint8_t player_def_samples,
-        bool player_def_balanced,
-
+        std::unique_ptr<Player> player_abc,
+        std::unique_ptr<Player> player_def,
         PlayerName player_first
     ) {
-        if (player_first == NO_PLAYER) {
+        if (player_abc->get_name() != PLAYER_ABC) {
+            throw CaravanFatalModelException(
+                "Invalid name for player of caravans A, B, C."
+            );
+        }
+
+        if (player_def->get_name() != PLAYER_DEF) {
+            throw CaravanFatalModelException(
+                "Invalid name for player of caravans D, E, F."
+            );
+        }
+
+        if (!(player_first == PLAYER_ABC || player_first == PLAYER_DEF)) {
             throw CaravanFatalModelException(
                 "Invalid player name for the first player."
             );
         }
 
-        // Generate decks for each player
-        std::unique_ptr<Deck> deck_abc(
-            DeckBuilder::build_caravan_deck(
-                player_abc_cards,
-                player_abc_samples,
-                player_abc_balanced
-            )
-        );
-
-        std::unique_ptr<Deck> deck_def(
-            DeckBuilder::build_caravan_deck(
-                player_def_cards,
-                player_def_samples,
-                player_def_balanced
-            )
-        );
+        this->player_abc = std::move(player_abc);
+        this->player_def = std::move(player_def);
 
         // Create game table
         table = std::make_unique<Table>();
 
-        // Create players and assign their decks to them
-        player_abc = std::make_unique<Player>(PLAYER_ABC, std::move(deck_abc));
-        player_def = std::make_unique<Player>(PLAYER_DEF, std::move(deck_def));
-
         // Determine which player moves first
-        player_turn = player_first == player_abc->get_name()
-                      ? player_abc.get()
-                      : player_def.get();
-    }
-
-    /**
-     *
-     * @param cvname Caravan name.
-     * @return The caravan that is opposite to the provided caravan.
-     */
-    CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
-        switch (cvname) {
-            case CARAVAN_A:
-                return CARAVAN_D;
-            case CARAVAN_B:
-                return CARAVAN_E;
-            case CARAVAN_C:
-                return CARAVAN_F;
-            case CARAVAN_D:
-                return CARAVAN_A;
-            case CARAVAN_E:
-                return CARAVAN_B;
-            case CARAVAN_F:
-                return CARAVAN_C;
-            default:
-                return NO_CARAVAN;
-        }
+        player_turn = player_first == this->player_abc->get_name()
+                      ? this->player_abc.get()
+                      : this->player_def.get();
     }
 
     /**
      * @param pname Player name.
      * @return The player.
+     *
+     * @throws CaravanFatalModelException Invalid player name.
      */
     Player *Game::get_player(PlayerName pname) const {
         if (player_abc->get_name() == pname) {
@@ -112,6 +76,8 @@ namespace Caravan::Model {
     /**
      * @param pname Player name.
      * @return The names of the caravans associated with the player.
+     *
+     * @throws CaravanFatalModelException Invalid player name.
      */
     PlayerCaravanNames Game::get_player_caravan_names(PlayerName pname) const {
         if (player_abc->get_name() == pname) {
@@ -227,6 +193,12 @@ namespace Caravan::Model {
     /**
      * Make a move that advances the game.
      * @param move The move to make.
+     *
+     * @throws CaravanIllegalModelException A player cannot discard a card during the start round.
+     * @throws CaravanIllegalModelException A player cannot clear a caravan during the start round.
+     *
+     * @throws CaravanFatalModelException The game has already been won.
+     * @throws CaravanFatalModelException Invalid play option.
      */
     void Game::make_move(GameMove *move) {
         if (get_winner() != NO_PLAYER) {
@@ -281,6 +253,32 @@ namespace Caravan::Model {
      */
 
     /**
+     *
+     * @param cvname Caravan name.
+     * @return The caravan that is opposite to the provided caravan.
+     *
+     * @throws CaravanFatalModelException Invalid caravan name.
+     */
+    CaravanName Game::get_opposite_caravan_name(CaravanName cvname) {
+        switch (cvname) {
+            case CARAVAN_A:
+                return CARAVAN_D;
+            case CARAVAN_B:
+                return CARAVAN_E;
+            case CARAVAN_C:
+                return CARAVAN_F;
+            case CARAVAN_D:
+                return CARAVAN_A;
+            case CARAVAN_E:
+                return CARAVAN_B;
+            case CARAVAN_F:
+                return CARAVAN_C;
+            default:
+                throw CaravanFatalModelException("Invalid caravan name.");
+        }
+    }
+
+    /**
      * @param cvname1 A caravan (CN1).
      * @param cvname2 Another caravan (CN2).
      * @return 1 if (CN1 sold; CN2 sold; CN2 highest bid) or (CN1 unsold; CN2 sold)
@@ -328,6 +326,7 @@ namespace Caravan::Model {
             return cvname1;
         if (bidcomp > 0)
             return cvname2;
+
         return NO_CARAVAN;
     }
 
@@ -337,15 +336,14 @@ namespace Caravan::Model {
      */
     bool Game::has_sold(CaravanName cvname) {
         uint8_t bid = table->get_caravan(cvname)->get_bid();
-        return bid >= CARAVAN_SOLD_MIN
-               and bid
-               <=
-               CARAVAN_SOLD_MAX;
+        return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
     }
 
     /**
      * @param player A player.
      * @param move A clear move for the player.
+     *
+     * @throws CaravanIllegalModelException A player cannot clear their opponent's caravans.
      */
     void Game::option_clear(const Player *player, GameMove *move) {
         PlayerCaravanNames pcns = get_player_caravan_names(
@@ -353,14 +351,8 @@ namespace Caravan::Model {
         );
 
         if (pcns[0] != move->caravan_name
-            and
-            pcns[1]
-            !=
-            move->caravan_name
-            and
-            pcns[2]
-            !=
-            move->caravan_name
+            and pcns[1] != move->caravan_name
+            and pcns[2] != move->caravan_name
         ) {
             throw CaravanIllegalModelException(
                 "A player cannot clear their opponent's caravans."
@@ -384,6 +376,10 @@ namespace Caravan::Model {
     /**
      * @param player A player.
      * @param move A play move for the player.
+     *
+     * @throws CaravanIllegalModelException A numeral card can only be played on a player's own caravan.
+     * @throws CaravanIllegalModelException A numeral card must be played on an empty caravan during the start round.
+     * @throws CaravanIllegalModelException A face card cannot be played during the start round.
      */
     void Game::option_play(Player *player, GameMove *move) {
         Card c_hand = player->get_from_hand_at(move->pos_hand);
@@ -412,9 +408,7 @@ namespace Caravan::Model {
                 );
 
             if (!(pa_playing_num_onto_pa_caravans
-                  or
-                  pb_playing_num_onto_pb_caravans
-                )
+                  or pb_playing_num_onto_pb_caravans)
             ) {
                 throw CaravanIllegalModelException(
                     "A numeral card can only be played on "

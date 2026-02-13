@@ -14,10 +14,10 @@ namespace Caravan::Model {
     class Player {
         protected:
             PlayerName name;
-            std::unique_ptr<Deck> deck;
             Hand hand;
             uint8_t i_hand;
             uint16_t moves;
+            std::unique_ptr<Deck> deck;
 
         public:
             explicit Player(PlayerName pname, std::unique_ptr<Deck> deck);

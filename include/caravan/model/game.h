@@ -23,7 +23,7 @@ namespace Caravan::Model {
 
             int8_t compare_bids(CaravanName cvname1, CaravanName cvname2);
 
-            CaravanName winning_bid(CaravanName cvname1, CaravanName cvname2);
+            static CaravanName get_opposite_caravan_name(CaravanName cvname);
 
             bool has_sold(CaravanName cvname);
 
@@ -33,22 +33,16 @@ namespace Caravan::Model {
 
             void option_play(Player *player, GameMove *move);
 
+            CaravanName winning_bid(CaravanName cvname1, CaravanName cvname2);
+
         public:
             explicit Game(
-                uint8_t player_abc_cards,
-                uint8_t player_abc_samples,
-                bool player_abc_balanced,
-
-                uint8_t player_def_cards,
-                uint8_t player_def_samples,
-                bool player_def_balanced,
-
+                std::unique_ptr<Player> player_abc,
+                std::unique_ptr<Player> player_def,
                 PlayerName player_first
             );
 
             ~Game() = default;
-
-            static CaravanName get_opposite_caravan_name(CaravanName cvname);
 
             [[nodiscard]] Player *get_player(PlayerName pname) const;
 
