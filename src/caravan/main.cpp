@@ -14,7 +14,7 @@ namespace Caravan {
     const std::string OPTS_VERSION = "v,version";
     const std::string OPTS_PVP = "pvp";
     const std::string OPTS_BVB = "bvb";
-    const std::string OPTS_BOT = "b,bot";
+    const std::string OPTS_BOT1 = "b,bot,bot1";
     const std::string OPTS_BOT2 = "bot2";
     const std::string OPTS_DELAY = "d,delay";
     const std::string OPTS_FIRST = "f,first";
@@ -24,11 +24,13 @@ namespace Caravan {
     const std::string OPTS_CHEAT = "cheat";
     const std::string OPTS_NOCOL = "nocol";
 
+    const std::string ALIAS_BOT = "bot";
+
     const std::string KEY_HELP = "help";
     const std::string KEY_VERSION = "version";
     const std::string KEY_PVP = "pvp";
     const std::string KEY_BVB = "bvb";
-    const std::string KEY_BOT = "bot";
+    const std::string KEY_BOT1 = "bot1";
     const std::string KEY_BOT2 = "bot2";
     const std::string KEY_DELAY = "delay";
     const std::string KEY_FIRST = "first";
@@ -38,7 +40,7 @@ namespace Caravan {
     const std::string KEY_CHEAT = "cheat";
     const std::string KEY_NOCOL = "nocol";
 
-    const std::string DEFAULT_BOT = "random";
+    const std::string DEFAULT_BOT1 = "random";
     const std::string DEFAULT_BOT2 = "random";
     const std::string DEFAULT_DELAY = "1000";
     const std::string DEFAULT_FIRST = "1";
@@ -66,9 +68,10 @@ namespace Caravan {
             get_option(OPTS_PVP, "A Player vs Player game.");
             get_option(OPTS_BVB, "A Bot vs Bot game.");
             get_option(
-                OPTS_BOT,
+                OPTS_BOT1,
+                "Alias: --" + ALIAS_BOT + ". " +
                 "Which bot to play with in a PvB game (normal, friendly).",
-                cxxopts::value<std::string>()->default_value(DEFAULT_BOT)
+                cxxopts::value<std::string>()->default_value(DEFAULT_BOT1)
             );
 
             get_option(
@@ -126,22 +129,29 @@ namespace Caravan {
                 exit(EXIT_SUCCESS);
             }
 
+            // Print version
             if (result.count(KEY_VERSION)) {
                 printf("%s\n", CARAVAN_VERSION);
                 exit(EXIT_SUCCESS);
             }
 
+            // Get option results
             bool pvp = result[KEY_PVP].as<bool>();
             bool bvb = result[KEY_BVB].as<bool>();
-            std::string bot = result[KEY_BOT].as<std::string>();
+
+            std::string bot1 = result[KEY_BOT1].as<std::string>();
+            std::string bot2 = result[KEY_BOT2].as<std::string>();
+
             uint16_t delay = result[KEY_DELAY].as<uint16_t>();
             uint8_t first = result[KEY_FIRST].as<uint8_t>();
             uint8_t cards = result[KEY_CARDS].as<uint8_t>();
             uint8_t samples = result[KEY_SAMPLES].as<uint8_t>();
+
             bool imbalanced = result[KEY_IMBALANCED].as<bool>();
             bool cheat = result[KEY_CHEAT].as<bool>();
             bool nocol = result[KEY_NOCOL].as<bool>();
 
+            // Validate options
             if (pvp && bvb) {
                 printf(
                     "Game cannot be both Player vs Player and Bot vs Bot.\n"
@@ -186,6 +196,7 @@ namespace Caravan {
                 exit(EXIT_FAILURE);
             }
 
+            // Determine users
             if (pvp) {
                 // human vs human
                 user_abc = std::make_unique<User::UserHumanFTXUI>(
@@ -197,10 +208,10 @@ namespace Caravan {
             } else if (bvb) {
                 // bot vs bot
                 user_abc = std::unique_ptr<User::BaseUserBot<std::string>>(
-                    User::BotFactory::get(bot, Model::PLAYER_ABC)
+                    User::BotFactory::get(bot1, Model::PLAYER_ABC)
                 );
                 user_def = std::unique_ptr<User::BaseUserBot<std::string>>(
-                    User::BotFactory::get(bot, Model::PLAYER_DEF)
+                    User::BotFactory::get(bot2, Model::PLAYER_DEF)
                 );
             } else {
                 // humans vs bot
@@ -208,7 +219,7 @@ namespace Caravan {
                     Model::PLAYER_ABC
                 );
                 user_def = std::unique_ptr<User::BaseUserBot<std::string>>(
-                    User::BotFactory::get(bot, Model::PLAYER_DEF)
+                    User::BotFactory::get(bot1, Model::PLAYER_DEF)
                 );
             }
 

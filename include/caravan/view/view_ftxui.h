@@ -48,16 +48,34 @@ namespace Caravan::View {
             void update_current_turn();
 
         public:
+            /**
+             *
+             * @param game
+             * @param ctrl
+             * @param user_abc
+             * @param user_def
+             * @param bot_delay_millis
+             * @param cheat If `true`, both players' hands will be visible
+             *        at all times.
+             *        If `false`, only the current player's hand will be visible
+             *        in a Player vs Bot or Player vs Player game.
+             *        In a Bot vs Bot game, both hands are always visible by
+             *        default.
+             * @param colour If `true`, enables colour in the game UI
+             *        if it is available.
+             *        If `false`, colour will be disabled.
+             */
             explicit ViewFTXUI(
                 Model::Game &game,
-                Controller::BaseController<std::string, std::tuple<
-                    Model::GameMove, std::string>> &ctrl,
+                Controller::BaseController<
+                    std::string,
+                    std::tuple<Model::GameMove, std::string>
+                > &ctrl,
                 User::BaseUser<std::string> &user_abc,
                 User::BaseUser<std::string> &user_def,
                 std::uint16_t bot_delay_millis,
                 bool cheat,
                 bool colour
-                // TODO mention in docs that it is not a guarantee; setting to true only requests colour
             ) : BaseView(game, ctrl, user_abc, user_def),
                 bot_delay_millis(bot_delay_millis),
                 cheat(cheat),
