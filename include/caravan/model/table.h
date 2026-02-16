@@ -13,31 +13,31 @@
 namespace Caravan::Model {
     class Table {
         protected:
-            std::unique_ptr<Caravan> cvn_a;
-            std::unique_ptr<Caravan> cvn_b;
-            std::unique_ptr<Caravan> cvn_c;
-            std::unique_ptr<Caravan> cvn_d;
-            std::unique_ptr<Caravan> cvn_e;
-            std::unique_ptr<Caravan> cvn_f;
-
-            std::array<Caravan *, TABLE_CARAVANS_MAX> caravans{};
+            std::array<Caravan, TABLE_CARAVANS_MAX> caravans{
+                Caravan(CARAVAN_A),
+                Caravan(CARAVAN_B),
+                Caravan(CARAVAN_C),
+                Caravan(CARAVAN_D),
+                Caravan(CARAVAN_E),
+                Caravan(CARAVAN_F)
+            };
 
         public:
-            explicit Table();
+            explicit Table() = default;
 
             ~Table() = default;
 
-            void clear_caravan(CaravanName cvname) const;
+            void clear_caravan(CaravanName cvname);
 
-            [[nodiscard]] Caravan *get_caravan(CaravanName cvname) const;
+            [[nodiscard]] Caravan &get_caravan(CaravanName cvname);
 
             void play_face_card(
                 CaravanName cvname,
                 Card card,
                 uint8_t pos
-            ) const;
+            );
 
-            void play_numeral_card(CaravanName cvname, Card card) const;
+            void play_numeral_card(CaravanName cvname, Card card);
     };
 }
 

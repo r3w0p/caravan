@@ -24,11 +24,11 @@ namespace Caravan::Model {
 
             bool has_sold(CaravanName cvname);
 
-            void option_clear(const Player *player, GameMove *move);
+            void option_clear(GameMove &move);
 
-            static void option_discard(Player *player, GameMove *move);
+            void option_discard(GameMove &move);
 
-            void option_play(Player *player, GameMove *move);
+            void option_play(GameMove &move);
 
             CaravanName winning_bid(CaravanName cvname1, CaravanName cvname2);
 
@@ -57,7 +57,7 @@ namespace Caravan::Model {
 
             bool is_caravan_winning(CaravanName cvname);
 
-            void make_move(GameMove *move);
+            void make_move(GameMove &move);
     };
 }
 

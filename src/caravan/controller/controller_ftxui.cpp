@@ -264,7 +264,7 @@ namespace Caravan::Controller {
                 // Send move to update game state
                 // Will throw exception if problem with move
                 if (confirmed) {
-                    game.make_move(&move);
+                    game.make_move(move);
                 }
             } catch (CaravanIllegalException &e) {
                 // If input parsing or move making fails

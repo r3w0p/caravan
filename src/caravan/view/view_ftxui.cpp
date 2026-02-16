@@ -252,8 +252,8 @@ namespace Caravan::View {
         Elements e;
         Elements title;
 
-        Model::Caravan *caravan = game->get_table().get_caravan(cn);
-        uint8_t caravan_size = caravan->get_size();
+        Model::Caravan &caravan = game->get_table().get_caravan(cn);
+        uint8_t caravan_size = caravan.get_size();
 
         for (uint8_t i = 0; i < Model::TRACK_NUMERIC_MAX; i++) {
             if ((top && (Model::TRACK_NUMERIC_MAX - i) <= caravan_size) || (
@@ -270,7 +270,7 @@ namespace Caravan::View {
                     gen_caravan_slot(
                         config,
                         position,
-                        caravan->get_slot(position),
+                        caravan.get_slot(position),
                         highlight
                     )
                 );
@@ -281,8 +281,8 @@ namespace Caravan::View {
 
         content = vbox(e);
 
-        bool winning = game->is_caravan_winning(caravan->get_name());
-        bool bust = game->is_caravan_bust(caravan->get_name());
+        bool winning = game->is_caravan_winning(caravan.get_name());
+        bool bust = game->is_caravan_bust(caravan.get_name());
 
         std::function<Element(Element)> maybe_colour = color(Color::Default);
         std::function<Element(Element)> maybe_colour_underlined = color(
@@ -305,19 +305,19 @@ namespace Caravan::View {
         title.push_back(
             text(caravan_name_to_wstr(cn, true) + L" ") | maybe_colour
         );
-        if (game->get_table().get_caravan(cn)->get_size() > 0) {
+        if (game->get_table().get_caravan(cn).get_size() > 0) {
             title.push_back(text(L"(") | maybe_colour);
             title.push_back(
-                text(std::to_wstring(caravan->get_bid())) |
+                text(std::to_wstring(caravan.get_bid())) |
                 maybe_colour_underlined
             );
             title.push_back(
                 text(
-                    L", " + direction_to_wstr(caravan->get_direction()) + L", "
+                    L", " + direction_to_wstr(caravan.get_direction()) + L", "
                 ) | maybe_colour
             );
             title.push_back(
-                suit_to_text(caravan->get_suit(), config->wants_colour())
+                suit_to_text(caravan.get_suit(), config->wants_colour())
             );
             title.push_back(text(L")") | maybe_colour);
             title.push_back(text(L" "));
@@ -929,9 +929,14 @@ namespace Caravan::View {
 
                     // Send input to controller
                     auto [gm, err] = ctrl.on_user_input(raw_command, confirmed);
-                    raw_command = "";
 
-                    if (confirmed) {
+                    // Confirmed any provided input
+                    if (confirmed && !raw_command.empty()) {
+                        // Input relates to no valid option
+                        if (gm.option == Model::NO_OPTION) {
+                            err = "Invalid input '" + raw_command + "'.";
+                        }
+
                         // Confirmed move was erroneous
                         if (!err.empty()) {
                             // Only update illegal move message on human error
@@ -965,7 +970,9 @@ namespace Caravan::View {
                         highlight = gm;
                     }
 
+                    raw_command = "";
                     return gen_game(this, &game, &comp_user_input);
+
                 } catch (CaravanFatalException &e) {
                     // Close gracefully on any unhandled exceptions
                     msg_fatal = e.what();

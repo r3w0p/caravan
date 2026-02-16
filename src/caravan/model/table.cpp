@@ -6,29 +6,14 @@
 #include "caravan/core/exceptions.h"
 
 namespace Caravan::Model {
-    Table::Table() {
-        cvn_a = std::make_unique<Caravan>(CARAVAN_A);
-        cvn_b = std::make_unique<Caravan>(CARAVAN_B);
-        cvn_c = std::make_unique<Caravan>(CARAVAN_C);
-        cvn_d = std::make_unique<Caravan>(CARAVAN_D);
-        cvn_e = std::make_unique<Caravan>(CARAVAN_E);
-        cvn_f = std::make_unique<Caravan>(CARAVAN_F);
-
-        caravans = {
-            cvn_a.get(),
-            cvn_b.get(),
-            cvn_c.get(),
-            cvn_d.get(),
-            cvn_e.get(),
-            cvn_f.get()
-        };
-    }
 
     /**
      * @param cvname The caravan to clear.
+     *
+     * @throws CaravanFatalModelException Invalid caravan name.
      */
-    void Table::clear_caravan(CaravanName cvname) const {
-        get_caravan(cvname)->clear();
+    void Table::clear_caravan(CaravanName cvname) {
+        get_caravan(cvname).clear();
     }
 
     /**
@@ -37,7 +22,7 @@ namespace Caravan::Model {
      *
      * @throws CaravanFatalModelException Invalid caravan name.
      */
-    Caravan *Table::get_caravan(CaravanName cvname) const {
+    Caravan &Table::get_caravan(CaravanName cvname) {
         switch (cvname) {
             case CARAVAN_A:
                 return caravans[0];
@@ -68,13 +53,13 @@ namespace Caravan::Model {
         CaravanName cvname,
         const Card card,
         const uint8_t pos
-    ) const {
-        Caravan *cvn_target = get_caravan(cvname);
+    ) {
+        Caravan &cvn_target = get_caravan(cvname);
 
         if (card.rank == QUEEN
             and pos
             !=
-            cvn_target->get_size()
+            cvn_target.get_size()
         ) {
             throw CaravanIllegalModelException(
                 "A QUEEN can only be played on the "
@@ -83,43 +68,44 @@ namespace Caravan::Model {
         }
 
         // Play Face card on Caravan.
-        // Returns the Numeric card that the Face card was played on.
-        Card c_target = cvn_target->put_face_card(card, pos);
+        // Returns the Numeric card that the Face card was played on
+        Card c_target = cvn_target.put_face_card(card, pos);
 
         // Process effect of JOKER across all caravans
         if (card.rank == JOKER) {
-            // Remove from original caravan, excluding the affected card.
+            // Remove from original caravan, excluding the affected card
             if (c_target.rank == ACE) {
-                cvn_target->remove_suit(c_target.suit, pos);
+                cvn_target.remove_suit(c_target.suit, pos);
             } else {
-                cvn_target->remove_rank(c_target.rank, pos);
+                cvn_target.remove_rank(c_target.rank, pos);
             }
 
-            // Remove from other caravans, not excluding any cards.
+            // Remove from other caravans, not excluding any cards
             for (int i = 0; i < TABLE_CARAVANS_MAX; ++i) {
-                Caravan *p_next = caravans[i];
+                Caravan &p_next = caravans[i];
 
-                // Ignore original caravan already handled.
-                if (p_next->get_name() == cvn_target->get_name()) {
+                // Ignore original caravan already handled
+                if (p_next.get_name() == cvn_target.get_name()) {
                     continue;
                 }
 
                 if (c_target.rank == ACE) {
-                    p_next->remove_suit(c_target.suit, 0);
+                    p_next.remove_suit(c_target.suit, 0);
                 } else {
-                    p_next->remove_rank(c_target.rank, 0);
+                    p_next.remove_rank(c_target.rank, 0);
                 }
             }
         }
     }
 
     /**
+     *
      * @param cvname A caravan name.
      * @param card A numeral card to place in the caravan.
      *
      * @throws CaravanFatalModelException Invalid caravan name.
      */
-    void Table::play_numeral_card(CaravanName cvname, const Card card) const {
-        get_caravan(cvname)->put_numeral_card(card);
+    void Table::play_numeral_card(CaravanName cvname, const Card card) {
+        get_caravan(cvname).put_numeral_card(card);
     }
 }

@@ -179,14 +179,22 @@ namespace Caravan::Model {
 
         if (pos > i_track) {
             throw CaravanIllegalModelException(
-                "There is not a numeral card at caravan position " +
-                std::to_string(pos) + "."
+                "There is not a numeral card at position " +
+                std::to_string(pos) +
+                " for Caravan " +
+                caravan_name_to_str(this->name, true) +
+                "."
             );
         }
 
         if (!card.is_face_card()) {
             throw CaravanIllegalModelException(
-                "The chosen card must be a face card."
+                "The chosen card must be a face card "
+                "to play it at position " +
+                std::to_string(pos) +
+                " on Caravan " +
+                caravan_name_to_str(this->name, true) +
+                "."
             );
         }
 
@@ -198,7 +206,9 @@ namespace Caravan::Model {
         } else {
             if (track[i].i_faces == TRACK_FACE_MAX) {
                 throw CaravanIllegalModelException(
-                    "The caravan is at its maximum face card capacity."
+                    "Caravan " +
+                    caravan_name_to_str(this->name, true) +
+                    " is at its maximum face card capacity."
                 );
             }
 
@@ -226,15 +236,19 @@ namespace Caravan::Model {
 
         if (i_track == TRACK_NUMERIC_MAX) {
             throw CaravanIllegalModelException(
-                "The caravan is at its maximum numeral card capacity."
+                "Caravan " +
+                caravan_name_to_str(name, true) +
+                " is at its maximum numeral card capacity."
             );
         }
 
         if (i_track > 0) {
             if (card.rank == track[i_track - 1].card.rank) {
                 throw CaravanIllegalModelException(
-                    "A numeral card must not have the same rank "
-                    "as the most recent card in the caravan."
+                    "The numeral card must not have the same rank "
+                    "as the most recent card in Caravan " +
+                    caravan_name_to_str(name, true) +
+                    "."
                 );
             }
 
@@ -244,16 +258,15 @@ namespace Caravan::Model {
                 const bool ascends = card.rank > track[i_track - 1].card.rank;
 
                 const bool not_same_suit = card.suit != suit;
-                const bool not_same_dir = (dir == ASCENDING
-                                           and
-                                           !ascends
-                                          )
-                                          or (dir == DESCENDING and ascends);
+                const bool not_same_dir =
+                    (dir == ASCENDING and !ascends) or
+                    (dir == DESCENDING and ascends);
 
                 if (not_same_suit and not_same_dir) {
                     throw CaravanIllegalModelException(
-                        "The numeral card must follow the caravan's "
-                        "direction or match the caravan's suit."
+                        "The numeral card must follow Caravan " +
+                        caravan_name_to_str(name, true) +
+                        "'s direction or match its suit."
                     );
                 }
             }
@@ -286,10 +299,9 @@ namespace Caravan::Model {
         uint8_t i_track_original = i_track;
 
         for (int t = i_track_original - 1; t >= 0; --t) {
-            if (pos_exclude > 0
-                and t
-                ==
-                (pos_exclude - 1)
+            if (
+                pos_exclude > 0 and
+                t == pos_exclude - 1
             ) {
                 continue;
             }
@@ -323,10 +335,9 @@ namespace Caravan::Model {
         const uint8_t i_track_original = i_track;
 
         for (int t = i_track_original - 1; t >= 0; --t) {
-            if (pos_exclude > 0
-                and t
-                ==
-                (pos_exclude - 1)
+            if (
+                pos_exclude > 0 and
+                t == pos_exclude - 1
             ) {
                 continue;
             }
