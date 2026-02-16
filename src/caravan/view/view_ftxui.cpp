@@ -252,7 +252,7 @@ namespace Caravan::View {
         Elements e;
         Elements title;
 
-        Model::Caravan *caravan = game->get_table()->get_caravan(cn);
+        Model::Caravan *caravan = game->get_table().get_caravan(cn);
         uint8_t caravan_size = caravan->get_size();
 
         for (uint8_t i = 0; i < Model::TRACK_NUMERIC_MAX; i++) {
@@ -305,7 +305,7 @@ namespace Caravan::View {
         title.push_back(
             text(caravan_name_to_wstr(cn, true) + L" ") | maybe_colour
         );
-        if (game->get_table()->get_caravan(cn)->get_size() > 0) {
+        if (game->get_table().get_caravan(cn)->get_size() > 0) {
             title.push_back(text(L"(") | maybe_colour);
             title.push_back(
                 text(std::to_wstring(caravan->get_bid())) |
@@ -385,28 +385,28 @@ namespace Caravan::View {
         std::string title;
         Elements e;
 
-        Model::Player *player_abc = game->get_player(Model::PLAYER_ABC);
-        Model::Player *player_def = game->get_player(Model::PLAYER_DEF);
+        Model::Player &player_abc = game->get_player(Model::PLAYER_ABC);
+        Model::Player &player_def = game->get_player(Model::PLAYER_DEF);
 
-        Model::Player *player_this = game->get_player(
+        Model::Player &player_this = game->get_player(
             top ? Model::PLAYER_DEF : Model::PLAYER_ABC
         );
 
         User::BaseUser<std::string> &user_this =
-            player_this->get_name() == config->get_user_abc().get_name()
+            player_this.get_name() == config->get_user_abc().get_name()
             ? config->get_user_abc()
             : config->get_user_def();
 
         User::BaseUser<std::string> &user_other =
-            player_this->get_name() == config->get_user_abc().get_name()
+            player_this.get_name() == config->get_user_abc().get_name()
             ? config->get_user_def()
             : config->get_user_abc();
 
-        uint8_t hand_size_abc = player_abc->get_size_hand();
-        uint8_t hand_size_def = player_def->get_size_hand();
-        uint8_t hand_size_turn = player_this->get_size_hand();
+        uint8_t hand_size_abc = player_abc.get_size_hand();
+        uint8_t hand_size_def = player_def.get_size_hand();
+        uint8_t hand_size_turn = player_this.get_size_hand();
 
-        uint8_t total_cards = player_this->get_size_deck() + hand_size_turn;
+        uint8_t total_cards = player_this.get_size_deck() + hand_size_turn;
         uint8_t hand_max = std::max(
             std::max(hand_size_abc, hand_size_def),
             Model::HAND_SIZE_MAX_POST_START
@@ -421,7 +421,7 @@ namespace Caravan::View {
             !config->is_cheating() && (
                 (
                     game->get_winner() == Model::NO_PLAYER &&
-                    config->get_user_turn()->get_name() != player_this->
+                    config->get_user_turn()->get_name() != player_this.
                     get_name() &&
                     (config->get_user_abc().is_human() && config->get_user_def()
                      .is_human())
@@ -438,15 +438,17 @@ namespace Caravan::View {
                 ));
 
         for (uint8_t i = 0; i < hand_max; i++) {
-            if ((top && (hand_max - i) <= hand_size_turn) || (
-                    !top && i + 1 <= hand_size_turn)) {
+            if (
+                (top && hand_max - i <= hand_size_turn) ||
+                (!top && i + 1 <= hand_size_turn)
+            ) {
                 uint8_t position = top ? hand_max - i : i + 1;
-                Model::Card card = player_this->get_from_hand_at(position);
+                Model::Card card = player_this.get_from_hand_at(position);
 
                 // Highlight card if it is this player's turn and unconfirmed
                 // move wants to use this hand card
                 bool highlight =
-                    config->get_user_turn()->get_name() == player_this->
+                    config->get_user_turn()->get_name() == player_this.
                     get_name() &&
                     config->get_highlight().option != Model::NO_OPTION &&
                     config->get_highlight().pos_hand == position;

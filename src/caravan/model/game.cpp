@@ -46,9 +46,6 @@ namespace Caravan::Model {
         this->player_abc = std::move(player_abc);
         this->player_def = std::move(player_def);
 
-        // Create game table
-        table = std::make_unique<Table>();
-
         // Determine which player moves first
         player_turn = player_first == this->player_abc->get_name()
                       ? this->player_abc.get()
@@ -61,13 +58,13 @@ namespace Caravan::Model {
      *
      * @throws CaravanFatalModelException Invalid player name.
      */
-    Player *Game::get_player(PlayerName pname) const {
+    Player &Game::get_player(PlayerName pname) {
         if (player_abc->get_name() == pname) {
-            return player_abc.get();
+            return *player_abc;
         }
 
         if (player_def->get_name() == pname) {
-            return player_def.get();
+            return *player_def;
         }
 
         throw CaravanFatalModelException("Invalid player name.");
@@ -101,8 +98,8 @@ namespace Caravan::Model {
     /**
      * @return The table.
      */
-    Table *Game::get_table() const {
-        return table.get();
+    Table &Game::get_table() {
+        return table;
     }
 
     /**
@@ -175,7 +172,7 @@ namespace Caravan::Model {
             return false;
         }
 
-        return table->get_caravan(cvname)->get_bid() > CARAVAN_SOLD_MAX;
+        return table.get_caravan(cvname)->get_bid() > CARAVAN_SOLD_MAX;
     }
 
     /**
@@ -288,8 +285,8 @@ namespace Caravan::Model {
     int8_t Game::compare_bids(CaravanName cvname1, CaravanName cvname2) {
         if (has_sold(cvname1)) {
             if (has_sold(cvname2)) {
-                uint8_t bid_cn1 = table->get_caravan(cvname1)->get_bid();
-                uint8_t bid_cn2 = table->get_caravan(cvname2)->get_bid();
+                uint8_t bid_cn1 = table.get_caravan(cvname1)->get_bid();
+                uint8_t bid_cn2 = table.get_caravan(cvname2)->get_bid();
 
                 if (bid_cn1 > bid_cn2) {
                     return -1; // CN1 sold; CN2 sold; CN1 highest bid
@@ -335,7 +332,7 @@ namespace Caravan::Model {
      * @return True if it has sold; False otherwise.
      */
     bool Game::has_sold(CaravanName cvname) {
-        uint8_t bid = table->get_caravan(cvname)->get_bid();
+        uint8_t bid = table.get_caravan(cvname)->get_bid();
         return bid >= CARAVAN_SOLD_MIN and bid <= CARAVAN_SOLD_MAX;
     }
 
@@ -359,7 +356,7 @@ namespace Caravan::Model {
             );
         }
 
-        table->clear_caravan(move->caravan_name);
+        table.clear_caravan(move->caravan_name);
     }
 
     /**
@@ -417,7 +414,7 @@ namespace Caravan::Model {
             }
 
             if (in_start_stage and
-                table->get_caravan(move->caravan_name)->get_size() > 0
+                table.get_caravan(move->caravan_name)->get_size() > 0
             ) {
                 throw CaravanIllegalModelException(
                     "A numeral card must be played "
@@ -425,7 +422,7 @@ namespace Caravan::Model {
                 );
             }
 
-            table->play_numeral_card(move->caravan_name, c_hand);
+            table.play_numeral_card(move->caravan_name, c_hand);
         } else {
             // is a face card
             if (in_start_stage) {
@@ -436,11 +433,11 @@ namespace Caravan::Model {
             }
 
             // Log to move
-            move->board = table->get_caravan(
+            move->board = table.get_caravan(
                 move->caravan_name
             )->get_slot(move->pos_caravan).card;
 
-            table->play_face_card(
+            table.play_face_card(
                 move->caravan_name,
                 c_hand,
                 move->pos_caravan

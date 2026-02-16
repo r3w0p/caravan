@@ -10,16 +10,13 @@
 #include "caravan/model/player.h"
 
 namespace Caravan::Model {
-    class GameSubscriber;
-
     class Game {
         protected:
-            std::unique_ptr<Table> table;
             std::unique_ptr<Player> player_abc;
             std::unique_ptr<Player> player_def;
             Player *player_turn;
 
-            std::list<GameSubscriber *> subscribers;
+            Table table{};
 
             int8_t compare_bids(CaravanName cvname1, CaravanName cvname2);
 
@@ -44,7 +41,7 @@ namespace Caravan::Model {
 
             ~Game() = default;
 
-            [[nodiscard]] Player *get_player(PlayerName pname) const;
+            [[nodiscard]] Player &get_player(PlayerName pname);
 
             [[nodiscard]] PlayerCaravanNames get_player_caravan_names(
                 PlayerName pname
@@ -52,7 +49,7 @@ namespace Caravan::Model {
 
             [[nodiscard]] PlayerName get_player_turn() const;
 
-            [[nodiscard]] Table *get_table() const;
+            [[nodiscard]] Table &get_table();
 
             PlayerName get_winner();
 
