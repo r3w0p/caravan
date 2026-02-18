@@ -912,7 +912,7 @@ namespace Caravan::View {
                         if ((time_bot_end - time_bot_start) >=
                             bot_delay_millis) {
                             // Bot delay has elapsed, make move
-                            raw_command = user_turn->request_input(&game);
+                            raw_command = user_turn->request_input(game);
                             confirmed = true;
                         } else {
                             // Bot is still thinking of its next move

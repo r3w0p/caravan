@@ -17,8 +17,8 @@ namespace Caravan::View {
             std::string>> {
         protected:
             // Pointers to users
-            User::BaseUser<std::string> *user_turn{};
-            User::BaseUser<std::string> *user_next{};
+            User::BaseUser<std::string> *user_turn;
+            User::BaseUser<std::string> *user_next;
 
             // Names of users
             std::string name_abc;

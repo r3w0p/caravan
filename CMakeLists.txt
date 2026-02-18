@@ -10,6 +10,8 @@ project(
 
 set(PROJECT_COPYRIGHT "Copyright (c) 2022-2026 r3w0p")
 
+# TODO Windows static linking for executable?
+
 # ISO C++ standard mode without vendor-specific language extensions
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

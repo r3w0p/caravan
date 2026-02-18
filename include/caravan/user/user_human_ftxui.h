@@ -17,7 +17,7 @@ namespace Caravan::User {
             ) {
             }
 
-            std::string request_input(Model::Game *game) override {
+            std::string request_input(Model::Game &game) override {
                 return {}; // not used due to how FTXUI works
             }
     };

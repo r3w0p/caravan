@@ -26,7 +26,7 @@ namespace Caravan::User {
 
             virtual bool is_human() = 0;
 
-            virtual I request_input(Model::Game *game) = 0;
+            virtual I request_input(Model::Game &game) = 0;
     };
 }
 

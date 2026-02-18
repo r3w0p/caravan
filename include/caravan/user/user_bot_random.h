@@ -41,7 +41,7 @@ namespace Caravan::User {
 
             ~UserBotRandom() override = default;
 
-            std::string request_input(Model::Game *game) override;
+            std::string request_input(Model::Game &game) override;
     };
 }
 

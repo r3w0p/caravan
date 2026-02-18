@@ -32,7 +32,7 @@ namespace Caravan::Controller {
             std::tuple<Model::GameMove, std::string> on_user_input(
                 std::string &input,
                 bool confirmed
-            ) override; // TODO pass user as well?
+            ) override;
     };
 }
 #endif //CARAVAN_CONTROLLER_CONTROLLER_FTXUI_H

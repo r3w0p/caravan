@@ -66,14 +66,14 @@ namespace Caravan::User {
         }
     }
 
-    std::string UserBotRandom::request_input(Model::Game *game) {
-        Model::Player &player = game->get_player(name);
+    std::string UserBotRandom::request_input(Model::Game &game) {
+        Model::Player &player = game.get_player(name);
         uint16_t current_move_count = player.get_moves_count();
 
         // Player has never moved before
         // Generate all possible moves
         if (current_move_count == 0) {
-            populate_moves(game->get_player_caravan_names(name));
+            populate_moves(game.get_player_caravan_names(name));
         }
 
         // Player's last move was successful
