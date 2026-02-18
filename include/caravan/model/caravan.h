@@ -22,12 +22,12 @@ namespace Caravan::Model {
 
         public:
             /**
-         * A caravan that contains all information for a given track of numeral
-         * cards and any face cards attached to them, including
-         * the total caravan bid, its direction, and its suit.
-         *
-         * @param cvname The caravan name.
-         */
+             * A caravan that contains all information for a given track of
+             * numeral cards and any face cards attached to them, including
+             * the total caravan bid, its direction, and its suit.
+             *
+             * @param cvname The caravan name.
+             */
             explicit Caravan(const CaravanName cvname) : name(cvname),
                 track({}),
                 i_track(0) {

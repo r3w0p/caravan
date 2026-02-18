@@ -8,700 +8,646 @@
 #include "caravan/model/constants.h"
 #include "caravan/core/exceptions.h"
 
+using namespace Caravan;
 
-TEST(TestCaravan, Clear_ThreeNumeric) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {SPADES, TWO};
-    Card c_num_3 = {SPADES, THREE};
+class CaravanTest : public testing::Test {
+    protected:
+        Model::Caravan cvn_a = Model::Caravan(Model::CARAVAN_A);
+        Model::Caravan cvn_b = Model::Caravan(Model::CARAVAN_B);
+        Model::Caravan cvn_c = Model::Caravan(Model::CARAVAN_C);
+        Model::Caravan cvn_d = Model::Caravan(Model::CARAVAN_D);
+        Model::Caravan cvn_e = Model::Caravan(Model::CARAVAN_E);
+        Model::Caravan cvn_f = Model::Caravan(Model::CARAVAN_F);
 
-    ASSERT_EQ(cvn.get_size(), 0);
+        Model::Card c_c_a = {Model::CLUBS, Model::ACE};
+        Model::Card c_c_2 = {Model::CLUBS, Model::TWO};
+        Model::Card c_c_3 = {Model::CLUBS, Model::THREE};
+        Model::Card c_c_4 = {Model::CLUBS, Model::FOUR};
+        Model::Card c_c_5 = {Model::CLUBS, Model::FIVE};
+        Model::Card c_c_6 = {Model::CLUBS, Model::SIX};
+        Model::Card c_c_7 = {Model::CLUBS, Model::SEVEN};
+        Model::Card c_c_8 = {Model::CLUBS, Model::EIGHT};
+        Model::Card c_c_9 = {Model::CLUBS, Model::NINE};
+        Model::Card c_c_10 = {Model::CLUBS, Model::TEN};
+        Model::Card c_c_ja = {Model::CLUBS, Model::JACK};
+        Model::Card c_c_q = {Model::CLUBS, Model::QUEEN};
+        Model::Card c_c_k = {Model::CLUBS, Model::KING};
+        Model::Card c_c_jo = {Model::CLUBS, Model::JOKER};
 
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    cvn.put_numeral_card(c_num_3);
-    ASSERT_EQ(cvn.get_size(), 3);
+        Model::Card c_d_a = {Model::DIAMONDS, Model::ACE};
+        Model::Card c_d_2 = {Model::DIAMONDS, Model::TWO};
+        Model::Card c_d_3 = {Model::DIAMONDS, Model::THREE};
+        Model::Card c_d_4 = {Model::DIAMONDS, Model::FOUR};
+        Model::Card c_d_5 = {Model::DIAMONDS, Model::FIVE};
+        Model::Card c_d_6 = {Model::DIAMONDS, Model::SIX};
+        Model::Card c_d_7 = {Model::DIAMONDS, Model::SEVEN};
+        Model::Card c_d_8 = {Model::DIAMONDS, Model::EIGHT};
+        Model::Card c_d_9 = {Model::DIAMONDS, Model::NINE};
+        Model::Card c_d_10 = {Model::DIAMONDS, Model::TEN};
+        Model::Card c_d_ja = {Model::DIAMONDS, Model::JACK};
+        Model::Card c_d_q = {Model::DIAMONDS, Model::QUEEN};
+        Model::Card c_d_k = {Model::DIAMONDS, Model::KING};
+        Model::Card c_d_jo = {Model::DIAMONDS, Model::JOKER};
 
-    cvn.clear();
-    ASSERT_EQ(cvn.get_size(), 0);
+        Model::Card c_h_a = {Model::HEARTS, Model::ACE};
+        Model::Card c_h_2 = {Model::HEARTS, Model::TWO};
+        Model::Card c_h_3 = {Model::HEARTS, Model::THREE};
+        Model::Card c_h_4 = {Model::HEARTS, Model::FOUR};
+        Model::Card c_h_5 = {Model::HEARTS, Model::FIVE};
+        Model::Card c_h_6 = {Model::HEARTS, Model::SIX};
+        Model::Card c_h_7 = {Model::HEARTS, Model::SEVEN};
+        Model::Card c_h_8 = {Model::HEARTS, Model::EIGHT};
+        Model::Card c_h_9 = {Model::HEARTS, Model::NINE};
+        Model::Card c_h_10 = {Model::HEARTS, Model::TEN};
+        Model::Card c_h_ja = {Model::HEARTS, Model::JACK};
+        Model::Card c_h_q = {Model::HEARTS, Model::QUEEN};
+        Model::Card c_h_k = {Model::HEARTS, Model::KING};
+        Model::Card c_h_jo = {Model::HEARTS, Model::JOKER};
+
+        Model::Card c_s_a = {Model::SPADES, Model::ACE};
+        Model::Card c_s_2 = {Model::SPADES, Model::TWO};
+        Model::Card c_s_3 = {Model::SPADES, Model::THREE};
+        Model::Card c_s_4 = {Model::SPADES, Model::FOUR};
+        Model::Card c_s_5 = {Model::SPADES, Model::FIVE};
+        Model::Card c_s_6 = {Model::SPADES, Model::SIX};
+        Model::Card c_s_7 = {Model::SPADES, Model::SEVEN};
+        Model::Card c_s_8 = {Model::SPADES, Model::EIGHT};
+        Model::Card c_s_9 = {Model::SPADES, Model::NINE};
+        Model::Card c_s_10 = {Model::SPADES, Model::TEN};
+        Model::Card c_s_ja = {Model::SPADES, Model::JACK};
+        Model::Card c_s_q = {Model::SPADES, Model::QUEEN};
+        Model::Card c_s_k = {Model::SPADES, Model::KING};
+        Model::Card c_s_jo = {Model::SPADES, Model::JOKER};
+
+        explicit CaravanTest() = default;
+};
+
+
+TEST_F(CaravanTest, Clear_ThreeNumeral) {
+    // Caravan starts empty
+    ASSERT_EQ(cvn_a.get_size(), 0);
+
+    // Add three numeral cards to the caravan
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_s_2);
+    cvn_a.put_numeral_card(c_s_3);
+    ASSERT_EQ(cvn_a.get_size(), 3);
+
+    // Clear all cards from the caravan
+    cvn_a.clear();
+    ASSERT_EQ(cvn_a.get_size(), 0);
 }
 
-TEST(TestCaravan, Clear_Error_EmptyCaravan) {
-    auto cvn = Caravan(CARAVAN_D);
-
+TEST_F(CaravanTest, Error_Clear_EmptyCaravan) {
     try {
-        cvn.clear();
+        // Caravan starts empty; clearing is an illegal move when empty
+        cvn_a.clear();
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, GetBid_ThreeNumeric) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {SPADES, TWO};
-    Card c_num_3 = {SPADES, THREE};
+TEST_F(CaravanTest, GetBid_ThreeNumeral) {
+    // Caravan starts empty
+    ASSERT_EQ(cvn_a.get_bid(), 0);
 
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num_1);
-    ASSERT_EQ(cvn.get_bid(), 1);
-    cvn.put_numeral_card(c_num_2);
-    ASSERT_EQ(cvn.get_bid(), 3);
-    cvn.put_numeral_card(c_num_3);
-    ASSERT_EQ(cvn.get_bid(), 6);
+    // Add first numeral card of value 1
+    cvn_a.put_numeral_card(c_s_a);
+    ASSERT_EQ(cvn_a.get_bid(), 1);
+
+    // Add second numeral card of value 2
+    cvn_a.put_numeral_card(c_s_2);
+    ASSERT_EQ(cvn_a.get_bid(), 3);
+
+    // Add third numeral card of value 3
+    cvn_a.put_numeral_card(c_s_3);
+    ASSERT_EQ(cvn_a.get_bid(), 6);
 }
 
-TEST(TestCaravan, GetBid_Value_RankAce) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, ACE};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 1);
+TEST_F(CaravanTest, GetBid_Value_RankAce) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_a);
+    ASSERT_EQ(cvn_a.get_bid(), 1);
 }
 
-TEST(TestCaravan, GetBid_Value_RankTwo) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, TWO};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 2);
+TEST_F(CaravanTest, GetBid_Value_RankTwo) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_2);
+    ASSERT_EQ(cvn_a.get_bid(), 2);
 }
 
-TEST(TestCaravan, GetBid_Value_RankThree) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, THREE};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 3);
+TEST_F(CaravanTest, GetBid_Value_RankThree) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_3);
+    ASSERT_EQ(cvn_a.get_bid(), 3);
 }
 
-TEST(TestCaravan, GetBid_Value_RankFour) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, FOUR};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 4);
+TEST_F(CaravanTest, GetBid_Value_RankFour) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_4);
+    ASSERT_EQ(cvn_a.get_bid(), 4);
 }
 
-TEST(TestCaravan, GetBid_Value_RankFive) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, FIVE};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 5);
+TEST_F(CaravanTest, GetBid_Value_RankFive) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_5);
+    ASSERT_EQ(cvn_a.get_bid(), 5);
 }
 
-TEST(TestCaravan, GetBid_Value_RankSix) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, SIX};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 6);
+TEST_F(CaravanTest, GetBid_Value_RankSix) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_6);
+    ASSERT_EQ(cvn_a.get_bid(), 6);
 }
 
-TEST(TestCaravan, GetBid_Value_RankSeven) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, SEVEN};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 7);
+TEST_F(CaravanTest, GetBid_Value_RankSeven) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_7);
+    ASSERT_EQ(cvn_a.get_bid(), 7);
 }
 
-TEST(TestCaravan, GetBid_Value_RankEight) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, EIGHT};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 8);
+TEST_F(CaravanTest, GetBid_Value_RankEight) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_8);
+    ASSERT_EQ(cvn_a.get_bid(), 8);
 }
 
-TEST(TestCaravan, GetBid_Value_RankNine) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, NINE};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 9);
+TEST_F(CaravanTest, GetBid_Value_RankNine) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_9);
+    ASSERT_EQ(cvn_a.get_bid(), 9);
 }
 
-TEST(TestCaravan, GetBid_Value_RankTen) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, TEN};
-
-    ASSERT_EQ(cvn.get_bid(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_bid(), 10);
+TEST_F(CaravanTest, GetBid_Value_RankTen) {
+    ASSERT_EQ(cvn_a.get_bid(), 0);
+    cvn_a.put_numeral_card(c_s_10);
+    ASSERT_EQ(cvn_a.get_bid(), 10);
 }
 
-TEST(TestCaravan, GetCardsAt_TwoNumeric_OneFace) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {HEARTS, TWO};
-    Card c_face_1 = {DIAMONDS, KING};
-    Slot ts;
+TEST_F(CaravanTest, GetCardsAt_TwoNumeral_OneFace) {
+    // Add two numerals
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_s_2);
 
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    cvn.put_face_card(c_face_1, 2);
+    // Add face card to the second numeral
+    cvn_a.put_face_card(c_d_k, 2);
 
-    ts = cvn.get_slot(1);
-    ASSERT_EQ(ts.card.suit, c_num_1.suit);
-    ASSERT_EQ(ts.card.rank, c_num_1.rank);
+    // Check first numeral: should not have face card added to it
+    Model::Slot slt_1 = cvn_a.get_slot(1);
+    ASSERT_EQ(slt_1.card.suit, c_s_a.suit);
+    ASSERT_EQ(slt_1.card.rank, c_s_a.rank);
+    ASSERT_EQ(slt_1.i_faces, 0);
 
-    ts = cvn.get_slot(2);
-    ASSERT_EQ(ts.card.suit, c_num_2.suit);
-    ASSERT_EQ(ts.card.rank, c_num_2.rank);
+    // Check second numeral: should have face card added to it
+    Model::Slot slt_2 = cvn_a.get_slot(2);
+    ASSERT_EQ(slt_2.card.suit, c_s_2.suit);
+    ASSERT_EQ(slt_2.card.rank, c_s_2.rank);
+    ASSERT_EQ(slt_2.i_faces, 1);
 
-    ASSERT_EQ(ts.i_faces, 1);
-    ASSERT_EQ(ts.faces[0].suit, c_face_1.suit);
-    ASSERT_EQ(ts.faces[0].rank, c_face_1.rank);
+    // Check face card details match what was added to slot
+    ASSERT_EQ(slt_2.faces[0].suit, c_d_k.suit);
+    ASSERT_EQ(slt_2.faces[0].rank, c_d_k.rank);
 }
 
-TEST(TestCaravan, GetCardsAt_Error_OneNumeric_OutOfRange) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, ACE};
-
-    cvn.put_numeral_card(c_num);
+TEST_F(CaravanTest, GetCardsAt_Error_OneNumeral_OutOfRange) {
+    cvn_a.put_numeral_card(c_s_a);
 
     try {
-        cvn.get_slot(2);
+        Model::Slot slt = cvn_a.get_slot(2);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, GetDirection_Ascending) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {SPADES, TWO};
+TEST_F(CaravanTest, GetDirection_Ascending) {
+    // No direction when caravan is empty
+    ASSERT_EQ(cvn_a.get_direction(), Model::ANY);
 
-    ASSERT_EQ(cvn.get_direction(), ANY);
-    cvn.put_numeral_card(c_num_1);
-    ASSERT_EQ(cvn.get_direction(), ANY);
-    cvn.put_numeral_card(c_num_2);
-    ASSERT_EQ(cvn.get_direction(), ASCENDING);
+    // No direction with one numeral card
+    cvn_a.put_numeral_card(c_s_5);
+    ASSERT_EQ(cvn_a.get_direction(), Model::ANY);
+
+    // Ascending direction with second card of greater rank than first
+    cvn_a.put_numeral_card(c_s_10);
+    ASSERT_EQ(cvn_a.get_direction(), Model::ASCENDING);
 }
 
-TEST(TestCaravan, GetDirection_Descending) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, TWO};
-    Card c_num_2 = {SPADES, ACE};
+TEST_F(CaravanTest, GetDirection_Descending) {
+    // No direction when caravan is empty
+    ASSERT_EQ(cvn_a.get_direction(), Model::ANY);
 
-    ASSERT_EQ(cvn.get_direction(), ANY);
-    cvn.put_numeral_card(c_num_1);
-    ASSERT_EQ(cvn.get_direction(), ANY);
-    cvn.put_numeral_card(c_num_2);
-    ASSERT_EQ(cvn.get_direction(), DESCENDING);
+    // No direction with one numeral card
+    cvn_a.put_numeral_card(c_s_10);
+    ASSERT_EQ(cvn_a.get_direction(), Model::ANY);
+
+    // Descending direction with second card of lower rank than first
+    cvn_a.put_numeral_card(c_s_5);
+    ASSERT_EQ(cvn_a.get_direction(), Model::DESCENDING);
 }
 
-TEST(TestCaravan, GetDirection_Ascending_ThreeQueens) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {HEARTS, TWO};
-    Card c_face_1 = {CLUBS, QUEEN};
-    Card c_face_2 = {DIAMONDS, QUEEN};
-    Card c_face_3 = {HEARTS, QUEEN};
+TEST_F(CaravanTest, GetDirection_Ascending_ThreeQueens) {
+    // Ascending caravan
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_h_2);
+    ASSERT_EQ(cvn_a.get_direction(), Model::ASCENDING);
 
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    ASSERT_EQ(cvn.get_direction(), ASCENDING);
+    // First QUEEN flips caravan to descending
+    cvn_a.put_face_card(c_s_q, 2);
+    ASSERT_EQ(cvn_a.get_direction(), Model::DESCENDING);
 
-    cvn.put_face_card(c_face_1, 2);
-    ASSERT_EQ(cvn.get_direction(), DESCENDING);
+    // Second QUEEN flips caravan to ascending
+    cvn_a.put_face_card(c_d_q, 2);
+    ASSERT_EQ(cvn_a.get_direction(), Model::ASCENDING);
 
-    cvn.put_face_card(c_face_2, 2);
-    ASSERT_EQ(cvn.get_direction(), ASCENDING);
-
-    cvn.put_face_card(c_face_3, 2);
-    ASSERT_EQ(cvn.get_direction(), DESCENDING);
+    // Third QUEEN flips caravan to descending
+    cvn_a.put_face_card(c_h_q, 2);
+    ASSERT_EQ(cvn_a.get_direction(), Model::DESCENDING);
 }
 
-TEST(TestCaravan, GetDirection_Descending_ThreeQueens) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, TEN};
-    Card c_num_2 = {HEARTS, NINE};
-    Card c_face_1 = {CLUBS, QUEEN};
-    Card c_face_2 = {DIAMONDS, QUEEN};
-    Card c_face_3 = {HEARTS, QUEEN};
+TEST_F(CaravanTest, GetDirection_Descending_ThreeQueens) {
+    // Descending caravan
+    cvn_a.put_numeral_card(c_s_10);
+    cvn_a.put_numeral_card(c_h_8);
+    ASSERT_EQ(cvn_a.get_direction(), Model::DESCENDING);
 
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    ASSERT_EQ(cvn.get_direction(), DESCENDING);
+    // First QUEEN flips caravan to ascending
+    cvn_a.put_face_card(c_c_q, 2);
+    ASSERT_EQ(cvn_a.get_direction(), Model::ASCENDING);
 
-    cvn.put_face_card(c_face_1, 2);
-    ASSERT_EQ(cvn.get_direction(), ASCENDING);
+    // Second QUEEN flips caravan to descending
+    cvn_a.put_face_card(c_d_q, 2);
+    ASSERT_EQ(cvn_a.get_direction(), Model::DESCENDING);
 
-    cvn.put_face_card(c_face_2, 2);
-    ASSERT_EQ(cvn.get_direction(), DESCENDING);
-
-    cvn.put_face_card(c_face_3, 2);
-    ASSERT_EQ(cvn.get_direction(), ASCENDING);
+    // Third QUEEN flips caravan to ascending
+    cvn_a.put_face_card(c_h_q, 2);
+    ASSERT_EQ(cvn_a.get_direction(), Model::ASCENDING);
 }
 
-TEST(TestCaravan, GetName) {
-    auto cvn = Caravan(CARAVAN_D);
-    ASSERT_EQ(cvn.get_name(), CARAVAN_D);
+TEST_F(CaravanTest, GetName) {
+    ASSERT_EQ(cvn_a.get_name(), Model::CARAVAN_A);
 }
 
-TEST(TestCaravan, GetSize_BeforeAfterNumeric) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, ACE};
-
-    ASSERT_EQ(cvn.get_size(), 0);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_size(), 1);
+TEST_F(CaravanTest, GetSize_BeforeAfterNumeral) {
+    ASSERT_EQ(cvn_a.get_size(), 0);
+    cvn_a.put_numeral_card(c_s_a);
+    ASSERT_EQ(cvn_a.get_size(), 1);
 }
 
-TEST(TestCaravan, GetSuit) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, ACE};
-
-    ASSERT_EQ(cvn.get_suit(), NO_SUIT);
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_suit(), c_num.suit);
+TEST_F(CaravanTest, GetSuit) {
+    ASSERT_EQ(cvn_a.get_suit(), Model::NO_SUIT);
+    cvn_a.put_numeral_card(c_s_a);
+    ASSERT_EQ(cvn_a.get_suit(), c_s_a.suit);
 }
 
-TEST(TestCaravan, PutNumericCard_PutFaceNotJack) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, ACE};
-    Card c_face = {HEARTS, KING};
-    Slot ts;
+TEST_F(CaravanTest, PutNumeralCard_PutFaceNotJack) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_face_card(c_h_k, 1);
 
-    cvn.put_numeral_card(c_num);
-    cvn.put_face_card(c_face, 1);
+    Model::Slot slt = cvn_a.get_slot(1);
 
-    ts = cvn.get_slot(1);
+    ASSERT_EQ(slt.card.suit, c_s_a.suit);
+    ASSERT_EQ(slt.card.rank, c_s_a.rank);
 
-    ASSERT_EQ(ts.card.suit, c_num.suit);
-    ASSERT_EQ(ts.card.rank, c_num.rank);
-
-    ASSERT_EQ(ts.i_faces, 1);
-    ASSERT_EQ(ts.faces[0].suit, c_face.suit);
-    ASSERT_EQ(ts.faces[0].rank, c_face.rank);
+    ASSERT_EQ(slt.i_faces, 1);
+    ASSERT_EQ(slt.faces[0].suit, c_h_k.suit);
+    ASSERT_EQ(slt.faces[0].rank, c_h_k.rank);
 }
 
-TEST(TestCaravan, PutNumericCard_PutFaceJack) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, ACE};
-    Card c_face = {HEARTS, JACK};
+TEST_F(CaravanTest, PutNumeralCard_PutFaceJack) {
+    cvn_a.put_numeral_card(c_s_a);
+    ASSERT_EQ(cvn_a.get_size(), 1);
 
-    cvn.put_numeral_card(c_num);
-    ASSERT_EQ(cvn.get_size(), 1);
-
-    cvn.put_face_card(c_face, 1);
-    ASSERT_EQ(cvn.get_size(), 0);
+    cvn_a.put_face_card(c_h_ja, 1);
+    ASSERT_EQ(cvn_a.get_size(), 0);
 }
 
-TEST(TestCaravan, PutNumericCard_Error_NotNumeric) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_face = {HEARTS, KING};
-
+TEST_F(CaravanTest, Error_PutNumeralCard_NotNumeral) {
     try {
-        cvn.put_numeral_card(c_face);
+        cvn_a.put_numeral_card(c_h_k);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, PutNumericCard_Error_CaravanFull) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {SPADES, THREE};
-    Card c_num_3 = {SPADES, FIVE};
-    Card c_num_4 = {SPADES, THREE};
-    Card c_num_5 = {SPADES, FIVE};
-    Card c_num_6 = {SPADES, THREE};
-    Card c_num_7 = {SPADES, FIVE};
-    Card c_num_8 = {SPADES, THREE};
-    Card c_num_9 = {SPADES, FIVE};
+TEST_F(CaravanTest, Error_PutNumeralCard_CaravanFull) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_s_3);
+    cvn_a.put_numeral_card(c_s_5);
+    cvn_a.put_numeral_card(c_s_3);
+    cvn_a.put_numeral_card(c_s_5);
+    cvn_a.put_numeral_card(c_s_3);
+    cvn_a.put_numeral_card(c_s_5);
+    cvn_a.put_numeral_card(c_s_3);
 
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    cvn.put_numeral_card(c_num_3);
-    cvn.put_numeral_card(c_num_4);
-    cvn.put_numeral_card(c_num_5);
-    cvn.put_numeral_card(c_num_6);
-    cvn.put_numeral_card(c_num_7);
-    cvn.put_numeral_card(c_num_8);
-
-    ASSERT_EQ(cvn.get_size(), TRACK_NUMERIC_MAX);
+    ASSERT_EQ(cvn_a.get_size(), Model::TRACK_NUMERIC_MAX);
 
     try {
-        cvn.put_numeral_card(c_num_9);
+        cvn_a.put_numeral_card(c_s_5);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, PutFaceCard) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, ACE};
-    Card c_face = {HEARTS, KING};
-    Slot ts;
+TEST_F(CaravanTest, PutFaceCard) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_face_card(c_h_k, 1);
 
-    cvn.put_numeral_card(c_num);
-    cvn.put_face_card(c_face, 1);
+    ASSERT_EQ(cvn_a.get_size(), 1);
+    Model::Slot slt = cvn_a.get_slot(1);
 
-    ASSERT_EQ(cvn.get_size(), 1);
-    ts = cvn.get_slot(1);
-
-    ASSERT_EQ(ts.i_faces, 1);
-    ASSERT_EQ(ts.faces[0].suit, c_face.suit);
-    ASSERT_EQ(ts.faces[0].rank, c_face.rank);
+    ASSERT_EQ(slt.i_faces, 1);
+    ASSERT_EQ(slt.faces[0].suit, c_h_k.suit);
+    ASSERT_EQ(slt.faces[0].rank, c_h_k.rank);
 }
 
-TEST(TestCaravan, PutFaceCard_Error_EmptyCaravan) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_face = {HEARTS, KING};
-    Slot ts;
-
+TEST_F(CaravanTest, Error_PutFaceCard_EmptyCaravan) {
     try {
-        cvn.put_face_card(c_face, 1);
+        cvn_a.put_face_card(c_h_k, 1);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, PutFaceCard_Error_OutOfRange) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, ACE};
-    Card c_face = {HEARTS, KING};
-    Slot ts;
-
-    cvn.put_numeral_card(c_num);
+TEST_F(CaravanTest, Error_PutFaceCard_OutOfRange) {
+    cvn_a.put_numeral_card(c_s_a);
 
     try {
-        cvn.put_face_card(c_face, 2);
+        cvn_a.put_face_card(c_h_k, 2);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, PutFaceCard_Error_NotFaceCard) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {SPADES, TWO};
-    Slot ts;
-
-    cvn.put_numeral_card(c_num_1);
+TEST_F(CaravanTest, PutFaceCard_Error_NotFaceCard) {
+    cvn_a.put_numeral_card(c_s_a);
 
     try {
-        cvn.put_face_card(c_num_2, 1);
+        cvn_a.put_face_card(c_s_2, 1);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, PutFaceCard_Error_FullFaceCardCapacity) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num = {SPADES, ACE};
-    Card c_face_1 = {HEARTS, KING};
-    Card c_face_2 = {HEARTS, KING};
-    Card c_face_3 = {HEARTS, KING};
-    Card c_face_4 = {HEARTS, KING};
-    Slot ts;
+TEST_F(CaravanTest, PutFaceCard_Error_FullFaceCardCapacity) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_face_card(c_h_k, 1);
+    cvn_a.put_face_card(c_d_k, 1);
+    cvn_a.put_face_card(c_c_k, 1);
 
-    cvn.put_numeral_card(c_num);
-    cvn.put_face_card(c_face_1, 1);
-    cvn.put_face_card(c_face_2, 1);
-    cvn.put_face_card(c_face_3, 1);
-
-    ASSERT_EQ(cvn.get_slot(1).faces.size(), TRACK_FACE_MAX);
+    ASSERT_EQ(cvn_a.get_slot(1).faces.size(), Model::TRACK_FACE_MAX);
 
     try {
-        cvn.put_face_card(c_face_4, 1);
+        cvn_a.put_face_card(c_s_k, 1);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, RemoveRank_FiveNumeric_OneFace) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {HEARTS, TWO};
-    Card c_num_3 = {CLUBS, FIVE};
-    Card c_num_4 = {CLUBS, TWO};
-    Card c_num_5 = {DIAMONDS, ACE};
-    Card c_face = {HEARTS, KING};
+TEST_F(CaravanTest, RemoveRank_FiveNumeral_OneFace_ExcludeNone) {
+    // Add five numerals, two of which are ACE cards
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_h_2);
+    cvn_a.put_numeral_card(c_c_5);
+    cvn_a.put_numeral_card(c_c_2);
+    cvn_a.put_numeral_card(c_d_a);
+    cvn_a.put_face_card(c_h_k, 4);
+    ASSERT_EQ(cvn_a.get_size(), 5);
 
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    cvn.put_numeral_card(c_num_3);
-    cvn.put_numeral_card(c_num_4);
-    cvn.put_numeral_card(c_num_5);
-    cvn.put_face_card(c_face, 4);
-    ASSERT_EQ(cvn.get_size(), 5);
+    // Remove all ACE cards, excluding none
+    cvn_a.remove_rank(Model::ACE, 0);
+    ASSERT_EQ(cvn_a.get_size(), 3);
 
-    cvn.remove_rank(ACE, 0);
-    ASSERT_EQ(cvn.get_size(), 3);
+    ASSERT_EQ(cvn_a.get_slot(1).card.suit, c_h_2.suit);
+    ASSERT_EQ(cvn_a.get_slot(1).card.rank, c_h_2.rank);
 
-    ASSERT_EQ(cvn.get_slot(1).card.suit, c_num_2.suit);
-    ASSERT_EQ(cvn.get_slot(1).card.rank, c_num_2.rank);
+    ASSERT_EQ(cvn_a.get_slot(2).card.suit, c_c_5.suit);
+    ASSERT_EQ(cvn_a.get_slot(2).card.rank, c_c_5.rank);
 
-    ASSERT_EQ(cvn.get_slot(2).card.suit, c_num_3.suit);
-    ASSERT_EQ(cvn.get_slot(2).card.rank, c_num_3.rank);
-
-    ASSERT_EQ(cvn.get_slot(3).card.suit, c_num_4.suit);
-    ASSERT_EQ(cvn.get_slot(3).card.rank, c_num_4.rank);
+    ASSERT_EQ(cvn_a.get_slot(3).card.suit, c_c_2.suit);
+    ASSERT_EQ(cvn_a.get_slot(3).card.rank, c_c_2.rank);
 }
 
-TEST(TestCaravan, RemoveRank_FiveNumeric_OneFace_ExcludeOne) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {HEARTS, TWO};
-    Card c_num_3 = {CLUBS, FIVE};
-    Card c_num_4 = {CLUBS, TWO};
-    Card c_num_5 = {DIAMONDS, ACE};
-    Card c_face = {HEARTS, KING};
+TEST_F(CaravanTest, RemoveRank_FiveNumeral_OneFace_ExcludeOne) {
+    // Add five numerals, two of which are ACE cards
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_h_2);
+    cvn_a.put_numeral_card(c_c_5);
+    cvn_a.put_numeral_card(c_c_2);
+    cvn_a.put_numeral_card(c_d_a);
+    cvn_a.put_face_card(c_h_k, 4);
+    ASSERT_EQ(cvn_a.get_size(), 5);
 
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    cvn.put_numeral_card(c_num_3);
-    cvn.put_numeral_card(c_num_4);
-    cvn.put_numeral_card(c_num_5);
-    cvn.put_face_card(c_face, 4);
-    ASSERT_EQ(cvn.get_size(), 5);
+    // Remove all ACE cards, excluding the last one placed
+    // This should remove the first numeral card placed only
+    cvn_a.remove_rank(Model::ACE, 5);
+    ASSERT_EQ(cvn_a.get_size(), 4);
 
-    cvn.remove_rank(ACE, 5);
-    ASSERT_EQ(cvn.get_size(), 4);
+    ASSERT_EQ(cvn_a.get_slot(1).card.suit, c_h_2.suit);
+    ASSERT_EQ(cvn_a.get_slot(1).card.rank, c_h_2.rank);
 
-    ASSERT_EQ(cvn.get_slot(1).card.suit, HEARTS);
-    ASSERT_EQ(cvn.get_slot(1).card.rank, TWO);
+    ASSERT_EQ(cvn_a.get_slot(2).card.suit, c_c_5.suit);
+    ASSERT_EQ(cvn_a.get_slot(2).card.rank, c_c_5.rank);
 
-    ASSERT_EQ(cvn.get_slot(2).card.suit, CLUBS);
-    ASSERT_EQ(cvn.get_slot(2).card.rank, FIVE);
+    ASSERT_EQ(cvn_a.get_slot(3).card.suit, c_c_2.suit);
+    ASSERT_EQ(cvn_a.get_slot(3).card.rank, c_c_2.rank);
 
-    ASSERT_EQ(cvn.get_slot(3).card.suit, CLUBS);
-    ASSERT_EQ(cvn.get_slot(3).card.rank, TWO);
-
-    ASSERT_EQ(cvn.get_slot(4).card.suit, DIAMONDS);
-    ASSERT_EQ(cvn.get_slot(4).card.rank, ACE);
+    ASSERT_EQ(cvn_a.get_slot(4).card.suit, c_d_a.suit);
+    ASSERT_EQ(cvn_a.get_slot(4).card.rank, c_d_a.rank);
 }
 
-TEST(TestCaravan, RemoveRank_Error_ExcludeOutOfRange) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {HEARTS, TWO};
-    Card c_num_3 = {CLUBS, FIVE};
-    Card c_num_4 = {CLUBS, TWO};
-    Card c_num_5 = {DIAMONDS, ACE};
-    Card c_face = {HEARTS, KING};
-
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    cvn.put_numeral_card(c_num_3);
-    cvn.put_numeral_card(c_num_4);
-    cvn.put_numeral_card(c_num_5);
-    cvn.put_face_card(c_face, 4);
+TEST_F(CaravanTest, RemoveRank_Error_ExcludeOutOfRange) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_h_2);
+    cvn_a.put_numeral_card(c_c_5);
+    cvn_a.put_numeral_card(c_c_2);
+    cvn_a.put_numeral_card(c_d_a);
+    cvn_a.put_face_card(c_h_k, 4);
 
     try {
-        cvn.remove_rank(ACE, 7);
+        cvn_a.remove_rank(Model::ACE, 7);
         FAIL();
-    } catch (CaravanFatalException &e) {} catch (...) {
+    } catch (CaravanFatalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, RemoveSuit_FiveNumeric_OneFace) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {HEARTS, TWO};
-    Card c_num_3 = {CLUBS, FIVE};
-    Card c_num_4 = {CLUBS, TWO};
-    Card c_num_5 = {DIAMONDS, ACE};
-    Card c_face = {HEARTS, KING};
+TEST_F(CaravanTest, RemoveSuit_FiveNumeral_OneFace_ExcludeNone) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_h_2);
+    cvn_a.put_numeral_card(c_c_5);
+    cvn_a.put_numeral_card(c_c_2);
+    cvn_a.put_numeral_card(c_d_a);
+    cvn_a.put_face_card(c_h_k, 4);
+    ASSERT_EQ(cvn_a.get_size(), 5);
 
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    cvn.put_numeral_card(c_num_3);
-    cvn.put_numeral_card(c_num_4);
-    cvn.put_numeral_card(c_num_5);
-    cvn.put_face_card(c_face, 4);
-    ASSERT_EQ(cvn.get_size(), 5);
+    // Remove all cards of CLUBS suit, excluding none
+    cvn_a.remove_suit(Model::CLUBS, 0);
+    ASSERT_EQ(cvn_a.get_size(), 3);
 
-    cvn.remove_suit(CLUBS, 0);
-    ASSERT_EQ(cvn.get_size(), 3);
+    ASSERT_EQ(cvn_a.get_slot(1).card.suit, c_s_a.suit);
+    ASSERT_EQ(cvn_a.get_slot(1).card.rank, c_s_a.rank);
 
-    ASSERT_EQ(cvn.get_slot(1).card.suit, c_num_1.suit);
-    ASSERT_EQ(cvn.get_slot(1).card.rank, c_num_1.rank);
+    ASSERT_EQ(cvn_a.get_slot(2).card.suit, c_h_2.suit);
+    ASSERT_EQ(cvn_a.get_slot(2).card.rank, c_h_2.rank);
 
-    ASSERT_EQ(cvn.get_slot(2).card.suit, c_num_2.suit);
-    ASSERT_EQ(cvn.get_slot(2).card.rank, c_num_2.rank);
-
-    ASSERT_EQ(cvn.get_slot(3).card.suit, c_num_5.suit);
-    ASSERT_EQ(cvn.get_slot(3).card.rank, c_num_5.rank);
+    ASSERT_EQ(cvn_a.get_slot(3).card.suit, c_d_a.suit);
+    ASSERT_EQ(cvn_a.get_slot(3).card.rank, c_d_a.rank);
 }
 
 
-TEST(TestCaravan, RemoveSuit_FiveNumeric_OneFace_ExcludeOne) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {HEARTS, TWO};
-    Card c_num_3 = {CLUBS, FIVE};
-    Card c_num_4 = {CLUBS, TWO};
-    Card c_num_5 = {DIAMONDS, ACE};
-    Card c_face = {HEARTS, KING};
+TEST_F(CaravanTest, RemoveSuit_FiveNumeral_OneFace_ExcludeOne) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_h_2);
+    cvn_a.put_numeral_card(c_c_5);
+    cvn_a.put_numeral_card(c_c_2);
+    cvn_a.put_numeral_card(c_d_a);
+    cvn_a.put_face_card(c_h_k, 4);
+    ASSERT_EQ(cvn_a.get_size(), 5);
 
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    cvn.put_numeral_card(c_num_3);
-    cvn.put_numeral_card(c_num_4);
-    cvn.put_numeral_card(c_num_5);
-    cvn.put_face_card(c_face, 4);
-    ASSERT_EQ(cvn.get_size(), 5);
+    // Remove all cards of CLUBS suit, excluding none
+    cvn_a.remove_suit(Model::CLUBS, 3);
+    ASSERT_EQ(cvn_a.get_size(), 4);
 
-    cvn.remove_suit(CLUBS, 3);
-    ASSERT_EQ(cvn.get_size(), 4);
+    ASSERT_EQ(cvn_a.get_slot(1).card.suit, c_s_a.suit);
+    ASSERT_EQ(cvn_a.get_slot(1).card.rank, c_s_a.rank);
 
-    ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(1).card.rank, ACE);
+    ASSERT_EQ(cvn_a.get_slot(2).card.suit, c_h_2.suit);
+    ASSERT_EQ(cvn_a.get_slot(2).card.rank, c_h_2.rank);
 
-    ASSERT_EQ(cvn.get_slot(2).card.suit, HEARTS);
-    ASSERT_EQ(cvn.get_slot(2).card.rank, TWO);
+    ASSERT_EQ(cvn_a.get_slot(3).card.suit, c_c_5.suit);
+    ASSERT_EQ(cvn_a.get_slot(3).card.rank, c_c_5.rank);
 
-    ASSERT_EQ(cvn.get_slot(3).card.suit, CLUBS);
-    ASSERT_EQ(cvn.get_slot(3).card.rank, FIVE);
-
-    ASSERT_EQ(cvn.get_slot(4).card.suit, DIAMONDS);
-    ASSERT_EQ(cvn.get_slot(4).card.rank, ACE);
+    ASSERT_EQ(cvn_a.get_slot(4).card.suit, c_d_a.suit);
+    ASSERT_EQ(cvn_a.get_slot(4).card.rank, c_d_a.rank);
 }
 
-TEST(TestCaravan, RemoveSuit_Error_ExcludeOutOfRange) {
-    auto cvn = Caravan(CARAVAN_D);
-    Card c_num_1 = {SPADES, ACE};
-    Card c_num_2 = {HEARTS, TWO};
-    Card c_num_3 = {CLUBS, FIVE};
-    Card c_num_4 = {CLUBS, TWO};
-    Card c_num_5 = {DIAMONDS, ACE};
-    Card c_face = {HEARTS, KING};
-
-    cvn.put_numeral_card(c_num_1);
-    cvn.put_numeral_card(c_num_2);
-    cvn.put_numeral_card(c_num_3);
-    cvn.put_numeral_card(c_num_4);
-    cvn.put_numeral_card(c_num_5);
-    cvn.put_face_card(c_face, 4);
+TEST_F(CaravanTest, RemoveSuit_Error_ExcludeOutOfRange) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_h_2);
+    cvn_a.put_numeral_card(c_c_5);
+    cvn_a.put_numeral_card(c_c_2);
+    cvn_a.put_numeral_card(c_d_a);
+    cvn_a.put_face_card(c_h_k, 4);
 
     try {
-        cvn.remove_suit(CLUBS, 7);
+        cvn_a.remove_suit(Model::CLUBS, 7);
         FAIL();
-    } catch (CaravanFatalException &e) {} catch (...) {
+    } catch (CaravanFatalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, RemoveNumericCard_WithJack_Position8) {
-    auto cvn = Caravan(CARAVAN_D);
+TEST_F(CaravanTest, RemoveNumeralCard_WithJack_Position8) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_s_2);
+    cvn_a.put_numeral_card(c_s_3);
+    cvn_a.put_numeral_card(c_s_4);
+    cvn_a.put_numeral_card(c_s_5);
+    cvn_a.put_numeral_card(c_s_6);
+    cvn_a.put_numeral_card(c_s_7);
+    cvn_a.put_numeral_card(c_s_8);
 
-    cvn.put_numeral_card({SPADES, ACE});
-    cvn.put_numeral_card({SPADES, TWO});
-    cvn.put_numeral_card({SPADES, THREE});
-    cvn.put_numeral_card({SPADES, FOUR});
-    cvn.put_numeral_card({SPADES, FIVE});
-    cvn.put_numeral_card({SPADES, SIX});
-    cvn.put_numeral_card({SPADES, SEVEN});
-    cvn.put_numeral_card({SPADES, EIGHT});
+    ASSERT_EQ(cvn_a.get_size(), 8);
 
-    ASSERT_EQ(cvn.get_size(), 8);
+    cvn_a.put_face_card(c_s_ja, 8);
 
-    cvn.put_face_card({SPADES, JACK}, 8);
+    ASSERT_EQ(cvn_a.get_size(), 7);
 
-    ASSERT_EQ(cvn.get_size(), 7);
+    ASSERT_EQ(cvn_a.get_slot(1).card.suit, c_s_a.suit);
+    ASSERT_EQ(cvn_a.get_slot(1).card.rank, c_s_a.rank);
 
-    ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(1).card.rank, ACE);
-
-    ASSERT_EQ(cvn.get_slot(7).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(7).card.rank, SEVEN);
+    ASSERT_EQ(cvn_a.get_slot(7).card.suit, c_s_7.suit);
+    ASSERT_EQ(cvn_a.get_slot(7).card.rank, c_s_7.rank);
 
     try {
-        cvn.get_slot(8);
+        Model::Slot slt = cvn_a.get_slot(8);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
 
-TEST(TestCaravan, RemoveNumericCard_WithJack_Position1) {
-    auto cvn = Caravan(CARAVAN_D);
+TEST_F(CaravanTest, RemoveNumeralCard_WithJack_Position1) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_s_2);
+    cvn_a.put_numeral_card(c_s_3);
+    cvn_a.put_numeral_card(c_s_4);
+    cvn_a.put_numeral_card(c_s_5);
+    cvn_a.put_numeral_card(c_s_6);
+    cvn_a.put_numeral_card(c_s_7);
+    cvn_a.put_numeral_card(c_s_8);
 
-    cvn.put_numeral_card({SPADES, ACE});
-    cvn.put_numeral_card({SPADES, TWO});
-    cvn.put_numeral_card({SPADES, THREE});
-    cvn.put_numeral_card({SPADES, FOUR});
-    cvn.put_numeral_card({SPADES, FIVE});
-    cvn.put_numeral_card({SPADES, SIX});
-    cvn.put_numeral_card({SPADES, SEVEN});
-    cvn.put_numeral_card({SPADES, EIGHT});
+    ASSERT_EQ(cvn_a.get_size(), 8);
 
-    ASSERT_EQ(cvn.get_size(), 8);
+    cvn_a.put_face_card(c_s_ja, 1);
 
-    cvn.put_face_card({SPADES, JACK}, 1);
+    ASSERT_EQ(cvn_a.get_size(), 7);
 
-    ASSERT_EQ(cvn.get_size(), 7);
+    ASSERT_EQ(cvn_a.get_slot(1).card.suit, c_s_2.suit);
+    ASSERT_EQ(cvn_a.get_slot(1).card.rank, c_s_2.rank);
 
-    ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(1).card.rank, TWO);
-
-    ASSERT_EQ(cvn.get_slot(7).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(7).card.rank, EIGHT);
+    ASSERT_EQ(cvn_a.get_slot(7).card.suit, c_s_8.suit);
+    ASSERT_EQ(cvn_a.get_slot(7).card.rank, c_s_8.rank);
 
     try {
-        cvn.get_slot(8);
+        Model::Slot slt = cvn_a.get_slot(8);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestCaravan, RemoveNumericCard_WithJack_Position5) {
-    auto cvn = Caravan(CARAVAN_D);
+TEST_F(CaravanTest, RemoveNumeralCard_WithJack_Position5) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_s_2);
+    cvn_a.put_numeral_card(c_s_3);
+    cvn_a.put_numeral_card(c_s_4);
+    cvn_a.put_numeral_card(c_s_5);
+    cvn_a.put_numeral_card(c_s_6);
+    cvn_a.put_numeral_card(c_s_7);
+    cvn_a.put_numeral_card(c_s_8);
 
-    cvn.put_numeral_card({SPADES, ACE});
-    cvn.put_numeral_card({SPADES, TWO});
-    cvn.put_numeral_card({SPADES, THREE});
-    cvn.put_numeral_card({SPADES, FOUR});
-    cvn.put_numeral_card({SPADES, FIVE});
-    cvn.put_numeral_card({SPADES, SIX});
-    cvn.put_numeral_card({SPADES, SEVEN});
-    cvn.put_numeral_card({SPADES, EIGHT});
+    ASSERT_EQ(cvn_a.get_size(), 8);
 
-    ASSERT_EQ(cvn.get_size(), 8);
+    cvn_a.put_face_card(c_s_ja, 5);
 
-    cvn.put_face_card({SPADES, JACK}, 5);
+    ASSERT_EQ(cvn_a.get_size(), 7);
 
-    ASSERT_EQ(cvn.get_size(), 7);
+    ASSERT_EQ(cvn_a.get_slot(1).card.suit, c_s_a.suit);
+    ASSERT_EQ(cvn_a.get_slot(1).card.rank, c_s_a.rank);
 
-    ASSERT_EQ(cvn.get_slot(1).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(1).card.rank, ACE);
+    ASSERT_EQ(cvn_a.get_slot(5).card.suit, c_s_6.suit);
+    ASSERT_EQ(cvn_a.get_slot(5).card.rank, c_s_6.rank);
 
-    ASSERT_EQ(cvn.get_slot(5).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(5).card.rank, SIX);
-
-    ASSERT_EQ(cvn.get_slot(7).card.suit, SPADES);
-    ASSERT_EQ(cvn.get_slot(7).card.rank, EIGHT);
+    ASSERT_EQ(cvn_a.get_slot(7).card.suit, c_s_8.suit);
+    ASSERT_EQ(cvn_a.get_slot(7).card.rank, c_s_8.rank);
 
     try {
-        cvn.get_slot(8);
+        Model::Slot slt = cvn_a.get_slot(8);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
         FAIL();
     }
 }
