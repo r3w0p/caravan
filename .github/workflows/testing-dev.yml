@@ -11,10 +11,14 @@ on:
 env:
   BUILD_TYPE: Debug
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   testing:
     name: Testing
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{matrix.os}}
     strategy:
       matrix:
         include:
@@ -22,22 +26,22 @@ jobs:
             os: ubuntu-latest
             compiler_c: gcc
             compiler_cpp: g++
-            coverage_c: "-O0 -g --coverage"
-            coverage_cpp: "-O0 -g --coverage"
+            flags_c: -O0 -g --coverage
+            flags_cpp: -O0 -g --coverage
 
           - name: MacOS Clang x64
             os: macos-latest
             compiler_c: clang
             compiler_cpp: clang++
-            coverage_c: "-O0 -g -fprofile-instr-generate -fcoverage-mapping"
-            coverage_cpp: "-O0 -g -fprofile-instr-generate -fcoverage-mapping"
+            flags_c: -O0 -g -fprofile-instr-generate -fcoverage-mapping
+            flags_cpp: -O0 -g -fprofile-instr-generate -fcoverage-mapping
 
           - name: Windows GCC x64
             os: windows-latest
             compiler_c: gcc
             compiler_cpp: g++
-            coverage_c: "-O0 -g --coverage"
-            coverage_cpp: "-O0 -g --coverage"
+            flags_c: -O0 -g --coverage
+            flags_cpp: -O0 -g --coverage
 
     continue-on-error: true
 
@@ -52,17 +56,19 @@ jobs:
           ninjaVersion: "^1"     # use most recent 1.x version
 
       - name: CMake Setup
-        run: cmake -S . -B ${{github.workspace}}/build -G Ninja -D \
-          CMAKE_C_COMPILER=${{matrix.compiler_c}} \
-          CMAKE_CXX_COMPILER=${{matrix.compiler_cpp}} \
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-          -DCMAKE_C_FLAGS=${{env.COVERAGE_C}} \
-          -DCMAKE_CXX_FLAGS=${{env.COVERAGE_C}}
+        run: |
+          cmake -S . -B "${{github.workspace}}/build" -G Ninja \
+            -DCMAKE_C_COMPILER="${{matrix.compiler_c}}" \
+            -DCMAKE_CXX_COMPILER="${{matrix.compiler_cpp}}" \
+            -DCMAKE_BUILD_TYPE="${{env.BUILD_TYPE}}" \
+            -DCMAKE_C_FLAGS="${{matrix.flags_c}}" \
+            -DCMAKE_CXX_FLAGS="${{matrix.flags_cpp}}"
 
       - name: CMake Build
-        run: cmake --build ${{github.workspace}}/build \
-          --config ${{env.BUILD_TYPE}} \
-          --target test_caravan
+        run: |
+          cmake --build "${{github.workspace}}/build" \
+            --config "${{env.BUILD_TYPE}}" \
+            --target test_caravan
 
       - name: Run Tests
         working-directory: ./build/test
