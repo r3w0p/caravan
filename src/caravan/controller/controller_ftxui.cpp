@@ -47,15 +47,15 @@ namespace Caravan::Controller {
 
             default:
                 throw CaravanIllegalControllerException(
-                    "Invalid option '" + std::string(1, c) +
+                    "Invalid option '" +
+                    std::string(1, c) +
                     "', must be one of: (P)lay, (D)iscard, (C)lear."
                 );
         }
     }
 
     void process_second(const std::string &input, Model::GameMove *move) {
-        if (move->option == Model::OPTION_PLAY
-            or
+        if (move->option == Model::OPTION_PLAY or
             move->option == Model::OPTION_DISCARD
         ) {
             if (input.size() < 2) {
@@ -93,7 +93,9 @@ namespace Caravan::Controller {
                     break;
                 default:
                     throw CaravanIllegalControllerException(
-                        "Invalid hand position '" + std::string(1, c) + "'."
+                        "Invalid hand position '" +
+                        std::string(1, c) +
+                        "'."
                     );
             }
         } else if (move->option == Model::OPTION_CLEAR) {
@@ -132,7 +134,8 @@ namespace Caravan::Controller {
                     break;
                 default:
                     throw CaravanIllegalControllerException(
-                        "Invalid caravan name '" + std::string(1, c) +
+                        "Invalid caravan name '" +
+                        std::string(1, c) +
                         "', must be between: A-F."
                     );
             }
@@ -176,7 +179,8 @@ namespace Caravan::Controller {
                     break;
                 default:
                     throw CaravanIllegalControllerException(
-                        "Invalid caravan name '" + std::string(1, c) +
+                        "Invalid caravan name '" +
+                        std::string(1, c) +
                         "', must be between: A-F."
                     );
             }
@@ -218,10 +222,9 @@ namespace Caravan::Controller {
                     break;
                 default:
                     throw CaravanIllegalControllerException(
-                        "Invalid caravan position '" + std::string(
-                            1,
-                            c
-                        ) + "'."
+                        "Invalid caravan position '" +
+                        std::string(1, c) +
+                        "'."
                     );
             }
         }

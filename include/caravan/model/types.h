@@ -99,8 +99,8 @@ namespace Caravan::Model {
         uint8_t pos_hand{0};
         CaravanName caravan_name{NO_CARAVAN};
         uint8_t pos_caravan{0};
-        Card hand{};
-        Card board{};
+        Card hand{}; // card played from hand
+        Card board{}; // card that face card was played on
     };
 }
 

@@ -1,4 +1,6 @@
 add_executable(test_caravan
+        "test_controller/test_controller_ftxui.cpp"
+
         "test_model/test_caravan.cpp"
         "test_model/test_deck.cpp"
         "test_model/test_game.cpp"
@@ -8,6 +10,7 @@ add_executable(test_caravan
 
 target_link_libraries(test_caravan
         PRIVATE GTest::gtest_main
+        PRIVATE controller
         PRIVATE core
         PRIVATE model
 )
