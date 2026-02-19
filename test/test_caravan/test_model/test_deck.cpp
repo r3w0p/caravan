@@ -6,16 +6,16 @@
 #include "caravan/model/deck.h"
 #include "caravan/core/exceptions.h"
 
+using namespace Caravan;
 
-TEST(TestDeck, CaravanDeck_30Cards_1SampleDeck_Balanced) {
-    Deck *d = DeckBuilder::build_caravan_deck(30, 1, true);
+TEST(DeckTest, CaravanDeck_30Cards_1SampleDeck_Balanced_Shuffled) {
+    Model::Deck *d = Model::DeckBuilder::build_caravan_deck(30, 1, true, true);
     uint8_t sum_num = 0;
-    Card c_back;
 
     ASSERT_EQ(d->size(), 30);
 
     for (int i = 0; i < 8; ++i) {
-        c_back = d->back();
+        Model::Card c_back = d->back();
 
         if (c_back.is_numeral_card()) {
             sum_num += 1;
@@ -24,18 +24,17 @@ TEST(TestDeck, CaravanDeck_30Cards_1SampleDeck_Balanced) {
         d->pop_back();
     }
 
-    ASSERT_TRUE(sum_num >= 3);
+    ASSERT_GE(sum_num, 3);
 }
 
-TEST(TestDeck, CaravanDeck_30Cards_1SampleDeck_NotBalanced) {
-    Deck *d = DeckBuilder::build_caravan_deck(30, 1, false);
+TEST(DeckTest, CaravanDeck_30Cards_1SampleDeck_Balanced_Unshuffled) {
+    Model::Deck *d = Model::DeckBuilder::build_caravan_deck(30, 1, true, false);
     uint8_t sum_num = 0;
-    Card c_back;
 
     ASSERT_EQ(d->size(), 30);
 
     for (int i = 0; i < 8; ++i) {
-        c_back = d->back();
+        Model::Card c_back = d->back();
 
         if (c_back.is_numeral_card()) {
             sum_num += 1;
@@ -44,18 +43,55 @@ TEST(TestDeck, CaravanDeck_30Cards_1SampleDeck_NotBalanced) {
         d->pop_back();
     }
 
-    ASSERT_TRUE(sum_num >= 3);
+    ASSERT_GE(sum_num, 3);
 }
 
-TEST(TestDeck, CaravanDeck_90Cards_2SampleDecks_Balanced) {
-    Deck *d = DeckBuilder::build_caravan_deck(90, 2, true);
+TEST(DeckTest, CaravanDeck_30Cards_1SampleDeck_Balanced) {
+    Model::Deck *d = Model::DeckBuilder::build_caravan_deck(30, 1, true);
     uint8_t sum_num = 0;
-    Card c_back;
+
+    ASSERT_EQ(d->size(), 30);
+
+    for (int i = 0; i < 8; ++i) {
+        Model::Card c_back = d->back();
+
+        if (c_back.is_numeral_card()) {
+            sum_num += 1;
+        }
+
+        d->pop_back();
+    }
+
+    ASSERT_GE(sum_num, 3);
+}
+
+TEST(DeckTest, CaravanDeck_30Cards_1SampleDeck_NotBalanced) {
+    Model::Deck *d = Model::DeckBuilder::build_caravan_deck(30, 1, false);
+    uint8_t sum_num = 0;
+
+    ASSERT_EQ(d->size(), 30);
+
+    for (int i = 0; i < 8; ++i) {
+        Model::Card c_back = d->back();
+
+        if (c_back.is_numeral_card()) {
+            sum_num += 1;
+        }
+
+        d->pop_back();
+    }
+
+    ASSERT_GE(sum_num, 3);
+}
+
+TEST(DeckTest, CaravanDeck_90Cards_2SampleDecks_Balanced) {
+    Model::Deck *d = Model::DeckBuilder::build_caravan_deck(90, 2, true);
+    uint8_t sum_num = 0;
 
     ASSERT_EQ(d->size(), 90);
 
     for (int i = 0; i < 8; ++i) {
-        c_back = d->back();
+        Model::Card c_back = d->back();
 
         if (c_back.is_numeral_card()) {
             sum_num += 1;
@@ -64,18 +100,17 @@ TEST(TestDeck, CaravanDeck_90Cards_2SampleDecks_Balanced) {
         d->pop_back();
     }
 
-    ASSERT_TRUE(sum_num >= 3);
+    ASSERT_GE(sum_num, 3);
 }
 
-TEST(TestDeck, CaravanDeck_90Cards_2SampleDecks_NotBalanced) {
-    Deck *d = DeckBuilder::build_caravan_deck(90, 2, false);
+TEST(DeckTest, CaravanDeck_90Cards_2SampleDecks_NotBalanced) {
+    Model::Deck *d = Model::DeckBuilder::build_caravan_deck(90, 2, false);
     uint8_t sum_num = 0;
-    Card c_back;
 
     ASSERT_EQ(d->size(), 90);
 
     for (int i = 0; i < 8; ++i) {
-        c_back = d->back();
+        Model::Card c_back = d->back();
 
         if (c_back.is_numeral_card()) {
             sum_num += 1;
@@ -84,18 +119,17 @@ TEST(TestDeck, CaravanDeck_90Cards_2SampleDecks_NotBalanced) {
         d->pop_back();
     }
 
-    ASSERT_TRUE(sum_num >= 3);
+    ASSERT_GE(sum_num, 3);
 }
 
-TEST(TestDeck, CaravanDeck_162Cards_3SampleDecks_Balanced) {
-    Deck *d = DeckBuilder::build_caravan_deck(162, 3, true);
+TEST(DeckTest, CaravanDeck_162Cards_3SampleDecks_Balanced) {
+    Model::Deck *d = Model::DeckBuilder::build_caravan_deck(162, 3, true);
     uint8_t sum_num = 0;
-    Card c_back;
 
     ASSERT_EQ(d->size(), 162);
 
     for (int i = 0; i < 8; ++i) {
-        c_back = d->back();
+        Model::Card c_back = d->back();
 
         if (c_back.is_numeral_card()) {
             sum_num += 1;
@@ -104,18 +138,17 @@ TEST(TestDeck, CaravanDeck_162Cards_3SampleDecks_Balanced) {
         d->pop_back();
     }
 
-    ASSERT_TRUE(sum_num >= 3);
+    ASSERT_GE(sum_num, 3);
 }
 
-TEST(TestDeck, CaravanDeck_162Cards_3SampleDecks_NotBalanced) {
-    Deck *d = DeckBuilder::build_caravan_deck(162, 3, false);
+TEST(DeckTest, CaravanDeck_162Cards_3SampleDecks_NotBalanced) {
+    Model::Deck *d = Model::DeckBuilder::build_caravan_deck(162, 3, false);
     uint8_t sum_num = 0;
-    Card c_back;
 
     ASSERT_EQ(d->size(), 162);
 
     for (int i = 0; i < 8; ++i) {
-        c_back = d->back();
+        Model::Card c_back = d->back();
 
         if (c_back.is_numeral_card()) {
             sum_num += 1;
@@ -124,50 +157,60 @@ TEST(TestDeck, CaravanDeck_162Cards_3SampleDecks_NotBalanced) {
         d->pop_back();
     }
 
-    ASSERT_TRUE(sum_num >= 3);
+    ASSERT_GE(sum_num, 3);
 }
 
-TEST(TestDeck, CaravanDeck_Error_TooFewCards) {
+TEST(DeckTest, Error_CaravanDeck_TooFewCards) {
     try {
-        DeckBuilder::build_caravan_deck(29, 1, false);
+        Model::DeckBuilder::build_caravan_deck(29, 1, false);
         FAIL();
-    } catch (CaravanFatalException &e) {} catch (...) {
+    } catch (CaravanFatalModelException &) {
+        SUCCEED();
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestDeck, CaravanDeck_Error_TooManyCards) {
+TEST(DeckTest, Error_CaravanDeck_TooManyCards) {
     try {
-        DeckBuilder::build_caravan_deck(157, 1, false);
+        Model::DeckBuilder::build_caravan_deck(157, 1, false);
         FAIL();
-    } catch (CaravanFatalException &e) {} catch (...) {
+    } catch (CaravanFatalModelException &) {
+        SUCCEED();
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestDeck, CaravanDeck_Error_TooFewSampleDecks) {
+TEST(DeckTest, Error_CaravanDeck_TooFewSampleDecks) {
     try {
-        DeckBuilder::build_caravan_deck(60, 0, false);
+        Model::DeckBuilder::build_caravan_deck(60, 0, false);
         FAIL();
-    } catch (CaravanFatalException &e) {} catch (...) {
+    } catch (CaravanFatalModelException &) {
+        SUCCEED();
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestDeck, CaravanDeck_Error_TooManySampleDecks) {
+TEST(DeckTest, Error_CaravanDeck_TooManySampleDecks) {
     try {
-        DeckBuilder::build_caravan_deck(60, 4, false);
+        Model::DeckBuilder::build_caravan_deck(60, 4, false);
         FAIL();
-    } catch (CaravanFatalException &e) {} catch (...) {
+    } catch (CaravanFatalModelException &) {
+        SUCCEED();
+    } catch (...) {
         FAIL();
     }
 }
 
-TEST(TestDeck, CaravanDeck_Error_InsufficientSampleCards) {
+TEST(DeckTest, Error_CaravanDeck_InsufficientSampleCards) {
     try {
-        DeckBuilder::build_caravan_deck(120, 1, false);
+        Model::DeckBuilder::build_caravan_deck(120, 1, false);
         FAIL();
-    } catch (CaravanFatalException &e) {} catch (...) {
+    } catch (CaravanFatalModelException &) {
+        SUCCEED();
+    } catch (...) {
         FAIL();
     }
 }

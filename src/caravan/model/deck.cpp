@@ -22,27 +22,26 @@ namespace Caravan::Model {
      *        fashion e.g. a random card from deck 1, then deck 2, then 3, then
      *        1, 2, 3, and so on.
      *        If false, then standard decks are sampled randomly.
+     * @param shuffle If true, the deck is shuffled.
      *
      * @return A caravan deck.
      *
-     * @throws CaravanFatalModelException Requested number of cards outside of acceptable range.
-     * @throws CaravanFatalModelException Requested number of sample decks outside of acceptable range.
-     * @throws CaravanFatalModelException Insufficient cards to sample in order to build deck.
+     * @throws CaravanFatalModelException Requested number of cards outside of the acceptable range.
+     * @throws CaravanFatalModelException Requested number of sample decks outside of the acceptable range.
+     * @throws CaravanFatalModelException Insufficient cards to sample in order to build a deck.
      */
     Deck *DeckBuilder::build_caravan_deck(
         const uint8_t num_cards,
         const uint8_t num_sample_decks,
-        const bool balanced_sample
+        const bool balanced_sample,
+        const bool shuffle
     ) {
         Deck sample_decks[3];
         Card c_next;
         uint8_t first_hand_num_cards;
 
-        if (num_cards < DECK_CARAVAN_MIN
-            or
-            num_cards
-            >
-            DECK_CARAVAN_MAX
+        if (num_cards < DECK_CARAVAN_MIN or
+            num_cards > DECK_CARAVAN_MAX
         ) {
             throw CaravanFatalModelException(
                 "A caravan deck must have between "
@@ -50,11 +49,8 @@ namespace Caravan::Model {
             );
         }
 
-        if (num_sample_decks < SAMPLE_DECKS_MIN
-            or
-            num_sample_decks
-            >
-            SAMPLE_DECKS_MAX
+        if (num_sample_decks < SAMPLE_DECKS_MIN or
+            num_sample_decks > SAMPLE_DECKS_MAX
         ) {
             throw CaravanFatalModelException(
                 "A caravan deck must sample from between "
@@ -79,7 +75,7 @@ namespace Caravan::Model {
             first_hand_num_cards = 0;
 
             for (int i = 0; i < num_sample_decks; ++i) {
-                sample_decks[i] = build_traditional_deck(true);
+                sample_decks[i] = build_traditional_deck(shuffle);
             }
 
             if (balanced_sample) {
@@ -91,8 +87,7 @@ namespace Caravan::Model {
 
                     i_next = (i_next + 1) % num_sample_decks;
 
-                    if (num_cards - d->size() < HAND_SIZE_MAX_START
-                        and
+                    if (num_cards - d->size() < HAND_SIZE_MAX_START and
                         c_next.is_numeral_card()
                     ) {
                         first_hand_num_cards += 1;
@@ -110,8 +105,7 @@ namespace Caravan::Model {
                         d->push_back(c_next);
                         sample_decks[i_next].pop_back();
 
-                        if (num_cards - d->size() < HAND_SIZE_MAX_START
-                            and
+                        if (num_cards - d->size() < HAND_SIZE_MAX_START and
                             c_next.is_numeral_card()
                         ) {
                             first_hand_num_cards += 1;
@@ -161,10 +155,8 @@ namespace Caravan::Model {
      * @return A deck with shuffled cards.
      */
     Deck DeckBuilder::shuffle_deck(Deck deck) {
-        const unsigned seed = std::chrono::system_clock::now().
-                              time_since_epoch().
-                              count();
-        std::ranges::shuffle(deck, std::default_random_engine(seed));
+        std::mt19937 gen(generate_seed());
+        std::ranges::shuffle(deck, gen);
         return deck;
     }
 }

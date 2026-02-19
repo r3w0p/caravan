@@ -142,15 +142,13 @@ namespace Caravan::Model {
 
         // Check if players have empty hands...
 
-        if (player_abc->get_size_hand() > 0
-            and
+        if (player_abc->get_size_hand() > 0 and
             player_def->get_size_hand() == 0
         ) {
             return player_abc->get_name();
         }
 
-        if (player_abc->get_size_hand() == 0
-            and
+        if (player_abc->get_size_hand() == 0 and
             player_def->get_size_hand() > 0
         ) {
             return player_def->get_name();
@@ -166,24 +164,20 @@ namespace Caravan::Model {
     /**
      * @param cvname Caravan name.
      * @return True if the caravan is bust; False otherwise.
+     *
+     * @throws CaravanFatalModelException Invalid caravan name.
      */
     bool Game::is_caravan_bust(CaravanName cvname) {
-        if (cvname == NO_CARAVAN) {
-            return false;
-        }
-
         return table.get_caravan(cvname).get_bid() > CARAVAN_SOLD_MAX;
     }
 
     /**
      * @param cvname Caravan name.
      * @return True if the caravan is currently winning; False otherwise.
+     *
+     * @throws CaravanFatalModelException Invalid caravan name.
      */
     bool Game::is_caravan_winning(CaravanName cvname) {
-        if (cvname == NO_CARAVAN) {
-            return false;
-        }
-
         return winning_bid(cvname, get_opposite_caravan_name(cvname)) == cvname;
     }
 

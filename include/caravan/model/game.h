@@ -53,9 +53,9 @@ namespace Caravan::Model {
 
             PlayerName get_winner();
 
-            bool is_caravan_bust(CaravanName cvname);
+            [[nodiscard]] bool is_caravan_bust(CaravanName cvname);
 
-            bool is_caravan_winning(CaravanName cvname);
+            [[nodiscard]] bool is_caravan_winning(CaravanName cvname);
 
             void make_move(GameMove &move);
     };

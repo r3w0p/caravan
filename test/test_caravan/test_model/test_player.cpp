@@ -15,10 +15,10 @@ class PlayerTest : public testing::Test {
         const uint8_t F_NUM_SAMPLES = 1;
         const bool F_BALANCED_SAMPLE = true;
 
-        Model::Player pl_abc;
-        Model::Player pl_def;
+        Model::Player plr_abc;
+        Model::Player plr_def;
 
-        explicit PlayerTest() : pl_abc(
+        explicit PlayerTest() : plr_abc(
                                     Model::PLAYER_ABC,
                                     std::unique_ptr<Model::Deck>(
                                         Model::DeckBuilder::build_caravan_deck(
@@ -28,7 +28,7 @@ class PlayerTest : public testing::Test {
                                         )
                                     )
                                 ),
-                                pl_def(
+                                plr_def(
                                     Model::PLAYER_DEF,
                                     std::unique_ptr<Model::Deck>(
                                         Model::DeckBuilder::build_caravan_deck(
@@ -43,33 +43,33 @@ class PlayerTest : public testing::Test {
 };
 
 TEST_F(PlayerTest, GetFromHandAt_Position1) {
-    ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
+    ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
 
-    Model::Card c_get_pos1 = pl_abc.get_from_hand_at(1);
-    ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
+    Model::Card c_get_pos1 = plr_abc.get_from_hand_at(1);
+    ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
 
-    Model::Card c_get_pos1_again = pl_abc.get_from_hand_at(1);
-    ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
+    Model::Card c_get_pos1_again = plr_abc.get_from_hand_at(1);
+    ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
     ASSERT_EQ(c_get_pos1.suit, c_get_pos1_again.suit);
     ASSERT_EQ(c_get_pos1.rank, c_get_pos1_again.rank);
 }
 
 TEST_F(PlayerTest, GetName) {
-    ASSERT_EQ(pl_abc.get_name(), Model::PLAYER_ABC);
-    ASSERT_EQ(pl_def.get_name(), Model::PLAYER_DEF);
+    ASSERT_EQ(plr_abc.get_name(), Model::PLAYER_ABC);
+    ASSERT_EQ(plr_def.get_name(), Model::PLAYER_DEF);
 }
 
 TEST_F(PlayerTest, Error_GetFromHandAt_HandEmpty) {
     for (int i = 0; i < 30; ++i) {
-        pl_abc.discard_from_hand_at(1);
-        pl_abc.increment_moves();
-        pl_abc.maybe_add_card_to_hand_from_deck();
+        plr_abc.discard_from_hand_at(1);
+        plr_abc.increment_moves();
+        plr_abc.maybe_add_card_to_hand_from_deck();
     }
 
-    ASSERT_EQ(pl_abc.get_size_hand(), 0);
+    ASSERT_EQ(plr_abc.get_size_hand(), 0);
 
     try {
-        Model::Card c = pl_abc.get_from_hand_at(1);
+        Model::Card c = plr_abc.get_from_hand_at(1);
         FAIL();
     } catch (CaravanFatalModelException &) {
         SUCCEED();
@@ -80,7 +80,7 @@ TEST_F(PlayerTest, Error_GetFromHandAt_HandEmpty) {
 
 TEST_F(PlayerTest, Error_GetFromHandAt_PositionTooLow) {
     try {
-        Model::Card c = pl_abc.get_from_hand_at(0);
+        Model::Card c = plr_abc.get_from_hand_at(0);
         FAIL();
     } catch (CaravanIllegalModelException &) {
         SUCCEED();
@@ -91,7 +91,7 @@ TEST_F(PlayerTest, Error_GetFromHandAt_PositionTooLow) {
 
 TEST_F(PlayerTest, Error_GetFromHandAt_PositionTooHigh) {
     try {
-        Model::Card c = pl_abc.get_from_hand_at(9);
+        Model::Card c = plr_abc.get_from_hand_at(9);
         FAIL();
     } catch (CaravanIllegalModelException &) {
         SUCCEED();
@@ -101,48 +101,48 @@ TEST_F(PlayerTest, Error_GetFromHandAt_PositionTooHigh) {
 }
 
 TEST_F(PlayerTest, GetSizeDeck_Deck30_InitialDeckSize) {
-    ASSERT_EQ(pl_abc.get_size_deck(), 22);
+    ASSERT_EQ(plr_abc.get_size_deck(), 22);
 }
 
 TEST_F(PlayerTest, GetSizeHand_Deck30_InitialHandSize) {
-    ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
+    ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
 }
 
 TEST_F(PlayerTest, IncrementMovesCount_ThreeTimes) {
-    ASSERT_EQ(pl_abc.get_moves_count(), 0);
-    pl_abc.increment_moves();
-    ASSERT_EQ(pl_abc.get_moves_count(), 1);
-    pl_abc.increment_moves();
-    ASSERT_EQ(pl_abc.get_moves_count(), 2);
-    pl_abc.increment_moves();
-    ASSERT_EQ(pl_abc.get_moves_count(), 3);
+    ASSERT_EQ(plr_abc.get_moves_count(), 0);
+    plr_abc.increment_moves();
+    ASSERT_EQ(plr_abc.get_moves_count(), 1);
+    plr_abc.increment_moves();
+    ASSERT_EQ(plr_abc.get_moves_count(), 2);
+    plr_abc.increment_moves();
+    ASSERT_EQ(plr_abc.get_moves_count(), 3);
 }
 
 TEST_F(PlayerTest, DiscardFromHandAt_Position1_StartRound) {
-    ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
+    ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
 
     // First and second card in hand
-    Model::Card c_get_pos1 = pl_abc.get_from_hand_at(1);
-    Model::Card c_get_pos2 = pl_abc.get_from_hand_at(2);
+    Model::Card c_get_pos1 = plr_abc.get_from_hand_at(1);
+    Model::Card c_get_pos2 = plr_abc.get_from_hand_at(2);
 
     // Discard first card, as though to play it into a caravan
-    Model::Card c_discard_pos1 = pl_abc.discard_from_hand_at(1);
+    Model::Card c_discard_pos1 = plr_abc.discard_from_hand_at(1);
 
     // Hand size reduced by 1
-    ASSERT_EQ(pl_abc.get_size_hand(), 7);
+    ASSERT_EQ(plr_abc.get_size_hand(), 7);
 
     ASSERT_EQ(c_get_pos1.suit, c_discard_pos1.suit);
     ASSERT_EQ(c_get_pos1.rank, c_discard_pos1.rank);
 
     // Increment moves and maybe add card to hand
-    pl_abc.increment_moves();
-    pl_abc.maybe_add_card_to_hand_from_deck();
+    plr_abc.increment_moves();
+    plr_abc.maybe_add_card_to_hand_from_deck();
 
     // Start round hand will be permanently reduced
     // So no additional card should be added to hand
-    ASSERT_EQ(pl_abc.get_size_hand(), 7);
+    ASSERT_EQ(plr_abc.get_size_hand(), 7);
 
-    Model::Card c_get_pos1_again = pl_abc.get_from_hand_at(1);
+    Model::Card c_get_pos1_again = plr_abc.get_from_hand_at(1);
 
     // Card originally at position 2 will have dropped to 1
     ASSERT_EQ(c_get_pos1_again.suit, c_get_pos2.suit);
@@ -150,60 +150,60 @@ TEST_F(PlayerTest, DiscardFromHandAt_Position1_StartRound) {
 }
 
 TEST_F(PlayerTest, DiscardFromHandAt_StartRoundAndPostStart) {
-    ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
+    ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
 
     // Start round has a hand size of 8 that permanently reduces to 5
     for (int i = 0; i < 3; i++) {
-        pl_abc.discard_from_hand_at(1);
-        pl_abc.increment_moves();
-        pl_abc.maybe_add_card_to_hand_from_deck();
-        ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_START - (i+1));
+        plr_abc.discard_from_hand_at(1);
+        plr_abc.increment_moves();
+        plr_abc.maybe_add_card_to_hand_from_deck();
+        ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_START - (i+1));
     }
 
     // After start round, hand stays at 5 cards until it runs out of cards
     for (int i = 0; i < 3; i++) {
-        pl_abc.discard_from_hand_at(1);
-        pl_abc.increment_moves();
-        pl_abc.maybe_add_card_to_hand_from_deck();
-        ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_POST_START);
+        plr_abc.discard_from_hand_at(1);
+        plr_abc.increment_moves();
+        plr_abc.maybe_add_card_to_hand_from_deck();
+        ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_POST_START);
     }
 }
 
 TEST_F(PlayerTest, DiscardFromHandAt_PostStartHandDepletion) {
-    ASSERT_EQ(pl_abc.get_size_deck(), F_NUM_CARDS - Model::HAND_SIZE_MAX_START);
-    ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
+    ASSERT_EQ(plr_abc.get_size_deck(), F_NUM_CARDS - Model::HAND_SIZE_MAX_START);
+    ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_START);
 
     // Play cards until last 5
     for (int i = 0; i < F_NUM_CARDS - Model::HAND_SIZE_MAX_POST_START; i++) {
-        pl_abc.discard_from_hand_at(1);
-        pl_abc.increment_moves();
-        pl_abc.maybe_add_card_to_hand_from_deck();
+        plr_abc.discard_from_hand_at(1);
+        plr_abc.increment_moves();
+        plr_abc.maybe_add_card_to_hand_from_deck();
     }
 
-    ASSERT_EQ(pl_abc.get_size_deck(), 0);
-    ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_POST_START);
+    ASSERT_EQ(plr_abc.get_size_deck(), 0);
+    ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_POST_START);
 
     // With 5 cards left, hand should deplete to 0
     for (int i = 0; i < Model::HAND_SIZE_MAX_POST_START; i++) {
-        pl_abc.discard_from_hand_at(1);
-        pl_abc.increment_moves();
-        pl_abc.maybe_add_card_to_hand_from_deck();
-        ASSERT_EQ(pl_abc.get_size_hand(), Model::HAND_SIZE_MAX_POST_START - (i+1));
+        plr_abc.discard_from_hand_at(1);
+        plr_abc.increment_moves();
+        plr_abc.maybe_add_card_to_hand_from_deck();
+        ASSERT_EQ(plr_abc.get_size_hand(), Model::HAND_SIZE_MAX_POST_START - (i+1));
     }
 
-    ASSERT_EQ(pl_abc.get_size_deck(), 0);
-    ASSERT_EQ(pl_abc.get_size_hand(), 0);
+    ASSERT_EQ(plr_abc.get_size_deck(), 0);
+    ASSERT_EQ(plr_abc.get_size_hand(), 0);
 }
 
 TEST_F(PlayerTest, Error_DiscardFromHandAt_HandEmpty) {
     for (int i = 0; i < F_NUM_CARDS; ++i) {
-        pl_abc.discard_from_hand_at(1);
-        pl_abc.increment_moves();
-        pl_abc.maybe_add_card_to_hand_from_deck();
+        plr_abc.discard_from_hand_at(1);
+        plr_abc.increment_moves();
+        plr_abc.maybe_add_card_to_hand_from_deck();
     }
 
     try {
-        pl_abc.discard_from_hand_at(1);
+        plr_abc.discard_from_hand_at(1);
         FAIL();
     } catch (CaravanFatalModelException &) {
         SUCCEED();
@@ -214,7 +214,7 @@ TEST_F(PlayerTest, Error_DiscardFromHandAt_HandEmpty) {
 
 TEST_F(PlayerTest, Error_DiscardFromHandAt_PositionTooLow) {
     try {
-        pl_abc.discard_from_hand_at(0);
+        plr_abc.discard_from_hand_at(0);
         FAIL();
     } catch (CaravanIllegalModelException &) {
         SUCCEED();
@@ -225,7 +225,7 @@ TEST_F(PlayerTest, Error_DiscardFromHandAt_PositionTooLow) {
 
 TEST_F(PlayerTest, Error_DiscardFromHandAt_PositionTooHigh) {
     try {
-        pl_abc.discard_from_hand_at(9);
+        plr_abc.discard_from_hand_at(9);
         FAIL();
     } catch (CaravanIllegalModelException &) {
         SUCCEED();

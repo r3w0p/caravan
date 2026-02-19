@@ -20,7 +20,8 @@ namespace Caravan::Model {
             static Deck *build_caravan_deck(
                 uint8_t num_cards,
                 uint8_t num_sample_decks,
-                bool balanced_sample
+                bool balanced_sample,
+                bool shuffle = true
             );
     };
 }
