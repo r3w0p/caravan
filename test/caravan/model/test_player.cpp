@@ -6,13 +6,21 @@
 #include "caravan/model/player.h"
 #include "caravan/core/exceptions.h"
 
+using namespace Caravan;
 
-TEST(TestPlayer, GetFromHandAt_Position1) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
-    Card c_get;
-    Card c_take;
-    Card c_getagain;
+
+class PlayerTest : public testing::Test {
+    protected:
+        // TODO
+        explicit PlayerTest() = default;
+};
+
+TEST_F(PlayerTest, GetFromHandAt_Position1) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
+    Model::Card c_get;
+    Model::Card c_take;
+    Model::Card c_getagain;
 
     ASSERT_EQ(pl.get_size_hand(), 8);
 
@@ -28,16 +36,16 @@ TEST(TestPlayer, GetFromHandAt_Position1) {
     );
 }
 
-TEST(TestPlayer, GetName) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, GetName) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
-    ASSERT_EQ(pl.get_name(), PLAYER_ABC);
+    ASSERT_EQ(pl.get_name(), Model::PLAYER_ABC);
 }
 
-TEST(TestPlayer, GetFromHandAt_Error_HandEmpty) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, GetFromHandAt_Error_HandEmpty) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
     for (int i = 0; i < 30; ++i) {
         pl.discard_from_hand_at(1);
@@ -48,54 +56,54 @@ TEST(TestPlayer, GetFromHandAt_Error_HandEmpty) {
     ASSERT_EQ(pl.get_size_hand(), 0);
 
     try {
-        pl.get_from_hand_at(1);
+        Model::Card c = pl.get_from_hand_at(1);
         FAIL();
-    } catch (CaravanFatalException &e) {} catch (...) {
+    } catch (CaravanFatalModelException &) {} catch (...) {
         FAIL();
     }
 }
 
-TEST(TestPlayer, GetFromHandAt_Error_PositionTooLow) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, GetFromHandAt_Error_PositionTooLow) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
     try {
-        pl.get_from_hand_at(0);
+        Model::Card c = pl.get_from_hand_at(0);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {} catch (...) {
         FAIL();
     }
 }
 
-TEST(TestPlayer, GetFromHandAt_Error_PositionTooHigh) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, GetFromHandAt_Error_PositionTooHigh) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
     try {
-        pl.get_from_hand_at(9);
+        Model::Card c = pl.get_from_hand_at(9);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {} catch (...) {
         FAIL();
     }
 }
 
-TEST(TestPlayer, GetSizeDeck_Deck30) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, GetSizeDeck_Deck30) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
     ASSERT_EQ(pl.get_size_deck(), 22);
 }
 
-TEST(TestPlayer, GetSizeHand_Deck30) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, GetSizeHand_Deck30) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
     ASSERT_EQ(pl.get_size_hand(), 8);
 }
 
-TEST(TestPlayer, IncrementMovesCount_ThreeTimes) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, IncrementMovesCount_ThreeTimes) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
     ASSERT_EQ(pl.get_moves_count(), 0);
     pl.increment_moves();
@@ -106,12 +114,12 @@ TEST(TestPlayer, IncrementMovesCount_ThreeTimes) {
     ASSERT_EQ(pl.get_moves_count(), 3);
 }
 
-TEST(TestPlayer, RemoveFromHandAt_Position1_StartRound) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
-    Card c_get;
-    Card c_take;
-    Card c_getagain;
+TEST_F(PlayerTest, RemoveFromHandAt_Position1_StartRound) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
+    Model::Card c_get;
+    Model::Card c_take;
+    Model::Card c_getagain;
 
     ASSERT_EQ(pl.get_size_hand(), 8);
 
@@ -133,9 +141,9 @@ TEST(TestPlayer, RemoveFromHandAt_Position1_StartRound) {
     );
 }
 
-TEST(TestPlayer, RemoveFromHandAt_Error_HandEmpty) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, RemoveFromHandAt_Error_HandEmpty) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
     for (int i = 0; i < 30; ++i) {
         pl.discard_from_hand_at(1);
@@ -146,31 +154,31 @@ TEST(TestPlayer, RemoveFromHandAt_Error_HandEmpty) {
     try {
         pl.discard_from_hand_at(1);
         FAIL();
-    } catch (CaravanFatalException &e) {} catch (...) {
+    } catch (CaravanFatalModelException &) {} catch (...) {
         FAIL();
     }
 }
 
-TEST(TestPlayer, RemoveFromHandAt_Error_PositionTooLow) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, RemoveFromHandAt_Error_PositionTooLow) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
     try {
         pl.discard_from_hand_at(0);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {} catch (...) {
         FAIL();
     }
 }
 
-TEST(TestPlayer, RemoveFromHandAt_Error_PositionTooHigh) {
-    std::unique_ptr<Deck> d(DeckBuilder::build_caravan_deck(30, 1, true));
-    Player pl = Player(PLAYER_ABC, std::move(d));
+TEST_F(PlayerTest, RemoveFromHandAt_Error_PositionTooHigh) {
+    std::unique_ptr<Model::Deck> d(Model::DeckBuilder::build_caravan_deck(30, 1, true));
+    Model::Player pl = Model::Player(Model::PLAYER_ABC, std::move(d));
 
     try {
         pl.discard_from_hand_at(9);
         FAIL();
-    } catch (CaravanIllegalException &e) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {} catch (...) {
         FAIL();
     }
 }

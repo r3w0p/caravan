@@ -10,7 +10,7 @@
 
 using namespace Caravan;
 
-class CaravanTest : public testing::Test {
+class TableTest : public testing::Test {
     protected:
         Model::Caravan cvn_a = Model::Caravan(Model::CARAVAN_A);
         Model::Caravan cvn_b = Model::Caravan(Model::CARAVAN_B);
@@ -79,11 +79,11 @@ class CaravanTest : public testing::Test {
         Model::Card c_s_k = {Model::SPADES, Model::KING};
         Model::Card c_s_jo = {Model::SPADES, Model::JOKER};
 
-        explicit CaravanTest() = default;
+        explicit TableTest() = default;
 };
 
 
-TEST_F(CaravanTest, Clear_ThreeNumeral) {
+TEST_F(TableTest, Clear_ThreeNumeral) {
     // Caravan starts empty
     ASSERT_EQ(cvn_a.get_size(), 0);
 
@@ -98,7 +98,7 @@ TEST_F(CaravanTest, Clear_ThreeNumeral) {
     ASSERT_EQ(cvn_a.get_size(), 0);
 }
 
-TEST_F(CaravanTest, Error_Clear_EmptyCaravan) {
+TEST_F(TableTest, Error_Clear_EmptyCaravan) {
     try {
         // Caravan starts empty; clearing is an illegal move when empty
         cvn_a.clear();
@@ -109,7 +109,7 @@ TEST_F(CaravanTest, Error_Clear_EmptyCaravan) {
     }
 }
 
-TEST_F(CaravanTest, GetBid_ThreeNumeral) {
+TEST_F(TableTest, GetBid_ThreeNumeral) {
     // Caravan starts empty
     ASSERT_EQ(cvn_a.get_bid(), 0);
 
@@ -126,67 +126,67 @@ TEST_F(CaravanTest, GetBid_ThreeNumeral) {
     ASSERT_EQ(cvn_a.get_bid(), 6);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankAce) {
+TEST_F(TableTest, GetBid_Value_RankAce) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_a);
     ASSERT_EQ(cvn_a.get_bid(), 1);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankTwo) {
+TEST_F(TableTest, GetBid_Value_RankTwo) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_2);
     ASSERT_EQ(cvn_a.get_bid(), 2);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankThree) {
+TEST_F(TableTest, GetBid_Value_RankThree) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_3);
     ASSERT_EQ(cvn_a.get_bid(), 3);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankFour) {
+TEST_F(TableTest, GetBid_Value_RankFour) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_4);
     ASSERT_EQ(cvn_a.get_bid(), 4);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankFive) {
+TEST_F(TableTest, GetBid_Value_RankFive) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_5);
     ASSERT_EQ(cvn_a.get_bid(), 5);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankSix) {
+TEST_F(TableTest, GetBid_Value_RankSix) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_6);
     ASSERT_EQ(cvn_a.get_bid(), 6);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankSeven) {
+TEST_F(TableTest, GetBid_Value_RankSeven) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_7);
     ASSERT_EQ(cvn_a.get_bid(), 7);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankEight) {
+TEST_F(TableTest, GetBid_Value_RankEight) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_8);
     ASSERT_EQ(cvn_a.get_bid(), 8);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankNine) {
+TEST_F(TableTest, GetBid_Value_RankNine) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_9);
     ASSERT_EQ(cvn_a.get_bid(), 9);
 }
 
-TEST_F(CaravanTest, GetBid_Value_RankTen) {
+TEST_F(TableTest, GetBid_Value_RankTen) {
     ASSERT_EQ(cvn_a.get_bid(), 0);
     cvn_a.put_numeral_card(c_s_10);
     ASSERT_EQ(cvn_a.get_bid(), 10);
 }
 
-TEST_F(CaravanTest, GetCardsAt_TwoNumeral_OneFace) {
+TEST_F(TableTest, GetCardsAt_TwoNumeral_OneFace) {
     // Add two numerals
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_s_2);
@@ -211,7 +211,7 @@ TEST_F(CaravanTest, GetCardsAt_TwoNumeral_OneFace) {
     ASSERT_EQ(slt_2.faces[0].rank, c_d_k.rank);
 }
 
-TEST_F(CaravanTest, GetCardsAt_Error_OneNumeral_OutOfRange) {
+TEST_F(TableTest, Error_GetCardsAt_OneNumeral_OutOfRange) {
     cvn_a.put_numeral_card(c_s_a);
 
     try {
@@ -223,7 +223,38 @@ TEST_F(CaravanTest, GetCardsAt_Error_OneNumeral_OutOfRange) {
     }
 }
 
-TEST_F(CaravanTest, GetDirection_Ascending) {
+TEST_F(TableTest, Error_GetCardsAt_TwoNumerals_OutOfRange) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_s_2);
+
+    try {
+        Model::Slot slt = cvn_a.get_slot(3);
+        FAIL();
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
+        FAIL();
+    }
+}
+
+TEST_F(TableTest, Error_GetCardsAt_SevenNumerals_OutOfRange) {
+    cvn_a.put_numeral_card(c_s_a);
+    cvn_a.put_numeral_card(c_s_2);
+    cvn_a.put_numeral_card(c_s_3);
+    cvn_a.put_numeral_card(c_s_4);
+    cvn_a.put_numeral_card(c_s_5);
+    cvn_a.put_numeral_card(c_s_6);
+    cvn_a.put_numeral_card(c_s_7);
+
+    try {
+        Model::Slot slt = cvn_a.get_slot(8);
+        FAIL();
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
+        FAIL();
+    }
+}
+
+TEST_F(TableTest, GetDirection_Ascending) {
     // No direction when caravan is empty
     ASSERT_EQ(cvn_a.get_direction(), Model::ANY);
 
@@ -236,7 +267,7 @@ TEST_F(CaravanTest, GetDirection_Ascending) {
     ASSERT_EQ(cvn_a.get_direction(), Model::ASCENDING);
 }
 
-TEST_F(CaravanTest, GetDirection_Descending) {
+TEST_F(TableTest, GetDirection_Descending) {
     // No direction when caravan is empty
     ASSERT_EQ(cvn_a.get_direction(), Model::ANY);
 
@@ -249,7 +280,7 @@ TEST_F(CaravanTest, GetDirection_Descending) {
     ASSERT_EQ(cvn_a.get_direction(), Model::DESCENDING);
 }
 
-TEST_F(CaravanTest, GetDirection_Ascending_ThreeQueens) {
+TEST_F(TableTest, GetDirection_Ascending_ThreeQueens) {
     // Ascending caravan
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_h_2);
@@ -268,7 +299,7 @@ TEST_F(CaravanTest, GetDirection_Ascending_ThreeQueens) {
     ASSERT_EQ(cvn_a.get_direction(), Model::DESCENDING);
 }
 
-TEST_F(CaravanTest, GetDirection_Descending_ThreeQueens) {
+TEST_F(TableTest, GetDirection_Descending_ThreeQueens) {
     // Descending caravan
     cvn_a.put_numeral_card(c_s_10);
     cvn_a.put_numeral_card(c_h_8);
@@ -287,23 +318,23 @@ TEST_F(CaravanTest, GetDirection_Descending_ThreeQueens) {
     ASSERT_EQ(cvn_a.get_direction(), Model::ASCENDING);
 }
 
-TEST_F(CaravanTest, GetName) {
+TEST_F(TableTest, GetName) {
     ASSERT_EQ(cvn_a.get_name(), Model::CARAVAN_A);
 }
 
-TEST_F(CaravanTest, GetSize_BeforeAfterNumeral) {
+TEST_F(TableTest, GetSize_BeforeAfterNumeral) {
     ASSERT_EQ(cvn_a.get_size(), 0);
     cvn_a.put_numeral_card(c_s_a);
     ASSERT_EQ(cvn_a.get_size(), 1);
 }
 
-TEST_F(CaravanTest, GetSuit) {
+TEST_F(TableTest, GetSuit) {
     ASSERT_EQ(cvn_a.get_suit(), Model::NO_SUIT);
     cvn_a.put_numeral_card(c_s_a);
     ASSERT_EQ(cvn_a.get_suit(), c_s_a.suit);
 }
 
-TEST_F(CaravanTest, PutNumeralCard_PutFaceNotJack) {
+TEST_F(TableTest, PutNumeralCard_PutFaceNotJack) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_face_card(c_h_k, 1);
 
@@ -317,7 +348,7 @@ TEST_F(CaravanTest, PutNumeralCard_PutFaceNotJack) {
     ASSERT_EQ(slt.faces[0].rank, c_h_k.rank);
 }
 
-TEST_F(CaravanTest, PutNumeralCard_PutFaceJack) {
+TEST_F(TableTest, PutNumeralCard_PutFaceJack) {
     cvn_a.put_numeral_card(c_s_a);
     ASSERT_EQ(cvn_a.get_size(), 1);
 
@@ -325,7 +356,7 @@ TEST_F(CaravanTest, PutNumeralCard_PutFaceJack) {
     ASSERT_EQ(cvn_a.get_size(), 0);
 }
 
-TEST_F(CaravanTest, Error_PutNumeralCard_NotNumeral) {
+TEST_F(TableTest, Error_PutNumeralCard_NotNumeral) {
     try {
         cvn_a.put_numeral_card(c_h_k);
         FAIL();
@@ -335,7 +366,7 @@ TEST_F(CaravanTest, Error_PutNumeralCard_NotNumeral) {
     }
 }
 
-TEST_F(CaravanTest, Error_PutNumeralCard_CaravanFull) {
+TEST_F(TableTest, Error_PutNumeralCard_CaravanFull) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_s_3);
     cvn_a.put_numeral_card(c_s_5);
@@ -356,7 +387,7 @@ TEST_F(CaravanTest, Error_PutNumeralCard_CaravanFull) {
     }
 }
 
-TEST_F(CaravanTest, PutFaceCard) {
+TEST_F(TableTest, PutFaceCard) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_face_card(c_h_k, 1);
 
@@ -368,7 +399,7 @@ TEST_F(CaravanTest, PutFaceCard) {
     ASSERT_EQ(slt.faces[0].rank, c_h_k.rank);
 }
 
-TEST_F(CaravanTest, Error_PutFaceCard_EmptyCaravan) {
+TEST_F(TableTest, Error_PutFaceCard_EmptyCaravan) {
     try {
         cvn_a.put_face_card(c_h_k, 1);
         FAIL();
@@ -378,7 +409,19 @@ TEST_F(CaravanTest, Error_PutFaceCard_EmptyCaravan) {
     }
 }
 
-TEST_F(CaravanTest, Error_PutFaceCard_OutOfRange) {
+TEST_F(TableTest, Error_PutFaceCard_OutOfRange_Low) {
+    cvn_a.put_numeral_card(c_s_a);
+
+    try {
+        cvn_a.put_face_card(c_h_k, 0);
+        FAIL();
+    } catch (CaravanIllegalModelException &) {
+    } catch (...) {
+        FAIL();
+    }
+}
+
+TEST_F(TableTest, Error_PutFaceCard_OutOfRange_High) {
     cvn_a.put_numeral_card(c_s_a);
 
     try {
@@ -390,7 +433,7 @@ TEST_F(CaravanTest, Error_PutFaceCard_OutOfRange) {
     }
 }
 
-TEST_F(CaravanTest, PutFaceCard_Error_NotFaceCard) {
+TEST_F(TableTest, Error_PutFaceCard_NotFaceCard) {
     cvn_a.put_numeral_card(c_s_a);
 
     try {
@@ -402,7 +445,7 @@ TEST_F(CaravanTest, PutFaceCard_Error_NotFaceCard) {
     }
 }
 
-TEST_F(CaravanTest, PutFaceCard_Error_FullFaceCardCapacity) {
+TEST_F(TableTest, Error_PutFaceCard_FullFaceCardCapacity) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_face_card(c_h_k, 1);
     cvn_a.put_face_card(c_d_k, 1);
@@ -419,7 +462,7 @@ TEST_F(CaravanTest, PutFaceCard_Error_FullFaceCardCapacity) {
     }
 }
 
-TEST_F(CaravanTest, RemoveRank_FiveNumeral_OneFace_ExcludeNone) {
+TEST_F(TableTest, RemoveRank_FiveNumeral_OneFace_ExcludeNone) {
     // Add five numerals, two of which are ACE cards
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_h_2);
@@ -443,7 +486,7 @@ TEST_F(CaravanTest, RemoveRank_FiveNumeral_OneFace_ExcludeNone) {
     ASSERT_EQ(cvn_a.get_slot(3).card.rank, c_c_2.rank);
 }
 
-TEST_F(CaravanTest, RemoveRank_FiveNumeral_OneFace_ExcludeOne) {
+TEST_F(TableTest, RemoveRank_FiveNumeral_OneFace_ExcludeOne) {
     // Add five numerals, two of which are ACE cards
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_h_2);
@@ -471,7 +514,7 @@ TEST_F(CaravanTest, RemoveRank_FiveNumeral_OneFace_ExcludeOne) {
     ASSERT_EQ(cvn_a.get_slot(4).card.rank, c_d_a.rank);
 }
 
-TEST_F(CaravanTest, RemoveRank_Error_ExcludeOutOfRange) {
+TEST_F(TableTest, Error_RemoveRank_ExcludeOutOfRange) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_h_2);
     cvn_a.put_numeral_card(c_c_5);
@@ -488,7 +531,7 @@ TEST_F(CaravanTest, RemoveRank_Error_ExcludeOutOfRange) {
     }
 }
 
-TEST_F(CaravanTest, RemoveSuit_FiveNumeral_OneFace_ExcludeNone) {
+TEST_F(TableTest, RemoveSuit_FiveNumeral_OneFace_ExcludeNone) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_h_2);
     cvn_a.put_numeral_card(c_c_5);
@@ -511,8 +554,7 @@ TEST_F(CaravanTest, RemoveSuit_FiveNumeral_OneFace_ExcludeNone) {
     ASSERT_EQ(cvn_a.get_slot(3).card.rank, c_d_a.rank);
 }
 
-
-TEST_F(CaravanTest, RemoveSuit_FiveNumeral_OneFace_ExcludeOne) {
+TEST_F(TableTest, RemoveSuit_FiveNumeral_OneFace_ExcludeOne) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_h_2);
     cvn_a.put_numeral_card(c_c_5);
@@ -538,7 +580,7 @@ TEST_F(CaravanTest, RemoveSuit_FiveNumeral_OneFace_ExcludeOne) {
     ASSERT_EQ(cvn_a.get_slot(4).card.rank, c_d_a.rank);
 }
 
-TEST_F(CaravanTest, RemoveSuit_Error_ExcludeOutOfRange) {
+TEST_F(TableTest, Error_RemoveSuit_ExcludeOutOfRange) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_h_2);
     cvn_a.put_numeral_card(c_c_5);
@@ -555,7 +597,7 @@ TEST_F(CaravanTest, RemoveSuit_Error_ExcludeOutOfRange) {
     }
 }
 
-TEST_F(CaravanTest, RemoveNumeralCard_WithJack_Position8) {
+TEST_F(TableTest, RemoveNumeralCard_WithJack_Position8) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_s_2);
     cvn_a.put_numeral_card(c_s_3);
@@ -587,7 +629,7 @@ TEST_F(CaravanTest, RemoveNumeralCard_WithJack_Position8) {
 }
 
 
-TEST_F(CaravanTest, RemoveNumeralCard_WithJack_Position1) {
+TEST_F(TableTest, RemoveNumeralCard_WithJack_Position1) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_s_2);
     cvn_a.put_numeral_card(c_s_3);
@@ -618,7 +660,7 @@ TEST_F(CaravanTest, RemoveNumeralCard_WithJack_Position1) {
     }
 }
 
-TEST_F(CaravanTest, RemoveNumeralCard_WithJack_Position5) {
+TEST_F(TableTest, RemoveNumeralCard_WithJack_Position5) {
     cvn_a.put_numeral_card(c_s_a);
     cvn_a.put_numeral_card(c_s_2);
     cvn_a.put_numeral_card(c_s_3);

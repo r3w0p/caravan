@@ -353,43 +353,10 @@ namespace Caravan::Model {
      */
 
     /**
-     * @param rank A numeral rank.
-     * @return An integer equivalent of the numeral, range: 1-10.
-     *
-     * @throws CaravanFatalModelException If a non-numeral rank is provided.
-     */
-    uint8_t Caravan::numeral_rank_to_uint8_t(const Rank rank) {
-        switch (rank) {
-            case ACE:
-                return 1;
-            case TWO:
-                return 2;
-            case THREE:
-                return 3;
-            case FOUR:
-                return 4;
-            case FIVE:
-                return 5;
-            case SIX:
-                return 6;
-            case SEVEN:
-                return 7;
-            case EIGHT:
-                return 8;
-            case NINE:
-                return 9;
-            case TEN:
-                return 10;
-            default:
-                throw CaravanFatalModelException("Invalid rank.");
-        }
-    }
-
-    /**
      * @param index The index of the numeral card to remove from the caravan.
      */
     void Caravan::remove_numeral_card(uint8_t index) {
-        for (; (index + 1) < i_track; ++index) {
+        for (; index + 1 < i_track; ++index) {
             track[index] = track[index + 1];
         }
 

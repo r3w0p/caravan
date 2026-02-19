@@ -74,6 +74,39 @@ namespace Caravan {
         return std::mt19937(seq);
     }
 
+    /**
+     * @param rank A numeral rank.
+     * @return An integer equivalent of the numeral, range: 1-10.
+     *
+     * @throws CaravanFatalException If a non-numeral rank is provided.
+     */
+    uint8_t numeral_rank_to_uint8_t(const Model::Rank rank) {
+        switch (rank) {
+            case Model::ACE:
+                return 1;
+            case Model::TWO:
+                return 2;
+            case Model::THREE:
+                return 3;
+            case Model::FOUR:
+                return 4;
+            case Model::FIVE:
+                return 5;
+            case Model::SIX:
+                return 6;
+            case Model::SEVEN:
+                return 7;
+            case Model::EIGHT:
+                return 8;
+            case Model::NINE:
+                return 9;
+            case Model::TEN:
+                return 10;
+            default:
+                throw CaravanFatalException("Invalid rank.");
+        }
+    }
+
     std::wstring rank_to_wstr(const Model::Rank rank, const bool lead) {
         switch (rank) {
             case Model::ACE:
