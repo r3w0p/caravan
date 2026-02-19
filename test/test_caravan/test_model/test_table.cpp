@@ -11,21 +11,21 @@ using namespace Caravan;
 class TableTest : public testing::Test {
     protected:
         Model::Table tbl;
-        
+
         Model::Caravan &cvn_a = tbl.get_caravan(Model::CARAVAN_A);
         Model::Caravan &cvn_b = tbl.get_caravan(Model::CARAVAN_B);
         Model::Caravan &cvn_c = tbl.get_caravan(Model::CARAVAN_C);
         Model::Caravan &cvn_d = tbl.get_caravan(Model::CARAVAN_D);
         Model::Caravan &cvn_e = tbl.get_caravan(Model::CARAVAN_E);
         Model::Caravan &cvn_f = tbl.get_caravan(Model::CARAVAN_F);
-        
+
         Model::CaravanName cvname_a = cvn_a.get_name();
         Model::CaravanName cvname_b = cvn_b.get_name();
         Model::CaravanName cvname_c = cvn_c.get_name();
         Model::CaravanName cvname_d = cvn_d.get_name();
         Model::CaravanName cvname_e = cvn_e.get_name();
         Model::CaravanName cvname_f = cvn_f.get_name();
-        
+
         Model::Card c_c_a = {Model::CLUBS, Model::ACE};
         Model::Card c_c_2 = {Model::CLUBS, Model::TWO};
         Model::Card c_c_3 = {Model::CLUBS, Model::THREE};
@@ -97,6 +97,49 @@ TEST_F(TableTest, ClearCaravan_TwoNumeric_OneFace) {
 
     tbl.clear_caravan(cvname_a);
     ASSERT_EQ(cvn_a.get_size(), 0);
+}
+
+TEST_F(TableTest, GetCaravan) {
+    ASSERT_EQ(
+        std::addressof(tbl.get_caravan(cvname_a)),
+        std::addressof(cvn_a)
+    );
+
+    ASSERT_EQ(
+        std::addressof(tbl.get_caravan(cvname_b)),
+        std::addressof(cvn_b)
+    );
+
+    ASSERT_EQ(
+        std::addressof(tbl.get_caravan(cvname_c)),
+        std::addressof(cvn_c)
+    );
+
+    ASSERT_EQ(
+        std::addressof(tbl.get_caravan(cvname_d)),
+        std::addressof(cvn_d)
+    );
+
+    ASSERT_EQ(
+        std::addressof(tbl.get_caravan(cvname_e)),
+        std::addressof(cvn_e)
+    );
+
+    ASSERT_EQ(
+        std::addressof(tbl.get_caravan(cvname_f)),
+        std::addressof(cvn_f)
+    );
+}
+
+TEST_F(TableTest, Error_GetCaravan_InvalidName) {
+    try {
+        Model::Caravan &cvn = tbl.get_caravan(Model::NO_CARAVAN);
+        FAIL();
+    } catch (CaravanFatalModelException &) {
+        SUCCEED();
+    } catch (...) {
+        FAIL();
+    }
 }
 
 TEST_F(TableTest, GetCaravanBid_ThreeNumeric) {
@@ -206,7 +249,9 @@ TEST_F(TableTest, PlayFaceCard_Error_Queen_NotPlayedOnTopCard) {
     try {
         tbl.play_face_card(cvname_a, c_d_q, 2);
         FAIL();
-    } catch (CaravanIllegalModelException &) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+        SUCCEED();
+    } catch (...) {
         FAIL();
     }
 }
@@ -293,7 +338,9 @@ TEST_F(TableTest, PlayNumericCard_Error_TwoCards_SameRank_InSequence) {
     try {
         tbl.play_numeral_card(cvname_a, c_d_3);
         FAIL();
-    } catch (CaravanIllegalModelException &) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+        SUCCEED();
+    } catch (...) {
         FAIL();
     }
 }
@@ -306,7 +353,9 @@ TEST_F(TableTest, PlayNumericCard_Error_OppositeDirection_DifferentSuit) {
     try {
         tbl.play_numeral_card(cvname_a, c_c_2);
         FAIL();
-    } catch (CaravanIllegalModelException &) {} catch (...) {
+    } catch (CaravanIllegalModelException &) {
+        SUCCEED();
+    } catch (...) {
         FAIL();
     }
 }

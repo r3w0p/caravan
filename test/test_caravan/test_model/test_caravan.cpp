@@ -104,6 +104,7 @@ TEST_F(TableTest, Error_Clear_EmptyCaravan) {
         cvn_a.clear();
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -218,6 +219,7 @@ TEST_F(TableTest, Error_GetCardsAt_OneNumeral_OutOfRange) {
         Model::Slot slt = cvn_a.get_slot(2);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -231,6 +233,7 @@ TEST_F(TableTest, Error_GetCardsAt_TwoNumerals_OutOfRange) {
         Model::Slot slt = cvn_a.get_slot(3);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -249,6 +252,7 @@ TEST_F(TableTest, Error_GetCardsAt_SevenNumerals_OutOfRange) {
         Model::Slot slt = cvn_a.get_slot(8);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -361,6 +365,7 @@ TEST_F(TableTest, Error_PutNumeralCard_NotNumeral) {
         cvn_a.put_numeral_card(c_h_k);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -382,6 +387,7 @@ TEST_F(TableTest, Error_PutNumeralCard_CaravanFull) {
         cvn_a.put_numeral_card(c_s_5);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -404,6 +410,7 @@ TEST_F(TableTest, Error_PutFaceCard_EmptyCaravan) {
         cvn_a.put_face_card(c_h_k, 1);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -416,6 +423,7 @@ TEST_F(TableTest, Error_PutFaceCard_OutOfRange_Low) {
         cvn_a.put_face_card(c_h_k, 0);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -428,6 +436,7 @@ TEST_F(TableTest, Error_PutFaceCard_OutOfRange_High) {
         cvn_a.put_face_card(c_h_k, 2);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -440,6 +449,7 @@ TEST_F(TableTest, Error_PutFaceCard_NotFaceCard) {
         cvn_a.put_face_card(c_s_2, 1);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -457,6 +467,7 @@ TEST_F(TableTest, Error_PutFaceCard_FullFaceCardCapacity) {
         cvn_a.put_face_card(c_s_k, 1);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -526,6 +537,7 @@ TEST_F(TableTest, Error_RemoveRank_ExcludeOutOfRange) {
         cvn_a.remove_rank(Model::ACE, 7);
         FAIL();
     } catch (CaravanFatalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -592,6 +604,7 @@ TEST_F(TableTest, Error_RemoveSuit_ExcludeOutOfRange) {
         cvn_a.remove_suit(Model::CLUBS, 7);
         FAIL();
     } catch (CaravanFatalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -623,6 +636,7 @@ TEST_F(TableTest, RemoveNumeralCard_WithJack_Position8) {
         Model::Slot slt = cvn_a.get_slot(8);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -655,6 +669,7 @@ TEST_F(TableTest, RemoveNumeralCard_WithJack_Position1) {
         Model::Slot slt = cvn_a.get_slot(8);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
@@ -689,6 +704,7 @@ TEST_F(TableTest, RemoveNumeralCard_WithJack_Position5) {
         Model::Slot slt = cvn_a.get_slot(8);
         FAIL();
     } catch (CaravanIllegalModelException &) {
+        SUCCEED();
     } catch (...) {
         FAIL();
     }
