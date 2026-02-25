@@ -1,4 +1,4 @@
-add_library(core
+add_library(caravan_core
         "${CMAKE_SOURCE_DIR}/include/caravan/core/exceptions.h"
         "${CMAKE_SOURCE_DIR}/include/caravan/core/functions.h"
 
@@ -6,6 +6,6 @@ add_library(core
         "functions.cpp"
 )
 
-target_include_directories(core PUBLIC
+target_include_directories(caravan_core PUBLIC
         "${CMAKE_SOURCE_DIR}/include"
 )

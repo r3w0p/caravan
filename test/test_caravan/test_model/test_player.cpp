@@ -100,6 +100,13 @@ TEST_F(PlayerTest, Error_GetFromHandAt_PositionTooHigh) {
     }
 }
 
+TEST_F(PlayerTest, GetHand) {
+    const Model::Hand& hand = plr_abc.get_hand();
+
+    ASSERT_EQ(hand.size(), plr_abc.get_size_hand());
+    ASSERT_EQ(hand.size(), Model::HAND_SIZE_MAX_START);
+}
+
 TEST_F(PlayerTest, GetSizeDeck_Deck30_InitialDeckSize) {
     ASSERT_EQ(plr_abc.get_size_deck(), 22);
 }

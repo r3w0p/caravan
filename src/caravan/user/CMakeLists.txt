@@ -1,4 +1,4 @@
-add_library(user
+add_library(caravan_user
         "${CMAKE_SOURCE_DIR}/include/caravan/user/base_user.h"
         "${CMAKE_SOURCE_DIR}/include/caravan/user/base_user_bot.h"
         "${CMAKE_SOURCE_DIR}/include/caravan/user/base_user_human.h"
@@ -10,6 +10,6 @@ add_library(user
         "user_bot_random.cpp"
 )
 
-target_include_directories(user PUBLIC
+target_include_directories(caravan_user PUBLIC
         "${CMAKE_SOURCE_DIR}/include"
 )

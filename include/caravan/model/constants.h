@@ -28,9 +28,8 @@ namespace Caravan::Model {
     constexpr uint8_t HAND_SIZE_MAX_POST_START = 5;
     constexpr uint8_t HAND_POS_MIN = 1;
 
-    constexpr uint8_t TABLE_CARAVANS_MAX = 6;
-
     constexpr uint8_t PLAYER_CARAVANS_MAX = 3;
+    constexpr uint8_t TABLE_CARAVANS_MAX = 6;
 }
 
 #endif //CARAVAN_MODEL_CONSTANTS_H

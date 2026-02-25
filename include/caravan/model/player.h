@@ -28,6 +28,8 @@ namespace Caravan::Model {
 
             [[nodiscard]] Card get_from_hand_at(uint8_t pos) const;
 
+            [[nodiscard]] const Hand &get_hand() const;
+
             [[nodiscard]] uint8_t get_size_deck() const;
 
             [[nodiscard]] uint8_t get_size_hand() const;

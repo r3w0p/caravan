@@ -1,4 +1,4 @@
-add_library(model
+add_library(caravan_model
         "${CMAKE_SOURCE_DIR}/include/caravan/model/caravan.h"
         "${CMAKE_SOURCE_DIR}/include/caravan/model/deck.h"
         "${CMAKE_SOURCE_DIR}/include/caravan/model/game.h"
@@ -12,6 +12,6 @@ add_library(model
         "table.cpp"
 )
 
-target_include_directories(model PUBLIC
+target_include_directories(caravan_model PUBLIC
         "${CMAKE_SOURCE_DIR}/include"
 )

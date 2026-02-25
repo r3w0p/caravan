@@ -104,6 +104,26 @@ namespace Caravan {
             ) : CaravanIllegalException(msg) {
             }
     };
+
+    /*
+     * GYM
+     */
+
+    class CaravanFatalGymException : public CaravanFatalException {
+        public:
+            explicit CaravanFatalGymException(
+                const std::string &msg
+            ) : CaravanFatalException(msg) {
+            }
+    };
+
+    class CaravanIllegalGymException : public CaravanIllegalException {
+        public:
+            explicit CaravanIllegalGymException(
+                const std::string &msg
+            ) : CaravanIllegalException(msg) {
+            }
+    };
 }
 
 #endif //CARAVAN_CORE_EXCEPTIONS_H

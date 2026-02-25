@@ -10,9 +10,9 @@ add_executable(test_caravan
 
 target_link_libraries(test_caravan
         PRIVATE GTest::gtest_main
-        PRIVATE controller
-        PRIVATE core
-        PRIVATE model
+        PRIVATE caravan_controller
+        PRIVATE caravan_core
+        PRIVATE caravan_model
 )
 
 gtest_discover_tests(test_caravan)

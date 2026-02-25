@@ -94,6 +94,10 @@ namespace Caravan::Model {
         return hand[pos - 1];
     }
 
+    const Hand &Player::get_hand() const {
+        return hand;
+    }
+
     /**
      * @return Current deck size.
      */
