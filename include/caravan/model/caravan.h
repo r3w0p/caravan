@@ -14,7 +14,7 @@ namespace Caravan::Model {
         protected:
             CaravanName name;
             Track track;
-            uint8_t i_track;
+            uint8_t pos_track;
 
             void remove_numeral_card(uint8_t index);
 
@@ -28,10 +28,17 @@ namespace Caravan::Model {
              */
             explicit Caravan(const CaravanName cvname) : name(cvname),
                 track({}),
-                i_track(0) {
+                pos_track(0) {
             }
 
             ~Caravan() = default;
+
+            /**
+             * @param card Card to check.
+             * @param pos Caravan position (for face cards only).
+             * @return True if valid for the card to be placed in the caravan.
+             */
+            [[nodiscard]] bool check_card(Card card, uint8_t pos = 0) const;
 
             void clear();
 

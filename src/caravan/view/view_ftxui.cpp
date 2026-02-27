@@ -171,7 +171,7 @@ namespace Caravan::View {
         Elements suits;
 
         if (!blank) {
-            for (uint8_t i = 0; i < slot.i_faces; i++) {
+            for (uint8_t i = 0; i < slot.n_faces; i++) {
                 Model::Rank r = slot.faces[i].rank;
                 Model::Suit s = slot.faces[i].suit;
 

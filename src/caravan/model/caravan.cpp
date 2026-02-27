@@ -7,19 +7,69 @@
 #include "caravan/core/functions.h"
 
 namespace Caravan::Model {
+    bool Caravan::check_card(Card card, uint8_t pos) const {
+        if (card.is_numeral_card()) {
+            // Can play any numeral card in an empty caravan
+            if (pos_track == 0) {
+                return true;
+            }
+
+            // Cannot play a numeral on a full caravan
+            if (pos_track == TRACK_NUMERIC_MAX) {
+                return false;
+            }
+
+            Card card_last = get_slot(pos_track).card;
+            Direction direction = get_direction();
+
+            // Card has a different rank to the last card, and
+            // either matches the direction or matches the caravan's suit
+            bool ranks_do_not_match = card.rank != card_last.rank;
+            bool in_direction =
+                direction == ANY ||
+                (direction == ASCENDING && card.rank > card_last.rank) ||
+                (direction == DESCENDING && card.rank < card_last.rank);
+            bool suit_matches_cvn = card.suit == get_suit();
+
+            if (
+                ranks_do_not_match and
+                (in_direction or suit_matches_cvn)
+            ) {
+                return true;
+            }
+
+        } else {
+
+            // Cannot play a face card in an empty caravan
+            if (pos_track == 0) {
+                return false;
+            }
+
+            // Cannot play a face card in an empty slot
+            if (pos < TRACK_NUMERIC_MIN || pos > pos_track) {
+                return false;
+            }
+
+            // Can play a face card if there is still room in the slot
+            return get_slot(pos).n_faces < TRACK_FACE_MAX;
+        }
+
+        return false;
+    }
+
     /**
      * Remove all cards from the caravan.
      *
      * @throws CaravanIllegalModelException Caravan track is empty.
      */
     void Caravan::clear() {
-        if (i_track == 0) {
+        if (pos_track == 0) {
             throw CaravanIllegalModelException(
                 "Cannot clear an empty caravan."
             );
         }
 
-        i_track = 0;
+        pos_track = 0;
     }
 
     /**
@@ -28,12 +78,12 @@ namespace Caravan::Model {
     uint16_t Caravan::get_bid() const {
         uint16_t bid = 0;
 
-        for (int t = 0; t < i_track; ++t) {
+        for (int t = 0; t < pos_track; ++t) {
             // CaravanFatalModelException in numeral_rank_to_uint8_t will not throw
             uint8_t value = numeral_rank_to_uint8_t(track[t].card.rank);
             uint8_t value_final = value;
 
-            for (int f = 0; f < track[t].i_faces; ++f) {
+            for (int f = 0; f < track[t].n_faces; ++f) {
                 if (track[t].faces[f].rank == KING) {
                     value_final <<= 1;
                 }
@@ -51,11 +101,11 @@ namespace Caravan::Model {
     Direction Caravan::get_direction() const {
         Direction dir;
 
-        if (i_track < 2) {
+        if (pos_track < 2) {
             dir = ANY;
         } else {
-            const int t_latest = i_track - 1;
-            const int t_pen = i_track - 2;
+            const int t_latest = pos_track - 1;
+            const int t_pen = pos_track - 2;
 
             // The last two Numeric cards must be in the correct direction...
             if (track[t_latest].card.rank > track[t_pen].card.rank) {
@@ -66,10 +116,10 @@ namespace Caravan::Model {
 
             // ...unless Queens have been played against the latest numeral card.
             // The number of Queens determine if a change in direction has occurred.
-            if (track[t_latest].i_faces > 0) {
+            if (track[t_latest].n_faces > 0) {
                 int num_queens = 0;
 
-                for (int f = track[t_latest].i_faces - 1; f >= 0; --f) {
+                for (int f = track[t_latest].n_faces - 1; f >= 0; --f) {
                     if (track[t_latest].faces[f].rank == QUEEN) {
                         num_queens += 1;
                     }
@@ -102,7 +152,7 @@ namespace Caravan::Model {
      * @return Current number of numeral cards in caravan.
      */
     uint8_t Caravan::get_size() const {
-        return i_track;
+        return pos_track;
     }
 
     /**
@@ -112,20 +162,20 @@ namespace Caravan::Model {
      * @throws CaravanIllegalModelException Chosen card position is out of range.
      */
     Slot Caravan::get_slot(uint8_t pos) const {
-        if (pos < TRACK_NUMERIC_MIN or pos > i_track) {
+        if (pos < TRACK_NUMERIC_MIN or pos > pos_track) {
             std::string err =
                 "Must provide a valid slot number "
                 "to play a face card on Caravan " +
                 caravan_name_to_str(name, true);
 
-            if (i_track == TRACK_NUMERIC_MIN) {
-                err += " (currently " + std::to_string(i_track) + " only).";
-            } else if (i_track == TRACK_NUMERIC_MIN + 1) {
+            if (pos_track == TRACK_NUMERIC_MIN) {
+                err += " (currently " + std::to_string(pos_track) + " only).";
+            } else if (pos_track == TRACK_NUMERIC_MIN + 1) {
                 err += " (currently " + std::to_string(TRACK_NUMERIC_MIN) +
-                    " or " + std::to_string(i_track) + ").";
+                    " or " + std::to_string(pos_track) + ").";
             } else {
                 err += " (currently " + std::to_string(TRACK_NUMERIC_MIN) +
-                    "-" + std::to_string(i_track) + ", inclusive).";
+                    "-" + std::to_string(pos_track) + ", inclusive).";
             }
 
             throw CaravanIllegalModelException(err);
@@ -138,18 +188,18 @@ namespace Caravan::Model {
      * @return Current caravan suit.
      */
     Suit Caravan::get_suit() const {
-        if (i_track == 0) {
+        if (pos_track == 0) {
             return NO_SUIT;
         }
 
         // The last numeral card is the caravan suit...
-        int t = i_track - 1;
+        int t = pos_track - 1;
         Suit last = track[t].card.suit;
 
         // ...unless a QUEEN has been played against it.
         // The most recent QUEEN placement supersedes all others.
-        if (track[t].i_faces > 0) {
-            for (int f = track[t].i_faces - 1; f >= 0; --f) {
+        if (track[t].n_faces > 0) {
+            for (int f = track[t].n_faces - 1; f >= 0; --f) {
                 if (track[t].faces[f].rank == QUEEN) {
                     last = track[t].faces[f].suit;
                     break;
@@ -177,7 +227,7 @@ namespace Caravan::Model {
             );
         }
 
-        if (pos > i_track) {
+        if (pos > pos_track) {
             throw CaravanIllegalModelException(
                 "There is not a numeral card at position " +
                 std::to_string(pos) +
@@ -204,7 +254,7 @@ namespace Caravan::Model {
         if (card.rank == JACK) {
             remove_numeral_card(i);
         } else {
-            if (track[i].i_faces == TRACK_FACE_MAX) {
+            if (track[i].n_faces == TRACK_FACE_MAX) {
                 throw CaravanIllegalModelException(
                     "Caravan " +
                     caravan_name_to_str(this->name, true) +
@@ -212,8 +262,8 @@ namespace Caravan::Model {
                 );
             }
 
-            track[i].faces[track[i].i_faces] = card;
-            track[i].i_faces += 1;
+            track[i].faces[track[i].n_faces] = card;
+            track[i].n_faces += 1;
         }
 
         return c_on;
@@ -234,7 +284,7 @@ namespace Caravan::Model {
             );
         }
 
-        if (i_track == TRACK_NUMERIC_MAX) {
+        if (pos_track == TRACK_NUMERIC_MAX) {
             throw CaravanIllegalModelException(
                 "Caravan " +
                 caravan_name_to_str(name, true) +
@@ -242,8 +292,8 @@ namespace Caravan::Model {
             );
         }
 
-        if (i_track > 0) {
-            if (card.rank == track[i_track - 1].card.rank) {
+        if (pos_track > 0) {
+            if (card.rank == track[pos_track - 1].card.rank) {
                 throw CaravanIllegalModelException(
                     "The numeral card must not have the same rank "
                     "as the most recent card in Caravan " +
@@ -252,10 +302,10 @@ namespace Caravan::Model {
                 );
             }
 
-            if (i_track > 1) {
+            if (pos_track > 1) {
                 const Direction dir = get_direction();
                 const Suit suit = get_suit();
-                const bool ascends = card.rank > track[i_track - 1].card.rank;
+                const bool ascends = card.rank > track[pos_track - 1].card.rank;
 
                 const bool not_same_suit = card.suit != suit;
                 const bool not_same_dir =
@@ -272,8 +322,8 @@ namespace Caravan::Model {
             }
         }
 
-        track[i_track] = {card, {}, 0};
-        i_track += 1;
+        track[pos_track] = {card, {}, 0};
+        pos_track += 1;
     }
 
     /**
@@ -286,17 +336,17 @@ namespace Caravan::Model {
      * @throws CaravanFatalModelException Exclude position is out of range.
      */
     void Caravan::remove_rank(Rank rank, uint8_t pos_exclude) {
-        if (i_track == 0) {
+        if (pos_track == 0) {
             return;
         }
 
-        if (pos_exclude > i_track) {
+        if (pos_exclude > pos_track) {
             throw CaravanFatalModelException(
                 "The exclude position is out of range."
             );
         }
 
-        uint8_t i_track_original = i_track;
+        uint8_t i_track_original = pos_track;
 
         for (int t = i_track_original - 1; t >= 0; --t) {
             if (
@@ -322,17 +372,17 @@ namespace Caravan::Model {
      * @throws CaravanFatalModelException Exclude position is out of range.
      */
     void Caravan::remove_suit(Suit suit, uint8_t pos_exclude) {
-        if (i_track == 0) {
+        if (pos_track == 0) {
             return;
         }
 
-        if (pos_exclude > i_track) {
+        if (pos_exclude > pos_track) {
             throw CaravanFatalModelException(
                 "The exclude position is out of range."
             );
         }
 
-        const uint8_t i_track_original = i_track;
+        const uint8_t i_track_original = pos_track;
 
         for (int t = i_track_original - 1; t >= 0; --t) {
             if (
@@ -356,10 +406,10 @@ namespace Caravan::Model {
      * @param index The index of the numeral card to remove from the caravan.
      */
     void Caravan::remove_numeral_card(uint8_t index) {
-        for (; index + 1 < i_track; ++index) {
+        for (; index + 1 < pos_track; ++index) {
             track[index] = track[index + 1];
         }
 
-        i_track -= 1;
+        pos_track -= 1;
     }
 }

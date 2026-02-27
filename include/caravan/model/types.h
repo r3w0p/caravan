@@ -69,15 +69,11 @@ namespace Caravan::Model {
         Rank rank{NO_RANK};
 
         [[nodiscard]] bool is_face_card() const {
-            return (
-                this->rank >= JACK and this->rank <= JOKER
-            );
+            return this->rank >= JACK and this->rank <= JOKER;
         }
 
         [[nodiscard]] bool is_numeral_card() const {
-            return (
-                this->rank >= ACE and this->rank <= TEN
-            );
+            return this->rank >= ACE and this->rank <= TEN;
         }
     };
 
@@ -89,16 +85,18 @@ namespace Caravan::Model {
     using Slot = struct Slot {
         Card card{};
         Faces faces{};
-        uint8_t i_faces = 0;
+        uint8_t n_faces = 0;
     };
 
     using Track = std::array<Slot, TRACK_NUMERIC_MAX>;
 
+    // TODO change so that pos_hand is card_hand?
+    //  can avoid ActionMove this way
     using GameMove = struct GameMove {
         OptionType option{NO_OPTION};
-        uint8_t pos_hand{0};
+        uint8_t pos_hand{};
         CaravanName caravan_name{NO_CARAVAN};
-        uint8_t pos_caravan{0};
+        uint8_t pos_caravan{};
         Card hand{}; // card played from hand
         Card board{}; // card that face card was played on
     };

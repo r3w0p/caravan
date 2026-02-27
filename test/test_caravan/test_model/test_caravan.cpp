@@ -199,13 +199,13 @@ TEST_F(CaravanTest, GetCardsAt_TwoNumeral_OneFace) {
     Model::Slot slt_1 = cvn_a.get_slot(1);
     ASSERT_EQ(slt_1.card.suit, c_s_a.suit);
     ASSERT_EQ(slt_1.card.rank, c_s_a.rank);
-    ASSERT_EQ(slt_1.i_faces, 0);
+    ASSERT_EQ(slt_1.n_faces, 0);
 
     // Check second numeral: should have face card added to it
     Model::Slot slt_2 = cvn_a.get_slot(2);
     ASSERT_EQ(slt_2.card.suit, c_s_2.suit);
     ASSERT_EQ(slt_2.card.rank, c_s_2.rank);
-    ASSERT_EQ(slt_2.i_faces, 1);
+    ASSERT_EQ(slt_2.n_faces, 1);
 
     // Check face card details match what was added to slot
     ASSERT_EQ(slt_2.faces[0].suit, c_d_k.suit);
@@ -347,7 +347,7 @@ TEST_F(CaravanTest, PutNumeralCard_PutFaceNotJack) {
     ASSERT_EQ(slt.card.suit, c_s_a.suit);
     ASSERT_EQ(slt.card.rank, c_s_a.rank);
 
-    ASSERT_EQ(slt.i_faces, 1);
+    ASSERT_EQ(slt.n_faces, 1);
     ASSERT_EQ(slt.faces[0].suit, c_h_k.suit);
     ASSERT_EQ(slt.faces[0].rank, c_h_k.rank);
 }
@@ -400,7 +400,7 @@ TEST_F(CaravanTest, PutFaceCard) {
     ASSERT_EQ(cvn_a.get_size(), 1);
     Model::Slot slt = cvn_a.get_slot(1);
 
-    ASSERT_EQ(slt.i_faces, 1);
+    ASSERT_EQ(slt.n_faces, 1);
     ASSERT_EQ(slt.faces[0].suit, c_h_k.suit);
     ASSERT_EQ(slt.faces[0].rank, c_h_k.rank);
 }

@@ -7,16 +7,28 @@
 
 #include "caravan/model/constants.h"
 #include <array>
+#include <string>
 #include <vector>
+
+#include "constants.h"
+#include "caravan/model/types.h"
 
 namespace Caravan::Gym {
 
+    using Observation = std::array<uint8_t, SIZE_OBSERVATION>;
+
     // TODO placeholders only
-    enum Observation {};
     enum Action {};
     enum ActionSpace {};
     enum Reward {};
     enum Info {};
+
+    using ActionMove = struct ActionMove {
+        Model::OptionType option{Model::NO_OPTION};
+        Model::Card card_hand{};
+        Model::CaravanName caravan_name{Model::NO_CARAVAN};
+        uint8_t pos_caravan{0};
+    };
 
 }
 

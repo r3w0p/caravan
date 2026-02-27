@@ -3,8 +3,10 @@
 // modified under the terms of the GPL-3.0 License.
 
 #include "caravan/gym/environment_game.h"
+
+#include <set>
+
 #include "caravan/core/exceptions.h"
-#include "caravan/user/user_bot_agent.h"
 #include "caravan/user/user_bot_random.h"
 
 namespace Caravan::Gym {
@@ -114,17 +116,14 @@ namespace Caravan::Gym {
         };
     }
 
-    std::array<uint8_t, SIZE_OBSERVATION> EnvironmentGame::make_observation() {
-        std::array<uint8_t, SIZE_OBSERVATION> observation{};
+    Observation EnvironmentGame::make_observation() {
+        Observation observation{};
         uint8_t i = 0;
 
         // Get agent hand as unique, sorted card numbers
         std::set<uint8_t> hand_set{};
 
-        Model::PlayerName name_agent = user_agent.get_name();
-        Model::PlayerName name_random = user_random.get_name();
-
-        Model::Player &player = game->get_player(name_agent);
+        Model::Player &player = game->get_player(pname_agent);
         uint8_t hand_size = player.get_size_hand();
         const Model::Hand &hand = player.get_hand();
 
@@ -143,24 +142,10 @@ namespace Caravan::Gym {
         }
 
         // Add caravan state to observation
-        Model::PlayerCaravanNames cvnames_abc = game->get_player_caravan_names(name_agent);
-        Model::PlayerCaravanNames cvnames_def = game->get_player_caravan_names(name_random);
-
-        std::array<Model::CaravanName, Model::TABLE_CARAVANS_MAX> cvnames_all{};
-
-        // Agent's caravans are first
-        for (uint8_t i_cvname = 0; i_cvname < Model::PLAYER_CARAVANS_MAX; i_cvname++) {
-            cvnames_all[i_cvname] = cvnames_abc[i_cvname];
-        }
-
-        // Then random's caravans
-        for (uint8_t i_cvname = 0; i_cvname < Model::PLAYER_CARAVANS_MAX; i_cvname++) {
-            cvnames_all[Model::PLAYER_CARAVANS_MAX + i_cvname] = cvnames_def[i_cvname];
-        }
 
         Model::Table& table = game->get_table();
         for (uint8_t i_cvname = 0; i_cvname < Model::TABLE_CARAVANS_MAX; i_cvname++) {
-            Model::Caravan& cvn = table.get_caravan(cvnames_all[i_cvname]);
+            Model::Caravan& cvn = table.get_caravan(cvnames_all_ordered[i_cvname]);
 
             observation[i++] = cvn.get_direction();
             observation[i++] = cvn.get_suit();
@@ -183,7 +168,7 @@ namespace Caravan::Gym {
                     uint8_t i_last_queen = 0;
                     uint8_t last_queen = Model::NO_RANK;
 
-                    for (uint8_t i_face = 0; i_face < slot.i_faces; i_face++) {
+                    for (uint8_t i_face = 0; i_face < slot.n_faces; i_face++) {
                         switch (slot.faces[i_face].rank) {
                             case Model::QUEEN:
                                 num_queens++;
@@ -225,24 +210,163 @@ namespace Caravan::Gym {
         return observation;
     }
 
+    // TODO GameMove to unique Action string
+    std::string EnvironmentGame::game_move_to_action_key(
+        Model::GameMove move
+    ) {
+        std::string key{};
+
+        // Option
+        switch (move.option) {
+            case Model::OPTION_PLAY:
+                key += "P";
+                break;
+            case Model::OPTION_DISCARD:
+                key += "D";
+                break;
+            case Model::OPTION_CLEAR:
+                key += "C";
+                break;
+            default:
+                break;
+        }
+
+        // Card in hand
+        if (move.pos_hand > 0) {
+            key += std::to_string(card_to_uint8_t(
+                game->get_player(pname_agent).get_from_hand_at(move.pos_hand)
+            ));
+        }
+
+        // Caravan name
+        if (move.caravan_name != Model::NO_CARAVAN) {
+            key += caravan_name_to_str(move.caravan_name, true);
+        }
+
+        // Position in caravan
+        if (move.pos_caravan > 0) {
+            key += std::to_string(move.pos_caravan);
+        }
+
+        return key;
+    }
+
+    // Get agent hand as unique, sorted card numbers
+    std::vector<ActionMove> EnvironmentGame::get_valid_moves() {
+        std::set<uint8_t> hand_set{};
+
+        std::vector<ActionMove> moves{};
+
+        Model::Player &player = game->get_player(pname_agent);
+        uint8_t hand_size = player.get_size_hand();
+        const Model::Hand &hand = player.get_hand();
+
+        // Clear commands for own non-empty caravans
+        for (uint8_t i_cvname = 0; i_cvname < Model::PLAYER_CARAVANS_MAX; i_cvname++) {
+            Model::CaravanName cvname = cvnames_agent[i_cvname];
+            Model::Caravan cvn = game->get_table().get_caravan(cvname);
+
+            if (cvn.get_size() > 0) {
+                moves.push_back({
+                    .option = Model::OPTION_CLEAR,
+                    .caravan_name = cvname
+                });
+            }
+        }
+
+        // Commands involving cards in own hand
+        for (int i_hand = 0; i_hand < hand_size; i_hand++) {
+            Model::Card card = hand[i_hand];
+            uint8_t card_num = card_to_uint8_t(card);
+
+            // Skip duplicate cards
+            if (hand_set.contains(card_num)) {
+                continue;
+            }
+
+            hand_set.insert(card_num);
+
+            // Discard command
+            moves.push_back({
+                .option = Model::OPTION_DISCARD,
+                .card_hand = card
+            });
+
+            // Play commands, numeral and face
+            if (card.is_numeral_card()) {
+
+                for (uint8_t i_cvname = 0; i_cvname < Model::PLAYER_CARAVANS_MAX; i_cvname++) {
+                    Model::CaravanName cvname = cvnames_agent[i_cvname];
+                    Model::Caravan cvn = game->get_table().get_caravan(cvname);
+
+                    if (cvn.check_card(card)) {
+                        moves.push_back({
+                            .option = Model::OPTION_PLAY,
+                            .card_hand = card,
+                            .caravan_name = cvname
+                        });
+                    }
+                }
+
+            } else {
+
+                for (uint8_t i_cvname = 0; i_cvname < Model::TABLE_CARAVANS_MAX; i_cvname++) {
+                    Model::CaravanName cvname = cvnames_all_ordered[i_cvname];
+                    Model::Caravan cvn = game->get_table().get_caravan(cvname);
+                    uint8_t cvn_size = cvn.get_size();
+
+                    for (uint8_t pos = 1; pos <= cvn_size; pos++) {
+
+                        // Check face card can be applied at this position
+                        if (cvn.check_card(card, pos)) {
+                            moves.push_back({
+                                .option = Model::OPTION_PLAY,
+                                .card_hand = card,
+                                .caravan_name = cvname,
+                                .pos_caravan = pos
+                            });
+                        }
+
+                    }
+                }
+
+            }
+        }
+    }
+
     /*
      * PUBLIC
      */
 
     EnvironmentGame::EnvironmentGame(
-        User::BaseUser<std::string> &user_abc,
-        User::BaseUser<std::string> &user_def
-    ) : user_agent(user_abc),
-        user_random(user_def) {
+        User::BaseUser<std::string> &user_random
+    ) : user_random(user_random) {
 
-        if (user_abc.get_name() != Model::PLAYER_ABC) {
+        pname_random = user_random.get_name();
+
+        if (pname_random == Model::NO_PLAYER) {
             throw CaravanFatalGymException(
-                "User ABC must have player name ABC.");
+                "User random must have a player name.");
         }
 
-        if (user_def.get_name() != Model::PLAYER_DEF) {
-            throw CaravanFatalGymException(
-                "User DEF must have player name DEF.");
+        if (pname_random == Model::PLAYER_ABC) {
+            pname_agent = Model::PLAYER_DEF;
+        } else {
+            pname_agent = Model::PLAYER_ABC;
+        }
+
+        // Get caravan names, and an array of them ordered by agent
+        cvnames_agent = game->get_player_caravan_names(pname_agent);
+        cvnames_random = game->get_player_caravan_names(pname_random);
+
+        // Agent's caravans are first
+        for (uint8_t i_cvname = 0; i_cvname < Model::PLAYER_CARAVANS_MAX; i_cvname++) {
+            cvnames_all_ordered[i_cvname] = cvnames_agent[i_cvname];
+        }
+
+        // Then random's caravans
+        for (uint8_t i_cvname = 0; i_cvname < Model::PLAYER_CARAVANS_MAX; i_cvname++) {
+            cvnames_all_ordered[Model::PLAYER_CARAVANS_MAX + i_cvname] = cvnames_random[i_cvname];
         }
     }
 
@@ -256,7 +380,7 @@ namespace Caravan::Gym {
         uint8_t def_samples = 1;
         bool def_imbalanced = false;
 
-        first = Model::PLAYER_ABC;
+        pname_first = Model::PLAYER_ABC;
 
         // Build decks for each player
         std::unique_ptr<Model::Deck> deck_abc(
@@ -292,13 +416,14 @@ namespace Caravan::Gym {
         game = std::make_unique<Model::Game>(
             std::move(player_abc),
             std::move(player_def),
-            first
+            pname_first
         );
 
         reset_never_called = false;
         environment_is_done = false;
 
-        // TODO observation, info
+        // TODO info
+        return std::make_tuple(make_observation(), Info{});
     }
 
     std::tuple<Action, Info> EnvironmentGame::sample() {

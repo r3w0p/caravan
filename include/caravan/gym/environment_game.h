@@ -5,11 +5,12 @@
 #ifndef CARAVAN_GYM_ENVIRONMENT_GAME_H
 #define CARAVAN_GYM_ENVIRONMENT_GAME_H
 
+#include <set>
+
 #include "base_environment.h"
 #include "types.h"
 #include "caravan/model/game.h"
 #include "caravan/user/base_user_bot.h"
-#include <set>
 
 namespace Caravan::User {
     class UserBotRandom;
@@ -17,14 +18,6 @@ namespace Caravan::User {
 }
 
 namespace Caravan::Gym {
-    // Observation:
-    // Hand = 8
-    // Caravans = 6
-    // Slots per caravan = 8
-    // Data per slot = 5 (numeral rank + # queens + # kings + # jokers + last queen)
-    // 5 x 8 = 40 + cvn dir + cvn suit = 42
-    // 42 x 6 = 252 + hand = 260
-    constexpr uint16_t SIZE_OBSERVATION = 260;
 
     class EnvironmentGame : public BaseEnvironment<
             Observation,
@@ -36,27 +29,32 @@ namespace Caravan::Gym {
             bool reset_never_called{true};
             bool environment_is_done{false};
 
-            User::BaseUser<std::string> &user_agent;
             User::BaseUser<std::string> &user_random;
 
-            Model::PlayerName first{};
-            std::unique_ptr<Model::Game> game{};
+            Model::PlayerName pname_agent;
+            Model::PlayerName pname_random;
+
+            Model::PlayerCaravanNames cvnames_agent;
+            Model::PlayerCaravanNames cvnames_random;
+            std::array<Model::CaravanName, Model::TABLE_CARAVANS_MAX> cvnames_all_ordered;
+
+            Model::PlayerName pname_first;
+            std::unique_ptr<Model::Game> game;
 
             static uint8_t card_to_uint8_t(Model::Card card);
 
             static Model::Card uint8_t_to_card(uint8_t card_num);
 
-            std::array<uint8_t, SIZE_OBSERVATION> make_observation();
+            Observation make_observation();
+
+            std::string game_move_to_action_key(Model::GameMove move);
+            std::vector<ActionMove> get_valid_moves();
 
         public:
             /**
-             * @param user_agent User that is learning how to play.
-             *        The environment operates from the perspective of
-             *        this learning agent.
              * @param user_random User that makes random moves only.
              */
             explicit EnvironmentGame(
-                User::BaseUser<std::string> &user_agent,
                 User::BaseUser<std::string> &user_random
             );
 
